@@ -1,0 +1,81 @@
+
+
+[data-card-font="aubrey"] #editor .column-content,
+.aubrey {
+  font-family: 'Aubrey', cursive;
+}
+
+[data-card-font="bilbo"] #editor .column-content,
+.bilbo {
+  font-family: 'Bilbo', cursive;
+}
+
+[data-card-font="bonheur-royale"] #editor .column-content,
+.bonheur-royale {
+  font-family: 'Bonheur Royale', cursive;
+}
+
+[data-card-font="cardo"] #editor .column-content,
+.cardo {
+  font-family: 'Cardo', serif;
+}
+
+[data-card-font="della-respira"] #editor .column-content,
+.della-respira {
+  font-family: 'Della Respira', serif;
+}
+
+[data-card-font="eagle-lake"] #editor .column-content,
+.eagle-lake {
+  font-family: 'Eagle Lake', cursive;
+}
+
+[data-card-font="felipa"] #editor .column-content,
+.felipa {
+  font-family: 'Felipa', cursive;
+}
+
+[data-card-font="goudy-bookletter-1911"] #editor .column-content,
+.goudy-bookletter-1911 {
+  font-family: 'Goudy Bookletter 1911', serif;
+}
+
+[data-card-font="grenze"] #editor .column-content,
+.grenze {
+  font-family: 'Grenze', serif;
+}
+
+[data-card-font="grenze-gotisch"] #editor .column-content,
+.grenze-gotisch {
+  font-family: 'Grenze Gotisch', cursive;
+}
+
+[data-card-font="kings"] #editor .column-content,
+.kings {
+  font-family: 'Kings', cursive;
+}
+
+[data-card-font="luxurious-roman"] #editor .column-content,
+.luxurious-roman {
+  font-family: 'Luxurious Roman', cursive;
+}
+
+[data-card-font="moon-dance"] #editor .column-content,
+.moon-dance {
+  font-family: 'Moon Dance', cursive;
+}
+
+[data-card-font="ovo"] #editor .column-content,
+.ovo {
+  font-family: 'Ovo', serif;
+}
+
+[data-card-font="uncial-antiqua"] #editor .column-content,
+.uncial-antiqua {
+  font-family: 'Uncial Antiqua', cursive;
+}
+
+[data-card-font="unifraktur-maguntia"] #editor .column-content,
+.unifraktur-maguntia {
+  font-family: 'Unifraktur Maguntia', cursive;
+}

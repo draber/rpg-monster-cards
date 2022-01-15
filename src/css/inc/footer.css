@@ -1,0 +1,10 @@
+footer {
+  display: flex;
+  font-size: 1.1rem;
+  padding-inline: 1rem;
+  background: var(--bg-0-color);
+  line-height: var(--footer-height);
+  justify-content: space-between;
+  align-items: center;
+  border-top: var(--border);
+}

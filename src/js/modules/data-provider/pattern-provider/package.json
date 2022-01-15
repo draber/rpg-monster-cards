@@ -1,0 +1,6 @@
+{
+    "name": "monster-provider",
+    "version": "1.0.0",
+    "main": "monsterProvider.js",
+    "type": "module"
+}

@@ -1,0 +1,25 @@
+{
+    "css": {
+      "cardDefCss": "src/css/inc/card-defs.css",
+      "defCss": "src/css/inc/card-defs.css",
+      "entryPoint": "src/css/main.css",
+      "public": "public/css/main.css"
+    },
+    "fonts": {
+      "families": "src/data/fonts.json"
+    },
+    "patterns": {
+      "backgrounds": "public/media/patterns/background",
+      "borders": "public/media/patterns/border"
+    },
+    "monsters": "src/data/monsters.json",
+    "js": {
+      "entryPoint": "src/js/app/main.js",
+      "public": "public/js/main.js"
+    },
+    "combinedData": "src/data/data.json",
+    "storageKeys": {
+      "user": "mc-user-prefs",
+      "cards": "mc-cards"
+    }
+  }

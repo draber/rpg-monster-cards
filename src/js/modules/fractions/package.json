@@ -1,0 +1,6 @@
+{
+    "name": "fraction",
+    "version": "1.0.0",
+    "main": "fraction.js",
+    "type": "module"
+}

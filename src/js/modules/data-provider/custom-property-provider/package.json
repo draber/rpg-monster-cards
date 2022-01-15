@@ -1,0 +1,6 @@
+{
+    "name": "custom-property-provider",
+    "version": "1.0.0",
+    "main": "customPropertyProvider.js",
+    "type": "module"
+}

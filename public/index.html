@@ -1,0 +1,153 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Ghastly Beasts Card Maker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+  <header class="rocky-wall-subtle">
+    <h1 id="logo-area">
+      <svg>
+        <title>Ghastly Beasts Card Maker</title>
+        <use href="media/logo.svg#logo"></use>
+      </svg>
+    </h1>
+  </header>
+
+  <main>
+    <section class="column" id="library">
+      <h2 class="column-heading eagle-lake">Origin</h2>
+      <div class="column-content" id="monster-listing"></div>
+    </section>
+    <section class="column" id="editor">
+      <h2 class="column-heading eagle-lake">Laboratory</h2>
+
+      <video id="smoke">
+        <source src="media/fog.webm" type="video/webm">
+        <source src="media/fog.mp4" type="video/mp4">
+      </video>
+      <div class="column-content" id="card-listing">
+        <div class="card-container">
+          <article class="𝔘𝔫𝔥𝔬𝔩𝔡">
+            <figure class="𝔎𝔬𝔫𝔱𝔢𝔯𝔣𝔢𝔦">
+              <img src="media/MM35_PG133.jpg">
+              <figcaption class="badge">Teufelsbraten</figcaption>
+            </figure>
+
+            <figure class="𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫">
+              <table>
+                <colgroup>
+                  <col width="25%">
+                  <col width="25%">
+                  <col width="25%">
+                  <col width="25%">
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td>AC</td>
+                    <td class="value">15</td>
+                    <td>HP</td>
+                    <td class="value">5</td>
+                  </tr>
+                  <tr>
+                    <td>Attack</td>
+                    <td colspan="3" class="value">club +2/d6</td>
+                  </tr>
+                  <tr>
+                    <td>Saves</td>
+                    <td colspan="3" class="value"><span class="value-part">3</span> <span class="value-part">1</span>
+                      <span class="value-part">-1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Stats</td>
+                    <td colspan="3" class="value"><span class="value-part">11</span> <span class="value-part">13</span>
+                      <span class="value-part">12</span> <span class="value-part">10</span> <span
+                        class="value-part">9</span> <span class="value-part">6</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Init</td>
+                    <td class="value">1</td>
+                    <td>Speed</td>
+                    <td class="value">30
+                      feet</td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" class="long-text">
+                      <ul style="list-style: none;padding:0; margin:0;">
+                        <li>Hide: +5</li>
+                        <li>Listen: +2</li>
+                        <li>Move Silently: +5</li>
+                        <li>Ride: +4</li>
+                        <li>Spot: +2</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="badge cr">⅓</div>
+              <figcaption class="badge">Teufelsbraten</figcaption>
+            </figure>
+
+
+            <div class="toolbar"><button type="button">Eradicate
+                <svg>
+                  <use href="media/icons.svg#icon-axe"></use>
+                </svg>
+              </button>
+              <button type="button">Mutate
+                <svg>
+                  <use href="media/icons.svg#icon-quill"></use>
+                </svg>
+              </button>
+            </div>
+
+          </article>
+        </div>
+
+
+      </div>
+    </section>
+    <section class="column" class="column" id="skin">
+      <h2 class="column-heading eagle-lake">Appearance</h2>
+      <form class="column-content">
+        <details open>
+          <summary>Card</summary>
+          <div class="form-row" id="card-bg-hue-selector">
+            <label for="c-bg-h">Hue</label>
+          </div>
+          <div class="form-row" id="card-bg-pattern-selector">
+            <label>Pattern</label>
+          </div>
+        </details>
+        <details>
+          <summary>Badge</summary>
+          <div class="form-row" id="badge-font-selector"></div>
+        </details>
+        <details>
+          <summary>Frame</summary>
+          <div class="form-row" id="card-border-hue-selector">
+            <label for="border-color-selection">Hue</label>
+          </div>
+          <div class="form-row" id="card-border-pattern-selector">
+            <label>Pattern</label>
+          </div>
+        </details>
+      </form>
+    </section>
+  </main>
+  <footer>
+    <span>Ghastly Beasts Card Maker</span>
+    <span>© 2022 Joel Bout</span>
+  </footer>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

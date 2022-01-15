@@ -1,0 +1,6 @@
+{
+    "name": "custom-property-converter",
+    "version": "1.0.0",
+    "main": "customPropertyConverter.js",
+    "type": "module"
+}

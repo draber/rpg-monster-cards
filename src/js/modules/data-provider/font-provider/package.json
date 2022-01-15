@@ -1,0 +1,6 @@
+{
+    "name": "font-provider",
+    "version": "1.0.0",
+    "main": "fontProvider.js",
+    "type": "module"
+}

@@ -1,0 +1,33 @@
+main {
+  flex: 2;
+  overflow-y: auto;
+  display: flex;
+}
+
+section {
+  &.column {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-left: var(--border);
+
+    &:first-of-type {
+      border-left: none;
+    }
+
+    & .column-heading {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 600;
+      padding: 1rem;
+      border-bottom: var(--border);
+      text-shadow: .1rem .1rem .1rem var(--text-shadow-color);
+      color: var(--hd-color);
+    }
+
+    & .column-content {
+      flex: 2;
+      overflow-y: auto;
+    } 
+  }
+}

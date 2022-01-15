@@ -1,0 +1,29 @@
+:root {
+  --border-color: hsl(0, 0%, 100%, .6);
+  --border-radius: .5rem;
+  --text-color: hsl(0, 0%, 100%, .9);
+  --border: .1rem solid var(--border-color);
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  font: 1.4rem 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;
+  color: hsl(0, 0%, 100%, .8);
+  background: linear-gradient(20deg, hsl(180, 81%, 8%) 31%, hsl(206, 79%, 22%) 100%);
+  min-height: 100vh;
+  line-height: 1.4;
+}
+
+pre, code {
+    font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}

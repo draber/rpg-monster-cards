@@ -1,0 +1,44 @@
+#library {
+  min-width: 25rem;
+  max-width: 30rem;
+  width: 25rem;
+
+  & ::selection {
+    background-color: transparent;
+  }
+}
+
+#monster-listing {
+
+  & ul {
+    padding: 1rem 0;
+    margin: 0;
+    list-style: none;
+    font-size: 1.4rem;
+  }
+
+  & li {
+    padding-inline: 1rem;
+    cursor: pointer;
+    line-height: 1.8;
+    display: flex;
+    justify-content: space-between;
+
+    &:hover {
+      background: var(--bg-3-color);
+    }
+  }
+
+  & button {
+    border: none;
+    padding: 0;
+    background: transparent;
+    width: calc(100% - 5rem);
+    color: var(--text-color);
+    text-align: left;
+    cursor: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
