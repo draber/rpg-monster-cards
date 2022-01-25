@@ -1,6 +1,6 @@
 {
-    "name": "monster-provider",
+    "name": "pattern-provider",
     "version": "1.0.0",
-    "main": "monsterProvider.js",
+    "main": "patternProvider.js",
     "type": "module"
 }

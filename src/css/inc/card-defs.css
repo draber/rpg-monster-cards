@@ -1,33 +1,45 @@
 :root {
-    --c-color: hsl(0, 0%, 0%);
+  --c-color: hsl(0, 0%, 0%);
+  // card font
+  --c-card-font: "Della Respira", serif;
 
-    /* background */
-    --c-bg-h: 45;
-    --c-bg-s: 93%;
-    --c-bg-l: 89%;
-    --c-bg-color: hsl(var(--c-bg-h), var(--c-bg-s), var(--c-bg-l));
-    --c-bg-pattern: url(../media/patterns/background/light-redox.png);
-  
-    /* border */
-    --c-border-h: 201;
-    --c-border-s: 39%;
-    --c-border-l: 24%;
-    --c-border-color: hsl(var(--c-border-h), var(--c-border-s), var(--c-border-l));
-    --c-border-pattern: url(../media/patterns/border/crosshatch-2.png);
-  
-    /* shadows */
-    --c-box-shadow-color: hsl(0, 0%, 0%, .4);
+  /* background */
+  --c-bg-h: 45;
+  --c-bg-s: 93%;
+  --c-bg-l: 89%;
+  --c-bg-color: hsl(var(--c-bg-h), var(--c-bg-s), var(--c-bg-l));
+  --c-bg-pattern: url(../media/patterns/backgrounds/light-rocky-wall.png);
 
-    /* badge */
-    --c-badge-font: "Della Respira", serif; 
-    --c-badge-h: 168;   
-    --c-badge-bg: hsl(var(--c-badge-h), 22%, 63%);
-    --c-badge-border-color: hsl(var(--c-badge-h), 63%, 26%);
-    --c-badge-color:  var(--c-badge-border-color);
-    --c-badge-text-shadow-color: hsl(0, 100%, 100%, .3);
+  /* border */
+  --c-border-h: 201;
+  --c-border-s: 39%;
+  --c-border-l: 24%;
+  --c-border-color: hsl(
+    var(--c-border-h),
+    var(--c-border-s),
+    var(--c-border-l)
+  );
+  --c-border-pattern: url(../media/patterns/borders/crosshatch-2.png);
 
-    --c-button-bg: hsl(15, 50%, 15%, .9);
-    --c-button-color: var(--text-color);
+  /* shadows */
+  --c-box-shadow-color: hsl(0, 0%, 0%, 0.4);
 
-   // border-radius: 10% 20%;
-  }
+  /* badge */
+  --c-badge-font: "Della Respira", serif;
+  --c-badge-h: 168;
+  --c-badge-s: 22%;
+  --c-badge-l: 63%;
+  --c-badge-bg: hsl(var(--c-badge-h), var(--c-badge-s), var(--c-badge-l));
+  --c-badge-border-color: hsl(
+    var(--c-badge-h),
+    calc(var(--c-badge-s) + 41%),
+    calc(var(--c-badge-l) - 37%)
+  );
+  --c-badge-color: var(--c-badge-border-color);
+  --c-badge-text-shadow-color: hsl(0, 100%, 100%, 0.3);
+
+  --c-button-bg: hsl(15, 50%, 15%, 0.9);
+  --c-button-color: var(--text-color);
+
+  // border-radius: 10% 20%;
+}

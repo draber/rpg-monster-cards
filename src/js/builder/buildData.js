@@ -6,7 +6,9 @@ import {
 } from './bootstrap.js';
 
 const buildData = () => {
-    fs.outputJson(config.combinedData, getData(), jsonOptions);
+    for (let [type, data] of Object.entries(getData())) {
+        fs.outputJson(config[type].target, data, jsonOptions);
+    }
 }
 
 export default buildData();

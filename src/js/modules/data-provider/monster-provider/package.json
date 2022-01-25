@@ -1,6 +1,0 @@
-{
-    "name": "pattern-provider",
-    "version": "1.0.0",
-    "main": "patternProvider.js",
-    "type": "module"
-}

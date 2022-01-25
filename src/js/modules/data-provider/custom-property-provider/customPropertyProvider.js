@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import {
     customPropsToObject
-} from '../../custom-property-converter/customPropertyConverter.js';
+} from './customPropertyConverter.js';
 
 const getCustomProperties = sourceFile => {
     return customPropsToObject(fs.readFileSync(sourceFile, 'utf-8'));

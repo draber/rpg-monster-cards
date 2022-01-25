@@ -3,21 +3,25 @@ import {
     toIdFormat
 } from '../../string/string.js';
 
-const getFonts = sourceFile => {
-
+const getFonts = source => {
     let families = [];
-    fs.readJsonSync(sourceFile, 'utf-8').forEach(family => {
-        let fontArr = family.split(',').map(entry => entry.trim().replace(/'/g, ''));
+    const data = fs.readFileSync(source, 'utf-8')
+        .split('\n')
+        .filter(e => e.includes('font-family'))
+        .map(e => e.trim().replace(';', '').replace('font-family: ', ''));
 
+    data.forEach(family => {
+        let fontArr = family.split(',').map(entry => entry.trim().replace(/'/g, ''));
+        let label = !fontArr[0].includes(' ') ? fontArr[0].trim().split(/ |\B(?=[A-Z])/).join(' ') : fontArr[0];
+        let id = toIdFormat(label);
         families.push({
-            label: fontArr[0],
-            id: toIdFormat(fontArr[0]),
+            label,
+            id,
             family
         })
-
     })
 
     return families;
-}
+};
 
 export default getFonts;

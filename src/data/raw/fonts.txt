@@ -1,0 +1,20 @@
+https://fonts.google.com/share?selection.family=Almendra%7CAubrey%7CCaudex%7CDella%20Respira%7CFederant%7CFedero%7CFondamento%7CGrenze%7CGrenze%20Gotisch%7CIM%20Fell%20English%7CLuxurious%20Roman%7CMacondo%7CMedievalSharp%7CMetamorphous%7CModern%20Antiqua%7CNova%20Cut%7CUncial%20Antiqua%7CUnifrakturMaguntia
+
+font-family: 'Almendra', serif;
+font-family: 'Aubrey', cursive;
+font-family: 'Caudex', serif;
+font-family: 'Della Respira', serif;
+font-family: 'Federant', cursive;
+font-family: 'Federo', sans-serif;
+font-family: 'Fondamento', cursive;
+font-family: 'Grenze Gotisch', cursive;
+font-family: 'Grenze', serif;
+font-family: 'IM Fell English', serif;
+font-family: 'Luxurious Roman', cursive;
+font-family: 'Macondo', cursive;
+font-family: 'MedievalSharp', cursive;
+font-family: 'Metamorphous', cursive;
+font-family: 'Modern Antiqua', cursive;
+font-family: 'Nova Cut', cursive;
+font-family: 'Uncial Antiqua', cursive;
+font-family: 'UnifrakturMaguntia', cursive;

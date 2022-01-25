@@ -1,25 +1,42 @@
 {
-    "css": {
-      "cardDefCss": "src/css/inc/card-defs.css",
-      "defCss": "src/css/inc/card-defs.css",
-      "entryPoint": "src/css/main.css",
-      "public": "public/css/main.css"
-    },
-    "fonts": {
-      "families": "src/data/fonts.json"
-    },
-    "patterns": {
-      "backgrounds": "public/media/patterns/background",
-      "borders": "public/media/patterns/border"
-    },
-    "monsters": "src/data/monsters.json",
-    "js": {
-      "entryPoint": "src/js/app/main.js",
-      "public": "public/js/main.js"
-    },
-    "combinedData": "src/data/data.json",
-    "storageKeys": {
-      "user": "mc-user-prefs",
-      "cards": "mc-cards"
-    }
+  "css": {
+    "entryPoint": "src/css/main.css",
+    "public": "public/css/main.css"
+  },
+  "cssProps": {
+    "src": "src/css/inc/card-defs.css",
+    "target": "src/data/css-props.json"
+  },
+  "fonts": {
+    "src": "src/data/raw/fonts.txt",
+    "target": "src/data/fonts.json"
+  },
+  "backgrounds": {
+    "src": "public/media/patterns/backgrounds",
+    "target": "src/data/backgrounds.json"
+  },
+  "borders": {
+    "src": "public/media/patterns/borders",
+    "target": "src/data/borders.json"
+  },
+  "characters": {
+    "src": "src/data/raw/monsters.json",
+    "target": "src/data/characters.json"
+  },
+  "cardLabels": {
+    "src": "src/data/raw/labels.json",
+    "target": "src/data/card-labels.json"
+  },
+  "groupLabels": {
+    "src": "src/data/raw/labels.json",
+    "target": "src/data/group-labels.json"
+  },
+  "js": {
+    "entryPoint": "src/js/app/main.js",
+    "public": "public/js/main.js"
+  },
+  "storageKeys": {
+    "user": "gb-user-prefs",
+    "cards": "gb-cards"
   }
+}

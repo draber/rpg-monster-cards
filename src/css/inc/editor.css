@@ -7,16 +7,13 @@
     display: flex;
     gap: 2.5rem;
     flex-wrap: wrap;
-    background-image: url(../media/patterns/background/light-subtle-rocky-wall.png)
-  }           
-
-  & #card-listing {        
-    background: hsl(29, 33%, 34%) url(../media/patterns/background/light-rocky-wall.png)
+    background: hsl(29, 33%, 34%) url(../media/patterns/system/light-rocky-wall.png);
   }
 
   & #smoke {
     position: absolute;
     width: calc(100% - 1.2rem);
+    height: 100%;
     bottom: 0;
     right: 1.2rem;
     mix-blend-mode: screen;
