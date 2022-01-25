@@ -1,0 +1,32 @@
+[
+	{
+		"label": "Cloud 1",
+		"id": "cloud-1",
+		"name": "cloud-1.png"
+	},
+	{
+		"label": "Crosshatch 1",
+		"id": "crosshatch-1",
+		"name": "crosshatch-1.png"
+	},
+	{
+		"label": "Crosshatch 2",
+		"id": "crosshatch-2",
+		"name": "crosshatch-2.png"
+	},
+	{
+		"label": "Etching Dirty 1",
+		"id": "etching-dirty-1",
+		"name": "etching-dirty-1.png"
+	},
+	{
+		"label": "Spatter 1",
+		"id": "spatter-1",
+		"name": "spatter-1.png"
+	},
+	{
+		"label": "Wood 1",
+		"id": "wood-1",
+		"name": "wood-1.png"
+	}
+]

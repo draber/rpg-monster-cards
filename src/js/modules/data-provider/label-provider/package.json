@@ -1,0 +1,6 @@
+{
+    "name": "label-provider",
+    "version": "1.0.0",
+    "main": "labelProvider.js",
+    "type": "module"
+}

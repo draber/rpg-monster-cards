@@ -1,0 +1,6 @@
+{
+    "name": "sorter",
+    "version": "1.0.0",
+    "main": "sorter.js",
+    "type": "module"
+}

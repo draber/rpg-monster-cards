@@ -1,0 +1,21 @@
+#editor {
+  flex: 2;
+  position: relative;
+
+  & .column-content {
+    padding: 3.5rem 2.5rem;
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    background: hsl(29, 33%, 34%) url(../media/patterns/system/light-rocky-wall.png);
+  }
+
+  & #smoke {
+    position: absolute;
+    width: calc(100% - 1.2rem);
+    height: 100%;
+    bottom: 0;
+    right: 1.2rem;
+    mix-blend-mode: screen;
+  }
+}

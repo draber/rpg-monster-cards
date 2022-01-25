@@ -1,0 +1,122 @@
+{
+    "name": {
+        "group": "First Letter",
+        "card": null
+    },
+    "cr": {
+        "group": "Challenge Rating",
+        "card": "CR"
+    },
+    "base": {
+        "group": "Base",
+        "card": "Base"
+    },
+    "hp": {
+        "group": "Hit Points",
+        "card": "HP"
+    },
+    "speed": {
+        "group": "Speed",
+        "card": "Speed"
+    },
+    "base attack/grapple": {
+        "group": "Base Attack/Grapple",
+        "card": null
+    },
+    "attack": {
+        "group": "Attack",
+        "card": null
+    },
+    "full attack": {
+        "group": "Full Attack",
+        "card": null
+    },
+    "attack_parameters": {
+        "group": "Attack Parameters",
+        "card": null
+    },
+    "space/reach": {
+        "group": "Space/Reach",
+        "card": null
+    },
+    "special attacks": {
+        "group": "Special Attacks",
+        "card": null
+    },
+    "reflex": {
+        "group": "Reflex",
+        "card": null
+    },
+    "will": {
+        "group": "Will",
+        "card": "Str"
+    },
+    "str": {
+        "group": "Strength",
+        "card": "Str"
+    },
+    "dex": {
+        "group": "Dexterity",
+        "card": "Dex"
+    },
+    "con": {
+        "group": "Constitution",
+        "card": "Con"
+    },
+    "int": {
+        "group": "Intelligence",
+        "card": "Int"
+    },
+    "wis": {
+        "group": "Wisdom",
+        "card": "Wis"
+    },
+    "cha": {
+        "group": "Charisma",
+        "card": "Cha"
+    },
+    "skills": {
+        "group": "Skills",
+        "card": "Skills"
+    },
+    "feats": {
+        "group": "Feats",
+        "card": null
+    },
+    "environment": {
+        "group": "Environment",
+        "card": null
+    },
+    "organization": {
+        "group": "Organization",
+        "card": null
+    },
+    "treasure": {
+        "group": "Treasure",
+        "card": null
+    },
+    "alignment": {
+        "group": "Alignment",
+        "card": null
+    },
+    "level adjustment": {
+        "group": "Level Adjustment",
+        "card": null
+    },
+    "notes": {
+        "group": "Notes",
+        "card": "Notes"
+    },
+    "fort": {
+        "group": "Fortitude",
+        "card": "Notes"
+    },
+    "ac": {
+        "group": "Armor Class",
+        "card": "AC"
+    },
+    "ini": {
+        "group": "Initiative",
+        "card": "Ini"
+    }
+}

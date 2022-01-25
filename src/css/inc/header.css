@@ -1,0 +1,22 @@
+header {
+  display: flex;
+  background: var(--bg-0-color);
+  height: var(--header-height);
+  border-bottom: .1rem solid  var(--hd-color);
+  background-image: url(../media/patterns/system/light-subtle-rocky-wall.png);
+}
+
+#logo-area {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding: 1rem;
+  margin: 0;
+  width: 25rem;
+
+  & svg {
+    display: block;
+    fill: var(--logo-color);
+    filter: drop-shadow(.2rem 0 .2rem var(--text-shadow-color));
+  }
+}

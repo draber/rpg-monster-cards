@@ -1,0 +1,27 @@
+{
+	":root": {
+		"--c-color": "hsl(0, 0%, 0%)",
+		"--c-card-font": "\"Della Respira\", serif",
+		"--c-bg-h": "45",
+		"--c-bg-s": "93%",
+		"--c-bg-l": "89%",
+		"--c-bg-color": "hsl(var(--c-bg-h), var(--c-bg-s), var(--c-bg-l))",
+		"--c-bg-pattern": "url(../media/patterns/backgrounds/light-redox.png)",
+		"--c-border-h": "201",
+		"--c-border-s": "39%",
+		"--c-border-l": "24%",
+		"--c-border-color": "hsl(",
+		"--c-border-pattern": "url(../media/patterns/borders/crosshatch-2.png)",
+		"--c-box-shadow-color": "hsl(0, 0%, 0%, 0.4)",
+		"--c-badge-font": "\"Della Respira\", serif",
+		"--c-badge-h": "168",
+		"--c-badge-s": "22%",
+		"--c-badge-l": "63%",
+		"--c-badge-bg": "hsl(var(--c-badge-h), var(--c-badge-s), var(--c-badge-l))",
+		"--c-badge-border-color": "hsl(",
+		"--c-badge-color": "var(--c-badge-border-color)",
+		"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
+		"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
+		"--c-button-color": "var(--text-color)"
+	}
+}

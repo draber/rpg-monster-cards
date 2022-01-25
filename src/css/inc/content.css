@@ -1,0 +1,40 @@
+main {
+  flex: 2;
+  overflow-y: auto;
+  display: flex;
+}
+
+section {
+  &.column {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-left: var(--border);
+
+    &:first-of-type {
+      border-left: none;
+    }
+
+    & .column-heading {
+      margin: 0;
+      font-size: 2.2rem;
+      font-weight: normal;
+      line-height: 1.4;
+      padding: 1rem;
+      border-bottom: var(--border);
+      text-shadow: .1rem .1rem .1rem var(--text-shadow-color);
+      color: var(--hd-color);
+    }
+
+    & h3 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 400;
+    }
+
+    & .column-content {
+      flex: 2;
+      overflow-y: auto;
+    } 
+  }
+}

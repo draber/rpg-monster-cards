@@ -1,0 +1,235 @@
+@keyframes summon {
+  0% {
+    transform: scale(1.3) translate(0, -20vh);
+    //transform: scale(.1) rotate(180deg);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1) translate(0, 0);
+    //transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes banish {
+  0% {
+    transform: scale(1) translate(0, 0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(.1) translate(1000px, 2000px);
+    opacity: 0;
+  }
+}
+
+.card-container {
+  &.summon {
+    & .𝔘𝔫𝔥𝔬𝔩𝔡 {
+      animation: summon 1s ease-in;
+    }
+  }
+
+  &.banish {
+    & .𝔘𝔫𝔥𝔬𝔩𝔡 {
+      animation: banish 1s ease-out;
+    }
+  }
+}
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 {
+  display: flex;
+  gap: .6rem;
+  position: relative;
+  font-family: 'Della Respira';
+  padding-bottom: 3rem;
+  transform-origin: 50%;
+
+  & .toolbar {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: -.8rem;
+    z-index: 3;
+    gap: .5rem;
+    justify-content: center;
+  }
+
+  & button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--border-radius);
+    gap: 1rem;
+    font-size: 1.5rem;
+    font-family: var(--font-family);
+    cursor: pointer;
+    padding: .6rem 1rem .6rem 1.6rem;
+    background: var(--c-button-bg);
+    color: var(--c-button-color);
+    box-shadow: .24rem .24rem .64rem 0 var(--c-box-shadow-color);
+
+    & svg {
+      width: 2rem;
+      aspect-ratio: 1 / 1;
+      fill: var(--c-button-color);
+    }
+  }
+
+  & figure {
+    position: relative;
+    font-family: var(--c-card-font);
+    color: var(--c-color);
+    width: 21.2rem;
+    height: 31.6rem;
+    margin: 0;
+    display: flex;
+    gap: .8rem;
+    align-items: center;
+    background: var(--c-bg-color) var(--c-bg-pattern);
+    justify-content: flex-end;
+    box-shadow: .24rem .24rem .64rem 0 var(--c-box-shadow-color);
+    padding: 1.6rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border: 1.12rem solid var(--c-border-color);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--c-border-pattern);
+    }
+
+    & img {
+      max-width: 100%;
+      position: relative;
+      mix-blend-mode: multiply;
+      margin: auto;
+    }
+
+    &.𝔎𝔬𝔫𝔱𝔢𝔯𝔣𝔢𝔦 {
+      flex-direction: column;
+
+      & .badge {
+        bottom: -.9rem;
+      }
+    }
+
+    &.𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫 {
+      flex-direction: column-reverse;
+
+      & .badge {
+        top: -.9rem;
+
+        &.cr {
+          top: auto;
+          display: inline-block;
+          position: absolute;
+          right: .56rem;
+          bottom: .56rem;
+          padding: .16rem .8rem;
+          font-size: 1.5rem;
+          line-height: 1.3;
+          border-radius: 50%;
+        }
+      }
+    }
+
+    & .badge {
+      z-index: 3;
+      position: relative;
+      border-style: ridge;
+      border-width: .24rem;
+      background: var(--c-badge-bg);
+      color: var(--c-badge-color);
+      border-color: var(--c-badge-border-color);
+      border-radius: 10% 20%;
+      text-align: center;
+      padding: .16rem .8rem;
+      font: bold 1.6rem var(--c-badge-font);
+      text-shadow: .08rem .08rem 0 var(--c-badge-text-shadow-color);
+      display: inline-block;
+      box-shadow: .16rem .16rem .32rem 0 var(--c-box-shadow-color);
+    }
+  }
+
+  & table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 18rem;
+    font-size: 1.2rem;
+
+    & td {
+      text-align: left;
+      vertical-align: top;
+      padding: .24rem .48rem;
+
+      &.disable-row {
+        display: none;
+      }
+    }
+
+    & tr {
+      &:nth-last-child(2) {
+        & td {
+          padding-bottom: .8rem;
+          border-bottom: .1rem solid #186b5b;
+        }
+      }
+
+      &:last-child {
+        & td {
+          padding-top: .8rem;
+        }
+      }
+    }
+
+    & td {
+      &.long-text {
+        & ul {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+      }
+
+      &.value {
+        //white-space: nowrap;
+        color: var(--c-badge-color);
+        font-weight: bold;
+      }
+
+      & .value-part {
+        &::before {
+          content: "|";
+          display: inline-block;
+          color: #999;
+          height: .8rem;
+          width: .08rem;
+          padding: 0 .8rem;
+        }
+
+        &:first-of-type {
+          &::before {
+            content: normal;
+          }
+        }
+      }
+    }
+  }
+}
