@@ -3,6 +3,7 @@ import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import backgrounds from '../../../../data/backgrounds.json';
 import borders from '../../../../data/borders.json';
+import cssProps from '../../../../data/css-props.json';
 
 const patternPool = {
     backgrounds,
@@ -70,7 +71,7 @@ class PatternSelector extends HTMLElement {
             throw Error(`Missing attribute "type" on <pattern-selector> element`);
         }
 
-        this.selectedPattern = userPrefs.get(`patterns.${this.name}`) || '';
+        this.selected = userPrefs.get(`patterns.${this.name}`) || cssProps[this.name] || '';
 
         const patterns = patternPool[this.type];
 
@@ -80,6 +81,9 @@ class PatternSelector extends HTMLElement {
                     style: {
                         backgroundImage: this.getUrl(entry.name, 'html')
                     },
+                    attributes: {
+                        title: entry.label
+                    },
                     content: [
                         fn.input({
                             attributes: {
@@ -87,7 +91,7 @@ class PatternSelector extends HTMLElement {
                                 name: `${this.type}-pattern`,
                                 value: this.getUrl(entry.name, 'css'),
                                 id: `${this.type}-${entry.id}`,
-                                checked: entry.name === this.selectedPattern
+                                checked: this.getUrl(entry.name, 'css') === this.selected
                             }
                         }),
                         fn.label({
@@ -100,8 +104,8 @@ class PatternSelector extends HTMLElement {
             }),
             events: {
                 change: e => {
-                    this.selectedPattern = e.target.value;
-                    userPrefs.set(`patterns.${this.name}`, this.selectedPattern);
+                    this.selected = e.target.value;
+                    userPrefs.set(`patterns.${this.name}`, this.selected);
                     events.trigger(`styleChange`, {
                         name: this.name,
                         value: e.target.value

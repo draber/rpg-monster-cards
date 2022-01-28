@@ -40,7 +40,7 @@
       -webkit-print-color-adjust: exact;
       flex-direction: column-reverse;
       gap: 0;
-      background: var(--c-border-color) var(--c-border-pattern);
+      background: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l)) var(--c-border-pattern);
 
       &:nth-child(even) {
         /* &::after {

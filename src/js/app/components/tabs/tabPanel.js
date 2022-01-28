@@ -1,22 +1,15 @@
 import fn from 'fancy-node';
-import {
-    dash
-} from '../../modules/string/string.js';
-import events from '../../../modules/events/events.js';
-
-/**
- * DRAFT, UNUSED SO FAR
- */
 
 /**
  * Custom element containing the list of fonts
  */
-class ChracterEntry extends HTMLElement {
+class TabPanel extends HTMLElement {
+
     /**
      * Called on element launch
      */
     connectedCallback() {
-        this.populate();
+
     }
 
     constructor(self) {
@@ -28,7 +21,7 @@ class ChracterEntry extends HTMLElement {
  * Register the element type to the DOM
  */
 const register = () => {
-    customElements.get('character-entry') || customElements['define']('character-entry', ChracterEntry)
+    customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel)
 }
 
 export default {

@@ -30,13 +30,7 @@ const save = e => {
     cardStore[localId] = '@todo'
 }
 
-const remove = e => {
-    const card = e.target.closest('card-container');
-    const localId = card.dataset.localId;
-    delete cardStore[localId];
-    card.remove();
-    localStorage.setItem(config.storageKeys.card, cardStore);
-}
+
 
 const createBadge = monster => {
     return fn.figcaption({

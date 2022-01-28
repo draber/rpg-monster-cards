@@ -6,10 +6,11 @@
 @import './inc/header.css';
 @import './inc/content.css';
 @import './inc/cards.css';
+@import './inc/character-card.css';
+@import './inc/card-toolbar.css';
 @import './inc/forms.css';
 @import './inc/library.css';
 @import './inc/editor.css';
-@import './inc/sliders.css';
 @import './inc/style-editor.css';
 @import './inc/footer.css';
 @import './inc/fonts.css';

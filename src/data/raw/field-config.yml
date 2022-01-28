@@ -1,0 +1,209 @@
+---
+# name also serves as an example
+name:                   
+  labels:
+    group: First Letter # default: labels.long
+    long: Name
+    short: Name
+  visibility:
+    card: true          # display this element on the card, default: true
+    label: true         # display a label for this element on the card, default: true
+    group: true         # display this element on 'Group by', default: false
+  key: name             # display this element default: the actual key, e.g. 'name'
+img:
+  labels:
+    long: Image
+    short: Img
+  visibility:
+    label: false
+cr:
+  labels:
+    long: Challenge Rating
+    short: CR
+  visibility:
+    group: true
+base:                   
+  labels:
+    long: Base
+    short: Base
+  visibility:
+    group: true   
+    card: false    
+type:                   
+  labels:
+    long: Type
+    short: Type    
+hp:           
+  labels:
+    long: Hit Points
+    short: HP
+  visibility:
+    group: true   
+speed:         
+  labels:
+    long: Speed
+    short: Spd
+  visibility:
+    group: true 
+base attack/grapple:                   
+  labels:
+    long: Base Attack/Grapple
+    short: BA/G
+  visibility:
+    group: true        
+  key: bag
+attack:                  
+  labels:
+    long: Attack
+    short: Atk
+  visibility:
+    group: true        
+  key: atk
+full attack:                 
+  labels:
+    long: Full Attack
+    short: Full Atk
+  visibility:
+    group: true        
+  key: atk_f
+attack_parameters:               
+  labels:
+    long: Attack Parameters
+    short: Atk Params
+  visibility:
+    group: true        
+  key: atk_p
+space/reach:              
+  labels:
+    long: Space/Reach
+    short: Sp/Re
+  visibility:
+    group: true        
+  key: sp_r
+special attacks:              
+  labels:
+    long: Special Attacks
+    short: Sp Atk
+  visibility:
+    group: true        
+  key: atk_s
+reflex:             
+  labels:
+    long: Reflex
+    short: Rfx
+  visibility:
+    group: true        
+  key: rfx
+will:          
+  labels:
+    long: Will
+    short: Wil
+  visibility:
+    group: true 
+str:         
+  labels:
+    long: Strength
+    short: Str
+  visibility:
+    group: true
+dex:  
+  labels:
+    long: Dexterity
+    short: Dex
+  visibility:
+    group: true
+con:
+  labels:
+    long: Constitution
+    short: Con
+  visibility:
+    group: true
+int:
+  labels:
+    long: Intelligence
+    short: Int
+  visibility:
+    group: true
+wis:
+  labels:
+    long: Wisdom
+    short: Wis
+  visibility:
+    group: true
+cha:
+  labels:
+    long: Charisma
+    short: Cha
+  visibility:
+    group: true
+skills:
+  labels:
+    long: Skills
+    short: Skills
+  visibility:
+    group: true
+feats:
+  labels:
+    long: Feats
+    short: Feats
+  visibility:
+    group: true
+environment:
+  labels:
+    long: Environment
+    short: Env
+  visibility:
+    group: true
+  key: env
+organization:
+  labels:
+    long: Organization
+    short: Org
+  visibility:
+    group: true
+  key: org
+treasure:
+  labels:
+    long: Treasure
+    short: Treas
+  visibility:
+    group: true
+  key: tre
+alignment:
+  labels:
+    long: Alignment
+    short: Algn
+  visibility:
+    group: true
+  key: algn
+level adjustment:
+  labels:
+    long: Level Adjustment
+    short: L Adj
+  visibility:
+    group: true
+  key: l_adj
+notes:
+  labels:
+    long: Notes
+    short: Notes
+  visibility:
+    group: true
+fort:
+  labels:
+    long: Fortitude
+    short: Fort
+  visibility:
+    group: true
+ac:
+  labels:
+    long: Armor Class
+    short: AC
+  visibility:
+    group: true
+ini:
+  labels:
+    long: Initiative
+    short: Ini
+  visibility:
+    group: true

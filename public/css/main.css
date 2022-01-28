@@ -212,25 +212,16 @@ template{
   --c-bg-h:45;
   --c-bg-s:93%;
   --c-bg-l:89%;
-  --c-bg-color:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
   --c-bg-pattern:url(../media/patterns/backgrounds/light-rocky-wall.png);
   --c-border-h:201;
   --c-border-s:39%;
   --c-border-l:24%;
-  --c-border-color:hsl(
-    var(--c-border-h) var(--c-border-s) var(--c-border-l)
-  );
   --c-border-pattern:url(../media/patterns/borders/crosshatch-2.png);
   --c-box-shadow-color:hsla(0, 0%, 0%, 0.4);
   --c-badge-font:"Della Respira", serif;
   --c-badge-h:168;
   --c-badge-s:22%;
   --c-badge-l:63%;
-  --c-badge-bg:hsl(var(--c-badge-h) var(--c-badge-s) var(--c-badge-l));
-  --c-badge-border-color:hsl(
-    var(--c-badge-h) calc(var(--c-badge-s) + 41%) calc(var(--c-badge-l) - 37%)
-  );
-  --c-badge-color:var(--c-badge-border-color);
   --c-badge-text-shadow-color:hsla(0, 100%, 100%, 0.3);
 
   --c-button-bg:hsla(15, 50%, 15%, 0.9);
@@ -406,6 +397,279 @@ section.column .column-content{
       overflow-y:auto;
     }
 
+card-recto,
+card-verso{
+  display:block;
+}
+
+character-card.editable article{
+      height:100%;
+    }
+
+character-card.editable figure{
+      background:none;
+    }
+
+character-card.editable figure::before,
+      character-card.editable figure::after{
+        content:normal;
+      }
+
+character-card.editable figure{
+      box-shadow:none;
+    }
+
+character-card.editable card-verso{
+      flex:2
+    }
+
+character-card.editable card-verso figure{
+        width:auto;
+      }
+
+character-card.editable card-verso table{
+        display:block;
+        -moz-column-count:2;
+             column-count:2;
+        -moz-column-gap:4rem;
+             column-gap:4rem;
+        padding:0;
+        list-style:none;
+        font-size:1.3rem;
+      }
+
+character-card.editable card-verso tr{
+        border-bottom:.1rem solid hsla(46, 85%, 39%, .2);
+        border-bottom:var(--border)
+      }
+
+character-card.editable card-verso tr[data-display="false"]{
+          display:flex;
+          opacity:0.6;
+        }
+
+character-card.editable card-verso tr[data-display="immutable"]{
+          display:flex
+        }
+
+character-card.editable card-verso tr[data-display="immutable"] td:last-child{
+              display:block;
+            }
+
+character-card.editable card-verso tr[data-key="img"] td:nth-last-child(2){
+              white-space:nowrap;
+              overflow:hidden;
+              text-overflow:ellipsis;
+              text-align:right;
+            }
+
+character-card.editable card-verso th,
+      character-card.editable card-verso td{
+        display:block;
+        text-align:left;
+        white-space:normal;
+        vertical-align:top;
+        padding:2px
+      }
+
+character-card.editable card-verso th::after, character-card.editable card-verso td::after{
+          content:normal;
+        }
+
+character-card.editable card-verso th{
+        min-width:8rem;
+      }
+
+character-card.editable card-verso td{
+        max-width:35rem
+      }
+
+character-card.editable card-verso td:nth-last-child(2){
+          flex:2;
+        }
+
+character-card.editable card-verso td:last-child{
+          display:flex;
+          gap:1rem;
+        }
+
+character-card.editable card-verso svg{
+        width:1.2rem;
+        aspect-ratio:1 / 1;
+        fill:hsl(201, 39%, 24%);
+        fill:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+        filter:contrast(25%);
+        cursor:pointer;
+      }
+
+character-card.editable card-verso .badge{
+        display:none;
+      }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡{
+  display:flex;
+  gap:0.6rem;
+  position:relative;
+  font-family:"Della Respira";
+  transform-origin:50%
+}
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure{
+    position:relative;
+    font-family:"Della Respira", serif;
+    font-family:var(--c-card-font);
+    color:hsl(0, 0%, 0%);
+    color:var(--c-color);
+    width:21.2rem;
+    height:31.6rem;
+    margin:0;
+    display:flex;
+    gap:0.8rem;
+    align-items:center;
+    background:hsl(45, 93%, 89%)
+      url(../media/patterns/backgrounds/light-rocky-wall.png);
+    background:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l))
+      var(--c-bg-pattern);
+    justify-content:flex-end;
+    box-shadow:0.24rem 0.24rem 0.64rem 0 hsla(0, 0%, 0%, 0.4);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
+    padding:1.6rem
+  }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:100%;
+      border:1.12rem solid
+        hsl(201, 39%, 24%);
+      border:1.12rem solid
+        hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure::after{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:100%;
+      background-image:url(../media/patterns/borders/crosshatch-2.png);
+      background-image:var(--c-border-pattern);
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure img{
+      max-width:100%;
+      position:relative;
+      mix-blend-mode:multiply;
+      margin:auto;
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔎𝔬𝔫𝔱𝔢𝔯𝔣𝔢𝔦{
+      flex-direction:column
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔎𝔬𝔫𝔱𝔢𝔯𝔣𝔢𝔦 .badge{
+        bottom:-0.9rem;
+      }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫{
+      flex-direction:column-reverse
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫 .badge{
+        top:-0.9rem
+      }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫 .badge.cr{
+          top:auto;
+          display:inline-block;
+          position:absolute;
+          right:0.56rem;
+          bottom:0.56rem;
+          padding:0.16rem 0.8rem;
+          font-size:1.5rem;
+          line-height:1.3;
+          border-radius:50%;
+        }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 figure .badge{
+      z-index:3;
+      position:relative;
+      border-style:ridge;
+      border-width:0.24rem;
+      background:hsl(168, 22%, 63%);
+      background:hsl(var(--c-badge-h) var(--c-badge-s) var(--c-badge-l));
+      color:hsl(
+        168 calc(22% + 41%) calc(63% - 37%)
+      );
+      color:hsl(
+        168 calc(22% + 41%) calc(63% - 37%)
+      );
+      color:hsl(
+        var(--c-badge-h) calc(var(--c-badge-s) + 41%) calc(var(--c-badge-l) - 37%)
+      );
+      border-color:hsl(
+        168 calc(22% + 41%) calc(63% - 37%)
+      );
+      border-color:hsl(
+        168 calc(22% + 41%) calc(63% - 37%)
+      );
+      border-color:hsl(
+        var(--c-badge-h) calc(var(--c-badge-s) + 41%) calc(var(--c-badge-l) - 37%)
+      );
+      border-radius:10% 20%;
+      text-align:center;
+      padding:0.16rem 0.8rem;
+      font:bold 1.6rem "Della Respira", serif;
+      font:bold 1.6rem var(--c-badge-font);
+      text-shadow:0.08rem 0.08rem 0 hsla(0, 100%, 100%, 0.3);
+      text-shadow:0.08rem 0.08rem 0 var(--c-badge-text-shadow-color);
+      display:inline-block;
+      box-shadow:0.16rem 0.16rem 0.32rem 0 hsla(0, 0%, 0%, 0.4);
+      box-shadow:0.16rem 0.16rem 0.32rem 0 var(--c-box-shadow-color);
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 table{
+    display:flex;
+    font-size:1.1rem;
+    line-height:1.8rem;
+    flex-wrap:wrap;
+    gap:0 1.2ch
+  }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 table tr{
+      display:flex;
+      gap:0.5ch
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 table tr[data-display="false"],
+      .𝔘𝔫𝔥𝔬𝔩𝔡 table tr[data-display="immutable"]{
+        display:none;
+      }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 table th{
+      display:inline-block;
+      white-space:nowrap;
+      color:hsl(201, 39%, 24%);
+      color:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+      filter:contrast(25%)
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 table th::after{
+        content:":";
+      }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 table td{
+      display:inline-block
+    }
+
+.𝔘𝔫𝔥𝔬𝔩𝔡 table td:last-child{
+        display:none;
+      }
+
 @-webkit-keyframes summon{
   0%{
     transform:scale(1.3) translate(0, -20vh);
@@ -437,7 +701,7 @@ section.column .column-content{
   }
 
   100%{
-    transform:scale(.1) translate(1000px, 2000px);
+    transform:scale(0.1) translate(1000px, 2000px);
     opacity:0;
   }
 }
@@ -449,42 +713,56 @@ section.column .column-content{
   }
 
   100%{
-    transform:scale(.1) translate(1000px, 2000px);
+    transform:scale(0.1) translate(1000px, 2000px);
     opacity:0;
   }
 }
 
-.card-container.summon .𝔘𝔫𝔥𝔬𝔩𝔡{
+character-card{
+  display:block
+}
+
+character-card.summon .𝔘𝔫𝔥𝔬𝔩𝔡{
       -webkit-animation:summon 1s ease-in;
               animation:summon 1s ease-in;
     }
 
-.card-container.banish .𝔘𝔫𝔥𝔬𝔩𝔡{
+character-card.banish .𝔘𝔫𝔥𝔬𝔩𝔡{
       -webkit-animation:banish 1s ease-out;
               animation:banish 1s ease-out;
     }
 
-.𝔘𝔫𝔥𝔬𝔩𝔡{
-  display:flex;
-  gap:.6rem;
-  position:relative;
-  font-family:'Della Respira';
-  padding-bottom:3rem;
-  transform-origin:50%
-}
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 .toolbar{
-    display:flex;
+character-card.editable{
     position:absolute;
-    width:100%;
-    left:0;
-    bottom:-.8rem;
-    z-index:3;
-    gap:.5rem;
-    justify-content:center;
+    left:2rem;
+    top:7rem;
+    right:2rem;
+    bottom:2rem;
+    background:hsl(45, 93%, 89%) url(../media/patterns/backgrounds/light-rocky-wall.png);
+    background:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l)) var(--c-bg-pattern);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 hsla(0, 0%, 0%, 0.4);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
   }
 
-.𝔘𝔫𝔥𝔬𝔩𝔡 button{
+card-toolbar{
+  display:block;
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  padding:2rem;
+  display:flex;
+  justify-content:flex-end;
+  gap:1rem;
+  opacity:0;
+  align-items:middle;
+  background:hsla(15, 50%, 15%, 0.9);
+  background:var(--c-button-bg);
+  z-index:4;
+  transition:opacity 0.5s
+}
+
+card-toolbar button{
     display:flex;
     align-items:center;
     justify-content:center;
@@ -496,181 +774,25 @@ section.column .column-content{
     font-family:'Caudex', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     font-family:var(--font-family);
     cursor:pointer;
-    padding:.6rem 1rem .6rem 1.6rem;
+    padding:0.6rem 1rem 0.6rem 1.6rem;
     background:hsla(15, 50%, 15%, 0.9);
     background:var(--c-button-bg);
     color:hsla(0, 0%, 95%, .90);
     color:var(--c-button-color);
-    box-shadow:.24rem .24rem .64rem 0 hsla(0, 0%, 0%, 0.4);
-    box-shadow:.24rem .24rem .64rem 0 var(--c-box-shadow-color)
+    box-shadow:0.24rem 0.24rem 0.64rem 0 hsla(0, 0%, 0%, 0.4);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
   }
 
-.𝔘𝔫𝔥𝔬𝔩𝔡 button svg{
-      width:2rem;
-      aspect-ratio:1 / 1;
-      fill:hsla(0, 0%, 95%, .90);
-      fill:var(--c-button-color);
-    }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure{
-    position:relative;
-    font-family:"Della Respira", serif;
-    font-family:var(--c-card-font);
-    color:hsl(0, 0%, 0%);
-    color:var(--c-color);
-    width:21.2rem;
-    height:31.6rem;
-    margin:0;
-    display:flex;
-    gap:.8rem;
-    align-items:center;
-    background:hsl(45, 93%, 89%) url(../media/patterns/backgrounds/light-rocky-wall.png);
-    background:var(--c-bg-color) var(--c-bg-pattern);
-    justify-content:flex-end;
-    box-shadow:.24rem .24rem .64rem 0 hsla(0, 0%, 0%, 0.4);
-    box-shadow:.24rem .24rem .64rem 0 var(--c-box-shadow-color);
-    padding:1.6rem
+card-toolbar svg{
+    width:2rem;
+    aspect-ratio:1 / 1;
+    fill:hsla(0, 0%, 95%, .90);
+    fill:var(--c-button-color);
   }
 
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure::before{
-      content:'';
-      position:absolute;
-      left:0;
-      top:0;
-      width:100%;
-      height:100%;
-      border:1.12rem solid hsl(
-    201, 39%, 24%
-  );
-      border:1.12rem solid var(--c-border-color);
+character-card:hover card-toolbar{
+      opacity:1;
     }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure::after{
-      content:'';
-      position:absolute;
-      left:0;
-      top:0;
-      width:100%;
-      height:100%;
-      background:url(../media/patterns/borders/crosshatch-2.png);
-      background:var(--c-border-pattern);
-    }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure img{
-      max-width:100%;
-      position:relative;
-      mix-blend-mode:multiply;
-      margin:auto;
-    }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔎𝔬𝔫𝔱𝔢𝔯𝔣𝔢𝔦{
-      flex-direction:column
-    }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔎𝔬𝔫𝔱𝔢𝔯𝔣𝔢𝔦 .badge{
-        bottom:-.9rem;
-      }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫{
-      flex-direction:column-reverse
-    }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫 .badge{
-        top:-.9rem
-      }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure.𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫 .badge.cr{
-          top:auto;
-          display:inline-block;
-          position:absolute;
-          right:.56rem;
-          bottom:.56rem;
-          padding:.16rem .8rem;
-          font-size:1.5rem;
-          line-height:1.3;
-          border-radius:50%;
-        }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 figure .badge{
-      z-index:3;
-      position:relative;
-      border-style:ridge;
-      border-width:.24rem;
-      background:hsl(168, 22%, 63%);
-      background:var(--c-badge-bg);
-      color:hsl(
-    168 calc(22% + 41%) calc(63% - 37%)
-  );
-      color:var(--c-badge-color);
-      border-color:hsl(
-    168 calc(22% + 41%) calc(63% - 37%)
-  );
-      border-color:var(--c-badge-border-color);
-      border-radius:10% 20%;
-      text-align:center;
-      padding:.16rem .8rem;
-      font:bold 1.6rem "Della Respira", serif;
-      font:bold 1.6rem var(--c-badge-font);
-      text-shadow:.08rem .08rem 0 hsla(0, 100%, 100%, 0.3);
-      text-shadow:.08rem .08rem 0 var(--c-badge-text-shadow-color);
-      display:inline-block;
-      box-shadow:.16rem .16rem .32rem 0 hsla(0, 0%, 0%, 0.4);
-      box-shadow:.16rem .16rem .32rem 0 var(--c-box-shadow-color);
-    }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table{
-    table-layout:fixed;
-    border-collapse:collapse;
-    border-spacing:0;
-    width:18rem;
-    font-size:1.2rem
-  }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table td{
-      text-align:left;
-      vertical-align:top;
-      padding:.24rem .48rem
-    }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table td.disable-row{
-        display:none;
-      }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table tr:nth-last-child(2) td{
-          padding-bottom:.8rem;
-          border-bottom:.1rem solid #186b5b;
-        }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table tr:last-child td{
-          padding-top:.8rem;
-        }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table td.long-text ul{
-          margin:0;
-          padding:0;
-          list-style:none;
-        }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table td.value{
-        color:hsl(
-    168 calc(22% + 41%) calc(63% - 37%)
-  );
-        color:var(--c-badge-color);
-        font-weight:bold;
-      }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table td .value-part::before{
-          content:"|";
-          display:inline-block;
-          color:#999;
-          height:.8rem;
-          width:.08rem;
-          padding:0 .8rem;
-        }
-
-.𝔘𝔫𝔥𝔬𝔩𝔡 table td .value-part:first-of-type::before{
-            content:normal;
-          }
 
 form .form-row{
     padding:1rem;
@@ -890,114 +1012,6 @@ character-library ul{
     mix-blend-mode:screen;
   }
 
-input[type="range"]{
-  position:relative;
-  top:.2rem;
-  -webkit-appearance:none;
-     -moz-appearance:none;
-          appearance:none;
-  background:silver;
-  height:.6rem;
-  padding:0;
-  outline:none
-}
-
-input[type="range"][data-prop="--c-bg-h"]{
-    background:linear-gradient(to right, hsl(0, 93%, 89%), hsl(30, 93%, 89%), hsl(60, 93%, 89%), hsl(90, 93%, 89%), hsl(120, 93%, 89%), hsl(180, 93%, 89%), hsl(210, 93%, 89%), hsl(240, 93%, 89%), hsl(270, 93%, 89%), hsl(300, 93%, 89%), hsl(330, 93%, 89%), hsl(360, 93%, 89%));
-    background:linear-gradient(to right, hsl(0, 93%, 89%), hsl(30, 93%, 89%), hsl(60, 93%, 89%), hsl(90, 93%, 89%), hsl(120, 93%, 89%), hsl(180, 93%, 89%), hsl(210, 93%, 89%), hsl(240, 93%, 89%), hsl(270, 93%, 89%), hsl(300, 93%, 89%), hsl(330, 93%, 89%), hsl(360, 93%, 89%));
-    background:linear-gradient(to right, hsl(0 var(--c-bg-s) var(--c-bg-l)), hsl(30 var(--c-bg-s) var(--c-bg-l)), hsl(60 var(--c-bg-s) var(--c-bg-l)), hsl(90 var(--c-bg-s) var(--c-bg-l)), hsl(120 var(--c-bg-s) var(--c-bg-l)), hsl(180 var(--c-bg-s) var(--c-bg-l)), hsl(210 var(--c-bg-s) var(--c-bg-l)), hsl(240 var(--c-bg-s) var(--c-bg-l)), hsl(270 var(--c-bg-s) var(--c-bg-l)), hsl(300 var(--c-bg-s) var(--c-bg-l)), hsl(330 var(--c-bg-s) var(--c-bg-l)), hsl(360 var(--c-bg-s) var(--c-bg-l)));
-  }
-
-input[type="range"]{
-}
-
-input[type="range"][data-prop="--c-border-h"]{
-    background:linear-gradient(to right, hsl(0, 39%, 24%), hsl(30, 39%, 24%), hsl(60, 39%, 24%), hsl(90, 39%, 24%), hsl(120, 39%, 24%), hsl(180, 39%, 24%), hsl(210, 39%, 24%), hsl(240, 39%, 24%), hsl(270, 39%, 24%), hsl(300, 39%, 24%), hsl(330, 39%, 24%), hsl(360, 39%, 24%));
-    background:linear-gradient(to right, hsl(0, 39%, 24%), hsl(30, 39%, 24%), hsl(60, 39%, 24%), hsl(90, 39%, 24%), hsl(120, 39%, 24%), hsl(180, 39%, 24%), hsl(210, 39%, 24%), hsl(240, 39%, 24%), hsl(270, 39%, 24%), hsl(300, 39%, 24%), hsl(330, 39%, 24%), hsl(360, 39%, 24%));
-    background:linear-gradient(to right, hsl(0 var(--c-border-s) var(--c-border-l)), hsl(30 var(--c-border-s) var(--c-border-l)), hsl(60 var(--c-border-s) var(--c-border-l)), hsl(90 var(--c-border-s) var(--c-border-l)), hsl(120 var(--c-border-s) var(--c-border-l)), hsl(180 var(--c-border-s) var(--c-border-l)), hsl(210 var(--c-border-s) var(--c-border-l)), hsl(240 var(--c-border-s) var(--c-border-l)), hsl(270 var(--c-border-s) var(--c-border-l)), hsl(300 var(--c-border-s) var(--c-border-l)), hsl(330 var(--c-border-s) var(--c-border-l)), hsl(360 var(--c-border-s) var(--c-border-l)));
-  }
-
-input[type="range"]{
-}
-
-input[type="range"][data-prop="--c-badge-h"]{
-    background:linear-gradient(to right, hsl(0, 22%, 63%), hsl(30, 22%, 63%), hsl(60, 22%, 63%), hsl(90, 22%, 63%), hsl(120, 22%, 63%), hsl(180, 22%, 63%), hsl(210, 22%, 63%), hsl(240, 22%, 63%), hsl(270, 22%, 63%), hsl(300, 22%, 63%), hsl(330, 22%, 63%), hsl(360, 22%, 63%));
-    background:linear-gradient(to right, hsl(0, 22%, 63%), hsl(30, 22%, 63%), hsl(60, 22%, 63%), hsl(90, 22%, 63%), hsl(120, 22%, 63%), hsl(180, 22%, 63%), hsl(210, 22%, 63%), hsl(240, 22%, 63%), hsl(270, 22%, 63%), hsl(300, 22%, 63%), hsl(330, 22%, 63%), hsl(360, 22%, 63%));
-    background:linear-gradient(to right, hsl(0 var(--c-badge-s) var(--c-badge-l)), hsl(30 var(--c-badge-s) var(--c-badge-l)), hsl(60 var(--c-badge-s) var(--c-badge-l)), hsl(90 var(--c-badge-s) var(--c-badge-l)), hsl(120 var(--c-badge-s) var(--c-badge-l)), hsl(180 var(--c-badge-s) var(--c-badge-l)), hsl(210 var(--c-badge-s) var(--c-badge-l)), hsl(240 var(--c-badge-s) var(--c-badge-l)), hsl(270 var(--c-badge-s) var(--c-badge-l)), hsl(300 var(--c-badge-s) var(--c-badge-l)), hsl(330 var(--c-badge-s) var(--c-badge-l)), hsl(360 var(--c-badge-s) var(--c-badge-l)));
-  }
-
-input[type="range"]{
-}
-
-input[type="range"][data-prop="--c-bg-s"]{
-    background:linear-gradient(to right, hsl(45, 0%, 89%), hsl(45, 50%, 89%), hsl(45, 100%, 89%));
-    background:linear-gradient(to right, hsl(45, 0%, 89%), hsl(45, 50%, 89%), hsl(45, 100%, 89%));
-    background:linear-gradient(to right, hsl(var(--c-bg-h) 0% var(--c-bg-l)), hsl(var(--c-bg-h) 50% var(--c-bg-l)), hsl(var(--c-bg-h) 100% var(--c-bg-l)));
-  }
-
-input[type="range"][data-prop="--c-border-s"]{
-    background:linear-gradient(to right, hsl(201, 0%, 24%), hsl(201, 50%, 24%), hsl(201, 100%, 24%));
-    background:linear-gradient(to right, hsl(201, 0%, 24%), hsl(201, 50%, 24%), hsl(201, 100%, 24%));
-    background:linear-gradient(to right, hsl(var(--c-border-h) 0% var(--c-border-l)), hsl(var(--c-border-h) 50% var(--c-border-l)), hsl(var(--c-border-h) 100% var(--c-border-l)));
-  }
-
-input[type="range"][data-prop="--c-badge-s"]{
-    background:linear-gradient(to right, hsl(168, 0%, 63%), hsl(168, 50%, 63%), hsl(168, 100%, 63%));
-    background:linear-gradient(to right, hsl(168, 0%, 63%), hsl(168, 50%, 63%), hsl(168, 100%, 63%));
-    background:linear-gradient(to right, hsl(var(--c-badge-h) 0% var(--c-badge-l)), hsl(var(--c-badge-h) 50% var(--c-badge-l)), hsl(var(--c-badge-h) 100% var(--c-badge-l)));
-  }
-
-input[type="range"]{
-}
-
-input[type="range"][data-prop="--c-bg-l"]{
-    background:linear-gradient(to right, hsl(45, 93%, 0%), hsl(45, 93%, 50%), hsl(45, 93%, 100%));
-    background:linear-gradient(to right, hsl(45, 93%, 0%), hsl(45, 93%, 50%), hsl(45, 93%, 100%));
-    background:linear-gradient(to right, hsl(var(--c-bg-h) var(--c-bg-s) 0%), hsl(var(--c-bg-h) var(--c-bg-s) 50%), hsl(var(--c-bg-h) var(--c-bg-s) 100%));
-  }
-
-input[type="range"][data-prop="--c-border-l"]{
-    background:linear-gradient(to right, hsl(201, 39%, 0%), hsl(201, 39%, 50%), hsl(201, 39%, 100%));
-    background:linear-gradient(to right, hsl(201, 39%, 0%), hsl(201, 39%, 50%), hsl(201, 39%, 100%));
-    background:linear-gradient(to right, hsl(var(--c-border-h) var(--c-border-s) 0%), hsl(var(--c-border-h) var(--c-border-s) 50%), hsl(var(--c-border-h) var(--c-border-s) 100%));
-  }
-
-input[type="range"][data-prop="--c-badge-l"]{
-    background:linear-gradient(to right, hsl(168, 22%, 0%), hsl(168, 22%, 50%), hsl(168, 22%, 100%));
-    background:linear-gradient(to right, hsl(168, 22%, 0%), hsl(168, 22%, 50%), hsl(168, 22%, 100%));
-    background:linear-gradient(to right, hsl(var(--c-badge-h) var(--c-badge-s) 0%), hsl(var(--c-badge-h) var(--c-badge-s) 50%), hsl(var(--c-badge-h) var(--c-badge-s) 100%));
-  }
-
-input[type="range"]::-webkit-slider-thumb{
-    -webkit-appearance:none;
-    height:1.6rem;
-    width:1.6rem;
-    border-radius:50%;
-    background:hsl(44, 81%, 38%);
-    background:var(--hd-color);
-    opacity:.7;
-    cursor:ew-resize
-  }
-
-input[type="range"]::-webkit-slider-thumb:hover{
-      opacity:1;
-    }
-
-input[type="range"]::-moz-range-thumb{
-    -webkit-appearance:none;
-    height:1.6rem;
-    width:1.6rem;
-    border-radius:50%;
-    background:hsl(44, 81%, 38%);
-    background:var(--hd-color);
-    cursor:ew-resize;
-    opacity:.7
-  }
-
-input[type="range"]::-moz-range-thumb:hover{
-      opacity:1;
-    }
-
 #style-editor{
   min-width:25rem;
   max-width:30rem;
@@ -1005,7 +1019,6 @@ input[type="range"]::-moz-range-thumb:hover{
 }
 
 #style-editor [data-target="bg"] pattern-selector li{
-        background-color:hsl(45, 93%, 89%);
         background-color:hsl(45, 93%, 89%);
         background-color:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
       }
@@ -1044,14 +1057,12 @@ input[type="range"]::-moz-range-thumb:hover{
 #style-editor pattern-selector li{
       min-width:calc(100% / 3);
       background-color:hsl(45, 93%, 89%);
-      background-color:var(--c-bg-color);
+      background-color:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
     }
 
 #style-editor pattern-selector[type="borders"] li{
-        background-color:hsl(
-    201, 39%, 24%
-  );
-        background-color:var(--c-border-color);
+        background-color:hsl(201, 39%, 24%);
+        background-color:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
         background-size:35rem;
       }
 
@@ -1064,7 +1075,7 @@ input[type="range"]::-moz-range-thumb:hover{
           display:block;
           position:absolute;
           background:hsl(45, 93%, 89%) url(../media/patterns/backgrounds/light-rocky-wall.png);
-          background:var(--c-bg-color) var(--c-bg-pattern);
+          background:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l)) var(--c-bg-pattern);
           left:1.7rem;
           top:1.7rem;
           width:calc(100% - 1.7rem);
@@ -1074,9 +1085,10 @@ input[type="range"]::-moz-range-thumb:hover{
 
 #style-editor pattern-selector label{
       aspect-ratio:4 / 3;
-      border:0.3rem solid hsl(15, 50%, 18%);
-      border:0.3rem solid var(--bg-1-color);
+      border:0.4rem solid hsl(15, 50%, 18%);
+      border:0.4rem solid var(--bg-1-color);
       cursor:pointer;
+      
     }
 
 #style-editor pattern-selector input{
@@ -1088,8 +1100,68 @@ input[type="range"]::-moz-range-thumb:hover{
     }
 
 #style-editor pattern-selector input:checked ~ label{
-        border-color:hsl(44, 81%, 38%);
-        border-color:var(--hd-color);
+        border:0.4rem groove hsl(44, 81%, 38%);
+        border:0.4rem groove var(--hd-color);
+      }
+
+#style-editor color-selector{
+    display:block;
+  }
+
+#style-editor color-selector label{
+    display:flex;
+  }
+
+#style-editor color-selector span{
+    padding:3px;
+    min-width:1.5rem
+  }
+
+#style-editor color-selector span ~ span{
+      flex:2;
+    }
+
+#style-editor color-selector [type="range"]{
+    position:relative;
+    top:-0.1rem;
+    -webkit-appearance:none;
+       -moz-appearance:none;
+            appearance:none;
+    background:silver;
+    height:0.6rem;
+    padding:0;
+    outline:none;
+    width:100%
+  }
+
+#style-editor color-selector [type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      height:1.6rem;
+      width:1.6rem;
+      border-radius:50%;
+      background:hsl(44, 81%, 38%);
+      background:var(--hd-color);
+      opacity:0.7;
+      cursor:ew-resize
+    }
+
+#style-editor color-selector [type="range"]::-webkit-slider-thumb:hover{
+        opacity:1;
+      }
+
+#style-editor color-selector [type="range"]::-moz-range-thumb{
+      -webkit-appearance:none;
+      height:1.6rem;
+      width:1.6rem;
+      border-radius:50%;
+      background:hsl(44, 81%, 38%);
+      background:var(--hd-color);
+      cursor:ew-resize;
+      opacity:0.7
+    }
+
+#style-editor color-selector [type="range"]::-moz-range-thumb:hover{
+        opacity:1;
       }
 
 footer{
@@ -1461,10 +1533,8 @@ footer{
       -webkit-print-color-adjust:exact;
       flex-direction:column-reverse;
       gap:0;
-      background:hsl(
-    201, 39%, 24%
-  ) url(../media/patterns/borders/crosshatch-2.png);
-      background:var(--c-border-color) var(--c-border-pattern)
+      background:hsl(201, 39%, 24%) url(../media/patterns/borders/crosshatch-2.png);
+      background:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l)) var(--c-border-pattern)
     }
 
       #editor article:nth-child(even){

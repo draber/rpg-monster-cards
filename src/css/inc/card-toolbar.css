@@ -1,0 +1,46 @@
+card-toolbar {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  opacity: 0;
+  align-items: middle;
+  background: var(--c-button-bg);
+  z-index: 4;
+  transition: opacity 0.5s;
+  
+  & button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--border-radius);
+    gap: 1rem;
+    font-size: 1.5rem;
+    font-family: var(--font-family);
+    cursor: pointer;
+    padding: 0.6rem 1rem 0.6rem 1.6rem;
+    background: var(--c-button-bg);
+    color: var(--c-button-color);
+    box-shadow: 0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
+  }
+
+  & svg {
+    width: 2rem;
+    aspect-ratio: 1 / 1;
+    fill: var(--c-button-color);
+  }
+}
+
+character-card {
+  &:hover {
+    & card-toolbar {
+      opacity: 1;
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import fn from 'fancy-node';
-import groupLabels from '../../../../data/group-labels.json';
+import visibility from '../../../../data/visibility.json';
+import labels from '../../../../data/labels.json';
 import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 
@@ -68,11 +69,14 @@ class CharacterSorter extends HTMLElement {
         const list = fn.ul();
         box.append(title, list);
 
-        for (let [key, value] of Object.entries(groupLabels)) {
+        for (let [key, value] of Object.entries(labels)) {
+            if(!visibility[key].group){
+                continue;
+            }
             let classNames = key === this.groupBy ? ['active'] : [];
             list.append(fn.li({
                 classNames,
-                content: value,
+                content: value.group,
                 data: {
                     groupBy: key
                 }

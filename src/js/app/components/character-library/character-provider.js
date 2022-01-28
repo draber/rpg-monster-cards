@@ -1,6 +1,7 @@
 import sorter from '../../../modules/sorter/sorter.js';
-import groupLabels from '../../../../data/group-labels.json';
 import characters from '../../../../data/characters.json';
+import visibility from '../../../../data/visibility.json';
+import labels from '../../../../data/labels.json';
 
 /**
  * Map 'group by' to a label and a value
@@ -17,11 +18,11 @@ const prepareGroupSort = (character, groupBy) => {
     switch (groupBy) {
         case 'name':
             _groupValue = character.name.charAt(0).toUpperCase();
-            _groupLabel = `${groupLabels[groupBy]}: ${_groupValue}`;
+            _groupLabel = `${labels[groupBy].group}: ${_groupValue}`;
             break
         default:
             _groupValue = character[groupBy];
-            _groupLabel = `${groupLabels[groupBy]}: ${character[groupBy]}`
+            _groupLabel = `${labels[groupBy].group}: ${character[groupBy]}`
     }
 
     return {
@@ -63,13 +64,17 @@ const getSortedCharacters = ({
 /**
  * Retrieve a clone of a character to build a card from.
  * This falls back to the first available character
- * @param key
- * @param value
+ * @param {Int} cid
  * @returns {{img?: string, notes?: string, con?: string, hp?: string, "full attack"?: string, attack_parameters?: string, feats?: string, speed?: string, skills?: string, "base attack/grapple"?: string, attack?: string, dex?: string, treasure?: string, cha?: string, wis?: string, ac?: string, ini?: string, "special attacks"?: string, will?: string, reflex?: string, int?: string, "level adjustment"?: string, cr?: number, str?: string, environment?: string, "space/reach"?: string, organization?: string, name?: string, fort?: string, alignment?: string, base?: string}}
  */
-const getSingleCharacter = (key, value) => {
-    const current = characters.filter(e => e[key] = value);
-    return {...{}, ...(current.length ? current.pop() : characters[0])};
+const getSingleCharacter = cid => {
+    return {
+        meta: {
+            characterId: parseInt(cid, 10),
+            visibility
+        },
+        character: characters[cid]
+    }
 }
 
 export default {

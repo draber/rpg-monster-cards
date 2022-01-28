@@ -77,13 +77,15 @@ class CharacterLibrary extends HTMLElement {
     populate() {
         const characterList = new DocumentFragment();
 
+        const groupContainers = [];
+
         /**
          * Sorted and grouped list of characters
          * @type {Object}
          */
         const characters = Object.values(characterProvider.getSortedCharacters(this));
 
-        let counter = 0;
+        let cid = 0;
 
         characters.forEach(values => {
 
@@ -95,9 +97,9 @@ class CharacterLibrary extends HTMLElement {
             /**
              * Build a `<details>` element for each group
              */
-            characterList.append(fn.details({
+            let groupContainer = fn.details({
                 attributes: {
-                    open: counter === 0
+                    open: cid === 0
                 },
                 content: [
                     fn.summary({
@@ -107,9 +109,24 @@ class CharacterLibrary extends HTMLElement {
                         }
                     }),
                     list
-                ]
-            }))
-            
+                ],
+                events: {
+                    toggle: e => {
+                        if (e.target.open) {
+                            groupContainers.forEach(container => {
+                                if (container.isSameNode(e.target)) {
+                                    return true;
+                                }
+                                container.open = false;
+                            })
+                        }
+                    }
+                }
+            })
+
+            characterList.append(groupContainer);
+            groupContainers.push(groupContainer);
+
             /**
              * Add the characters to their respective list
              */
@@ -118,11 +135,16 @@ class CharacterLibrary extends HTMLElement {
                     content: value.name,
                     attributes: {
                         title: value.name
+                    },
+                    data: {
+                        cid
                     }
                 }))
+                cid++;
             })
-            counter++;
+
         })
+
 
         fn.empty(this).append(characterList);
     }
@@ -136,14 +158,14 @@ class CharacterLibrary extends HTMLElement {
          * On click provide a copy of the requested character
          */
         this.addEventListener('pointerdown', e => {
-            if(e.button !== 0){
+            if (e.button !== 0) {
                 return true;
             }
             const li = e.target.closest('li');
             if (!li) {
                 return false;
             }
-            events.trigger('characterSelection', characterProvider.getSingleCharacter('name', li.textContent))
+            events.trigger('characterSelection', characterProvider.getSingleCharacter(li.dataset.cid))
         })
 
         /**

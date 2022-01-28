@@ -23,14 +23,15 @@
     "src": "src/data/raw/monsters.json",
     "target": "src/data/characters.json"
   },
-  "cardLabels": {
-    "src": "src/data/raw/labels.json",
-    "target": "src/data/card-labels.json"
+  "fields": {
+    "src": "src/data/raw/field-config.yml"
   },
-  "groupLabels": {
-    "src": "src/data/raw/labels.json",
-    "target": "src/data/group-labels.json"
+  "labels": {
+    "target": "src/data/labels.json"
   },
+  "visibility": {
+    "target": "src/data/visibility.json"
+  },  
   "js": {
     "entryPoint": "src/js/app/main.js",
     "public": "public/js/main.js"
