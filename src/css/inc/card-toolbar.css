@@ -13,7 +13,7 @@ card-toolbar {
   background: var(--c-button-bg);
   z-index: 4;
   transition: opacity 0.5s;
-  
+
   & button {
     display: flex;
     align-items: center;
@@ -37,10 +37,16 @@ card-toolbar {
   }
 }
 
-character-card {
+card-base {
   &:hover {
     & card-toolbar {
       opacity: 1;
+    }
+  }
+
+  &.editable {
+    & card-toolbar {
+      display: none;
     }
   }
 }

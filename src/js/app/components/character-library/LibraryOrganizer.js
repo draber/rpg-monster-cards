@@ -7,7 +7,7 @@ import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 /**
  * Custom HTM element to select a group to oder the library by
  */
-class CharacterSorter extends HTMLElement {
+class LibraryOrganizer extends HTMLElement {
 
 
     /**
@@ -92,7 +92,7 @@ class CharacterSorter extends HTMLElement {
 }
 
 const register = () => {
-    customElements.get('character-sorter') || customElements['define']('character-sorter', CharacterSorter)
+    customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer)
 }
 
 export default {

@@ -21,7 +21,7 @@
   },
   "characters": {
     "src": "src/data/raw/monsters.json",
-    "target": "src/data/characters.json"
+    "target": "public/js/characters.json"
   },
   "fields": {
     "src": "src/data/raw/field-config.yml"

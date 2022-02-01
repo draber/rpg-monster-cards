@@ -1,0 +1,6 @@
+{
+    "name": "draggable",
+    "version": "1.0.0",
+    "main": "draggable.js",
+    "type": "module"
+}

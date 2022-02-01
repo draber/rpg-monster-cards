@@ -4,6 +4,11 @@
 		"group": true,
 		"label": true
 	},
+	"__user": {
+		"card": true,
+		"group": true,
+		"label": true
+	},
 	"img": {
 		"card": true,
 		"group": false,

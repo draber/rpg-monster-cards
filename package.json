@@ -25,6 +25,7 @@
     "fraction.js": "^4.1.2",
     "fs-extra": "^10.0.0",
     "handlebars": "^4.7.7",
+    "lodash": "^4.17.21",
     "minimist": "^1.2.5",
     "postcss": "^8.4.4",
     "postcss-cli": "^9.0.2",

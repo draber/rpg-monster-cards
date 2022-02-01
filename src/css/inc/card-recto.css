@@ -1,0 +1,20 @@
+card-recto {
+  display: block;
+  position: relative;
+
+  & img {
+    max-width: 100%;
+    max-height: 23rem;
+    position: relative;
+    mix-blend-mode: multiply;
+    margin: auto;
+  }
+
+  & .frame {    
+    justify-content: flex-end;
+  }
+
+  & .badge {
+    bottom: -0.4rem;
+  }
+}

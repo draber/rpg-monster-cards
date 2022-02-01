@@ -1,0 +1,8 @@
+character-library {
+  display: block;
+  overflow: auto;
+
+  & ul {
+    padding: 1rem 0;
+  }
+}

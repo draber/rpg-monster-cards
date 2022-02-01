@@ -48,7 +48,7 @@ class ColorSelector extends HTMLElement {
     }
 
     fireEvent(type) {
-        console.log( format.tracksToValueObj(this.tracks), this.name)
+        og( format.tracksToValueObj(this.tracks), this.name)
         return this.dispatchEvent(new CustomEvent(type, {
             bubbles: true,
             cancelable: true,

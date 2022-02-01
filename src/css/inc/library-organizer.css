@@ -1,0 +1,61 @@
+library-organizer {
+  display: block;
+  position: relative;
+  padding: 0 1rem;
+  z-index: 1;
+  cursor: pointer;
+
+  & svg {
+    width: 1.8rem;
+    height: 1.8rem;
+    fill: var(--hd-color);
+    position: relative;
+    top: 0.3rem;
+  }
+
+  & .sort-box {
+    position: absolute;
+    padding-top: 3.3rem;
+    top: 0;
+    left: -1000rem;
+    &:after {
+      content: "";
+      // 3.3 = padding top
+      width: calc(100% + (2 * 3.3rem));
+      height: 100%;
+      position: absolute;
+      bottom: -3.3rem;
+      right: -3.3rem;
+      background: rgb(0, 0, 0, 0.3);
+      z-index: -1;
+      filter: blur(2rem);
+    }
+  }
+
+  & h3 {
+    padding-inline: 1rem;
+    border: var(--border);
+    border-bottom: none;
+    background: var(--bg-2-color);
+    line-height: 2;
+    cursor: default;
+  }
+
+  & ul {
+    padding: 0;
+    border: var(--border);
+    overflow-y: auto;
+    max-height: 24rem;
+    min-width: 20rem;
+    background: var(--bg-3-color);
+  }
+
+  &:hover {
+    & .sort-box {
+      left: 0;
+    }
+    & svg {
+      fill: var(--text-color);
+    }
+  }
+}

@@ -1,79 +1,28 @@
 import fn from 'fancy-node';
-import labels from '../../../../data/labels.json';
+import fields from './field-service.js';
 
 class CardVerso extends HTMLElement {
 
-    isRecto(key) {
-        return ['img', 'name'].includes(key);
-    }
+    buildRow(key) {
+        const entries = {
+            label: fn.th({
+                attributes: {
+                    hidden: !fields.isVisible(key, 'label'),
+                },
+                content: fields.getLabel(key)
+            }),
 
-    tpl() {
-        const tpl = `
-        <figure class="𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫">
-            <table></table>
-            <div class="badge cr">${this.character.cr}</div>
-            <figcaption class="badge">${this.character.name}</figcaption>
-        </figure>`;
+            element: fn.td({
+                content: fields.getProp(key)
+            })
+        }
+        fields.setRendered('verso', key, entries.element, entries.label);
 
-        return fn.toNode(tpl);
-    }
-
-
-    icon(key, type) {
-        const icon = this.display(key, type) ? 'show' : 'hide';
-        return fn.svg({
-            isSvg: true,
-            content: [
-                fn.title({
-                    isSvg: true,
-                    content: type === 'label' ? 'Display a label with this item' : 'Display this item'
-                }),
-                fn.use({
-                    isSvg: true,
-                    attributes: {
-                        href: `media/icons.svg#icon-${icon}`
-                    }
-                })
-            ]
-        })
-    }
-
-    display(key, type) {
-        return this.isRecto(key) ? 'immutable' : this.meta.visibility[key][type];
-    }
-
-    label(key) {
-        return labels[key].short;
-    }
-
-    row(key, value) {
         return fn.tr({
-            data: {
-                display: this.display(key, 'card'),
-                key
+            attributes: {
+                hidden: !fields.isVisible(key, 'card'),
             },
-            content: [
-                // label row
-                fn.th({
-                    data: {
-                        display: this.display(key, 'label'),
-                    },
-                    content: this.label(key)
-                }),
-                // text row
-                fn.td({
-                    content: value
-                }),
-                // icon row
-                fn.td({
-                    content: (() => {
-                        return this.isRecto(key) ? '' : [
-                            this.icon(key, 'label'),
-                            this.icon(key, 'card')
-                        ]
-                    })()
-                }),
-            ]
+            content: Object.values(entries)
         });
     }
 
@@ -82,25 +31,35 @@ class CardVerso extends HTMLElement {
      */
     connectedCallback() {
 
-        if (!this.character) {
-            throw Error(`Missing property "character" on <card-verso> element`);
+        const entries = {
+            name: fn.caption({
+                classNames: ['badge'],
+                content: fields.getProp('name')
+            }),
+            cr: fn.div({
+                classNames: ['badge', 'cr'],
+                content: fields.getProp('cr')
+            })
         }
-        if (!this.meta) {
-            throw Error(`Missing property "meta" on <card-verso> element`);
-        }
-
-        const template = this.tpl();
-        const tbl = fn.$('table', template);
-
-        for (let [key, value] of Object.entries(this.character)) {
-            if (['img', 'name'].includes()) {
-                continue;
-            }
-            tbl.append(this.row(key, value));
+        for (let [key, element] of Object.entries(entries)) {
+            fields.setRendered('verso', key, element, null);
         }
 
+        const tbody = fn.tbody();
+        const frame = fn.table({
+            classNames: ['frame'],
+            content: [
+                entries.name,
+                tbody
+            ]
+        })
 
-        this.append(template);
+
+        for (let key of fields.getOrder(['img', 'name'])) {
+            tbody.append(this.buildRow(key));
+        }
+
+        this.append(frame, entries.cr);
     }
 
     constructor(self) {

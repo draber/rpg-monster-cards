@@ -14,21 +14,18 @@ class CardToolbar extends HTMLElement {
      */
     connectedCallback() {
 
-        if (!this.character) {
-            throw Error(`Missing property "character" on <card-toolbar> element`);
-        }
 
         this.addEventListener('pointerup', e => {
             const btn = e.target.closest('button');
             if (!btn || e.button !== 0) {
                 return true;
             }
-            events.trigger(camel(`character-${e.target.name}`), this.closest('character-card'));
+            events.trigger(camel(`character-${e.target.name}`), this.closest('card-base'));
         })
 
         const buttons = {
             remove: {
-                text: 'Eradicate',
+                text: 'Unmake',
                 icon: 'media/icons.svg#icon-axe'
             },
             edit: {

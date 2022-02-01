@@ -2,6 +2,7 @@ import fn from 'fancy-node';
 import characterProvider from './character-provider.js';
 import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
+import characterMap from './character-map.js';
 
 /**
  * Custom element containing the list of characters
@@ -75,6 +76,7 @@ class CharacterLibrary extends HTMLElement {
     }
 
     populate() {
+
         const characterList = new DocumentFragment();
 
         const groupContainers = [];
@@ -83,11 +85,14 @@ class CharacterLibrary extends HTMLElement {
          * Sorted and grouped list of characters
          * @type {Object}
          */
-        const characters = Object.values(characterProvider.getSortedCharacters(this));
+        // @todo: unused yet, but could be nice
+        // const userGroups = Object.values(characterProvider.getSortedCharacters('user', {
+        //     groupBy: '__user',
+        //     sortBy: 'name'
+        // }));
+        const systemGroups = Object.values(characterProvider.getSortedCharacters('system', this));
 
-        let cid = 0;
-
-        characters.forEach(values => {
+        systemGroups.forEach((values, index) => {
 
             /**
              * List of characters per group
@@ -98,14 +103,15 @@ class CharacterLibrary extends HTMLElement {
              * Build a `<details>` element for each group
              */
             let groupContainer = fn.details({
+
                 attributes: {
-                    open: cid === 0
+                    open: index === 0
                 },
                 content: [
                     fn.summary({
-                        content: values[0]._groupLabel,
+                        content: values[0].meta._groupLabel,
                         attributes: {
-                            title: values[0]._groupLabel
+                            title: values[0].meta._groupLabel
                         }
                     }),
                     list
@@ -132,17 +138,15 @@ class CharacterLibrary extends HTMLElement {
              */
             values.forEach(value => {
                 list.append(fn.li({
-                    content: value.name,
+                    content: value.props.name,
                     attributes: {
-                        title: value.name
+                        title: value.props.name
                     },
                     data: {
-                        cid
+                        cid: value.meta.cid
                     }
                 }))
-                cid++;
             })
-
         })
 
 
@@ -165,7 +169,12 @@ class CharacterLibrary extends HTMLElement {
             if (!li) {
                 return false;
             }
-            events.trigger('characterSelection', characterProvider.getSingleCharacter(li.dataset.cid))
+            events.trigger('characterSelection', (()=>{
+                const entry = characterMap.get('system', parseInt(li.dataset.cid, 10));
+                delete entry.meta._groupLabel;
+                delete entry.meta._groupValue;
+                return entry;
+            })());
         })
 
         /**

@@ -19,11 +19,11 @@ const getCharacters = (characterSrcFile, fieldSrcFile) => {
             } else if (['—', 'Ø', '-'].includes(value)) {
                 characters[i][charKey] = '';
             } else if (/\bft\./.test(value)) {
-                characters[i][charKey] = value.replace(/(\bft)\./, '$1');
+                characters[i][charKey] = value.replace(/(\bft)\./g, '$1');
             }
             // fix broken images
             else if (charKey === 'img' && !value) {
-                characters[i][charKey] = 'media/no-character-image-fallback.png';
+                characters[i][charKey] = 'media/character-fallback-image.png';
             } else if (charKey === 'img' && value.startsWith('javascript')) {
                 characters[i][charKey] = value.replace(imgRe, '//wizards.com/dnd/images/$1.jpg');
             } 
@@ -31,7 +31,7 @@ const getCharacters = (characterSrcFile, fieldSrcFile) => {
             else if (charKey === 'img' && value.startsWith('http://www.wizards.com')) {
                 characters[i][charKey] = value.replace('http://www.', '//');
             }
-
+            // shorten keys
             if (fieldConfig[charKey].key !== charKey) {
                 characters[i][fieldConfig[charKey].key] = characters[i][charKey];
                 delete characters[i][charKey];

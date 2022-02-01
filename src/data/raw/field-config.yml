@@ -10,6 +10,15 @@ name:
     label: true         # display a label for this element on the card, default: true
     group: true         # display this element on 'Group by', default: false
   key: name             # display this element default: the actual key, e.g. 'name'
+
+# this is a special field to label the group of user built items in the library
+__user:
+  labels:
+    long: Thy Creatures
+  visibility:
+    group: true  
+
+# back to regular fields
 img:
   labels:
     long: Image

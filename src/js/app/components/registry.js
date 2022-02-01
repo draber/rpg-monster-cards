@@ -1,12 +1,12 @@
-import CharacterLibrary from './character-library/character-library.js';
-import CharacterSorter from './character-sorter/character-sorter.js';
-import FontSelector from './font-selector/font-selector.js';
-import PatternSelector from './pattern-selector/pattern-selector.js';
-import ColorSelector from './color-selector/color-selector.js';
+import CharacterLibrary from './character-library/CharacterLibrary.js';
+import LibraryOrganizer from './character-library/LibraryOrganizer.js';
+import FontSelector from './font-selector/FontSelector.js';
+import PatternSelector from './pattern-selector/PatternSelector.js';
+import ColorSelector from './color-selector/ColorSelector.js';
 
 const components = [
     CharacterLibrary,
-    CharacterSorter,
+    LibraryOrganizer,
     FontSelector,
     PatternSelector,
     ColorSelector
