@@ -1,57 +1,85 @@
 card-form {
   display: none;
   flex: 2;
+  background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l)) var(--c-bg-pattern);
+  box-shadow: 0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
+  color: var(--c-color);
+  position: relative;
 
-  & .frame {
-    width: auto;
-    background: none;
-    &::before,
-    &::after {
-      content: normal;
+  & > svg {
+    &.quill {
+      position: absolute;
+      right: 2rem;
+      top: 3rem;
+      width: 5rem;
+      cursor: default;
+      fill: var(--bg-6-color);
     }
-    box-shadow: none;
   }
 
+  & [contenteditable] {
+    border: 0.1rem dotted var(--bg-6-color);
+    padding: .2rem .5rem;
+    background: hsl(0 0% 100% / 0.3);
+    border-radius: var(--border-radius);
+    &:focus{
+      outline:none;
+      border-style: solid;
+      background: hsl(0 0% 100% / 0.6);
+    }
+  }
+
+  & caption {
+    display: inline-block;
+    padding: 0 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    text-align: left;
+    fill: var(--bg-6-color);
+  }
+
+  & table {
+    display: block;
+    padding: 2rem;
+  }
+
+  & tbody,
+  & thead {
+    display: block;
+    padding: 0;
+    font-size: 1.3rem;
+  }
+
+  & thead {
+    display: block;
+    margin-bottom: 2rem;
+    & td {
+      display: inline-block;
+    }
+  }
 
   & tbody {
     display: block;
     column-count: 2;
-    column-gap: 4rem;
-    padding: 0;
-    list-style: none;
-    font-size: 1.3rem;
+    column-gap: 3rem;
+    & tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    & td {
+      &:nth-child(3) {
+        flex: 2;
+      }
+    }
   }
 
   & tr {
-    border-bottom: var(--border);
     display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    padding: .2rem 0;
     &.no-card {
-      opacity: 0.6;
-    }
-    &.immovable {
-    }
-    /* &[data-key="img"] {
-      & td {
-        &:nth-last-child(2) {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          text-align: right;
-        }
-      }
-    } */
-    &::before {
-      content: "…\A…";
-      padding: 0 0.3rem;
-      line-height: 6px;
-      display: block;
-      width: 2rem;
-      height: 2rem;
-      font-weight: bold;
-      font-size: 12px;
-      transform-origin: 50%;
-      transform: rotate(90deg);
-      cursor: move;
+      opacity: .8;
     }
   }
 
@@ -59,38 +87,47 @@ card-form {
   & td {
     display: block;
     text-align: left;
-    white-space: normal;
-    vertical-align: top;
+    border: none;
+    background: transparent;
     padding: 2px;
-    &::after {
-      content: normal;
+    border-radius: var(--border-radius);
+  }
+
+  & td {
+    &.icon {
+      border: 0.1rem solid hsl(0 0% 0% / .2);
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      padding: .5rem;
+      cursor: pointer;
+      &.handle {
+        cursor: move;
+        border: none;
+      }
     }
   }
 
   & th {
-    min-width: 8rem;
-  }
-
-  & td {
-    max-width: 35rem;
-    &:nth-last-child(3) {
-      flex: 2;
-    }
+    width: 10ch;
   }
 
   & svg {
     width: 1.2rem;
     aspect-ratio: 1 / 1;
-    fill: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+    fill: var(--bg-5-color);
     filter: contrast(25%);
-    cursor: pointer;
+  }
+
+  & .dragover {
+    border-bottom: 3px green solid;
   }
 }
 
-card-base {  
-    &.editable {
-        & card-form {
-            display: block;
-        }
+card-base {
+  &.editable {
+    & card-form {
+      display: block;
     }
   }
+}

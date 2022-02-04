@@ -32,6 +32,7 @@ card-base {
     font-family: "Della Respira";
     transform-origin: 50%;
     display: flex;
+    align-items: flex-start;
   }
 
   & .card-view {
@@ -117,21 +118,14 @@ card-base {
   }
 
   &.editable {
-    z-index: 100;
-    position: absolute;
-    left: 0;
-    top: 5rem;
-    right: 0;
-    bottom: 0;
-    background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l))
-      var(--c-bg-pattern);
-    padding: 2rem;
+    width: 100%;
 
     & .card-view {
       flex-direction: column;
     }
     & article {
       height: 100%;
+      gap: 1rem
     }
   }
 }

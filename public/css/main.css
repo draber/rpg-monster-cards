@@ -531,6 +531,7 @@ card-base article{
     font-family:"Della Respira";
     transform-origin:50%;
     display:flex;
+    align-items:flex-start;
   }
 
 card-base .card-view{
@@ -635,17 +636,7 @@ card-base.banish .𝔘𝔫𝔥𝔬𝔩𝔡{
     }
 
 card-base.editable{
-    z-index:100;
-    position:absolute;
-    left:0;
-    top:5rem;
-    right:0;
-    bottom:0;
-    background:hsl(45, 93%, 89%)
-      url(../media/patterns/backgrounds/light-rocky-wall.png);
-    background:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l))
-      var(--c-bg-pattern);
-    padding:2rem
+    width:100%
   }
 
 card-base.editable .card-view{
@@ -654,6 +645,7 @@ card-base.editable .card-view{
 
 card-base.editable article{
       height:100%;
+      gap:1rem
     }
 
 card-recto{
@@ -790,101 +782,145 @@ card-base.editable card-toolbar{
 
 card-form{
   display:none;
-  flex:2
+  flex:2;
+  background:hsl(45, 93%, 89%) url(../media/patterns/backgrounds/light-rocky-wall.png);
+  background:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l)) var(--c-bg-pattern);
+  box-shadow:0.24rem 0.24rem 0.64rem 0 hsla(0, 0%, 0%, 0.4);
+  box-shadow:0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
+  color:hsl(0, 0%, 0%);
+  color:var(--c-color);
+  position:relative
 }
 
-card-form .frame{
-    width:auto;
-    background:none;
-  }
-
-card-form .frame::before,
-    card-form .frame::after{
-      content:normal;
+card-form > svg.quill{
+      position:absolute;
+      right:2rem;
+      top:3rem;
+      width:5rem;
+      cursor:default;
+      fill:hsl(15, 50%, 36%);
+      fill:var(--bg-6-color);
     }
 
-card-form .frame{
-    box-shadow:none;
+card-form [contenteditable]{
+    border:0.1rem dotted hsl(15, 50%, 36%);
+    border:0.1rem dotted var(--bg-6-color);
+    padding:.2rem .5rem;
+    background:hsla(0, 0%, 100%, 0.3);
+    border-radius:.2rem;
+    border-radius:var(--border-radius)
   }
+
+card-form [contenteditable]:focus{
+      outline:none;
+      border-style:solid;
+      background:hsla(0, 0%, 100%, 0.6);
+    }
+
+card-form caption{
+    display:inline-block;
+    padding:0 0.5rem;
+    margin-bottom:2rem;
+    font-size:1.8rem;
+    text-align:left;
+    fill:hsl(15, 50%, 36%);
+    fill:var(--bg-6-color);
+  }
+
+card-form table{
+    display:block;
+    padding:2rem;
+  }
+
+card-form tbody,
+  card-form thead{
+    display:block;
+    padding:0;
+    font-size:1.3rem;
+  }
+
+card-form thead{
+    display:block;
+    margin-bottom:2rem
+  }
+
+card-form thead td{
+      display:inline-block;
+    }
 
 card-form tbody{
     display:block;
     -moz-column-count:2;
          column-count:2;
-    -moz-column-gap:4rem;
-         column-gap:4rem;
-    padding:0;
-    list-style:none;
-    font-size:1.3rem;
+    -moz-column-gap:3rem;
+         column-gap:3rem
   }
 
+card-form tbody tr{
+      page-break-inside:avoid;
+      -moz-column-break-inside:avoid;
+           break-inside:avoid;
+    }
+
+card-form tbody td:nth-child(3){
+        flex:2;
+      }
+
 card-form tr{
-    border-bottom:.1rem solid hsla(46, 85%, 39%, .2);
-    border-bottom:var(--border);
-    display:flex
+    display:flex;
+    align-items:flex-start;
+    gap:.5rem;
+    padding:.2rem 0
   }
 
 card-form tr.no-card{
-      opacity:0.6;
-    }
-
-card-form tr.immovable{
-    }
-
-card-form tr{
-  }
-
-card-form tr::before{
-      content:"…\A…";
-      padding:0 0.3rem;
-      line-height:6px;
-      display:block;
-      width:2rem;
-      height:2rem;
-      font-weight:bold;
-      font-size:12px;
-      transform-origin:50%;
-      transform:rotate(90deg);
-      cursor:move;
+      opacity:.8;
     }
 
 card-form th,
   card-form td{
     display:block;
     text-align:left;
-    white-space:normal;
-    vertical-align:top;
-    padding:2px
+    border:none;
+    background:transparent;
+    padding:2px;
+    border-radius:.2rem;
+    border-radius:var(--border-radius);
   }
 
-card-form th::after, card-form td::after{
-      content:normal;
+card-form td.icon{
+      border:0.1rem solid hsla(0, 0%, 0%, .2);
+      display:flex;
+      justify-content:center;
+      align-content:center;
+      padding:.5rem;
+      cursor:pointer
     }
+
+card-form td.icon.handle{
+        cursor:move;
+        border:none;
+      }
 
 card-form th{
-    min-width:8rem;
+    width:10ch;
   }
-
-card-form td{
-    max-width:35rem
-  }
-
-card-form td:nth-last-child(3){
-      flex:2;
-    }
 
 card-form svg{
     width:1.2rem;
     aspect-ratio:1 / 1;
-    fill:hsl(201, 39%, 24%);
-    fill:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+    fill:hsl(15, 50%, 32%);
+    fill:var(--bg-5-color);
     filter:contrast(25%);
-    cursor:pointer;
+  }
+
+card-form .dragover{
+    border-bottom:3px green solid;
   }
 
 card-base.editable card-form{
-            display:block;
-        }
+      display:block;
+    }
 
 pattern-selector{
   display:block

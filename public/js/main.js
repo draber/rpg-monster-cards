@@ -544,7 +544,7 @@
     const nextIncrement = type => {
         return Math.max(...[0].concat(keyArray(type))) + 1;
     };
-    const init$3 = () => {
+    const init$2 = () => {
         storage.read().forEach((entry, index) => {
             set$2('user', index, entry);
         });
@@ -563,7 +563,7 @@
             }));
     };
     var characterMap = {
-        init: init$3,
+        init: init$2,
         get: get$2,
         set: set$2,
         remove: remove$1,
@@ -1720,15 +1720,15 @@
     const getOrder = (ignoreList = []) => {
         return order.filter(entry => !ignoreList.includes(entry))
     };
-    const setRendered = (origin, key, element, label) => {
+    const setRendered = (origin, key, value, label) => {
         rendered[origin] = rendered[origin] || {};
         rendered[origin][key] = rendered[origin][key] || [];
         rendered[origin][key].push({
-            element,
+            value,
             label
         });
     };
-    const init$2 = character => {
+    const init$1 = character => {
         visibility = character.meta.visibility;
         props = character.props;
         order = Object.keys(character.props);
@@ -1736,7 +1736,7 @@
     var fields = {
         getProp,
         move,
-        init: init$2,
+        init: init$1,
         getProps,
         setRendered,
         getLabel,
@@ -1839,141 +1839,179 @@
         register: register$3
     };
 
-    let dragSrcEl = null;
-    function handleDragStart(e) {
-        dragSrcEl = this;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.outerHTML);
-        this.classList.add('dragElem');
-    }
-    function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        this.classList.add('over');
-        e.dataTransfer.dropEffect = 'move';
-        return false;
-    }
-    function handleDragEnter(e) {
-    }
-    function handleDragLeave(e) {
-        this.classList.remove('over');
-    }
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
-        }
-        if (dragSrcEl != this) {
-            this.parentNode.removeChild(dragSrcEl);
-            let dropHTML = e.dataTransfer.getData('text/html');
-            this.insertAdjacentHTML('beforebegin', dropHTML);
-            let dropElem = this.previousSibling;
-            enableDnD(dropElem);
-        }
-        this.classList.remove('over');
-        return false;
-    }
-    function handleDragEnd(e) {
-        this.classList.remove('over');
-    }
-    function enableDnD(elem) {
-        elem.addEventListener('dragstart', handleDragStart, false);
-        elem.addEventListener('dragenter', handleDragEnter, false);
-        elem.addEventListener('dragover', handleDragOver, false);
-        elem.addEventListener('dragleave', handleDragLeave, false);
-        elem.addEventListener('drop', handleDrop, false);
-        elem.addEventListener('dragend', handleDragEnd, false);
-    }
-    const init$1 = container => {
-        src.$$('[draggable]', container).forEach(elem => {
-            enableDnD(elem);
-        });
-    };
-    var draggable = {
-        init: init$1
-    };
-
     class CardForm extends HTMLElement {
         icon(key, type) {
-            const icon = fields.isVisible(key, type) ? 'show' : 'hide';
+            const nextState = fields.isVisible(key, type) ? 'show' : 'hide';
+            let title;
+            let href;
+            switch (type) {
+                case 'item':
+                    title = 'Display this item on the card';
+                    href = `media/icons.svg#icon-${nextState}-${type}`;
+                    break;
+                case 'label':
+                    title = 'Display the item label';
+                    href = `media/icons.svg#icon-${nextState}-${type}`;
+                    break;
+                case 'drag':
+                    title = 'Drag item to different position';
+                    href = `media/icons.svg#icon-drag-grip`;
+                    break;
+            }
             return src.svg({
                 isSvg: true,
                 content: [
                     src.title({
                         isSvg: true,
-                        content: type === 'label' ? 'Display a label with this item' : 'Display this item'
+                        content: title
                     }),
                     src.use({
                         isSvg: true,
                         attributes: {
-                            href: `media/icons.svg#icon-${icon}-${type === 'card' ? 'item' : 'label'}`
+                            href
                         }
                     })
                 ]
             })
         }
+        broadCastTextChange(e) {
+            if (!e.target.contentEditable) {
+                return true;
+            }
+            const key = e.target.dataset.key ? e.target.dataset.key : e.target.closest('tr').dataset.key;
+            const type = e.target.nodeName === 'TH' ? 'label' : 'value';
+            const text = e.target.textContent;
+            for (let [segment, list] of Object.entries(fields.rendered)) {
+                if (segment === 'form') {
+                    continue;
+                }
+                if (list[key]) {
+                    list[key].forEach(row => {
+                        if (row[type]) {
+                            key === 'img' ? row[type].src = text : row[type].textContent = text;
+                        }
+                    });
+                }
+            }
+            console.log(fields.rendered);
+        }
         buildRow(key) {
+            const data = this.buildCells(key);
+            return src.tr({
+                data: {
+                    key
+                },
+                classNames: data.classNames,
+                content: data.cells,
+                events: {
+                    pointerdown: function (e) {
+                        this.draggable === e.target.nodeName === 'TR';
+                    }
+                }
+            });
+        }
+        buildCells(key) {
             const entries = {
+                dragIcon: src.td({
+                    classNames: ['icon', 'handle'],
+                    content: this.icon(key, 'drag')
+                }),
                 label: src.th({
                     attributes: {
-                        contentEditable: true,
-                    },
-                    events: {
-                        keyup: e => {
-                            console.log(e);
-                        }
+                        contentEditable: true
                     },
                     content: fields.getLabel(key)
                 }),
                 element: src.td({
                     attributes: {
-                        contentEditable: true,
-                    },
-                    events: {
-                        keyup: e => {
-                            console.log(e);
-                        }
+                        contentEditable: true
                     },
                     content: fields.getProp(key)
+                }),
+                labelIcon: src.td({
+                    classNames: ['icon'],
+                    content: this.icon(key, 'label')
+                }),
+                cardIcon: src.td({
+                    classNames: ['icon'],
+                    content: this.icon(key, 'item')
                 })
             };
             fields.setRendered('form', key, entries.element, entries.label);
-            const cells = Object.values(entries);
-            ['card', 'label'].forEach(type => {
-                cells.push(src.td({
-                    content: ['img', 'name'].includes(key) ? '' : this.icon(key, type)
-                }));
-            });
             const classNames = [];
-            if(!fields.isVisible(key, 'card')){
+            if (!fields.isVisible(key, 'card')) {
                 classNames.push('no-card');
             }
-            if(!fields.isVisible(key, 'label')){
+            if (!fields.isVisible(key, 'label')) {
                 classNames.push('no-label');
             }
-            if(['img', 'name'].includes(key)){
-                classNames.push('immovable');
-            }
-            return src.tr({
-                attributes: {
-                    draggable: true,
-                },
+            return {
                 classNames,
-                content: cells
-            });
+                cells: Object.values(entries)
+            }
+        }
+        populateTbody(tbody) {
+            for (let key of fields.getOrder(['img', 'name'])) {
+                tbody.append(this.buildRow(key, false));
+            }
         }
         connectedCallback() {
+            const quill = src.svg({
+                isSvg: true,
+                classNames: ['quill'],
+                content: src.use({
+                    isSvg: true,
+                    attributes: {
+                        href: 'media/icons.svg#icon-quill'
+                    }
+                })
+            });
             const tbody = src.tbody();
             const frame = src.table({
-                classNames: ['frame'],
-                content: tbody
+                content: [
+                    src.caption({
+                        attributes: {
+                            contentEditable: true
+                        },
+                        data: {
+                            key: 'name'
+                        },
+                        content: fields.getProp('name')
+                    }),
+                    src.thead({
+                        content: [
+                            src.tr({
+                                data: {
+                                    key: 'img'
+                                },
+                                content: [
+                                    src.th({
+                                        content: 'Image'
+                                    }),
+                                    src.td({
+                                        attributes: {
+                                            colSpan: 4,
+                                            contentEditable: true
+                                        },
+                                        content: fields.getProp('img')
+                                    })
+                                ]
+                            })
+                        ]
+                    }),
+                    tbody
+                ],
+                events: {
+                    input: e => {
+                        this.broadCastTextChange(e);
+                    },
+                    paste: e => {
+                        this.broadCastTextChange(e);
+                    }
+                }
             });
-            frame.append(tbody);
-            for (let key of fields.getOrder()) {
-                tbody.append(this.buildRow(key));
-            }
-            draggable.init(tbody);
-            this.append(frame);
+            this.populateTbody(tbody);
+            this.append(quill, frame);
         }
         constructor(self) {
             self = super(self);

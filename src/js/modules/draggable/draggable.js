@@ -3,6 +3,8 @@ import fn from 'fancy-node';
 let dragSrcEl = null;
 
 function handleDragStart(e) {
+    e.stopPropagation()
+    console.log({d:e.target.draggable , c:e.target.contentEditable, n:e.target.nodeName})
     // Target (this) element is the source node.
     dragSrcEl = this;
 
@@ -16,7 +18,7 @@ function handleDragOver(e) {
     if (e.preventDefault) {
         e.preventDefault(); // Necessary. Allows us to drop.
     }
-    this.classList.add('over');
+    this.classList.add('dragover');
 
     e.dataTransfer.dropEffect = 'move'; // See the section on the DataTransfer object.
 
@@ -28,44 +30,29 @@ function handleDragEnter(e) {
 }
 
 function handleDragLeave(e) {
-    this.classList.remove('over'); // this / e.target is previous target element.
+    this.classList.remove('dragover'); // this / e.target is previous target element.
 }
 
 function handleDrop(e) {
-    // this/e.target is current target element.
-
-    if (e.stopPropagation) {
-        e.stopPropagation(); // Stops some browsers from redirecting.
+    e.stopPropagation();
+    if (!dragSrcEl.isSameNode(this)) {
+        this.after(dragSrcEl);
     }
-
-    // Don't do anything if dropping the same column we're dragging.
-    if (dragSrcEl != this) {
-        // Set the source column's HTML to the HTML of the column we dropped on.
-        //alert(this.outerHTML);
-        //dragSrcEl.innerHTML = this.innerHTML;
-        //this.innerHTML = e.dataTransfer.getData('text/html');
-        this.parentNode.removeChild(dragSrcEl);
-        let dropHTML = e.dataTransfer.getData('text/html');
-        this.insertAdjacentHTML('beforebegin', dropHTML);
-        let dropElem = this.previousSibling;
-        enableDnD(dropElem);
-
-    }
-    this.classList.remove('over');
+    this.classList.remove('dragover');
     return false;
 }
 
 function handleDragEnd(e) {
     // this/e.target is the source node.
-    this.classList.remove('over');
+    this.classList.remove('dragover');
 
     /*[].forEach.call(cols, function (col) {
-      col.classList.remove('over');
+      col.classList.remove('dragover');
     });*/
 }
 
 function enableDnD(elem) {
-    elem.addEventListener('dragstart', handleDragStart, false);
+    elem.addEventListener('dragstart', handleDragStart, true);
     elem.addEventListener('dragenter', handleDragEnter, false)
     elem.addEventListener('dragover', handleDragOver, false);
     elem.addEventListener('dragleave', handleDragLeave, false);

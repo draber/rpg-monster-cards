@@ -39,11 +39,11 @@ const getOrder = (ignoreList = []) => {
     return order.filter(entry => !ignoreList.includes(entry))
 }
 
-const setRendered = (origin, key, element, label) => {
+const setRendered = (origin, key, value, label) => {
     rendered[origin] = rendered[origin] || {};
     rendered[origin][key] = rendered[origin][key] || [];
     rendered[origin][key].push({
-        element,
+        value,
         label
     });
 }
