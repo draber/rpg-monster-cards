@@ -69,6 +69,9 @@ class CardForm extends HTMLElement {
     buildRow(key) {
         const data = this.buildCells(key);
         return fn.tr({
+            attributes:{
+                draggable: true
+            },
             data: {
                 key
             },
@@ -185,16 +188,49 @@ class CardForm extends HTMLElement {
             events: {
                 input: e => {
                     this.broadCastTextChange(e);
-                },                
+                },
                 paste: e => {
                     this.broadCastTextChange(e);
+                },
+                pointerdown: e => {
+                    // if (e.target.closest('.handle')) {
+                    //     fn.$$('tr', tbody).forEach(elem => {
+                    //         draggable.toggle(elem, true);
+                    //     })
+                    // }
+                },
+                pointerup: () => {
+                    // console.log('pup', fn.$$('tr', tbody))
+                    // fn.$$('tr', tbody).forEach(elem => {
+                    //     draggable.toggle(elem, false);
+                    // })
                 }
             }
         })
 
         this.populateTbody(tbody);
 
-        // draggable.init(ul);
+        // content editing interferes with drag and drop
+        // dnd must be disbaled while editing
+        fn.$$('[contenteditable]', tbody).forEach(elem => {
+            const row = elem.closest('[draggable]');
+            if(!row) {
+                return true;
+            }
+            elem.addEventListener('focus', e => {
+                draggable.disable(e.target.closest('[draggable]'));
+            })
+            elem.addEventListener('blur', e => {
+                draggable.enable(e.target.closest('[draggable]'));
+            })
+        })
+
+        // enable draggability for all rows in tbody
+        fn.$$('[draggable]', tbody).forEach(elem => {
+            draggable.enable(elem);
+        })
+
+
         this.append(quill, frame);
     }
 

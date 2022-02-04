@@ -864,6 +864,8 @@ card-form tbody tr{
 
 card-form tbody td:nth-child(3){
         flex:2;
+        resize:vertical;
+        overflow:auto;
       }
 
 card-form tr{

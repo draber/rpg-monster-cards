@@ -1,10 +1,7 @@
-import fn from 'fancy-node';
-
 let dragSrcEl = null;
 
 function handleDragStart(e) {
     e.stopPropagation()
-    console.log({d:e.target.draggable , c:e.target.contentEditable, n:e.target.nodeName})
     // Target (this) element is the source node.
     dragSrcEl = this;
 
@@ -15,9 +12,7 @@ function handleDragStart(e) {
 }
 
 function handleDragOver(e) {
-    if (e.preventDefault) {
-        e.preventDefault(); // Necessary. Allows us to drop.
-    }
+    e.preventDefault(); // Necessary. Allows us to drop.
     this.classList.add('dragover');
 
     e.dataTransfer.dropEffect = 'move'; // See the section on the DataTransfer object.
@@ -45,27 +40,35 @@ function handleDrop(e) {
 function handleDragEnd(e) {
     // this/e.target is the source node.
     this.classList.remove('dragover');
-
-    /*[].forEach.call(cols, function (col) {
-      col.classList.remove('dragover');
-    });*/
 }
 
-function enableDnD(elem) {
-    elem.addEventListener('dragstart', handleDragStart, true);
-    elem.addEventListener('dragenter', handleDragEnter, false)
-    elem.addEventListener('dragover', handleDragOver, false);
-    elem.addEventListener('dragleave', handleDragLeave, false);
-    elem.addEventListener('drop', handleDrop, false);
-    elem.addEventListener('dragend', handleDragEnd, false);
+const handles = {
+    dragstart: handleDragStart,
+    dragenter: handleDragEnter,
+    dragover: handleDragOver,
+    dragleave: handleDragLeave,
+    drop: handleDrop,
+    dragend: handleDragEnd,
 }
 
-const init = container => {
-    fn.$$('[draggable]', container).forEach(elem => {
-        enableDnD(elem)
-    })
+function toggle(elem, state) {
+    const action = state ? 'addEventListener' : 'removeEventListener';
+    elem.draggable = state;
+    for (let [evt, fn] of Object.entries(handles)) {
+        elem[action](evt, fn, false);
+    }
+}
+
+function enable(elem) {
+    return toggle(elem, true);
+}
+
+function disable(elem) {
+    return toggle(elem, false);
 }
 
 export default {
-    init
+    toggle,
+    enable,
+    disable
 };

@@ -1839,6 +1839,63 @@
         register: register$3
     };
 
+    let dragSrcEl = null;
+    function handleDragStart(e) {
+        e.stopPropagation();
+        dragSrcEl = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.outerHTML);
+        this.classList.add('dragElem');
+    }
+    function handleDragOver(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+    function handleDragEnter(e) {
+    }
+    function handleDragLeave(e) {
+        this.classList.remove('dragover');
+    }
+    function handleDrop(e) {
+        e.stopPropagation();
+        if (!dragSrcEl.isSameNode(this)) {
+            this.after(dragSrcEl);
+        }
+        this.classList.remove('dragover');
+        return false;
+    }
+    function handleDragEnd(e) {
+        this.classList.remove('dragover');
+    }
+    const handles = {
+        dragstart: handleDragStart,
+        dragenter: handleDragEnter,
+        dragover: handleDragOver,
+        dragleave: handleDragLeave,
+        drop: handleDrop,
+        dragend: handleDragEnd,
+    };
+    function toggle(elem, state) {
+        const action = state ? 'addEventListener' : 'removeEventListener';
+        elem.draggable = state;
+        for (let [evt, fn] of Object.entries(handles)) {
+            elem[action](evt, fn, false);
+        }
+    }
+    function enable(elem) {
+        return toggle(elem, true);
+    }
+    function disable(elem) {
+        return toggle(elem, false);
+    }
+    var draggable = {
+        toggle,
+        enable,
+        disable
+    };
+
     class CardForm extends HTMLElement {
         icon(key, type) {
             const nextState = fields.isVisible(key, type) ? 'show' : 'hide';
@@ -1898,6 +1955,9 @@
         buildRow(key) {
             const data = this.buildCells(key);
             return src.tr({
+                attributes:{
+                    draggable: true
+                },
                 data: {
                     key
                 },
@@ -2007,10 +2067,29 @@
                     },
                     paste: e => {
                         this.broadCastTextChange(e);
+                    },
+                    pointerdown: e => {
+                    },
+                    pointerup: () => {
                     }
                 }
             });
             this.populateTbody(tbody);
+            src.$$('[contenteditable]', tbody).forEach(elem => {
+                const row = elem.closest('[draggable]');
+                if(!row) {
+                    return true;
+                }
+                elem.addEventListener('focus', e => {
+                    draggable.disable(e.target.closest('[draggable]'));
+                });
+                elem.addEventListener('blur', e => {
+                    draggable.enable(e.target.closest('[draggable]'));
+                });
+            });
+            src.$$('[draggable]', tbody).forEach(elem => {
+                draggable.enable(elem);
+            });
             this.append(quill, frame);
         }
         constructor(self) {
