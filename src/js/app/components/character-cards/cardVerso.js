@@ -1,29 +1,41 @@
 import fn from 'fancy-node';
-import fields from './field-service.js';
 
 class CardVerso extends HTMLElement {
+
+    isVisible(key, type) {
+        return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+    }
+
+    populateTbody(tbody) {
+        tbody = fn.empty(tbody);
+        for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+            tbody.append(this.buildRow(key));
+        }
+    }
 
     buildRow(key) {
         const entries = {
             label: fn.th({
-                attributes: {
-                    hidden: !fields.isVisible(key, 'label'),
-                },
-                content: fields.getLabel(key)
+                content: this.card.character.labels[key]
             }),
 
-            element: fn.td({
-                content: fields.getProp(key)
+            text: fn.td({
+                content: this.card.character.props[key]
             })
         }
-        fields.setRendered('verso', key, entries.element, entries.label);
 
-        return fn.tr({
-            attributes: {
-                hidden: !fields.isVisible(key, 'card'),
+        this.rows[key] = entries;
+
+        const row = fn.tr({
+            data: {
+                key,
+                card: this.isVisible(key, 'card'),
+                label: this.isVisible(key, 'label')
             },
             content: Object.values(entries)
         });
+
+        return row;
     }
 
     /**
@@ -34,15 +46,12 @@ class CardVerso extends HTMLElement {
         const entries = {
             name: fn.caption({
                 classNames: ['badge'],
-                content: fields.getProp('name')
+                content: this.card.character.props.name
             }),
             cr: fn.div({
                 classNames: ['badge', 'cr'],
-                content: fields.getProp('cr')
+                content: this.card.character.props.cr
             })
-        }
-        for (let [key, element] of Object.entries(entries)) {
-            fields.setRendered('verso', key, element, null);
         }
 
         const tbody = fn.tbody();
@@ -54,12 +63,34 @@ class CardVerso extends HTMLElement {
             ]
         })
 
+        this.rows = {};
 
-        for (let key of fields.getOrder(['img', 'name'])) {
-            tbody.append(this.buildRow(key));
-        }
+        this.populateTbody(tbody);
 
         this.append(frame, entries.cr);
+
+        /**
+         * repaint on content change
+         */
+        this.card.on('contentChange', e => {
+            if (Object.keys(entries).includes(e.detail.key) && e.detail.field === 'text') {
+                entries[e.detail.key].textContent = e.detail.value;
+            }
+
+            if (Object.keys(this.rows).includes(e.detail.key)) {
+                this.rows[e.detail.key][e.detail.field].textContent = e.detail.value;
+            }
+        })
+
+        this.card.on('afterOrderChange', e => {
+            this.populateTbody(tbody);
+        });
+
+        this.card.on('visibilityChange', e => {
+            if (Object.keys(this.rows).includes(e.detail.key)) {
+                this.rows[e.detail.key].text.parentElement.dataset[e.detail.field] = e.detail.value;
+            }
+        });
     }
 
     constructor(self) {

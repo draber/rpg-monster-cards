@@ -697,33 +697,60 @@ card-verso tbody{
     line-height:1.8rem;
     flex-wrap:wrap;
     gap:0 1.2ch;
-    overflow-y:auto
+    overflow-y:auto;
   }
 
 card-verso tr{
-    display:flex;
     gap:0.5ch
   }
 
-card-verso tr[data-display="false"],
-    card-verso tr[data-display="mandatory"]{
+card-verso tr[data-card="true"]{
+      display:flex;
+    }
+
+card-verso tr[data-card="false"]{
       display:none;
     }
 
-card-verso tr th{
-      display:inline-block;
-      white-space:nowrap;
-      color:hsl(201, 39%, 24%);
-      color:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
-      filter:contrast(25%)
-    }
-
-card-verso tr th::after{
-        content:":";
+card-verso tr[data-label="false"] th{
+        display:none;
       }
 
-card-verso tr td{
-      display:inline-block;
+card-verso tr[data-label="true"] th{
+        display:inline-block;
+      }
+
+card-verso th{
+    white-space:nowrap;
+    color:hsl(201, 39%, 24%);
+    color:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+    filter:contrast(25%)
+  }
+
+card-verso th::after{
+      content:":";
+    }
+
+card-verso td{
+    display:inline-block;
+  }
+
+card-verso use{
+  }
+
+card-verso [data-card="false"]{
+    opacity:0.8
+  }
+
+card-verso [data-card="false"] use[data-card="false"]{
+        display:inline;
+      }
+
+card-verso [data-card="false"] use[data-card="true"]{
+        display:none;
+      }
+
+card-verso [data-label="false"] use{
     }
 
 card-toolbar{
@@ -805,7 +832,7 @@ card-form > svg.quill{
 card-form [contenteditable]{
     border:0.1rem dotted hsl(15, 50%, 36%);
     border:0.1rem dotted var(--bg-6-color);
-    padding:.2rem .5rem;
+    padding:0.2rem 0.5rem;
     background:hsla(0, 0%, 100%, 0.3);
     border-radius:.2rem;
     border-radius:var(--border-radius)
@@ -865,19 +892,20 @@ card-form tbody tr{
 card-form tbody td:nth-child(3){
         flex:2;
         resize:vertical;
-        overflow:auto;
+        overflow-y:auto;
+      }
+
+card-form tbody.dragging td, card-form tbody.dragging th{
+        max-height:2.6rem;
+        overflow:hidden;
       }
 
 card-form tr{
     display:flex;
     align-items:flex-start;
-    gap:.5rem;
-    padding:.2rem 0
+    gap:0.5rem;
+    padding:0.2rem 0;
   }
-
-card-form tr.no-card{
-      opacity:.8;
-    }
 
 card-form th,
   card-form td{
@@ -891,11 +919,11 @@ card-form th,
   }
 
 card-form td.icon{
-      border:0.1rem solid hsla(0, 0%, 0%, .2);
+      border:0.1rem solid hsla(0, 0%, 0%, 0.2);
       display:flex;
       justify-content:center;
       align-content:center;
-      padding:.5rem;
+      padding:0.5rem;
       cursor:pointer
     }
 
@@ -914,6 +942,47 @@ card-form svg{
     fill:hsl(15, 50%, 32%);
     fill:var(--bg-5-color);
     filter:contrast(25%);
+  }
+
+card-form{
+}
+
+card-form use[href*="show-card"],
+    card-form use[href*="show-label"]{
+      display:inline;
+    }
+
+card-form use[href*="hide-card"],
+    card-form use[href*="hide-label"]{
+      display:none;
+    }
+
+card-form [data-card="false"]{
+    opacity:0.8
+  }
+
+card-form [data-card="false"] use[href*="hide-card"]{
+        display:inline;
+      }
+
+card-form [data-card="false"] use[href*="show-card"]{
+        display:none;
+      }
+
+card-form [data-label="false"] use[href*="hide-label"]{
+        display:inline;
+      }
+
+card-form [data-label="false"] use[href*="show-label"]{
+        display:none;
+      }
+
+card-form [data-label="false"] th{
+      opacity:.5
+    }
+
+card-form .dragElem{
+    display:none
   }
 
 card-form .dragover{
@@ -1134,7 +1203,8 @@ form .control{
   min-width:25rem;
   max-width:30rem;
   width:25rem;
-  overflow:visible
+  overflow:visible;
+  transition:width .5s
 }
 
 #library ::-moz-selection{
@@ -1171,7 +1241,7 @@ form .control{
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    border-bottom:1px solid rgba(255, 255, 255, .08)
+    border-bottom:1px solid rgba(255, 255, 255, 0.08)
   }
 
 #library li:hover{
@@ -1193,6 +1263,12 @@ form .control{
         background:hsl(15, 50%, 32%);
         background:var(--bg-5-color);
       }
+
+[data-card-state="edit"] #library{
+    width:0;
+    overflow:hidden;
+    min-width:0;
+  }
 
 #editor{
   flex:2;

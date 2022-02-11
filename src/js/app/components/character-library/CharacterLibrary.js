@@ -3,6 +3,7 @@ import characterProvider from './character-provider.js';
 import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import characterMap from './character-map.js';
+import settings from '../../../modules/settings/settings.js';
 
 /**
  * Custom element containing the list of characters
@@ -80,19 +81,28 @@ class CharacterLibrary extends HTMLElement {
         const characterList = new DocumentFragment();
 
         const groupContainers = [];
+        let firstGroupClassNames = [];
 
         /**
          * Sorted and grouped list of characters
          * @type {Object}
          */
-        // @todo: unused yet, but could be nice
-        // const userGroups = Object.values(characterProvider.getSortedCharacters('user', {
-        //     groupBy: '__user',
-        //     sortBy: 'name'
-        // }));
-        const systemGroups = Object.values(characterProvider.getSortedCharacters('system', this));
+        const systemCollection = Object.values(characterProvider.getSortedCharacters('system', this));
+        const userCollection = Object.values(characterProvider.getSortedCharacters('user', {
+            groupBy: '__user',
+            sortBy: 'name'
+        }))
 
-        systemGroups.forEach((values, index) => {
+        let collection = systemCollection;
+
+        if (settings.get('userCharacters.inLibrary') && userCollection.length) {
+            collection = userCollection.concat(systemCollection);
+
+            // mark the first group
+            firstGroupClassNames = ['user-generated'];
+        }
+
+        collection.forEach((values, index) => {
 
             /**
              * List of characters per group
@@ -104,6 +114,7 @@ class CharacterLibrary extends HTMLElement {
              */
             let groupContainer = fn.details({
 
+                classNames: index === 0 ? firstGroupClassNames : [],
                 attributes: {
                     open: index === 0
                 },
@@ -169,10 +180,11 @@ class CharacterLibrary extends HTMLElement {
             if (!li) {
                 return false;
             }
-            events.trigger('characterSelection', (()=>{
-                const entry = characterMap.get('system', parseInt(li.dataset.cid, 10));
-                delete entry.meta._groupLabel;
-                delete entry.meta._groupValue;
+            events.trigger('characterSelection', (() => {
+                const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
+                const entry = characterMap.get(type, parseInt(li.dataset.cid, 10));
+                entry.meta._groupLabel && delete entry.meta._groupLabel;
+                entry.meta._groupValue && delete entry.meta._groupValue;
                 return entry;
             })());
         })

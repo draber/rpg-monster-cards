@@ -1,5 +1,4 @@
 import fn from 'fancy-node';
-import events from '../../../modules/events/events.js';
 import {
     camel
 } from '../../../modules/string/string.js'
@@ -20,7 +19,7 @@ class CardToolbar extends HTMLElement {
             if (!btn || e.button !== 0) {
                 return true;
             }
-            events.trigger(camel(`character-${e.target.name}`), this.closest('card-base'));
+            this.card.trigger(camel(`character-${e.target.name}`));
         })
 
         const buttons = {

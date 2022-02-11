@@ -19,11 +19,11 @@ card-form {
 
   & [contenteditable] {
     border: 0.1rem dotted var(--bg-6-color);
-    padding: .2rem .5rem;
+    padding: 0.2rem 0.5rem;
     background: hsl(0 0% 100% / 0.3);
     border-radius: var(--border-radius);
-    &:focus{
-      outline:none;
+    &:focus {
+      outline: none;
       border-style: solid;
       background: hsl(0 0% 100% / 0.6);
     }
@@ -70,7 +70,13 @@ card-form {
       &:nth-child(3) {
         flex: 2;
         resize: vertical;
-        overflow: auto;
+        overflow-y: auto;
+      }
+    }
+    &.dragging {
+      & td, & th {
+        max-height: 2.6rem;
+        overflow: hidden;
       }
     }
   }
@@ -78,11 +84,8 @@ card-form {
   & tr {
     display: flex;
     align-items: flex-start;
-    gap: .5rem;
-    padding: .2rem 0;
-    &.no-card {
-      opacity: .8;
-    }
+    gap: 0.5rem;
+    padding: 0.2rem 0;
   }
 
   & th,
@@ -97,11 +100,11 @@ card-form {
 
   & td {
     &.icon {
-      border: 0.1rem solid hsl(0 0% 0% / .2);
+      border: 0.1rem solid hsl(0 0% 0% / 0.2);
       display: flex;
       justify-content: center;
       align-content: center;
-      padding: .5rem;
+      padding: 0.5rem;
       cursor: pointer;
       &.handle {
         cursor: move;
@@ -119,6 +122,46 @@ card-form {
     aspect-ratio: 1 / 1;
     fill: var(--bg-5-color);
     filter: contrast(25%);
+  }
+
+  // icon toggle
+  & use {
+    &[href*="show-card"],
+    &[href*="show-label"] {
+      display: inline;
+    }
+    &[href*="hide-card"],
+    &[href*="hide-label"] {
+      display: none;
+    }
+  }
+  & [data-card="false"] {
+    opacity: 0.8;
+    & use {
+      &[href*="hide-card"] {
+        display: inline;
+      }
+      &[href*="show-card"] {
+        display: none;
+      }
+    }
+  }
+  & [data-label="false"] {
+    & use {
+      &[href*="hide-label"] {
+        display: inline;
+      }
+      &[href*="show-label"] {
+        display: none;
+      }
+    }
+    & th {
+      opacity: .5
+    }
+  }
+
+  & .dragElem {
+    display: none
   }
 
   & .dragover {

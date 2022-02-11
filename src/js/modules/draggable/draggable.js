@@ -1,7 +1,7 @@
 let dragSrcEl = null;
 
 function handleDragStart(e) {
-    e.stopPropagation()
+  //  e.stopPropagation()
     // Target (this) element is the source node.
     dragSrcEl = this;
 
@@ -9,6 +9,7 @@ function handleDragStart(e) {
     e.dataTransfer.setData('text/html', this.outerHTML);
 
     this.classList.add('dragElem');
+    this.parentElement.classList.add('dragging')
 }
 
 function handleDragOver(e) {
@@ -40,6 +41,8 @@ function handleDrop(e) {
 function handleDragEnd(e) {
     // this/e.target is the source node.
     this.classList.remove('dragover');
+    this.classList.remove('dragElem');
+    this.parentElement.classList.remove('dragging');
 }
 
 const handles = {

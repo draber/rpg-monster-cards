@@ -9,7 +9,6 @@ import settings from '../../../modules/settings/settings.js';
  * - All methods need the type argument (= system|user) as the first argument
  * - The user map is additionaly stored in localStorage
  * 
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
  */
 
 /**
@@ -21,8 +20,8 @@ const lsKey = settings.get('storageKeys.cards');
  * The two-level Map
  */
 const data = {
-    system: new Map(),
-    user: new Map()
+    system: {},
+    user: {}
 }
 
 /**
@@ -33,8 +32,12 @@ const storage = {
         return JSON.parse(localStorage.getItem(lsKey) || '[]')
     },
     update: () => {
-        return localStorage.setItem(lsKey, JSON.stringify(valueArray('user') || []))
+        return localStorage.setItem(lsKey, JSON.stringify(Object.values(data.user) || []))
     }
+}
+
+const values = type => {
+    return Object.values(data[type]);
 }
 
 /**
@@ -42,11 +45,11 @@ const storage = {
  * 
  * @param {String} type system|user
  * @param {Integer} cid
- * @param {Object} value character data
+ * @param {Object} character character data
  * @returns {Map}
  */
-const set = (type, cid, value) => {
-    const retVal = data[type].set(cid, value);
+const set = (type, cid, character) => {
+    const retVal = data[type][cid] = character;
     if (type === 'user') {
         storage.update();
     }
@@ -61,7 +64,7 @@ const set = (type, cid, value) => {
  * @returns {Object} character data
  */
 const get = (type, cid) => {
-    return data[type].get(cid);
+    return data[type][cid];
 }
 
 /**
@@ -72,82 +75,24 @@ const get = (type, cid) => {
  * @returns {Boolean} whether the cid existed prior to deletion
  */
 const remove = (type, cid) => {
-    const retVal = data[type].delete(cid);
+    const retVal = delete data[type][cid];
     if (type === 'user') {
         storage.update();
     }
     return retVal;
 }
 
-/**
- * Equivalent of Map.has()
- * 
- * @param {String} type system|user
- * @param {Integer} cid
- * @returns {Boolean} whether the cid exists
- */
-const has = (type, cid) => {
-    return data[type].has(cid);
-}
-
-/**
- * Equivalent of Map.keys()
- * 
- * @param {String} type system|user
- * @returns {Iterator} over Map keys
- */
-const keys = type => {
-    return data[type].keys();
-}
-
-/**
- * Map key as array
- * 
- * @param {String} type system|user
- * @returns {Array} Map key
- */
-const keyArray = type => {
-    return [...data[type].keys()];
-}
-
-/**
- * Equivalent of Map.values()
- * 
- * @param {String} type system|user
- * @returns {Iterator} over Map values
- */
-const values = type => {
-    return data[type].values();
-}
-
-/**
- * Map values as array
- * 
- * @param {String} type system|user
- * @returns {Array} Map values
- */
-const valueArray = type => {
-    return [...data[type].values()];
-}
-
-/**
- * Equivalent of Map.entries()
- * 
- * @param {String} type system|user
- * @returns {Iterator} over Map values
- */
-const entries = type => {
-    return data[type].entries();
-}
 
 /**
  * Get next key for data insertion
+ * System IDs start at 0, user IDs at 5000
  * 
  * @param {String} type system|user
  * @returns {Integer}
  */
 const nextIncrement = type => {
-    return Math.max(...[0].concat(keyArray(type))) + 1;
+    const lowest = type === 'system' ? 0 : 5000;
+    return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
 }
 
 /**
@@ -180,11 +125,6 @@ export default {
     get,
     set,
     remove,
-    has,
-    keys,
-    keyArray,
     values,
-    valueArray,
-    entries,
     nextIncrement
 }

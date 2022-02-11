@@ -3,13 +3,23 @@ import LibraryOrganizer from './character-library/LibraryOrganizer.js';
 import FontSelector from './font-selector/FontSelector.js';
 import PatternSelector from './pattern-selector/PatternSelector.js';
 import ColorSelector from './color-selector/ColorSelector.js';
+import CardBase from './character-cards/CardBase.js';
+import CardForm from './character-cards/CardForm.js';
+import CardRecto from './character-cards/CardRecto.js';
+import CardToolbar from './character-cards/CardToolbar.js';
+import CardVerso from './character-cards/CardVerso.js';
 
 const components = [
     CharacterLibrary,
     LibraryOrganizer,
     FontSelector,
     PatternSelector,
-    ColorSelector
+    ColorSelector,
+    CardBase,
+    CardForm,
+    CardRecto,
+    CardToolbar,
+    CardVerso
 ];
 
 const register = () => {

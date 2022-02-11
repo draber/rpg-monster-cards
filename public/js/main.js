@@ -428,13 +428,13 @@
     	src: "src/data/raw/monsters.json",
     	target: "public/js/characters.json"
     };
-    var fields$1 = {
+    var fields = {
     	src: "src/data/raw/field-config.yml"
     };
     var labels = {
     	target: "src/data/labels.json"
     };
-    var visibility$2 = {
+    var visibility$1 = {
     	target: "src/data/visibility.json"
     };
     var js = {
@@ -445,6 +445,9 @@
     	user: "gb-user-prefs",
     	cards: "gb-cards"
     };
+    var userCharacters = {
+    	inLibrary: true
+    };
     var config = {
     	css: css,
     	cssProps: cssProps$1,
@@ -452,11 +455,12 @@
     	backgrounds: backgrounds$1,
     	borders: borders$1,
     	characters: characters,
-    	fields: fields$1,
+    	fields: fields,
     	labels: labels,
-    	visibility: visibility$2,
+    	visibility: visibility$1,
     	js: js,
-    	storageKeys: storageKeys
+    	storageKeys: storageKeys,
+    	userCharacters: userCharacters
     };
 
     let settings = {
@@ -495,56 +499,42 @@
 
     const lsKey$1 = settings$1.get('storageKeys.cards');
     const data = {
-        system: new Map(),
-        user: new Map()
+        system: {},
+        user: {}
     };
     const storage = {
         read: () => {
             return JSON.parse(localStorage.getItem(lsKey$1) || '[]')
         },
         update: () => {
-            return localStorage.setItem(lsKey$1, JSON.stringify(valueArray('user') || []))
+            return localStorage.setItem(lsKey$1, JSON.stringify(Object.values(data.user) || []))
         }
     };
-    const set$2 = (type, cid, value) => {
-        const retVal = data[type].set(cid, value);
+    const values = type => {
+        return Object.values(data[type]);
+    };
+    const set$2 = (type, cid, character) => {
+        const retVal = data[type][cid] = character;
         if (type === 'user') {
             storage.update();
         }
         return retVal;
     };
     const get$2 = (type, cid) => {
-        return data[type].get(cid);
+        return data[type][cid];
     };
-    const remove$1 = (type, cid) => {
-        const retVal = data[type].delete(cid);
+    const remove = (type, cid) => {
+        const retVal = delete data[type][cid];
         if (type === 'user') {
             storage.update();
         }
         return retVal;
     };
-    const has = (type, cid) => {
-        return data[type].has(cid);
-    };
-    const keys = type => {
-        return data[type].keys();
-    };
-    const keyArray = type => {
-        return [...data[type].keys()];
-    };
-    const values = type => {
-        return data[type].values();
-    };
-    const valueArray = type => {
-        return [...data[type].values()];
-    };
-    const entries = type => {
-        return data[type].entries();
-    };
     const nextIncrement = type => {
-        return Math.max(...[0].concat(keyArray(type))) + 1;
+        const lowest = type === 'system' ? 0 : 5000;
+        return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
     };
-    const init$2 = () => {
+    const init$1 = () => {
         storage.read().forEach((entry, index) => {
             set$2('user', index, entry);
         });
@@ -563,16 +553,11 @@
             }));
     };
     var characterMap = {
-        init: init$2,
+        init: init$1,
         get: get$2,
         set: set$2,
-        remove: remove$1,
-        has,
-        keys,
-        keyArray,
+        remove,
         values,
-        valueArray,
-        entries,
         nextIncrement
     };
 
@@ -582,7 +567,7 @@
         }
         switch (groupBy) {
             case '__user':
-                entry.meta._groupValue = entry.props.name;
+                entry.meta._groupValue = labels$1.__user.group;
                 entry.meta._groupLabel = labels$1.__user.group;
                 break;
             case 'name':
@@ -595,13 +580,14 @@
         }
         return entry;
     };
-    let grouped = {};
     const getSortedCharacters = (type, {
         groupBy = 'name',
         sortBy = 'name',
         groupDir = 'asc',
         sortDir = 'name'
     } = {}) => {
+        let grouped = {};
+        console.log(characterMap.values('system'));
         for (let entry of characterMap.values(type)) {
             entry = prepareGroupSort(entry, groupBy);
             grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
@@ -684,10 +670,21 @@
         populate() {
             const characterList = new DocumentFragment();
             const groupContainers = [];
-            const systemGroups = Object.values(characterProvider.getSortedCharacters('system', this));
-            systemGroups.forEach((values, index) => {
+            let firstGroupClassNames = [];
+            const systemCollection = Object.values(characterProvider.getSortedCharacters('system', this));
+            const userCollection = Object.values(characterProvider.getSortedCharacters('user', {
+                groupBy: '__user',
+                sortBy: 'name'
+            }));
+            let collection = systemCollection;
+            if (settings$1.get('userCharacters.inLibrary') && userCollection.length) {
+                collection = userCollection.concat(systemCollection);
+                firstGroupClassNames = ['user-generated'];
+            }
+            collection.forEach((values, index) => {
                 let list = src.ul();
                 let groupContainer = src.details({
+                    classNames: index === 0 ? firstGroupClassNames : [],
                     attributes: {
                         open: index === 0
                     },
@@ -738,10 +735,11 @@
                 if (!li) {
                     return false;
                 }
-                events.trigger('characterSelection', (()=>{
-                    const entry = characterMap.get('system', parseInt(li.dataset.cid, 10));
-                    delete entry.meta._groupLabel;
-                    delete entry.meta._groupValue;
+                events.trigger('characterSelection', (() => {
+                    const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
+                    const entry = characterMap.get(type, parseInt(li.dataset.cid, 10));
+                    entry.meta._groupLabel && delete entry.meta._groupLabel;
+                    entry.meta._groupValue && delete entry.meta._groupValue;
                     return entry;
                 })());
             });
@@ -936,7 +934,7 @@
     	group: true,
     	label: true
     };
-    var visibility$1 = {
+    var visibility = {
     	name: name,
     	__user: __user,
     	img: img,
@@ -1012,7 +1010,7 @@
             const list = src.ul();
             box.append(title, list);
             for (let [key, value] of Object.entries(labels$1)) {
-                if(!visibility$1[key].group){
+                if(!visibility[key].group){
                     continue;
                 }
                 let classNames = key === this.groupBy ? ['active'] : [];
@@ -1638,22 +1636,6 @@
         register: register$6
     };
 
-    const components = [
-        CharacterLibrary$1,
-        LibraryOrganizer$1,
-        FontSelector$1,
-        PatternSelector$1,
-        ColorSelector$1
-    ];
-    const register$5 = () => {
-        components.forEach(component => {
-            component.register();
-        });
-    };
-    var registry = {
-        register: register$5
-    };
-
     const styles = Array.from(getComputedStyle(document.body));
     const isStyleProp = key => {
         return key.startsWith('--') || styles.includes(key);
@@ -1675,6 +1657,9 @@
         }
         return JSON.parse(target.dataset[key]);
     };
+    const toggle$1 = (key, target) => {
+        set(key, !get(key, target), target);
+    };
     const unset = (key, target) => {
         target = target || document.body;
         if (isStyleProp(key)) {
@@ -1682,170 +1667,88 @@
         }
         delete target.dataset[key];
     };
-    var props$1 = {
+    var props = {
         unset,
         get,
-        set
+        set,
+        toggle: toggle$1
     };
 
-    const currentTab$1 = src.$('#card-listing');
-    const getCurrentTab = () => {
-        return currentTab$1;
-    };
-    var tabs = {
-        getCurrentTab
-    };
-
-    let props;
-    let visibility;
-    let order;
-    let rendered = {};
-    const move = (fromIdx, toIdx) => {
-        if (fromIdx < 0) {
-            return false
+    class CardBase extends HTMLElement {
+        on(type, action) {
+            this.addEventListener(type, action);
         }
-        if (toIdx > order.length) {
-            return false
-        }
-        const entry = order.splice(fromIdx, 1);
-        order.splice(toIdx, 0, entry.pop());
-        return true;
-    };
-    const getLabel = key => labels$1[key].short;
-    const isVisible = (key, type) => {
-        return visibility[key][type] && !!props[key];
-    };
-    const getProp = key => props[key];
-    const getProps = () => props;
-    const getOrder = (ignoreList = []) => {
-        return order.filter(entry => !ignoreList.includes(entry))
-    };
-    const setRendered = (origin, key, value, label) => {
-        rendered[origin] = rendered[origin] || {};
-        rendered[origin][key] = rendered[origin][key] || [];
-        rendered[origin][key].push({
-            value,
-            label
-        });
-    };
-    const init$1 = character => {
-        visibility = character.meta.visibility;
-        props = character.props;
-        order = Object.keys(character.props);
-    };
-    var fields = {
-        getProp,
-        move,
-        init: init$1,
-        getProps,
-        setRendered,
-        getLabel,
-        isVisible,
-        getOrder,
-        rendered
-    };
-
-    class CardRecto extends HTMLElement {
-        connectedCallback() {
-            const frame = src.figure({
-                classNames: ['frame']
-            });
-            const entries = {
-                img: src.img({
-                    attributes: {
-                        src: fields.getProp('img')
-                    }
-                }),
-                name: src.figcaption({
-                    classNames: ['badge'],
-                    content: fields.getProp('name')
-                })
-            };
-            for (let [key, element] of Object.entries(entries)) {
-                frame.append(element);
-                fields.setRendered('recto', key, element, null);
-            }
-            this.append(frame);
-        }
-        constructor(self) {
-            self = super(self);
-            return self;
-        }
-    }
-    const register$4 = () => {
-        customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
-    };
-    var CardRecto$1 = {
-        register: register$4
-    };
-
-    class CardVerso extends HTMLElement {
-        buildRow(key) {
-            const entries = {
-                label: src.th({
-                    attributes: {
-                        hidden: !fields.isVisible(key, 'label'),
-                    },
-                    content: fields.getLabel(key)
-                }),
-                element: src.td({
-                    content: fields.getProp(key)
-                })
-            };
-            fields.setRendered('verso', key, entries.element, entries.label);
-            return src.tr({
-                attributes: {
-                    hidden: !fields.isVisible(key, 'card'),
-                },
-                content: Object.values(entries)
-            });
+        trigger(type, data) {
+            this.dispatchEvent(data ? new CustomEvent(type, {
+                detail: data
+            }) : new Event(type));
         }
         connectedCallback() {
-            const entries = {
-                name: src.caption({
-                    classNames: ['badge'],
-                    content: fields.getProp('name')
-                }),
-                cr: src.div({
-                    classNames: ['badge', 'cr'],
-                    content: fields.getProp('cr')
-                })
-            };
-            for (let [key, element] of Object.entries(entries)) {
-                fields.setRendered('verso', key, element, null);
-            }
-            const tbody = src.tbody();
-            const frame = src.table({
-                classNames: ['frame'],
+            ['recto', 'verso', 'form', 'toolbar'].forEach(view => {
+                this[view] = document.createElement(`card-${view}`);
+                this[view].card = this;
+            });
+            const cardInner = src.article({
                 content: [
-                    entries.name,
-                    tbody
+                    src.div({
+                        classNames: ['card-view'],
+                        content: [
+                            this.recto,
+                            this.verso
+                        ]
+                    }),
+                    this.form,
+                    this.toolbar
                 ]
             });
-            for (let key of fields.getOrder(['img', 'name'])) {
-                tbody.append(this.buildRow(key));
-            }
-            this.append(frame, entries.cr);
+            this.append(cardInner);
+            this.on('contentChange', function (e) {
+                const section = e.detail.field === 'text' ? 'props' : 'labels';
+                this.character[section][e.detail.key] = e.detail.value;
+                characterMap.set('user', this.character.meta.cid, this.character);
+            });
+            this.on('visibilityChange', function (e) {
+                this.character.meta.visibility[e.detail.key][e.detail.field] = e.detail.value;
+                characterMap.set('user', this.character.meta.cid, this.character);
+                this.trigger('afterVisibilityChange');
+            });
+            this.on('orderChange', function (e) {
+                let props = {};
+                e.detail.order.forEach(key => {
+                    props[key] = this.character.props[key];
+                });
+                this.character.props = props;
+                characterMap.set('user', this.character.meta.cid, this.character);
+                this.trigger('afterOrderChange');
+            });
+            this.on('characterRemove', function (e) {
+                characterMap.remove('user', this.character.meta.cid);
+                this.remove();
+            });
+            this.on('characterEdit', function (e) {
+                props.set('cardState', 'edit');
+                this.classList.add('editable');
+            });
         }
         constructor(self) {
             self = super(self);
             return self;
         }
     }
-    const register$3 = () => {
-        customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
+    const register$5 = () => {
+        customElements.get('card-base') || customElements['define']('card-base', CardBase);
     };
-    var CardVerso$1 = {
-        register: register$3
+    var CardBase$1 = {
+        register: register$5
     };
 
     let dragSrcEl = null;
     function handleDragStart(e) {
-        e.stopPropagation();
         dragSrcEl = this;
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/html', this.outerHTML);
         this.classList.add('dragElem');
+        this.parentElement.classList.add('dragging');
     }
     function handleDragOver(e) {
         e.preventDefault();
@@ -1868,6 +1771,8 @@
     }
     function handleDragEnd(e) {
         this.classList.remove('dragover');
+        this.classList.remove('dragElem');
+        this.parentElement.classList.remove('dragging');
     }
     const handles = {
         dragstart: handleDragStart,
@@ -1897,125 +1802,109 @@
     };
 
     class CardForm extends HTMLElement {
-        icon(key, type) {
-            const nextState = fields.isVisible(key, type) ? 'show' : 'hide';
+        isVisible(key, type) {
+            if (type === 'text') {
+                return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+            }
+            return this.card.character.meta.visibility[key][type];
+        }
+        icon(type) {
             let title;
-            let href;
+            let icons = [`media/icons.svg#icon-show-${type}`, `media/icons.svg#icon-hide-${type}`];
             switch (type) {
-                case 'item':
+                case 'card':
                     title = 'Display this item on the card';
-                    href = `media/icons.svg#icon-${nextState}-${type}`;
                     break;
                 case 'label':
                     title = 'Display the item label';
-                    href = `media/icons.svg#icon-${nextState}-${type}`;
                     break;
                 case 'drag':
                     title = 'Drag item to different position';
-                    href = `media/icons.svg#icon-drag-grip`;
+                    icons = [`media/icons.svg#icon-drag-grip`];
                     break;
             }
+            icons = icons.map(icon => src.use({
+                isSvg: true,
+                attributes: {
+                    href: icon
+                }
+            }));
             return src.svg({
                 isSvg: true,
                 content: [
                     src.title({
                         isSvg: true,
                         content: title
-                    }),
-                    src.use({
-                        isSvg: true,
-                        attributes: {
-                            href
-                        }
                     })
-                ]
+                ].concat(icons)
             })
         }
-        broadCastTextChange(e) {
-            if (!e.target.contentEditable) {
-                return true;
-            }
-            const key = e.target.dataset.key ? e.target.dataset.key : e.target.closest('tr').dataset.key;
-            const type = e.target.nodeName === 'TH' ? 'label' : 'value';
-            const text = e.target.textContent;
-            for (let [segment, list] of Object.entries(fields.rendered)) {
-                if (segment === 'form') {
-                    continue;
-                }
-                if (list[key]) {
-                    list[key].forEach(row => {
-                        if (row[type]) {
-                            key === 'img' ? row[type].src = text : row[type].textContent = text;
-                        }
-                    });
-                }
-            }
-            console.log(fields.rendered);
-        }
         buildRow(key) {
-            const data = this.buildCells(key);
-            return src.tr({
-                attributes:{
+            const content = this.buildCells(key);
+            const row = src.tr({
+                attributes: {
                     draggable: true
                 },
                 data: {
-                    key
+                    key,
+                    card: this.isVisible(key, 'card'),
+                    label: this.isVisible(key, 'label')
                 },
-                classNames: data.classNames,
-                content: data.cells,
+                content,
                 events: {
-                    pointerdown: function (e) {
-                        this.draggable === e.target.nodeName === 'TR';
-                    }
                 }
             });
+            draggable.enable(row);
+            return row;
         }
         buildCells(key) {
             const entries = {
                 dragIcon: src.td({
                     classNames: ['icon', 'handle'],
-                    content: this.icon(key, 'drag')
+                    content: this.icon('drag')
                 }),
                 label: src.th({
+                    data: {
+                        type: 'label'
+                    },
                     attributes: {
                         contentEditable: true
                     },
-                    content: fields.getLabel(key)
+                    content: this.card.character.labels[key],
                 }),
                 element: src.td({
+                    data: {
+                        type: 'text'
+                    },
                     attributes: {
                         contentEditable: true
                     },
-                    content: fields.getProp(key)
+                    content: this.card.character.props[key],
                 }),
                 labelIcon: src.td({
-                    classNames: ['icon'],
-                    content: this.icon(key, 'label')
+                    data: {
+                        type: 'label'
+                    },
+                    classNames: ['icon', 'toggle'],
+                    content: this.icon('label')
                 }),
                 cardIcon: src.td({
-                    classNames: ['icon'],
-                    content: this.icon(key, 'item')
+                    data: {
+                        type: 'card'
+                    },
+                    classNames: ['icon', 'toggle'],
+                    content: this.icon('card')
                 })
             };
-            fields.setRendered('form', key, entries.element, entries.label);
-            const classNames = [];
-            if (!fields.isVisible(key, 'card')) {
-                classNames.push('no-card');
-            }
-            if (!fields.isVisible(key, 'label')) {
-                classNames.push('no-label');
-            }
-            return {
-                classNames,
-                cells: Object.values(entries)
-            }
+            return Object.values(entries);
         }
         populateTbody(tbody) {
-            for (let key of fields.getOrder(['img', 'name'])) {
-                tbody.append(this.buildRow(key, false));
+            for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+                tbody.append(this.buildRow(key));
             }
         }
         connectedCallback() {
+            this.card = this.closest('card-base');
             const quill = src.svg({
                 isSvg: true,
                 classNames: ['quill'],
@@ -2034,15 +1923,17 @@
                             contentEditable: true
                         },
                         data: {
-                            key: 'name'
+                            key: 'name',
+                            type: 'text'
                         },
-                        content: fields.getProp('name')
+                        content: this.card.character.props.name
                     }),
                     src.thead({
                         content: [
                             src.tr({
                                 data: {
-                                    key: 'img'
+                                    key: 'img',
+                                    type: 'text'
                                 },
                                 content: [
                                     src.th({
@@ -2053,7 +1944,7 @@
                                             colSpan: 4,
                                             contentEditable: true
                                         },
-                                        content: fields.getProp('img')
+                                        content: this.card.character.props.img
                                     })
                                 ]
                             })
@@ -2063,33 +1954,34 @@
                 ],
                 events: {
                     input: e => {
-                        this.broadCastTextChange(e);
+                        if (!e.target.contentEditable) {
+                            return true;
+                        }
+                        this.card.trigger('contentChange', {
+                            field: e.target.dataset.type,
+                            key: e.target.closest('[data-key]').dataset.key,
+                            value: e.target.textContent
+                        });
                     },
-                    paste: e => {
-                        this.broadCastTextChange(e);
-                    },
-                    pointerdown: e => {
-                    },
-                    pointerup: () => {
+                    pointerup: e => {
+                        const trigger = e.target.closest('.toggle');
+                        if (e.button !== 0 || !trigger) {
+                            return true;
+                        }
+                        const row = trigger.closest('[data-key]');
+                        const key = row.dataset.key;
+                        const field = trigger.dataset.type;
+                        props.toggle(field, row);
+                        const value = props.get(field, row);
+                        this.card.trigger('visibilityChange', {
+                            field,
+                            key,
+                            value
+                        });
                     }
                 }
             });
             this.populateTbody(tbody);
-            src.$$('[contenteditable]', tbody).forEach(elem => {
-                const row = elem.closest('[draggable]');
-                if(!row) {
-                    return true;
-                }
-                elem.addEventListener('focus', e => {
-                    draggable.disable(e.target.closest('[draggable]'));
-                });
-                elem.addEventListener('blur', e => {
-                    draggable.enable(e.target.closest('[draggable]'));
-                });
-            });
-            src.$$('[draggable]', tbody).forEach(elem => {
-                draggable.enable(elem);
-            });
             this.append(quill, frame);
         }
         constructor(self) {
@@ -2097,11 +1989,56 @@
             return self;
         }
     }
-    const register$2 = () => {
+    const register$4 = () => {
         customElements.get('card-form') || customElements['define']('card-form', CardForm);
     };
     var CardForm$1 = {
-        register: register$2
+        register: register$4
+    };
+
+    class CardRecto extends HTMLElement {
+        connectedCallback() {
+            const frame = src.figure({
+                classNames: ['frame']
+            });
+            const entries = {
+                img: src.img({
+                    attributes: {
+                        src: this.card.character.props.img
+                    }
+                }),
+                name: src.figcaption({
+                    classNames: ['badge'],
+                    content: this.card.character.props.name
+                })
+            };
+            for (let element of Object.values(entries)) {
+                frame.append(element);
+            }
+            this.card.on('contentChange', e => {
+                ({
+                    p: 'recto',
+                    k: e.detail.key,
+                    t: e.detail.type,
+                    v: e.detail.value
+                });
+                const prop = e.detail.key === 'img' ? 'src' : 'textContent';
+                if(entries[e.detail.key]) {
+                    entries[e.detail.key][prop] = e.detail.value;
+                }
+            });
+            this.append(frame);
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$3 = () => {
+        customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
+    };
+    var CardRecto$1 = {
+        register: register$3
     };
 
     const defaultDiacriticsRemovalMap = [
@@ -2214,7 +2151,7 @@
                 if (!btn || e.button !== 0) {
                     return true;
                 }
-                events.trigger(camel(`character-${e.target.name}`), this.closest('card-base'));
+                this.card.trigger(camel(`character-${e.target.name}`));
             });
             const buttons = {
                 remove: {
@@ -2253,82 +2190,159 @@
             return self;
         }
     }
-    const register$1 = () => {
+    const register$2 = () => {
         customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar);
     };
     var CardToolbar$1 = {
-        register: register$1
+        register: register$2
     };
 
-    class CardBase extends HTMLElement {
+    class CardVerso extends HTMLElement {
+        isVisible(key, type) {
+            return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+        }
+        populateTbody(tbody) {
+            tbody = src.empty(tbody);
+            for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+                tbody.append(this.buildRow(key));
+            }
+        }
+        buildRow(key) {
+            const entries = {
+                label: src.th({
+                    content: this.card.character.labels[key]
+                }),
+                text: src.td({
+                    content: this.card.character.props[key]
+                })
+            };
+            this.rows[key] = entries;
+            const row = src.tr({
+                data: {
+                    key,
+                    card: this.isVisible(key, 'card'),
+                    label: this.isVisible(key, 'label')
+                },
+                content: Object.values(entries)
+            });
+            return row;
+        }
         connectedCallback() {
-            const cardInner = src.article({
+            const entries = {
+                name: src.caption({
+                    classNames: ['badge'],
+                    content: this.card.character.props.name
+                }),
+                cr: src.div({
+                    classNames: ['badge', 'cr'],
+                    content: this.card.character.props.cr
+                })
+            };
+            const tbody = src.tbody();
+            const frame = src.table({
+                classNames: ['frame'],
                 content: [
-                    src.div({
-                        classNames: ['card-view'],
-                        content: [
-                            document.createElement('card-recto'),
-                            document.createElement('card-verso')
-                        ]
-                    }),
-                    document.createElement('card-form'),
-                    document.createElement('card-toolbar')
+                    entries.name,
+                    tbody
                 ]
             });
-            this.append(cardInner);
+            this.rows = {};
+            this.populateTbody(tbody);
+            this.append(frame, entries.cr);
+            this.card.on('contentChange', e => {
+                if (Object.keys(entries).includes(e.detail.key) && e.detail.field === 'text') {
+                    entries[e.detail.key].textContent = e.detail.value;
+                }
+                if (Object.keys(this.rows).includes(e.detail.key)) {
+                    this.rows[e.detail.key][e.detail.field].textContent = e.detail.value;
+                }
+            });
+            this.card.on('afterOrderChange', e => {
+                this.populateTbody(tbody);
+            });
+            this.card.on('visibilityChange', e => {
+                if (Object.keys(this.rows).includes(e.detail.key)) {
+                    this.rows[e.detail.key].text.parentElement.dataset[e.detail.field] = e.detail.value;
+                }
+            });
         }
         constructor(self) {
             self = super(self);
             return self;
         }
     }
-    const register = () => {
-        CardRecto$1.register();
-        CardVerso$1.register();
-        CardForm$1.register();
-        CardToolbar$1.register();
-        customElements.get('card-base') || customElements['define']('card-base', CardBase);
+    const register$1 = () => {
+        customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
     };
-    var CardBase$1 = {
+    var CardVerso$1 = {
+        register: register$1
+    };
+
+    const components = [
+        CharacterLibrary$1,
+        LibraryOrganizer$1,
+        FontSelector$1,
+        PatternSelector$1,
+        ColorSelector$1,
+        CardBase$1,
+        CardForm$1,
+        CardRecto$1,
+        CardToolbar$1,
+        CardVerso$1
+    ];
+    const register = () => {
+        components.forEach(component => {
+            component.register();
+        });
+    };
+    var registry = {
         register
+    };
+
+    const currentTab$1 = src.$('#card-listing');
+    const getCurrentTab = () => {
+        return currentTab$1;
+    };
+    var tabs = {
+        getCurrentTab
     };
 
     const currentTab = tabs.getCurrentTab();
     const tabId = 1;
     const origin = 'user';
+    const getLabels = () => {
+        const characterLabels = {};
+        for(let [key, value] of Object.entries(labels$1)){
+            if(key.startsWith('__')){
+                continue;
+            }
+            characterLabels[key] = value.short;
+        }
+        return characterLabels;
+    };
     const add = character => {
-        const cardId = characterMap.nextIncrement(origin);
+        const cid = characterMap.nextIncrement(origin);
+        character = structuredClone(character);
         character.meta = {
             ...character.meta,
             ...{
-                visibility: visibility$1,
+                visibility,
                 tabId,
-                cardId,
+                cid,
                 origin
             }
         };
-        characterMap.set(origin, cardId, character);
-        fields.init(character);
+        if(!character.labels) {
+            character.labels = getLabels();
+        }
+        characterMap.set(origin, cid, character);
         const card = document.createElement('card-base');
+        card.character = character;
         currentTab.append(card);
     };
-    const remove = card => {
-        characterMap.remove(origin, card.meta.cardId);
-        card.remove();
-    };
-    const enableEdit = card => {
-        card.classList.add('editable');
-    };
     const init = () => {
-        CardBase$1.register();
         events.on('characterSelection', e => {
             add(e.detail);
-        });
-        events.on('characterRemove', e => {
-            remove(e.detail);
-        });
-        events.on('characterEdit', e => {
-            enableEdit(e.detail);
         });
     };
     var cardManager = {
@@ -2342,7 +2356,7 @@
         });
     events.on('styleChange', e => {
         [src.$('#editor'), src.$('#style-editor')].forEach(panel => {
-            props$1.set(e.detail.name, e.detail.value, panel);
+            props.set(e.detail.name, e.detail.value, panel);
         });
     });
 

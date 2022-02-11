@@ -15,7 +15,7 @@ const prepareGroupSort = (entry, groupBy) => {
     }
     switch (groupBy) {
         case '__user':
-            entry.meta._groupValue = entry.props.name;
+            entry.meta._groupValue = labels.__user.group;
             entry.meta._groupLabel = labels.__user.group;
             break;
         case 'name':
@@ -38,13 +38,14 @@ const prepareGroupSort = (entry, groupBy) => {
  * @param sortDir
  * @returns {Object}
  */
-let grouped = {};
 const getSortedCharacters = (type, {
     groupBy = 'name',
     sortBy = 'name',
     groupDir = 'asc',
     sortDir = 'name'
 } = {}) => {
+    let grouped = {};
+    console.log(characterMap.values('system'))
     for (let entry of characterMap.values(type)) {
         entry = prepareGroupSort(entry, groupBy);
         grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];

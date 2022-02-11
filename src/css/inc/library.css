@@ -3,6 +3,7 @@
   max-width: 30rem;
   width: 25rem;
   overflow: visible;
+  transition: width .5s;
 
   & ::selection {
     background-color: transparent;
@@ -30,7 +31,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border-bottom:1px solid rgb(255 255 255 / .08);
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
 
     &:hover {
       background: var(--bg-3-color);
@@ -48,3 +49,10 @@
   }
 }
 
+[data-card-state="edit"] {
+  & #library {
+    width: 0;
+    overflow: hidden;
+    min-width: 0;
+  }
+}

@@ -9,7 +9,6 @@ const set = (key, value, target) => {
     if (isStyleProp(key)) {
         return target.style.setProperty(key, value);
     }
-
     target.dataset[key] = value;
 }
 
@@ -24,6 +23,10 @@ const get = (key, target) => {
     return JSON.parse(target.dataset[key]);
 }
 
+const toggle = (key, target) => {    
+    set(key, !get(key, target), target);
+} 
+
 const unset = (key, target) => {
     target = target || document.body;
     if (isStyleProp(key)) {
@@ -35,5 +38,6 @@ const unset = (key, target) => {
 export default {
     unset,
     get,
-    set
+    set,
+    toggle
 }

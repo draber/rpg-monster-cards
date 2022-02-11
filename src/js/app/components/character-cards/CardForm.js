@@ -1,136 +1,141 @@
 import fn from 'fancy-node';
 import draggable from '../../../modules/draggable/draggable.js';
-import fields from './field-service.js';
+import properties from '../../../modules/properties/properties.js';
 
 class CardForm extends HTMLElement {
 
-    icon(key, type) {
-        const nextState = fields.isVisible(key, type) ? 'show' : 'hide';
+    isVisible(key, type) {
+        if (type === 'text') {
+            return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+        }
+        return this.card.character.meta.visibility[key][type];
+    }
+
+    icon(type) {
         let title;
-        let href;
+        let icons = [`media/icons.svg#icon-show-${type}`, `media/icons.svg#icon-hide-${type}`];
         switch (type) {
-            case 'item':
+            case 'card':
                 title = 'Display this item on the card';
-                href = `media/icons.svg#icon-${nextState}-${type}`
                 break;
             case 'label':
                 title = 'Display the item label';
-                href = `media/icons.svg#icon-${nextState}-${type}`
                 break;
             case 'drag':
                 title = 'Drag item to different position';
-                href = `media/icons.svg#icon-drag-grip`
+                icons = [`media/icons.svg#icon-drag-grip`]
                 break;
         }
+        icons = icons.map(icon => fn.use({
+            isSvg: true,
+            attributes: {
+                href: icon
+            }
+        }))
         return fn.svg({
             isSvg: true,
             content: [
                 fn.title({
                     isSvg: true,
                     content: title
-                }),
-                fn.use({
-                    isSvg: true,
-                    attributes: {
-                        href
-                    }
                 })
-            ]
+            ].concat(icons)
         })
     }
 
-    broadCastTextChange(e) {
-        if (!e.target.contentEditable) {
-            return true;
-        }
-        const key = e.target.dataset.key ? e.target.dataset.key : e.target.closest('tr').dataset.key;
-        const type = e.target.nodeName === 'TH' ? 'label' : 'value'
-        const text = e.target.textContent;
-        // segment form | recto | verso
-        for (let [segment, list] of Object.entries(fields.rendered)) {
-            // ignore form, target card only
-            if (segment === 'form') {
-                continue;
-            }
-            // e.g. fields.rendered.recto.img
-            if (list[key]) {
-                // always arrays: cr for instance exists twice on the same card
-                // once on the card, once as a badge
-                list[key].forEach(row => {
-                    if (row[type]) {
-                        key === 'img' ? row[type].src = text : row[type].textContent = text;
-                    }
-                })
-            }
-        }
-        console.log(fields.rendered)
-    }
-
     buildRow(key) {
-        const data = this.buildCells(key);
-        return fn.tr({
-            attributes:{
+        const content = this.buildCells(key);
+        const row = fn.tr({
+            attributes: {
                 draggable: true
             },
             data: {
-                key
+                key,
+                card: this.isVisible(key, 'card'),
+                label: this.isVisible(key, 'label')
             },
-            classNames: data.classNames,
-            content: data.cells,
+            content,
             events: {
-                pointerdown: function (e) {
-                    this.draggable === e.target.nodeName === 'TR'
-                }
+                // dragend: e => {
+                //     this.card.trigger('orderChange', {
+                //         order: ((e) => {
+                //             return Array.from(fn.$$('[data-key]', e.target.closest('tbody')))
+                //                 .map(entry => entry.dataset.key)
+                //         })()
+                //     });
+                // }
             }
         });
+
+        draggable.enable(row);
+        return row;
     }
 
     buildCells(key) {
+
+        // content editing interferes with drag and drop
+        // dnd must be disabled while editing
+        function handleDraggability(e, action) {
+            const row = e.target.closest('[draggable]');
+            if (!row) {
+                return true;
+            }
+            draggable[action](row);
+        }
+
         const entries = {
             dragIcon: fn.td({
                 classNames: ['icon', 'handle'],
-                content: this.icon(key, 'drag')
+                content: this.icon('drag')
             }),
             label: fn.th({
+                data: {
+                    type: 'label'
+                },
                 attributes: {
                     contentEditable: true
                 },
-                content: fields.getLabel(key)
+                content: this.card.character.labels[key],
+                // events: {
+                //     focus: e => handleDraggability(e, 'disable'),
+                //     blur: e => handleDraggability(e, 'enable')
+                // }
             }),
             element: fn.td({
+                data: {
+                    type: 'text'
+                },
                 attributes: {
                     contentEditable: true
                 },
-                content: fields.getProp(key)
+                content: this.card.character.props[key],
+                // events: {
+                //     focus: e => handleDraggability(e, 'disable'),
+                //     blur: e => handleDraggability(e, 'enable')
+                // }
             }),
             labelIcon: fn.td({
-                classNames: ['icon'],
-                content: this.icon(key, 'label')
+                data: {
+                    type: 'label'
+                },
+                classNames: ['icon', 'toggle'],
+                content: this.icon('label')
             }),
             cardIcon: fn.td({
-                classNames: ['icon'],
-                content: this.icon(key, 'item')
+                data: {
+                    type: 'card'
+                },
+                classNames: ['icon', 'toggle'],
+                content: this.icon('card')
             })
         }
-        fields.setRendered('form', key, entries.element, entries.label);
 
-        const classNames = [];
-        if (!fields.isVisible(key, 'card')) {
-            classNames.push('no-card')
-        }
-
-        if (!fields.isVisible(key, 'label')) {
-            classNames.push('no-label')
-        }
-        return {
-            classNames,
-            cells: Object.values(entries)
-        }
+        return Object.values(entries);
     }
 
     populateTbody(tbody) {
-        for (let key of fields.getOrder(['img', 'name'])) {
-            tbody.append(this.buildRow(key, false));
+        for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+            tbody.append(this.buildRow(key));
         }
     }
 
@@ -138,6 +143,8 @@ class CardForm extends HTMLElement {
      * Called on element launch
      */
     connectedCallback() {
+
+        this.card = this.closest('card-base');
 
         const quill = fn.svg({
             isSvg: true,
@@ -158,15 +165,17 @@ class CardForm extends HTMLElement {
                         contentEditable: true
                     },
                     data: {
-                        key: 'name'
+                        key: 'name',
+                        type: 'text'
                     },
-                    content: fields.getProp('name')
+                    content: this.card.character.props.name
                 }),
                 fn.thead({
                     content: [
                         fn.tr({
                             data: {
-                                key: 'img'
+                                key: 'img',
+                                type: 'text'
                             },
                             content: [
                                 fn.th({
@@ -177,7 +186,7 @@ class CardForm extends HTMLElement {
                                         colSpan: 4,
                                         contentEditable: true
                                     },
-                                    content: fields.getProp('img')
+                                    content: this.card.character.props.img
                                 })
                             ]
                         })
@@ -187,50 +196,36 @@ class CardForm extends HTMLElement {
             ],
             events: {
                 input: e => {
-                    this.broadCastTextChange(e);
+                    if (!e.target.contentEditable) {
+                        return true;
+                    }
+                    this.card.trigger('contentChange', {
+                        field: e.target.dataset.type,
+                        key: e.target.closest('[data-key]').dataset.key,
+                        value: e.target.textContent
+                    })
                 },
-                paste: e => {
-                    this.broadCastTextChange(e);
-                },
-                pointerdown: e => {
-                    // if (e.target.closest('.handle')) {
-                    //     fn.$$('tr', tbody).forEach(elem => {
-                    //         draggable.toggle(elem, true);
-                    //     })
-                    // }
-                },
-                pointerup: () => {
-                    // console.log('pup', fn.$$('tr', tbody))
-                    // fn.$$('tr', tbody).forEach(elem => {
-                    //     draggable.toggle(elem, false);
-                    // })
+                pointerup: e => {
+                    // not a left click
+                    const trigger = e.target.closest('.toggle');
+                    if (e.button !== 0 || !trigger) {
+                        return true;
+                    }
+                    const row = trigger.closest('[data-key]');
+                    const key = row.dataset.key;
+                    const field = trigger.dataset.type;
+                    properties.toggle(field, row);
+                    const value = properties.get(field, row);
+                    this.card.trigger('visibilityChange', {
+                        field,
+                        key,
+                        value
+                    });
                 }
             }
         })
 
         this.populateTbody(tbody);
-
-        // content editing interferes with drag and drop
-        // dnd must be disbaled while editing
-        fn.$$('[contenteditable]', tbody).forEach(elem => {
-            const row = elem.closest('[draggable]');
-            if(!row) {
-                return true;
-            }
-            elem.addEventListener('focus', e => {
-                draggable.disable(e.target.closest('[draggable]'));
-            })
-            elem.addEventListener('blur', e => {
-                draggable.enable(e.target.closest('[draggable]'));
-            })
-        })
-
-        // enable draggability for all rows in tbody
-        fn.$$('[draggable]', tbody).forEach(elem => {
-            draggable.enable(elem);
-        })
-
-
         this.append(quill, frame);
     }
 

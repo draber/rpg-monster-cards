@@ -39,5 +39,8 @@
   "storageKeys": {
     "user": "gb-user-prefs",
     "cards": "gb-cards"
+  },
+  "userCharacters": {
+    "inLibrary": true
   }
 }

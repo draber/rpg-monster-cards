@@ -25,29 +25,60 @@ card-verso {
     line-height: 1.8rem;
     flex-wrap: wrap;
     gap: 0 1.2ch;
-    overflow-y: auto
+    overflow-y: auto;
   }
 
   & tr {
-    display: flex;
     gap: 0.5ch;
-    &[data-display="false"],
-    &[data-display="mandatory"] {
+
+    // fields visibility on card
+    &[data-card="true"] {
+      display: flex;
+    }
+
+    &[data-card="false"] {
       display: none;
     }
 
-    & th {
-      display: inline-block;
-      white-space: nowrap;
-      color: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
-      filter: contrast(25%);
-      &::after {
-        content: ":";
+    &[data-label="false"] {
+      & th {
+        display: none;
       }
     }
 
-    & td {
-      display: inline-block;
+    &[data-label="true"] {
+      & th {
+        display: inline-block;
+      }
+    }
+  }
+  & th {
+    white-space: nowrap;
+    color: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+    filter: contrast(25%);
+    &::after {
+      content: ":";
+    }
+  }
+  & td {
+    display: inline-block;
+  }
+
+  & use {
+  }
+  & [data-card="false"] {
+    opacity: 0.8;
+    & use {
+      &[data-card="false"] {
+        display: inline;
+      }
+      &[data-card="true"] {
+        display: none;
+      }
+    }
+  }
+  & [data-label="false"] {
+    & use {
     }
   }
 }

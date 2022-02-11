@@ -1,5 +1,4 @@
 import fn from 'fancy-node';
-import fields from './field-service.js';
 
 /**
  * Custom element containing the list of fonts
@@ -18,19 +17,34 @@ class CardRecto extends HTMLElement {
         const entries = {
             img: fn.img({
                 attributes: {
-                    src: fields.getProp('img')
+                    src: this.card.character.props.img
                 }
             }),
             name: fn.figcaption({
                 classNames: ['badge'],
-                content: fields.getProp('name')
+                content: this.card.character.props.name
             })
         }
 
-        for (let [key, element] of Object.entries(entries)) {
+        for (let element of Object.values(entries)) {
             frame.append(element);
-            fields.setRendered('recto', key, element, null);
         }
+
+        /**
+         * repaint on content change
+         */
+        this.card.on('contentChange', e => {
+            const x = {
+                p: 'recto',
+                k: e.detail.key,
+                t: e.detail.type,
+                v: e.detail.value
+            }
+            const prop = e.detail.key === 'img' ? 'src' : 'textContent'
+            if(entries[e.detail.key]) {
+                entries[e.detail.key][prop] = e.detail.value;
+            }
+        })
 
         this.append(frame)
     }
