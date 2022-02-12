@@ -587,7 +587,6 @@
         sortDir = 'name'
     } = {}) => {
         let grouped = {};
-        console.log(characterMap.values('system'));
         for (let entry of characterMap.values(type)) {
             entry = prepareGroupSort(entry, groupBy);
             grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
@@ -677,10 +676,7 @@
                 sortBy: 'name'
             }));
             let collection = systemCollection;
-            if (settings$1.get('userCharacters.inLibrary') && userCollection.length) {
-                collection = userCollection.concat(systemCollection);
-                firstGroupClassNames = ['user-generated'];
-            }
+            if (settings$1.get('userCharacters.inLibrary') && userCollection.length) ;
             collection.forEach((values, index) => {
                 let list = src.ul();
                 let groupContainer = src.details({
@@ -762,11 +758,11 @@
             return self;
         }
     }
-    const register$a = () => {
+    const register$b = () => {
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$a
+        register: register$b
     };
 
     var name = {
@@ -1029,11 +1025,11 @@
             return self;
         }
     }
-    const register$9 = () => {
+    const register$a = () => {
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
-        register: register$9
+        register: register$a
     };
 
     var fonts = [
@@ -1148,7 +1144,9 @@
     	"--c-badge-l": "63%",
     	"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
     	"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
-    	"--c-button-color": "var(--text-color)"
+    	"--c-button-color": "var(--text-color)",
+    	"--c-card-font-size": "1.1rem",
+    	"--c-badge-font-size": "1.5rem"
     }
     };
 
@@ -1163,7 +1161,7 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
-            this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps[this.name] || '';
+            this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps[':root'][this.name] || '';
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
@@ -1201,10 +1199,78 @@
             return self;
         }
     }
-    const register$8 = () => {
+    const register$9 = () => {
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
+        register: register$9
+    };
+
+    class FontSize extends HTMLElement {
+        get name() {
+            return this.getAttribute('name');
+        }
+        set name(value) {
+            this.setAttribute('name', value);
+        }
+        get max() {
+            return this.getAttribute('max');
+        }
+        set max(value) {
+            this.setAttribute('max', value);
+        }
+        get min() {
+            return this.getAttribute('min');
+        }
+        set min(value) {
+            this.setAttribute('min', value);
+        }
+        get value() {
+            return this.getAttribute('value');
+        }
+        set value(value) {
+            this.setAttribute('value', value);
+        }
+        connectedCallback() {
+            if (!this.name) {
+                throw Error(`Missing attribute "name" on <font-size> element`);
+            }
+            this.value = parseFloat(userPrefs.get(`fonts.${this.name}`) || cssProps[':root'][this.name] || 0, 10);
+            const attributes = {
+                value: this.value,
+                type: 'range',
+                step:  (this.max - this.min) / 100
+            };
+            attributes.min = attributes.value * .8;
+            attributes.max = attributes.value * 1.3;
+            attributes.step = (attributes.max - attributes.min) / 100;
+            const input = src.input({
+                attributes,
+                data: {
+                    prop: this.name
+                },
+                events: {
+                    input: e => {
+                        this.value = e.target.value + 'rem';
+                        userPrefs.set(`fonts.${this.name}`, this.value);
+                        events.trigger(`styleChange`, {
+                            name: this.name,
+                            value: this.value
+                        });
+                    }
+                }
+            });
+            this.append(input);
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$8 = () => {
+        customElements.get('font-size') || customElements['define']('font-size', FontSize);
+    };
+    var FontSize$1 = {
         register: register$8
     };
 
@@ -1302,7 +1368,7 @@
             if (!this.type) {
                 throw Error(`Missing attribute "type" on <pattern-selector> element`);
             }
-            this.selected = userPrefs.get(`patterns.${this.name}`) || cssProps[this.name] || '';
+            this.selected = userPrefs.get(`patterns.${this.name}`) || cssProps[':root'][this.name] || '';
             const patterns = patternPool[this.type];
             const selector = src.ul({
                 content: patterns.map(entry => {
@@ -1558,7 +1624,6 @@
             return `hsl(${channels.join(' ')})`;
         }
         fireEvent(type) {
-            og( format.tracksToValueObj(this.tracks), this.name);
             return this.dispatchEvent(new CustomEvent(type, {
                 bubbles: true,
                 cancelable: true,
@@ -1713,6 +1778,7 @@
                 this.trigger('afterVisibilityChange');
             });
             this.on('orderChange', function (e) {
+                console.log(e.detail);
                 let props = {};
                 e.detail.order.forEach(key => {
                     props[key] = this.character.props[key];
@@ -1729,6 +1795,10 @@
                 props.set('cardState', 'edit');
                 this.classList.add('editable');
             });
+            this.on('characterDone', function (e) {
+                props.unset('cardState');
+                this.classList.remove('editable');
+            });
         }
         constructor(self) {
             self = super(self);
@@ -1744,11 +1814,11 @@
 
     let dragSrcEl = null;
     function handleDragStart(e) {
+        e.stopPropagation();
         dragSrcEl = this;
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/html', this.outerHTML);
-        this.classList.add('dragElem');
-        this.parentElement.classList.add('dragging');
+        dragSrcEl.classList.add('dragElem');
     }
     function handleDragOver(e) {
         e.preventDefault();
@@ -1767,12 +1837,12 @@
             this.after(dragSrcEl);
         }
         this.classList.remove('dragover');
+        dragSrcEl.classList.remove('dragElem');
         return false;
     }
     function handleDragEnd(e) {
+        console.log('dragend');
         this.classList.remove('dragover');
-        this.classList.remove('dragElem');
-        this.parentElement.classList.remove('dragging');
     }
     const handles = {
         dragstart: handleDragStart,
@@ -1850,11 +1920,17 @@
                     card: this.isVisible(key, 'card'),
                     label: this.isVisible(key, 'label')
                 },
-                content,
-                events: {
-                }
+                content
             });
             draggable.enable(row);
+            row.addEventListener('dragend', e => {
+                this.card.trigger('orderChange', {
+                    order: (e => {
+                        return Array.from(src.$$('[data-key]', this.tbody))
+                            .map(entry => entry.dataset.key)
+                    })()
+                });
+                });
             return row;
         }
         buildCells(key) {
@@ -1898,24 +1974,14 @@
             };
             return Object.values(entries);
         }
-        populateTbody(tbody) {
+        populateTbody() {
             for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
-                tbody.append(this.buildRow(key));
+                this.tbody.append(this.buildRow(key));
             }
         }
         connectedCallback() {
             this.card = this.closest('card-base');
-            const quill = src.svg({
-                isSvg: true,
-                classNames: ['quill'],
-                content: src.use({
-                    isSvg: true,
-                    attributes: {
-                        href: 'media/icons.svg#icon-quill'
-                    }
-                })
-            });
-            const tbody = src.tbody();
+            this.tbody = src.tbody();
             const frame = src.table({
                 content: [
                     src.caption({
@@ -1950,7 +2016,7 @@
                             })
                         ]
                     }),
-                    tbody
+                    this.tbody
                 ],
                 events: {
                     input: e => {
@@ -1981,8 +2047,8 @@
                     }
                 }
             });
-            this.populateTbody(tbody);
-            this.append(quill, frame);
+            this.populateTbody();
+            this.append(frame);
         }
         constructor(self) {
             self = super(self);
@@ -2155,11 +2221,15 @@
             });
             const buttons = {
                 remove: {
-                    text: 'Unmake',
+                    text: 'Delete',
                     icon: 'media/icons.svg#icon-axe'
                 },
                 edit: {
-                    text: 'Mutate',
+                    text: 'Edit',
+                    icon: 'media/icons.svg#icon-quill'
+                },
+                done: {
+                    text: 'Done',
                     icon: 'media/icons.svg#icon-quill'
                 }
             };
@@ -2282,6 +2352,7 @@
         CharacterLibrary$1,
         LibraryOrganizer$1,
         FontSelector$1,
+        FontSize$1,
         PatternSelector$1,
         ColorSelector$1,
         CardBase$1,

@@ -1,0 +1,40 @@
+input {
+  &[type="range"] {
+    position: relative;
+    top: -0.1rem;
+    appearance: none;
+    background: var(--bg-4-color);
+    height: 0.6rem;
+    padding: 0;
+    outline: none;
+    width: 100%;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 1.6rem;
+      width: 1.6rem;
+      border-radius: 50%;
+      background: var(--hd-color);
+      opacity: 0.7;
+      cursor: ew-resize;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    &::-moz-range-thumb {
+      -webkit-appearance: none;
+      height: 1.6rem;
+      width: 1.6rem;
+      border-radius: 50%;
+      background: var(--hd-color);
+      cursor: ew-resize;
+      opacity: 0.7;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}

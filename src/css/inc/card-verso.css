@@ -21,8 +21,8 @@ card-verso {
   & tbody {
     width: calc(100% - 1rem);
     display: flex;
-    font-size: 1.1rem;
-    line-height: 1.8rem;
+    font-size: var(--c-card-font-size);
+    line-height: 1.6;
     flex-wrap: wrap;
     gap: 0 1.2ch;
     overflow-y: auto;

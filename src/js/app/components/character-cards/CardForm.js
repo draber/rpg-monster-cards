@@ -54,20 +54,20 @@ class CardForm extends HTMLElement {
                 card: this.isVisible(key, 'card'),
                 label: this.isVisible(key, 'label')
             },
-            content,
-            events: {
-                // dragend: e => {
-                //     this.card.trigger('orderChange', {
-                //         order: ((e) => {
-                //             return Array.from(fn.$$('[data-key]', e.target.closest('tbody')))
-                //                 .map(entry => entry.dataset.key)
-                //         })()
-                //     });
-                // }
-            }
+            content
         });
 
         draggable.enable(row);
+
+        // _must_ be added _after_ draggable.enable to ensure, the order of the rows has already been completed
+        row.addEventListener('dragend', e => {
+            this.card.trigger('orderChange', {
+                order: (e => {
+                    return Array.from(fn.$$('[data-key]', this.tbody))
+                        .map(entry => entry.dataset.key)
+                })()
+            })
+            })
         return row;
     }
 
@@ -133,9 +133,9 @@ class CardForm extends HTMLElement {
         return Object.values(entries);
     }
 
-    populateTbody(tbody) {
+    populateTbody() {
         for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
-            tbody.append(this.buildRow(key));
+            this.tbody.append(this.buildRow(key));
         }
     }
 
@@ -146,18 +146,7 @@ class CardForm extends HTMLElement {
 
         this.card = this.closest('card-base');
 
-        const quill = fn.svg({
-            isSvg: true,
-            classNames: ['quill'],
-            content: fn.use({
-                isSvg: true,
-                attributes: {
-                    href: 'media/icons.svg#icon-quill'
-                }
-            })
-        })
-
-        const tbody = fn.tbody();
+        this.tbody = fn.tbody();
         const frame = fn.table({
             content: [
                 fn.caption({
@@ -192,7 +181,7 @@ class CardForm extends HTMLElement {
                         })
                     ]
                 }),
-                tbody
+                this.tbody
             ],
             events: {
                 input: e => {
@@ -225,8 +214,8 @@ class CardForm extends HTMLElement {
             }
         })
 
-        this.populateTbody(tbody);
-        this.append(quill, frame);
+        this.populateTbody();
+        this.append(frame);
     }
 
     constructor(self) {

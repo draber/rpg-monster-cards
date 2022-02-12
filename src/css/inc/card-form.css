@@ -6,17 +6,6 @@ card-form {
   color: var(--c-color);
   position: relative;
 
-  & > svg {
-    &.quill {
-      position: absolute;
-      right: 2rem;
-      top: 3rem;
-      width: 5rem;
-      cursor: default;
-      fill: var(--bg-6-color);
-    }
-  }
-
   & [contenteditable] {
     border: 0.1rem dotted var(--bg-6-color);
     padding: 0.2rem 0.5rem;
@@ -71,12 +60,6 @@ card-form {
         flex: 2;
         resize: vertical;
         overflow-y: auto;
-      }
-    }
-    &.dragging {
-      & td, & th {
-        max-height: 2.6rem;
-        overflow: hidden;
       }
     }
   }
@@ -156,12 +139,8 @@ card-form {
       }
     }
     & th {
-      opacity: .5
+      opacity: 0.5;
     }
-  }
-
-  & .dragElem {
-    display: none
   }
 
   & .dragover {

@@ -45,7 +45,7 @@ const getSortedCharacters = (type, {
     sortDir = 'name'
 } = {}) => {
     let grouped = {};
-    console.log(characterMap.values('system'))
+   // console.log(characterMap.values('system'))
     for (let entry of characterMap.values(type)) {
         entry = prepareGroupSort(entry, groupBy);
         grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];

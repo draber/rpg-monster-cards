@@ -8,7 +8,8 @@ function handleDragStart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.outerHTML);
 
-    dragSrcEl.classList.add('dragElem');
+    this.classList.add('dragElem');
+    this.parentElement.classList.add('dragging')
 }
 
 function handleDragOver(e) {
@@ -34,14 +35,14 @@ function handleDrop(e) {
         this.after(dragSrcEl);
     }
     this.classList.remove('dragover');
-    dragSrcEl.classList.remove('dragElem');
     return false;
 }
 
 function handleDragEnd(e) {
-    console.log('dragend')
     // this/e.target is the source node.
     this.classList.remove('dragover');
+    // this.classList.remove('dragElem');
+    this.parentElement.classList.remove('dragging');
 }
 
 const handles = {

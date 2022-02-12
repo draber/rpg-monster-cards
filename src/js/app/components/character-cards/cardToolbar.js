@@ -24,11 +24,15 @@ class CardToolbar extends HTMLElement {
 
         const buttons = {
             remove: {
-                text: 'Unmake',
+                text: 'Delete',
                 icon: 'media/icons.svg#icon-axe'
             },
             edit: {
-                text: 'Mutate',
+                text: 'Edit',
+                icon: 'media/icons.svg#icon-quill'
+            },
+            done: {
+                text: 'Done',
                 icon: 'media/icons.svg#icon-quill'
             }
         }

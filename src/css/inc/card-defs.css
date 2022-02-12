@@ -28,5 +28,9 @@
   --c-button-bg: hsl(15, 50%, 15%, 0.9);
   --c-button-color: var(--text-color);
 
+  --c-card-font-size: 1.1rem;
+  --c-badge-font-size: 1.5rem;
+
+
   // border-radius: 10% 20%;
 }

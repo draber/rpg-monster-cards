@@ -71,7 +71,7 @@ class PatternSelector extends HTMLElement {
             throw Error(`Missing attribute "type" on <pattern-selector> element`);
         }
 
-        this.selected = userPrefs.get(`patterns.${this.name}`) || cssProps[this.name] || '';
+        this.selected = userPrefs.get(`patterns.${this.name}`) || cssProps[':root'][this.name] || '';
 
         const patterns = patternPool[this.type];
 

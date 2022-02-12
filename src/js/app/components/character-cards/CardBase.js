@@ -69,6 +69,7 @@ class CardBase extends HTMLElement {
         });
 
         this.on('orderChange', function (e) {
+            console.log(e.detail)
             let props = {};
             e.detail.order.forEach(key => {
                 props[key] = this.character.props[key];
@@ -86,6 +87,11 @@ class CardBase extends HTMLElement {
         this.on('characterEdit', function (e) {
             properties.set('cardState', 'edit');
             this.classList.add('editable');
+        })
+
+        this.on('characterDone', function (e) {
+            properties.unset('cardState');
+            this.classList.remove('editable');
         })
     }
 

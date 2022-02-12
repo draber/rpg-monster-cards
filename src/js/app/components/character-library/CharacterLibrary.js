@@ -96,10 +96,10 @@ class CharacterLibrary extends HTMLElement {
         let collection = systemCollection;
 
         if (settings.get('userCharacters.inLibrary') && userCollection.length) {
-            collection = userCollection.concat(systemCollection);
+            // collection = userCollection.concat(systemCollection);
 
-            // mark the first group
-            firstGroupClassNames = ['user-generated'];
+            // // mark the first group
+            // firstGroupClassNames = ['user-generated'];
         }
 
         collection.forEach((values, index) => {

@@ -1,6 +1,7 @@
 import CharacterLibrary from './character-library/CharacterLibrary.js';
 import LibraryOrganizer from './character-library/LibraryOrganizer.js';
 import FontSelector from './font-selector/FontSelector.js';
+import FontSize from './font-selector/FontSize.js';
 import PatternSelector from './pattern-selector/PatternSelector.js';
 import ColorSelector from './color-selector/ColorSelector.js';
 import CardBase from './character-cards/CardBase.js';
@@ -13,6 +14,7 @@ const components = [
     CharacterLibrary,
     LibraryOrganizer,
     FontSelector,
+    FontSize,
     PatternSelector,
     ColorSelector,
     CardBase,

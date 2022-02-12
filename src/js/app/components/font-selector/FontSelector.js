@@ -34,7 +34,7 @@ class FontSelector extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-selector> element`);
         }
 
-        this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps[this.name] || '';
+        this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps[':root'][this.name] || '';
 
         const selector = fn.select({
             style: {

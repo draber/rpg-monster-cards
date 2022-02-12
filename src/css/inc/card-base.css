@@ -98,7 +98,7 @@ card-base {
     border-radius: 10% 20%;
     text-align: center;
     padding: 0.16rem 0.8rem;
-    font: bold 1.5rem var(--c-badge-font);
+    font: bold var(--c-badge-font-size) var(--c-badge-font);
     text-shadow: 0.08rem 0.08rem 0 var(--c-badge-text-shadow-color);
     display: inline-block;
     box-shadow: 0.16rem 0.16rem 0.32rem 0 var(--c-box-shadow-color);
@@ -130,3 +130,12 @@ card-base {
   }
 }
 
+
+
+[data-card-state="edit"] {
+  & card-base {
+    &:not(.editable){
+      display:none;
+    }
+  }
+}
