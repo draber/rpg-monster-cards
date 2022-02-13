@@ -7,6 +7,9 @@
 @import './inc/content.css';
 @import './inc/character-library.css';
 @import './inc/library-organizer.css';
+@import './inc/tabs.css';
+@import './inc/tab-navi.css';
+@import './inc/tab-handle.css';
 @import './inc/card-base.css';
 @import './inc/card-recto.css';
 @import './inc/card-verso.css';

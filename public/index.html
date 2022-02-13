@@ -22,19 +22,20 @@
   <main>
     <section class="column" id="library">
       <div class="column-heading-container">
-        <h2 class="column-heading">All Creatures</h2>
+        <h2 class="column-heading">Library</h2>
         <library-organizer></library-organizer>
       </div>
       <character-library sortby="name" groupby="name" sortdir="asc" groupdir="asc"></character-library>
     </section>
     <section class="column" id="editor">
-      <h2 class="column-heading">Thy Creatures</h2>
-
+      <h2 class="column-heading">Workbench</h2>
+      <tab-navi></tab-navi>
       <!--video id="smoke">
         <source src="media/video/fog.webm" type="video/webm">
         <source src="media/video/fog.mp4" type="video/mp4">
       </video-->
       <div class="column-content" id="card-listing">
+        <tab-content></tab-content>
       </div>
     </section>
     <section class="column" class="column" id="style-editor">
@@ -51,7 +52,7 @@
             <font-size name="--c-card-font-size"></font-size>
           </div>
           <div class="form-row" id="card-bg-color-selector">
-            <h3>Color</h3>
+            <h3>Background Color</h3>
             <color-selector type="backgrounds" name="--c-bg-color"></color-selector>
           </div>
           <div class="form-row">
@@ -70,14 +71,14 @@
             <font-size name="--c-badge-font-size"></font-size>
           </div>
           <div class="form-row">
-            <h3>Color</h3>
+            <h3>Background Color</h3>
             <color-selector type="badge" name="--c-badge-color"></color-selector>
           </div>
         </details>
         <details>
           <summary>Frame</summary>
           <div class="form-row">
-            <h3>Color</h3>
+            <h3>Background ColorColor</h3>
             <color-selector type="borders" name="--c-border-color"></color-selector>
           </div>
           <div class="form-row">

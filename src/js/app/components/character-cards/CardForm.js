@@ -84,10 +84,6 @@ class CardForm extends HTMLElement {
         }
 
         const entries = {
-            dragIcon: fn.td({
-                classNames: ['icon', 'handle'],
-                content: this.icon('drag')
-            }),
             label: fn.th({
                 data: {
                     type: 'label'
@@ -96,10 +92,10 @@ class CardForm extends HTMLElement {
                     contentEditable: true
                 },
                 content: this.card.character.labels[key],
-                // events: {
-                //     focus: e => handleDraggability(e, 'disable'),
-                //     blur: e => handleDraggability(e, 'enable')
-                // }
+                events: {
+                    focus: e => handleDraggability(e, 'disable'),
+                    blur: e => handleDraggability(e, 'enable')
+                }
             }),
             element: fn.td({
                 data: {
@@ -109,10 +105,10 @@ class CardForm extends HTMLElement {
                     contentEditable: true
                 },
                 content: this.card.character.props[key],
-                // events: {
-                //     focus: e => handleDraggability(e, 'disable'),
-                //     blur: e => handleDraggability(e, 'enable')
-                // }
+                events: {
+                    focus: e => handleDraggability(e, 'disable'),
+                    blur: e => handleDraggability(e, 'enable')
+                }
             }),
             labelIcon: fn.td({
                 data: {
@@ -127,6 +123,10 @@ class CardForm extends HTMLElement {
                 },
                 classNames: ['icon', 'toggle'],
                 content: this.icon('card')
+            }),
+            dragIcon: fn.td({
+                classNames: ['icon', 'handle'],
+                content: this.icon('drag')
             })
         }
 

@@ -1,0 +1,22 @@
+tab-navi {
+  display: flex;
+  background: var(--bg-2-color);
+  line-height: 2;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
+  gap: .5rem;
+  padding: 0 .5rem;
+  & .btn {
+    cursor: pointer;
+    font-size: 2.2rem;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+  }
+  & .tab {
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-bottom: none;
+    padding: 0 1rem;
+  }
+}

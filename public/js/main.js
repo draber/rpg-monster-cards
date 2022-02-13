@@ -210,8 +210,8 @@
     	short: "Name"
     };
     var __user$1 = {
-    	long: "Thy Creatures",
-    	group: "Thy Creatures"
+    	long: "Your Creatures",
+    	group: "Your Creatures"
     };
     var img$1 = {
     	long: "Image",
@@ -408,7 +408,7 @@
     	entryPoint: "src/css/main.css",
     	"public": "public/css/main.css"
     };
-    var cssProps$1 = {
+    var cssProps$2 = {
     	src: "src/css/inc/card-defs.css",
     	target: "src/data/css-props.json"
     };
@@ -442,15 +442,16 @@
     	"public": "public/js/main.js"
     };
     var storageKeys = {
-    	user: "gb-user-prefs",
-    	cards: "gb-cards"
+    	user: "gc-user-prefs",
+    	cards: "gc-cards",
+    	tabs: "gc-tabs"
     };
     var userCharacters = {
     	inLibrary: true
     };
     var config = {
     	css: css,
-    	cssProps: cssProps$1,
+    	cssProps: cssProps$2,
     	fonts: fonts$1,
     	backgrounds: backgrounds$1,
     	borders: borders$1,
@@ -466,7 +467,7 @@
     let settings = {
         ...config
     };
-    const get$3 = key => {
+    const get$4 = key => {
         let current = Object.create(settings);
         for (let token of key.split('.')) {
             if (typeof current[token] === 'undefined') {
@@ -493,51 +494,50 @@
         current[last] = value;
     };
     var settings$1 = {
-        get: get$3,
+        get: get$4,
         set: set$3
     };
 
-    const lsKey$1 = settings$1.get('storageKeys.cards');
-    const data = {
+    const lsKey$2 = settings$1.get('storageKeys.cards');
+    const data$1 = {
         system: {},
         user: {}
     };
-    const storage = {
+    const storage$1 = {
         read: () => {
-            return JSON.parse(localStorage.getItem(lsKey$1) || '[]')
+            return JSON.parse(localStorage.getItem(lsKey$2) || '{}')
         },
         update: () => {
-            return localStorage.setItem(lsKey$1, JSON.stringify(Object.values(data.user) || []))
+            return localStorage.setItem(lsKey$2, JSON.stringify(data$1.user || {}))
         }
     };
     const values = type => {
-        return Object.values(data[type]);
+        return Object.values(data$1[type]);
     };
     const set$2 = (type, cid, character) => {
-        const retVal = data[type][cid] = character;
+        data$1[type][cid] = character;
         if (type === 'user') {
-            storage.update();
+            storage$1.update();
         }
-        return retVal;
     };
-    const get$2 = (type, cid) => {
-        return data[type][cid];
+    const get$3 = (type, cid) => {
+        return data$1[type][cid];
+    };
+    const getAllByType = type => {
+        return data$1[type];
     };
     const remove = (type, cid) => {
-        const retVal = delete data[type][cid];
+        delete data$1[type][cid];
         if (type === 'user') {
-            storage.update();
+            storage$1.update();
         }
-        return retVal;
     };
-    const nextIncrement = type => {
+    const nextIncrement$1 = type => {
         const lowest = type === 'system' ? 0 : 5000;
-        return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
+        return Math.max(...[lowest].concat(Object.keys(data$1[type]))) + 1;
     };
-    const init$1 = () => {
-        storage.read().forEach((entry, index) => {
-            set$2('user', index, entry);
-        });
+    const init$2 = () => {
+        data$1.user = storage$1.read();
         return (fetch('js/characters.json')
             .then(response => response.json())
             .then(data => {
@@ -553,12 +553,13 @@
             }));
     };
     var characterMap = {
-        init: init$1,
-        get: get$2,
+        init: init$2,
+        get: get$3,
         set: set$2,
         remove,
         values,
-        nextIncrement
+        nextIncrement: nextIncrement$1,
+        getAllByType
     };
 
     const prepareGroupSort = (entry, groupBy) => {
@@ -604,12 +605,12 @@
         getSortedCharacters
     };
 
-    const trigger = (type, data, target) => {
+    const trigger$1 = (type, data, target) => {
         (target || document.body).dispatchEvent(data ? new CustomEvent(type, {
             detail: data
         }) : new Event(type));
     };
-    const on = (types, action, target) => {
+    const on$1 = (types, action, target) => {
         if (typeof types === 'string') {
             types = [types];
         }
@@ -618,26 +619,26 @@
         });
     };
     var events = {
-        trigger,
-        on
+        trigger: trigger$1,
+        on: on$1
     };
 
-    const lsKey = settings$1.get('storageKeys.user');
-    settings$1.set('userPrefs', JSON.parse(localStorage.getItem(lsKey) || '{}'));
+    const lsKey$1 = settings$1.get('storageKeys.user');
+    settings$1.set('userPrefs', JSON.parse(localStorage.getItem(lsKey$1) || '{}'));
     const getAll = () => {
         return settings$1.get(`userPrefs`);
     };
-    const get$1 = key => {
+    const get$2 = key => {
         return settings$1.get(`userPrefs.${key}`);
     };
     const set$1 = (key, value) => {
         settings$1.set(`userPrefs.${key}`, value);
-        localStorage.setItem(lsKey, JSON.stringify(getAll()));
+        localStorage.setItem(lsKey$1, JSON.stringify(getAll()));
         return true;
     };
     var userPrefs = {
         getAll,
-        get: get$1,
+        get: get$2,
         set: set$1
     };
 
@@ -758,11 +759,11 @@
             return self;
         }
     }
-    const register$b = () => {
+    const register$f = () => {
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$b
+        register: register$f
     };
 
     var name = {
@@ -1025,11 +1026,11 @@
             return self;
         }
     }
-    const register$a = () => {
+    const register$e = () => {
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
-        register: register$a
+        register: register$e
     };
 
     var fonts = [
@@ -1125,7 +1126,7 @@
     	}
     ];
 
-    var cssProps = {
+    var cssProps$1 = {
     	":root": {
     	"--c-color": "hsl(0, 0%, 0%)",
     	"--c-card-font": "\"Della Respira\", serif",
@@ -1150,6 +1151,20 @@
     }
     };
 
+    let props$1 = {};
+    for (let values of Object.values(cssProps$1)) {
+        props$1 = {
+            ...props$1,
+            ...values
+        };
+    }
+    const get$1 = key => {
+        return props$1[key];
+    };
+    var cssProps = {
+        get: get$1
+    };
+
     class FontSelector extends HTMLElement {
         get name() {
             return this.getAttribute('name');
@@ -1161,7 +1176,7 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
-            this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps[':root'][this.name] || '';
+            this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
@@ -1193,17 +1208,18 @@
                 }
             });
             this.append(selector);
+            selector.dispatchEvent(new Event('change'));
         }
         constructor(self) {
             self = super(self);
             return self;
         }
     }
-    const register$9 = () => {
+    const register$d = () => {
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$9
+        register: register$d
     };
 
     class FontSize extends HTMLElement {
@@ -1235,13 +1251,13 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-size> element`);
             }
-            this.value = parseFloat(userPrefs.get(`fonts.${this.name}`) || cssProps[':root'][this.name] || 0, 10);
+            this.value = parseFloat(userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || 1.4, 10);
             const attributes = {
                 value: this.value,
                 type: 'range',
                 step:  (this.max - this.min) / 100
             };
-            attributes.min = attributes.value * .8;
+            attributes.min = attributes.value * .7;
             attributes.max = attributes.value * 1.3;
             attributes.step = (attributes.max - attributes.min) / 100;
             const input = src.input({
@@ -1261,17 +1277,18 @@
                 }
             });
             this.append(input);
+            input.dispatchEvent(new Event('input'));
         }
         constructor(self) {
             self = super(self);
             return self;
         }
     }
-    const register$8 = () => {
+    const register$c = () => {
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$8
+        register: register$c
     };
 
     var backgrounds = [
@@ -1345,6 +1362,12 @@
         borders
     };
     class PatternSelector extends HTMLElement {
+        get value() {
+            return this.getAttribute('value');
+        }
+        set value(value) {
+            this.setAttribute('value', value);
+        }
         get name() {
             return this.getAttribute('name');
         }
@@ -1361,6 +1384,14 @@
             const path = target === 'html' ? 'media/patterns' : '../media/patterns';
             return `url(${path}/${this.type}/${img.split('/').pop()})`;
         }
+        getValue(){
+            for(let input of src.$$('input', this)) {
+                if(input.checked){
+                    return input.value;
+                }
+            }
+            return userPrefs.get(`patterns.${this.name}`) || cssProps.get(this.name) || '';
+        }
         connectedCallback() {
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <pattern-selector> element`);
@@ -1368,7 +1399,7 @@
             if (!this.type) {
                 throw Error(`Missing attribute "type" on <pattern-selector> element`);
             }
-            this.selected = userPrefs.get(`patterns.${this.name}`) || cssProps[':root'][this.name] || '';
+            this.value = this.getValue();
             const patterns = patternPool[this.type];
             const selector = src.ul({
                 content: patterns.map(entry => {
@@ -1386,7 +1417,7 @@
                                     name: `${this.type}-pattern`,
                                     value: this.getUrl(entry.name, 'css'),
                                     id: `${this.type}-${entry.id}`,
-                                    checked: this.getUrl(entry.name, 'css') === this.selected
+                                    checked: this.getUrl(entry.name, 'css') === this.value
                                 }
                             }),
                             src.label({
@@ -1399,16 +1430,195 @@
                 }),
                 events: {
                     change: e => {
-                        this.selected = e.target.value;
-                        userPrefs.set(`patterns.${this.name}`, this.selected);
+                        this.value = this.getValue();
+                        userPrefs.set(`patterns.${this.name}`, this.value);
                         events.trigger(`styleChange`, {
                             name: this.name,
-                            value: e.target.value
+                            value: this.value
                         });
                     }
                 }
             });
             this.append(selector);
+            selector.dispatchEvent(new Event('change'));
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$b = () => {
+        customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
+    };
+    var PatternSelector$1 = {
+        register: register$b
+    };
+
+    const lsKey = settings$1.get('storageKeys.tabs');
+    let data = {};
+    let navi;
+    let currentTab$1;
+    const toLatin = tid => {
+        const numerals = {
+            1: 'I',
+            2: 'II',
+            3: 'III',
+            4: 'IV',
+            5: 'V',
+            6: 'VI',
+            7: 'VII',
+            8: 'VII',
+            9: 'IX',
+            10: 'X'
+        };
+        if(numerals[tid]){
+            return numerals[tid];
+        }
+        if(tid > 10 && tid < 21) {
+            return 'X' + numerals[tid - 10]
+        }
+        return tid;
+    };
+    const getTabData = () => {
+        const tid = nextIncrement();
+        return {
+            tid,
+            label: toLatin(tid),
+            state: 'visible'
+        }
+    };
+    const storage = {
+        read: () => {
+            const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
+            return Object.keys(stored).length ? stored : {
+                1: getTabData()
+            };
+        },
+        update: () => {
+            return localStorage.setItem(lsKey, JSON.stringify(data || {}))
+        }
+    };
+    const nextIncrement = () => {
+        return Math.max(...[0].concat(Object.keys(data))) + 1;
+    };
+    const getCurrentTab = () => {
+        return currentTab$1;
+    };
+    const createTab = tabData => {
+        tabData = tabData || getTabData();
+        currentTab$1 = document.createElement('tab-handle');
+        currentTab$1.data = tabData;
+        data[currentTab$1.data.tid] = currentTab$1;
+        src.$('.adder', navi).before(currentTab$1);
+        return currentTab$1;
+    };
+    const init$1 = () => {
+        navi = src.$('tab-navi');
+        src.$('tab-content');
+        data = storage.read();
+        for (let tab of Object.values(data)) {
+            createTab(tab);
+        }
+    };
+    var tabManager = {
+        init: init$1,
+        getCurrentTab,
+        createTab
+    };
+
+    class TabNavi extends HTMLElement {
+        connectedCallback() {
+            const adder = src.span({
+                content: '+',
+                classNames: ['adder', 'btn', 'tab'],
+                events: {
+                    pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        tabManager.createTab();
+                    }
+                }
+            });
+            this.append(adder);
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$a = () => {
+        customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
+    };
+    var TabNavi$1 = {
+        register: register$a
+    };
+
+    class TabHandle extends HTMLElement {
+        get title() {
+            return this.getAttribute('title');
+        }
+        set title(value) {
+            this.setAttribute('title', value);
+        }
+        get tid() {
+            return this.getAttribute('tid');
+        }
+        set tid(value) {
+            this.setAttribute('tid', value);
+        }
+        softDelete() {
+            console.log('delete');
+        }
+        connectedCallback() {
+            this.tid = this.data.tid;
+            const closer = src.span({
+                content: '×',
+                classNames: ['closer', 'btn'],
+                events: {
+                    pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        this.softDelete();
+                    }
+                }
+            });
+            const label = src.span({
+                content: this.data.label
+            });
+            this.className = 'tab';
+            this.append(label, closer);
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$9 = () => {
+        customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
+    };
+    var TabHandle$1 = {
+        register: register$9
+    };
+
+    class TabContent extends HTMLElement {
+        connectedCallback() {
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$8 = () => {
+        customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
+    };
+    var TabContent$1 = {
+        register: register$8
+    };
+
+    class TabPanel extends HTMLElement {
+        connectedCallback() {
         }
         constructor(self) {
             self = super(self);
@@ -1416,9 +1626,9 @@
         }
     }
     const register$7 = () => {
-        customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
+        customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel);
     };
-    var PatternSelector$1 = {
+    var TabPanel$1 = {
         register: register$7
     };
 
@@ -1619,7 +1829,7 @@
             const pattern = this.name.replace('-color', '-');
             const channels =[];
             ['h', 's', 'l'].forEach(channel => {
-                channels.push(cssProps[':root'][pattern + channel]);
+                channels.push(cssProps.get(pattern + channel));
             });
             return `hsl(${channels.join(' ')})`;
         }
@@ -1739,15 +1949,16 @@
         toggle: toggle$1
     };
 
+    const on = function(type, action)  {
+        this.addEventListener(type, action);
+    };
+    const trigger = function(type, data)  {
+        this.dispatchEvent(data ? new CustomEvent(type, {
+            detail: data
+        }) : new Event(type));
+    };
+
     class CardBase extends HTMLElement {
-        on(type, action) {
-            this.addEventListener(type, action);
-        }
-        trigger(type, data) {
-            this.dispatchEvent(data ? new CustomEvent(type, {
-                detail: data
-            }) : new Event(type));
-        }
         connectedCallback() {
             ['recto', 'verso', 'form', 'toolbar'].forEach(view => {
                 this[view] = document.createElement(`card-${view}`);
@@ -1778,7 +1989,6 @@
                 this.trigger('afterVisibilityChange');
             });
             this.on('orderChange', function (e) {
-                console.log(e.detail);
                 let props = {};
                 e.detail.order.forEach(key => {
                     props[key] = this.character.props[key];
@@ -1802,6 +2012,8 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
@@ -1841,7 +2053,6 @@
         return false;
     }
     function handleDragEnd(e) {
-        console.log('dragend');
         this.classList.remove('dragover');
     }
     const handles = {
@@ -1934,11 +2145,14 @@
             return row;
         }
         buildCells(key) {
+            function handleDraggability(e, action) {
+                const row = e.target.closest('[draggable]');
+                if (!row) {
+                    return true;
+                }
+                draggable[action](row);
+            }
             const entries = {
-                dragIcon: src.td({
-                    classNames: ['icon', 'handle'],
-                    content: this.icon('drag')
-                }),
                 label: src.th({
                     data: {
                         type: 'label'
@@ -1947,6 +2161,10 @@
                         contentEditable: true
                     },
                     content: this.card.character.labels[key],
+                    events: {
+                        focus: e => handleDraggability(e, 'disable'),
+                        blur: e => handleDraggability(e, 'enable')
+                    }
                 }),
                 element: src.td({
                     data: {
@@ -1956,6 +2174,10 @@
                         contentEditable: true
                     },
                     content: this.card.character.props[key],
+                    events: {
+                        focus: e => handleDraggability(e, 'disable'),
+                        blur: e => handleDraggability(e, 'enable')
+                    }
                 }),
                 labelIcon: src.td({
                     data: {
@@ -1970,6 +2192,10 @@
                     },
                     classNames: ['icon', 'toggle'],
                     content: this.icon('card')
+                }),
+                dragIcon: src.td({
+                    classNames: ['icon', 'handle'],
+                    content: this.icon('drag')
                 })
             };
             return Object.values(entries);
@@ -2354,6 +2580,10 @@
         FontSelector$1,
         FontSize$1,
         PatternSelector$1,
+        TabNavi$1,
+        TabHandle$1,
+        TabContent$1,
+        TabPanel$1,
         ColorSelector$1,
         CardBase$1,
         CardForm$1,
@@ -2370,21 +2600,12 @@
         register
     };
 
-    const currentTab$1 = src.$('#card-listing');
-    const getCurrentTab = () => {
-        return currentTab$1;
-    };
-    var tabs = {
-        getCurrentTab
-    };
-
-    const currentTab = tabs.getCurrentTab();
-    const tabId = 1;
+    const currentTab = tabManager.getCurrentTab();
     const origin = 'user';
     const getLabels = () => {
         const characterLabels = {};
-        for(let [key, value] of Object.entries(labels$1)){
-            if(key.startsWith('__')){
+        for (let [key, value] of Object.entries(labels$1)) {
+            if (key.startsWith('__')) {
                 continue;
             }
             characterLabels[key] = value.short;
@@ -2398,12 +2619,12 @@
             ...character.meta,
             ...{
                 visibility,
-                tabId,
+                tid: currentTab.tid,
                 cid,
                 origin
             }
         };
-        if(!character.labels) {
+        if (!character.labels) {
             character.labels = getLabels();
         }
         characterMap.set(origin, cid, character);
@@ -2423,6 +2644,7 @@
     characterMap.init()
         .then(() => {
             registry.register();
+            tabManager.init();
             cardManager.init();
         });
     events.on('styleChange', e => {

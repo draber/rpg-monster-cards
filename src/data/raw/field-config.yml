@@ -14,7 +14,7 @@ name:
 # this is a special field to label the group of user built items in the library
 __user:
   labels:
-    long: Thy Creatures
+    long: Your Creatures
   visibility:
     group: true  
 

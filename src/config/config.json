@@ -37,8 +37,9 @@
     "public": "public/js/main.js"
   },
   "storageKeys": {
-    "user": "gb-user-prefs",
-    "cards": "gb-cards"
+    "user": "gc-user-prefs",
+    "cards": "gc-cards",
+    "tabs": "gc-tabs"
   },
   "userCharacters": {
     "inLibrary": true

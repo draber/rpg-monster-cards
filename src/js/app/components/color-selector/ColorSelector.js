@@ -1,9 +1,9 @@
 import buildConfig from './configurator.js';
 import format from './format.js';
 import background from './background.js';
-import cssProps from '../../../../data/css-props.json';
 import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
+import cssProps from '../../../modules/cssProps/cssProps.js';
 
 
 
@@ -42,7 +42,7 @@ class ColorSelector extends HTMLElement {
         const pattern = this.name.replace('-color', '-');
         const channels =[];
         ['h', 's', 'l'].forEach(channel => {
-            channels.push(cssProps[':root'][pattern + channel]);
+            channels.push(cssProps.get(pattern + channel));
         })
         return `hsl(${channels.join(' ')})`;
     }

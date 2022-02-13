@@ -273,7 +273,12 @@ details{
 
 details[open] summary:before{
         transform:rotate(-90deg);
-        top:.9rem;
+        top:0.9rem;
+      }
+
+details[open] ~ details summary{
+        border-top:1px solid hsla(46, 85%, 39%, .2);
+        border-top:1px solid var(--border-color);
       }
 
 summary{
@@ -288,18 +293,19 @@ summary{
   text-overflow:ellipsis;
   border:1px solid hsla(46, 85%, 39%, .2);
   border:1px solid var(--border-color);
+  border-top:none;
   list-style:none
 }
 
 summary:before{
     content:"❯";
-    font-size:.9rem;
+    font-size:0.9rem;
     position:absolute;
     display:inline-block;
     transform:rotate(90deg);
     transform-origin:center;
     right:1rem;
-    top:.8rem;
+    top:0.8rem;
   }
 
 summary::marker{
@@ -476,6 +482,53 @@ library-organizer:hover svg{
       fill:hsla(0, 0%, 95%, .90);
       fill:var(--text-color);
     }
+
+tab-panel{
+    display:flex
+}
+
+tab-content{
+    display:block
+}
+
+tab-navi{
+  display:flex;
+  background:hsl(15, 50%, 22%);
+  background:var(--bg-2-color);
+  line-height:2;
+  overflow:hidden;
+  border-bottom:1px solid hsla(46, 85%, 39%, .2);
+  border-bottom:1px solid var(--border-color);
+  gap:.5rem;
+  padding:0 .5rem
+}
+
+tab-navi .btn{
+    cursor:pointer;
+    font-size:2.2rem;
+    display:flex;
+    align-items:center;
+    line-height:1;
+  }
+
+tab-navi .tab{
+    border:1px solid hsla(46, 85%, 39%, .2);
+    border:1px solid var(--border-color);
+    border-top:none;
+    border-bottom:none;
+    padding:0 1rem;
+  }
+
+tab-handle{
+    cursor:pointer;
+    border:1px solid hsla(46, 85%, 39%, .2);
+    border:1px solid var(--border-color);
+    border-top:none;
+    border-bottom:none;
+    display:flex;
+    padding:0 1rem;
+    gap:1rem;
+}
 
 @-webkit-keyframes summon{
   0%{
@@ -850,7 +903,8 @@ card-form [contenteditable]{
     border:0.1rem dotted hsl(15, 50%, 36%);
     border:0.1rem dotted var(--bg-6-color);
     padding:0.2rem 0.5rem;
-    background:hsla(0, 0%, 100%, 0.3);
+    background:hsl(45, 93%, 89%);
+    background:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
     border-radius:.2rem;
     border-radius:var(--border-radius)
   }
@@ -906,7 +960,7 @@ card-form tbody tr{
            break-inside:avoid;
     }
 
-card-form tbody td:nth-child(3){
+card-form tbody td:nth-child(2){
         flex:2;
         resize:vertical;
         overflow-y:auto;
@@ -931,7 +985,10 @@ card-form th,
   }
 
 card-form td.icon{
-      border:0.1rem solid hsla(0, 0%, 0%, 0.2);
+      background:hsl(45, 93%, 89%);
+      background:hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
+      border:0.1rem dotted hsl(15, 50%, 24%);
+      border:0.1rem dotted var(--bg-3-color);
       display:flex;
       justify-content:center;
       align-content:center;
@@ -941,7 +998,6 @@ card-form td.icon{
 
 card-form td.icon.handle{
         cursor:move;
-        border:none;
       }
 
 card-form th{
@@ -951,9 +1007,8 @@ card-form th{
 card-form svg{
     width:1.2rem;
     aspect-ratio:1 / 1;
-    fill:hsl(15, 50%, 32%);
-    fill:var(--bg-5-color);
-    filter:contrast(25%);
+    fill:hsl(15, 50%, 24%);
+    fill:var(--bg-3-color);
   }
 
 card-form{
@@ -1092,7 +1147,7 @@ font-selector{
   display:block;
 }
 
-font-size:{
+font-size{
   display:block;
 }
 

@@ -1,7 +1,7 @@
 import fn from 'fancy-node';
 import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import cssProps from '../../../../data/css-props.json';
+import cssProps from '../../../modules/cssProps/cssProps.js';
 
 /**
  * Custom element containing the list of fonts
@@ -81,7 +81,7 @@ class FontSize extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-size> element`);
         }
 
-        this.value = parseFloat(userPrefs.get(`fonts.${this.name}`) || cssProps[':root'][this.name] || 0, 10);
+        this.value = parseFloat(userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || 1.4, 10);
 
         const attributes = {  
             value: this.value,  
@@ -89,7 +89,7 @@ class FontSize extends HTMLElement {
             step:  (this.max - this.min) / 100
         }
 
-        attributes.min = attributes.value * .8;
+        attributes.min = attributes.value * .7;
         attributes.max = attributes.value * 1.3;
         attributes.step = (attributes.max - attributes.min) / 100;
         
@@ -111,6 +111,7 @@ class FontSize extends HTMLElement {
         })
 
         this.append(input);
+        input.dispatchEvent(new Event('input'));
     }
 
     constructor(self) {

@@ -5,8 +5,8 @@
 		"short": "Name"
 	},
 	"__user": {
-		"long": "Thy Creatures",
-		"group": "Thy Creatures"
+		"long": "Your Creatures",
+		"group": "Your Creatures"
 	},
 	"img": {
 		"long": "Image",

@@ -9,7 +9,7 @@ card-form {
   & [contenteditable] {
     border: 0.1rem dotted var(--bg-6-color);
     padding: 0.2rem 0.5rem;
-    background: hsl(0 0% 100% / 0.3);
+    background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
     border-radius: var(--border-radius);
     &:focus {
       outline: none;
@@ -56,7 +56,7 @@ card-form {
       break-inside: avoid;
     }
     & td {
-      &:nth-child(3) {
+      &:nth-child(2) {
         flex: 2;
         resize: vertical;
         overflow-y: auto;
@@ -83,7 +83,8 @@ card-form {
 
   & td {
     &.icon {
-      border: 0.1rem solid hsl(0 0% 0% / 0.2);
+      background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
+      border: 0.1rem dotted var(--bg-3-color);
       display: flex;
       justify-content: center;
       align-content: center;
@@ -91,7 +92,6 @@ card-form {
       cursor: pointer;
       &.handle {
         cursor: move;
-        border: none;
       }
     }
   }
@@ -103,8 +103,7 @@ card-form {
   & svg {
     width: 1.2rem;
     aspect-ratio: 1 / 1;
-    fill: var(--bg-5-color);
-    filter: contrast(25%);
+    fill: var(--bg-3-color);
   }
 
   // icon toggle

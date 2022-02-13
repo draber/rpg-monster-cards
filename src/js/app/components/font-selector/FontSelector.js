@@ -2,7 +2,7 @@ import fn from 'fancy-node';
 import events from '../../../modules/events/events.js';
 import fonts from '../../../../data/fonts.json';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import cssProps from '../../../../data/css-props.json';
+import cssProps from '../../../modules/cssProps/cssProps.js';
 
 /**
  * Custom element containing the list of fonts
@@ -34,7 +34,7 @@ class FontSelector extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-selector> element`);
         }
 
-        this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps[':root'][this.name] || '';
+        this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
 
         const selector = fn.select({
             style: {
@@ -69,6 +69,7 @@ class FontSelector extends HTMLElement {
         })
 
         this.append(selector);
+        selector.dispatchEvent(new Event('change'));
     }
 
     constructor(self) {

@@ -39,7 +39,6 @@ function handleDrop(e) {
 }
 
 function handleDragEnd(e) {
-    console.log('dragend')
     // this/e.target is the source node.
     this.classList.remove('dragover');
 }

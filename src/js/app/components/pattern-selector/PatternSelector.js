@@ -3,7 +3,7 @@ import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import backgrounds from '../../../../data/backgrounds.json';
 import borders from '../../../../data/borders.json';
-import cssProps from '../../../../data/css-props.json';
+import cssProps from '../../../modules/cssProps/cssProps.js';
 
 const patternPool = {
     backgrounds,
@@ -14,7 +14,21 @@ const patternPool = {
  * Custom element containing the list of patterns
  */
 class PatternSelector extends HTMLElement {
+    /**
+     * Map attribute and property, getter for 'value'
+     * @returns {string}
+     */
+    get value() {
+        return this.getAttribute('value');
+    }
 
+    /**
+     * Map attribute and property, setter for 'value'
+     * @param value
+     */
+    set value(value) {
+        this.setAttribute('value', value);
+    }
     /**
      * Map attribute and property, getter for 'name'
      * @returns {string}
@@ -58,6 +72,15 @@ class PatternSelector extends HTMLElement {
         return `url(${path}/${this.type}/${img.split('/').pop()})`;
     }
 
+    getValue(){
+        for(let input of fn.$$('input', this)) {
+            if(input.checked){
+                return input.value;
+            }
+        }
+        return userPrefs.get(`patterns.${this.name}`) || cssProps.get(this.name) || '';
+    }
+
     /**
      * Called on element launch
      */
@@ -71,7 +94,7 @@ class PatternSelector extends HTMLElement {
             throw Error(`Missing attribute "type" on <pattern-selector> element`);
         }
 
-        this.selected = userPrefs.get(`patterns.${this.name}`) || cssProps[':root'][this.name] || '';
+        this.value = this.getValue();
 
         const patterns = patternPool[this.type];
 
@@ -91,7 +114,7 @@ class PatternSelector extends HTMLElement {
                                 name: `${this.type}-pattern`,
                                 value: this.getUrl(entry.name, 'css'),
                                 id: `${this.type}-${entry.id}`,
-                                checked: this.getUrl(entry.name, 'css') === this.selected
+                                checked: this.getUrl(entry.name, 'css') === this.value
                             }
                         }),
                         fn.label({
@@ -104,17 +127,18 @@ class PatternSelector extends HTMLElement {
             }),
             events: {
                 change: e => {
-                    this.selected = e.target.value;
-                    userPrefs.set(`patterns.${this.name}`, this.selected);
+                    this.value = this.getValue();
+                    userPrefs.set(`patterns.${this.name}`, this.value);
                     events.trigger(`styleChange`, {
                         name: this.name,
-                        value: e.target.value
+                        value: this.value
                     });
                 }
             }
         })
 
         this.append(selector);
+        selector.dispatchEvent(new Event('change'));
     }
 
     constructor(self) {

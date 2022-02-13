@@ -29,10 +29,10 @@ const data = {
  */
 const storage = {
     read: () => {
-        return JSON.parse(localStorage.getItem(lsKey) || '[]')
+        return JSON.parse(localStorage.getItem(lsKey) || '{}')
     },
     update: () => {
-        return localStorage.setItem(lsKey, JSON.stringify(Object.values(data.user) || []))
+        return localStorage.setItem(lsKey, JSON.stringify(data.user || {}))
     }
 }
 
@@ -46,14 +46,12 @@ const values = type => {
  * @param {String} type system|user
  * @param {Integer} cid
  * @param {Object} character character data
- * @returns {Map}
  */
 const set = (type, cid, character) => {
-    const retVal = data[type][cid] = character;
+    data[type][cid] = character;
     if (type === 'user') {
         storage.update();
     }
-    return retVal;
 }
 
 /**
@@ -67,6 +65,10 @@ const get = (type, cid) => {
     return data[type][cid];
 }
 
+const getAllByType = type => {
+    return data[type];
+}
+
 /**
  * Equivalent of Map.delete() (variables can't be name `delete`)
  * 
@@ -75,11 +77,10 @@ const get = (type, cid) => {
  * @returns {Boolean} whether the cid existed prior to deletion
  */
 const remove = (type, cid) => {
-    const retVal = delete data[type][cid];
+    delete data[type][cid];
     if (type === 'user') {
         storage.update();
     }
-    return retVal;
 }
 
 
@@ -102,9 +103,8 @@ const nextIncrement = type => {
  * @returns {Promise} 
  */
 const init = () => {
-    storage.read().forEach((entry, index) => {
-        set('user', index, entry);
-    })
+    data.user = storage.read();
+
     return (fetch('js/characters.json')
         .then(response => response.json())
         .then(data => {
@@ -126,5 +126,6 @@ export default {
     set,
     remove,
     values,
-    nextIncrement
+    nextIncrement,
+    getAllByType
 }

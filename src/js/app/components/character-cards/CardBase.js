@@ -1,31 +1,15 @@
 import fn from 'fancy-node';
 import characterMap from '../character-library/character-map.js';
 import properties from '../../../modules/properties/properties.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js';
 
 /**
  * Custom element containing the list of patterns
  */
 class CardBase extends HTMLElement {
-
-    /**
-     * Assign an event to the ui
-     * @param {String} type
-     * @param {Function} action
-     */
-    on(type, action) {
-        this.addEventListener(type, action);
-    }
-
-    /**
-     * Fire an event from the ui
-     * @param {String } type
-     * @param {*} data
-     */
-    trigger(type, data) {
-        this.dispatchEvent(data ? new CustomEvent(type, {
-            detail: data
-        }) : new Event(type));
-    }
 
     /**
      * Called on element launch
@@ -69,7 +53,6 @@ class CardBase extends HTMLElement {
         });
 
         this.on('orderChange', function (e) {
-            console.log(e.detail)
             let props = {};
             e.detail.order.forEach(key => {
                 props[key] = this.character.props[key];
@@ -97,6 +80,8 @@ class CardBase extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
