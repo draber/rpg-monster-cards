@@ -1,9 +1,13 @@
 tab-handle {
-    cursor: pointer;
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-bottom: none;
-    display: flex;
-    padding: 0 1rem;
-    gap: 1rem;
+    // for more props see tab-navi .tab
+    
+    & .closer {
+        display: none;
+      }
+    &.active {
+        background: var(--bg-light) url(../media/patterns/system/light-rocky-wall.png);
+        & .closer {
+          display: flex;
+        }
+    }
 }

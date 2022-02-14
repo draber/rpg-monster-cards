@@ -4,7 +4,7 @@ import visibility from '../../../../data/visibility.json';
 import labels from '../../../../data/labels.json';
 import tabManager from '../tabs/tabManager.js';
 
-const currentTab = tabManager.getCurrentTab();
+let currentTab;
 
 /**
  * The context in which this character is handled, i.e. system|user
@@ -34,6 +34,7 @@ const getLabels = () => {
 }
 
 const add = character => {
+    currentTab = tabManager.getCurrentTab();
     const cid = characterMap.nextIncrement(origin);
     character = structuredClone(character);
     character.meta = {
@@ -51,7 +52,7 @@ const add = character => {
     characterMap.set(origin, cid, character);
     const card = document.createElement('card-base');
     card.character = character;
-    currentTab.append(card);
+    currentTab.panel.append(card);
 }
 
 const restoreLastSession = () => {
@@ -60,6 +61,24 @@ const restoreLastSession = () => {
         const card = document.createElement('card-base');
         card.character = character;
         tabManager.getTab(currentTab.tid).append(card);
+    }
+}
+
+const handleRemoval = (card, action) => {
+    const character = characterMap.get(origin, card.cid)
+    switch (action) {
+        case 'soft':
+            character.meta.softDeleted = true;
+            characterMap.set(origin, card.cid, character);
+            break;
+        case 'restore':
+            delete character.meta.softDeleted;
+            characterMap.set(origin, card.cid, character);
+            break;
+        case 'remove':
+            delete tabs[tab.tid];
+            characterMap.remove(type, cid);
+            break;
     }
 }
 
@@ -72,5 +91,6 @@ const init = () => {
 }
 
 export default {
-    init
+    init,
+    handleRemoval
 }

@@ -13,6 +13,7 @@ import CardForm from './character-cards/CardForm.js';
 import CardRecto from './character-cards/CardRecto.js';
 import CardToolbar from './character-cards/CardToolbar.js';
 import CardVerso from './character-cards/CardVerso.js';
+import UndoDialog from './undo-dialog/UndoDialog.js';
 
 const components = [
     CharacterLibrary,
@@ -29,7 +30,8 @@ const components = [
     CardForm,
     CardRecto,
     CardToolbar,
-    CardVerso
+    CardVerso,
+    UndoDialog
 ];
 
 const register = () => {

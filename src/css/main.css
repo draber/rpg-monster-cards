@@ -7,7 +7,7 @@
 @import './inc/content.css';
 @import './inc/character-library.css';
 @import './inc/library-organizer.css';
-@import './inc/tabs.css';
+@import './inc/tab-content.css';
 @import './inc/tab-navi.css';
 @import './inc/tab-handle.css';
 @import './inc/card-base.css';
@@ -19,6 +19,7 @@
 @import './inc/font-selector.css';
 @import './inc/range-selector.css';
 @import './inc/color-selector.css';
+@import './inc/undo-dialog.css';
 @import './inc/forms.css';
 @import './inc/library.css';
 @import './inc/editor.css';

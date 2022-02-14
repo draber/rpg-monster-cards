@@ -1,0 +1,56 @@
+#toast {
+  width: 30rem;
+  max-width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 0 0 1rem 1rem;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.1rem;
+
+  & undo-dialog {
+    display: block;
+    border: var(--border);
+    border-radius: var(--border-radius);
+    background: var(--bg-0-color)
+      url(../media/patterns/system/light-rocky-wall.png);
+    position: relative;
+    padding: 1.5rem 3.5rem 1.5rem 1.5rem;
+
+    & aside {
+      justify-content: space-between;
+      display: flex;
+      gap: 2rem;
+    }
+
+    & * {
+      font-size: 1.5rem;
+      font-weight: normal;
+      padding: 0;
+      margin: 0;
+    }
+
+    & .closer {
+      cursor: pointer;
+      padding: 1rem;
+      font-size: 2.8rem;
+      line-height: 1;
+      display: inline-block;
+      position: absolute;
+      right: -.5rem;
+      top: -1rem;
+      opacity: .7;
+      &:hover {
+          opacity: 1;
+      }
+    }
+
+    & button {
+      border: none;
+      cursor: pointer;
+      color: hsl(228 62% 76%);
+      background: transparent;
+    }
+  }
+}

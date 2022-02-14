@@ -228,7 +228,7 @@
     	short: "Base",
     	group: "Base"
     };
-    var type$1 = {
+    var type$2 = {
     	long: "Type",
     	short: "Type",
     	group: "Type"
@@ -374,7 +374,7 @@
     	img: img$1,
     	cr: cr$1,
     	base: base$1,
-    	type: type$1,
+    	type: type$2,
     	hp: hp$1,
     	speed: speed$1,
     	bag: bag$1,
@@ -499,7 +499,7 @@
     };
 
     const lsKey$2 = settings$1.get('storageKeys.cards');
-    const data$1 = {
+    const data = {
         system: {},
         user: {}
     };
@@ -508,36 +508,36 @@
             return JSON.parse(localStorage.getItem(lsKey$2) || '{}')
         },
         update: () => {
-            return localStorage.setItem(lsKey$2, JSON.stringify(data$1.user || {}))
+            return localStorage.setItem(lsKey$2, JSON.stringify(data.user || {}))
         }
     };
     const values = type => {
-        return Object.values(data$1[type]);
+        return Object.values(data[type]);
     };
     const set$2 = (type, cid, character) => {
-        data$1[type][cid] = character;
+        data[type][cid] = character;
         if (type === 'user') {
             storage$1.update();
         }
     };
     const get$3 = (type, cid) => {
-        return data$1[type][cid];
+        return data[type][cid];
     };
     const getAllByType = type => {
-        return data$1[type];
+        return data[type];
     };
     const remove = (type, cid) => {
-        delete data$1[type][cid];
+        delete data[type][cid];
         if (type === 'user') {
             storage$1.update();
         }
     };
     const nextIncrement$1 = type => {
         const lowest = type === 'system' ? 0 : 5000;
-        return Math.max(...[lowest].concat(Object.keys(data$1[type]))) + 1;
+        return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
     };
     const init$2 = () => {
-        data$1.user = storage$1.read();
+        data.user = storage$1.read();
         return (fetch('js/characters.json')
             .then(response => response.json())
             .then(data => {
@@ -759,11 +759,11 @@
             return self;
         }
     }
-    const register$f = () => {
+    const register$g = () => {
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$f
+        register: register$g
     };
 
     var name = {
@@ -791,7 +791,7 @@
     	group: true,
     	label: true
     };
-    var type = {
+    var type$1 = {
     	card: true,
     	group: false,
     	label: true
@@ -937,7 +937,7 @@
     	img: img,
     	cr: cr,
     	base: base,
-    	type: type,
+    	type: type$1,
     	hp: hp,
     	speed: speed,
     	bag: bag,
@@ -1026,11 +1026,11 @@
             return self;
         }
     }
-    const register$e = () => {
+    const register$f = () => {
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
-        register: register$e
+        register: register$f
     };
 
     var fonts = [
@@ -1215,11 +1215,11 @@
             return self;
         }
     }
-    const register$d = () => {
+    const register$e = () => {
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$d
+        register: register$e
     };
 
     class FontSize extends HTMLElement {
@@ -1284,11 +1284,11 @@
             return self;
         }
     }
-    const register$c = () => {
+    const register$d = () => {
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$c
+        register: register$d
     };
 
     var backgrounds = [
@@ -1447,17 +1447,78 @@
             return self;
         }
     }
-    const register$b = () => {
+    const register$c = () => {
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
-        register: register$b
+        register: register$c
+    };
+
+    let currentTab$1;
+    const origin = 'user';
+    const getLabels = () => {
+        const characterLabels = {};
+        for (let [key, value] of Object.entries(labels$1)) {
+            if (key.startsWith('__')) {
+                continue;
+            }
+            characterLabels[key] = value.short;
+        }
+        return characterLabels;
+    };
+    const add = character => {
+        currentTab$1 = tabManager.getCurrentTab();
+        const cid = characterMap.nextIncrement(origin);
+        character = structuredClone(character);
+        character.meta = {
+            ...character.meta,
+            ...{
+                visibility,
+                tid: currentTab$1.tid,
+                cid,
+                origin
+            }
+        };
+        if (!character.labels) {
+            character.labels = getLabels();
+        }
+        characterMap.set(origin, cid, character);
+        const card = document.createElement('card-base');
+        card.character = character;
+        currentTab$1.panel.append(card);
+    };
+    const handleRemoval$1 = (card, action) => {
+        const character = characterMap.get(origin, card.cid);
+        switch (action) {
+            case 'soft':
+                character.meta.softDeleted = true;
+                characterMap.set(origin, card.cid, character);
+                break;
+            case 'restore':
+                delete character.meta.softDeleted;
+                characterMap.set(origin, card.cid, character);
+                break;
+            case 'remove':
+                delete tabs[tab.tid];
+                characterMap.remove(type, cid);
+                break;
+        }
+    };
+    const init$1 = () => {
+        events.on('characterSelection', e => {
+            add(e.detail);
+        });
+    };
+    var cardManager = {
+        init: init$1,
+        handleRemoval: handleRemoval$1
     };
 
     const lsKey = settings$1.get('storageKeys.tabs');
-    let data = {};
+    let tabs$1 = {};
     let navi;
-    let currentTab$1;
+    let contentArea;
+    let currentTab;
     const toLatin = tid => {
         const numerals = {
             1: 'I',
@@ -1467,14 +1528,14 @@
             5: 'V',
             6: 'VI',
             7: 'VII',
-            8: 'VII',
+            8: 'VIII',
             9: 'IX',
             10: 'X'
         };
-        if(numerals[tid]){
+        if (numerals[tid]) {
             return numerals[tid];
         }
-        if(tid > 10 && tid < 21) {
+        if (tid > 10 && tid < 21) {
             return 'X' + numerals[tid - 10]
         }
         return tid;
@@ -1484,7 +1545,7 @@
         return {
             tid,
             label: toLatin(tid),
-            state: 'visible'
+            active: true
         }
     };
     const storage = {
@@ -1495,38 +1556,138 @@
             };
         },
         update: () => {
-            return localStorage.setItem(lsKey, JSON.stringify(data || {}))
+            return localStorage.setItem(lsKey, JSON.stringify(tabs$1 || {}))
         }
     };
     const nextIncrement = () => {
-        return Math.max(...[0].concat(Object.keys(data))) + 1;
+        return Math.max(...[0].concat(Object.keys(tabs$1))) + 1;
     };
     const getCurrentTab = () => {
-        return currentTab$1;
+        return currentTab;
     };
     const createTab = tabData => {
         tabData = tabData || getTabData();
-        currentTab$1 = document.createElement('tab-handle');
-        currentTab$1.data = tabData;
-        data[currentTab$1.data.tid] = currentTab$1;
-        src.$('.adder', navi).before(currentTab$1);
-        return currentTab$1;
+        currentTab = document.createElement('tab-handle');
+        currentTab.panel = document.createElement('tab-panel');
+        currentTab.container = navi;
+        if (tabData.active) {
+            currentTab.classList.add('active');
+            currentTab.panel.classList.add('active');
+        }
+        for (let [key, value] of Object.entries(tabData)) {
+            currentTab[key] = value;
+            currentTab.panel[key] = value;
+        }
+        contentArea.append(currentTab.panel);
+        src.$('.adder', navi).before(currentTab);
+        for (let [tid, tab] of Object.entries(tabs$1)) {
+            delete tabs$1[tid].active;
+        }
+        tabs$1[currentTab.tid] = {
+            label: currentTab.label,
+            tid: currentTab.tid,
+            active: true
+        };
+        storage.update();
+        return currentTab;
     };
-    const init$1 = () => {
+    const handleRemoval = (tab, action) => {
+        switch (action) {
+            case 'soft':
+                tabs$1[tab.tid].softDeleted = true;
+                break;
+            case 'restore':
+                delete tabs$1[tab.tid].softDeleted;
+                break;
+            case 'remove':
+                delete tabs$1[tab.tid];
+                tab.panel.remove();
+                tab.remove();
+                if (Object.keys(tabs$1).length === 0) {
+                    createTab();
+                }
+                break;
+        }
+        storage.update();
+        src.$$('card-base', tab).forEach(card => {
+            cardManager.handleRemoval(card, action);
+        });
+    };
+    const init = () => {
         navi = src.$('tab-navi');
-        src.$('tab-content');
-        data = storage.read();
-        for (let tab of Object.values(data)) {
-            createTab(tab);
+        contentArea = src.$('tab-content');
+        tabs$1 = storage.read();
+        console.log(tabs$1);
+        for (let [k,tabData] of Object.entries(tabs$1)) {
+        console.log(k, tabData);
+            createTab(tabData);
+        }
+        for (let tabData of Object.values(tabs$1)) {
+        console.log(tabData);
+            createTab(tabData);
         }
     };
     var tabManager = {
-        init: init$1,
+        init,
         getCurrentTab,
-        createTab
+        createTab,
+        handleRemoval
+    };
+
+    const on = function(type, action)  {
+        this.addEventListener(type, action);
+    };
+    const trigger = function(type, data)  {
+        this.dispatchEvent(data ? new CustomEvent(type, {
+            detail: data
+        }) : new Event(type));
+    };
+
+    const styles = Array.from(getComputedStyle(document.body));
+    const isStyleProp = key => {
+        return key.startsWith('--') || styles.includes(key);
+    };
+    const set = (key, value, target) => {
+        target = target || document.body;
+        if (isStyleProp(key)) {
+            return target.style.setProperty(key, value);
+        }
+        target.dataset[key] = value;
+    };
+    const get = (key, target) => {
+        target = target || document.body;
+        if (isStyleProp(key)) {
+            return JSON.parse(target.style.getPropertyValue(key));
+        }
+        if (typeof target.dataset[key] === 'undefined') {
+            return false;
+        }
+        return JSON.parse(target.dataset[key]);
+    };
+    const toggle$1 = (key, target) => {
+        set(key, !get(key, target), target);
+    };
+    const unset = (key, target) => {
+        target = target || document.body;
+        if (isStyleProp(key)) {
+            return target.style.removeProperty(key);
+        }
+        delete target.dataset[key];
+    };
+    var props = {
+        unset,
+        get,
+        set,
+        toggle: toggle$1
     };
 
     class TabNavi extends HTMLElement {
+        deactivateAll(){
+            src.$$('tab-handle', this).forEach(tab => {
+                tab.classList.remove('active');
+                tab.panel.classList.remove('active');
+            });
+        }
         connectedCallback() {
             const adder = src.span({
                 content: '+',
@@ -1536,6 +1697,7 @@
                         if (e.button !== 0) {
                             return true;
                         }
+                        this.deactivateAll();
                         tabManager.createTab();
                     }
                 }
@@ -1544,14 +1706,42 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$a = () => {
+    const register$b = () => {
         customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
     };
     var TabNavi$1 = {
-        register: register$a
+        register: register$b
+    };
+
+    const toast = src.$('#toast');
+    const softDelete = (element, label) => {
+        props.set('softDeleted', true, element);
+        const dialog = document.createElement('undo-dialog');
+        dialog.element = element;
+        if(label) {
+            dialog.label = label;
+        }
+        toast.append(dialog);
+        return new Promise(resolve => {
+            dialog.on('restore', e => {
+                props.unset('softDeleted', element);
+                resolve({
+                    action: 'restore',
+                    element: e.detail.element
+                });
+            });
+            dialog.on('remove', e => {
+                resolve({
+                    action: 'remove',
+                    element: e.detail.element
+                });
+            });
+        })
     };
 
     class TabHandle extends HTMLElement {
@@ -1567,27 +1757,31 @@
         set tid(value) {
             this.setAttribute('tid', value);
         }
-        softDelete() {
-            console.log('delete');
-        }
         connectedCallback() {
-            this.tid = this.data.tid;
             const closer = src.span({
                 content: '×',
-                classNames: ['closer', 'btn'],
-                events: {
-                    pointerup: e => {
-                        if (e.button !== 0) {
-                            return true;
-                        }
-                        this.softDelete();
-                    }
-                }
+                classNames: ['closer', 'btn']
             });
             const label = src.span({
-                content: this.data.label
+                content: this.label
             });
-            this.className = 'tab';
+            this.classList.add('tab');
+            this.addEventListener('pointerup', e => {
+                if (e.button !== 0) {
+                    return true;
+                }
+                if (e.target.isSameNode(closer)) {
+                    tabManager.handleRemoval(this, 'soft');
+                    softDelete(this, 'Tab ' + this.label)
+                        .then(data => {
+                            tabManager.handleRemoval(this, data.action);
+                        });
+                }
+                else {
+                    this.container.deactivateAll();
+                    this.classList.add('active');
+                }
+            });
             this.append(label, closer);
         }
         constructor(self) {
@@ -1595,11 +1789,11 @@
             return self;
         }
     }
-    const register$9 = () => {
+    const register$a = () => {
         customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
     };
     var TabHandle$1 = {
-        register: register$9
+        register: register$a
     };
 
     class TabContent extends HTMLElement {
@@ -1610,14 +1804,20 @@
             return self;
         }
     }
-    const register$8 = () => {
+    const register$9 = () => {
         customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
     };
     var TabContent$1 = {
-        register: register$8
+        register: register$9
     };
 
     class TabPanel extends HTMLElement {
+        get tid() {
+            return this.getAttribute('tid');
+        }
+        set tid(value) {
+            this.setAttribute('tid', value);
+        }
         connectedCallback() {
         }
         constructor(self) {
@@ -1625,11 +1825,11 @@
             return self;
         }
     }
-    const register$7 = () => {
+    const register$8 = () => {
         customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel);
     };
     var TabPanel$1 = {
-        register: register$7
+        register: register$8
     };
 
     const tracksToValueObj = tracks => {
@@ -1904,58 +2104,11 @@
             return self;
         }
     }
-    const register$6 = () => {
+    const register$7 = () => {
         customElements.get('color-selector') || customElements['define']('color-selector', ColorSelector);
     };
     var ColorSelector$1 = {
-        register: register$6
-    };
-
-    const styles = Array.from(getComputedStyle(document.body));
-    const isStyleProp = key => {
-        return key.startsWith('--') || styles.includes(key);
-    };
-    const set = (key, value, target) => {
-        target = target || document.body;
-        if (isStyleProp(key)) {
-            return target.style.setProperty(key, value);
-        }
-        target.dataset[key] = value;
-    };
-    const get = (key, target) => {
-        target = target || document.body;
-        if (isStyleProp(key)) {
-            return JSON.parse(target.style.getPropertyValue(key));
-        }
-        if (typeof target.dataset[key] === 'undefined') {
-            return false;
-        }
-        return JSON.parse(target.dataset[key]);
-    };
-    const toggle$1 = (key, target) => {
-        set(key, !get(key, target), target);
-    };
-    const unset = (key, target) => {
-        target = target || document.body;
-        if (isStyleProp(key)) {
-            return target.style.removeProperty(key);
-        }
-        delete target.dataset[key];
-    };
-    var props = {
-        unset,
-        get,
-        set,
-        toggle: toggle$1
-    };
-
-    const on = function(type, action)  {
-        this.addEventListener(type, action);
-    };
-    const trigger = function(type, data)  {
-        this.dispatchEvent(data ? new CustomEvent(type, {
-            detail: data
-        }) : new Event(type));
+        register: register$7
     };
 
     class CardBase extends HTMLElement {
@@ -2017,11 +2170,11 @@
             return self;
         }
     }
-    const register$5 = () => {
+    const register$6 = () => {
         customElements.get('card-base') || customElements['define']('card-base', CardBase);
     };
     var CardBase$1 = {
-        register: register$5
+        register: register$6
     };
 
     let dragSrcEl = null;
@@ -2281,11 +2434,11 @@
             return self;
         }
     }
-    const register$4 = () => {
+    const register$5 = () => {
         customElements.get('card-form') || customElements['define']('card-form', CardForm);
     };
     var CardForm$1 = {
-        register: register$4
+        register: register$5
     };
 
     class CardRecto extends HTMLElement {
@@ -2326,11 +2479,11 @@
             return self;
         }
     }
-    const register$3 = () => {
+    const register$4 = () => {
         customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
     };
     var CardRecto$1 = {
-        register: register$3
+        register: register$4
     };
 
     const defaultDiacriticsRemovalMap = [
@@ -2486,11 +2639,11 @@
             return self;
         }
     }
-    const register$2 = () => {
+    const register$3 = () => {
         customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar);
     };
     var CardToolbar$1 = {
-        register: register$2
+        register: register$3
     };
 
     class CardVerso extends HTMLElement {
@@ -2567,10 +2720,76 @@
             return self;
         }
     }
-    const register$1 = () => {
+    const register$2 = () => {
         customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
     };
     var CardVerso$1 = {
+        register: register$2
+    };
+
+    class UndoDialog extends HTMLElement {
+        connectedCallback() {
+            const closeBtn = src.span({
+                content: '×',
+                classNames: ['closer', 'btn'],
+                events: {
+                    pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        this.trigger('remove', {
+                            element: this.element
+                        });
+                        this.remove();
+                    }
+                }
+            });
+            const undoBtn = src.button({
+                attributes: {
+                    type: 'text'
+                },
+                events: {
+                    pointerdown: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        this.trigger('restore', {
+                            element: this.element
+                        });
+                        this.remove();
+                    }
+                },
+                content: 'Undo'
+            });
+            const undoTitle = src.h2({
+                content: `${(this.label || 'An element')} has been deleted`
+            });
+            const dialog = src.aside({
+                content: [
+                    closeBtn,
+                    undoTitle,
+                    undoBtn
+                ]
+            });
+            this.append(dialog);
+            setTimeout(() => {
+                this.trigger('remove', {
+                    element: this.element
+                });
+                this.remove();
+            }, 10000);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$1 = () => {
+        customElements.get('undo-dialog') || customElements['define']('undo-dialog', UndoDialog);
+    };
+    var UndoDialog$1 = {
         register: register$1
     };
 
@@ -2589,7 +2808,8 @@
         CardForm$1,
         CardRecto$1,
         CardToolbar$1,
-        CardVerso$1
+        CardVerso$1,
+        UndoDialog$1
     ];
     const register = () => {
         components.forEach(component => {
@@ -2598,47 +2818,6 @@
     };
     var registry = {
         register
-    };
-
-    const currentTab = tabManager.getCurrentTab();
-    const origin = 'user';
-    const getLabels = () => {
-        const characterLabels = {};
-        for (let [key, value] of Object.entries(labels$1)) {
-            if (key.startsWith('__')) {
-                continue;
-            }
-            characterLabels[key] = value.short;
-        }
-        return characterLabels;
-    };
-    const add = character => {
-        const cid = characterMap.nextIncrement(origin);
-        character = structuredClone(character);
-        character.meta = {
-            ...character.meta,
-            ...{
-                visibility,
-                tid: currentTab.tid,
-                cid,
-                origin
-            }
-        };
-        if (!character.labels) {
-            character.labels = getLabels();
-        }
-        characterMap.set(origin, cid, character);
-        const card = document.createElement('card-base');
-        card.character = character;
-        currentTab.append(card);
-    };
-    const init = () => {
-        events.on('characterSelection', e => {
-            add(e.detail);
-        });
-    };
-    var cardManager = {
-        init
     };
 
     characterMap.init()

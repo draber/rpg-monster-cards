@@ -1,0 +1,10 @@
+tab-panel {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+}
+
+tab-content {
+    display: block
+}
+

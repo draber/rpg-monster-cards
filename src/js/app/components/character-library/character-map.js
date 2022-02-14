@@ -83,7 +83,6 @@ const remove = (type, cid) => {
     }
 }
 
-
 /**
  * Get next key for data insertion
  * System IDs start at 0, user IDs at 5000

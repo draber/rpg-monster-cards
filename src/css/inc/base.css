@@ -77,3 +77,7 @@ summary {
     display: none;
   }
 }
+
+[data-soft-deleted="true"]{
+  display: none !important;
+}
