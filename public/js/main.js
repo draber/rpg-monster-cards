@@ -1454,193 +1454,29 @@
         register: register$c
     };
 
-    let currentTab$1;
-    const origin = 'user';
-    const getLabels = () => {
-        const characterLabels = {};
-        for (let [key, value] of Object.entries(labels$1)) {
-            if (key.startsWith('__')) {
-                continue;
-            }
-            characterLabels[key] = value.short;
-        }
-        return characterLabels;
-    };
-    const add = character => {
-        currentTab$1 = tabManager.getCurrentTab();
-        const cid = characterMap.nextIncrement(origin);
-        character = structuredClone(character);
-        character.meta = {
-            ...character.meta,
-            ...{
-                visibility,
-                tid: currentTab$1.tid,
-                cid,
-                origin
-            }
-        };
-        if (!character.labels) {
-            character.labels = getLabels();
-        }
-        characterMap.set(origin, cid, character);
-        const card = document.createElement('card-base');
-        card.character = character;
-        currentTab$1.panel.append(card);
-    };
-    const handleRemoval$1 = (card, action) => {
-        const character = characterMap.get(origin, card.cid);
-        switch (action) {
-            case 'soft':
-                character.meta.softDeleted = true;
-                characterMap.set(origin, card.cid, character);
-                break;
-            case 'restore':
-                delete character.meta.softDeleted;
-                characterMap.set(origin, card.cid, character);
-                break;
-            case 'remove':
-                delete tabs[tab.tid];
-                characterMap.remove(type, cid);
-                break;
-        }
-    };
-    const init$1 = () => {
-        events.on('characterSelection', e => {
-            add(e.detail);
-        });
-    };
-    var cardManager = {
-        init: init$1,
-        handleRemoval: handleRemoval$1
-    };
-
-    const lsKey = settings$1.get('storageKeys.tabs');
-    let tabs$1 = {};
-    let navi;
-    let contentArea;
-    let currentTab;
-    const toLatin = tid => {
-        const numerals = {
-            1: 'I',
-            2: 'II',
-            3: 'III',
-            4: 'IV',
-            5: 'V',
-            6: 'VI',
-            7: 'VII',
-            8: 'VIII',
-            9: 'IX',
-            10: 'X'
-        };
-        if (numerals[tid]) {
-            return numerals[tid];
-        }
-        if (tid > 10 && tid < 21) {
-            return 'X' + numerals[tid - 10]
-        }
-        return tid;
-    };
-    const getTabData = () => {
-        const tid = nextIncrement();
-        return {
-            tid,
-            label: toLatin(tid),
-            active: true
-        }
-    };
-    const storage = {
-        read: () => {
-            const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
-            return Object.keys(stored).length ? stored : {
-                1: getTabData()
-            };
-        },
-        update: () => {
-            return localStorage.setItem(lsKey, JSON.stringify(tabs$1 || {}))
-        }
-    };
-    const nextIncrement = () => {
-        return Math.max(...[0].concat(Object.keys(tabs$1))) + 1;
-    };
-    const getCurrentTab = () => {
-        return currentTab;
-    };
-    const createTab = tabData => {
-        tabData = tabData || getTabData();
-        currentTab = document.createElement('tab-handle');
-        currentTab.panel = document.createElement('tab-panel');
-        currentTab.container = navi;
-        if (tabData.active) {
-            currentTab.classList.add('active');
-            currentTab.panel.classList.add('active');
-        }
-        for (let [key, value] of Object.entries(tabData)) {
-            currentTab[key] = value;
-            currentTab.panel[key] = value;
-        }
-        contentArea.append(currentTab.panel);
-        src.$('.adder', navi).before(currentTab);
-        for (let [tid, tab] of Object.entries(tabs$1)) {
-            delete tabs$1[tid].active;
-        }
-        tabs$1[currentTab.tid] = {
-            label: currentTab.label,
-            tid: currentTab.tid,
-            active: true
-        };
-        storage.update();
-        return currentTab;
-    };
-    const handleRemoval = (tab, action) => {
-        switch (action) {
-            case 'soft':
-                tabs$1[tab.tid].softDeleted = true;
-                break;
-            case 'restore':
-                delete tabs$1[tab.tid].softDeleted;
-                break;
-            case 'remove':
-                delete tabs$1[tab.tid];
-                tab.panel.remove();
-                tab.remove();
-                if (Object.keys(tabs$1).length === 0) {
-                    createTab();
-                }
-                break;
-        }
-        storage.update();
-        src.$$('card-base', tab).forEach(card => {
-            cardManager.handleRemoval(card, action);
-        });
-    };
-    const init = () => {
-        navi = src.$('tab-navi');
-        contentArea = src.$('tab-content');
-        tabs$1 = storage.read();
-        console.log(tabs$1);
-        for (let [k,tabData] of Object.entries(tabs$1)) {
-        console.log(k, tabData);
-            createTab(tabData);
-        }
-        for (let tabData of Object.values(tabs$1)) {
-        console.log(tabData);
-            createTab(tabData);
-        }
-    };
-    var tabManager = {
-        init,
-        getCurrentTab,
-        createTab,
-        handleRemoval
-    };
-
-    const on = function(type, action)  {
-        this.addEventListener(type, action);
-    };
-    const trigger = function(type, data)  {
-        this.dispatchEvent(data ? new CustomEvent(type, {
-            detail: data
-        }) : new Event(type));
+    const convertToRoman = num => {
+      const roman = {
+        M: 1000,
+        CM: 900,
+        D: 500,
+        CD: 400,
+        C: 100,
+        XC: 90,
+        L: 50,
+        XL: 40,
+        X: 10,
+        IX: 9,
+        V: 5,
+        IV: 4,
+        I: 1
+      };
+      let str = '';
+      for (let i of Object.keys(roman)) {
+        const q = Math.floor(num / roman[i]);
+        num -= q * roman[i];
+        str += i.repeat(q);
+      }
+      return str;
     };
 
     const styles = Array.from(getComputedStyle(document.body));
@@ -1681,43 +1517,6 @@
         toggle: toggle$1
     };
 
-    class TabNavi extends HTMLElement {
-        deactivateAll(){
-            src.$$('tab-handle', this).forEach(tab => {
-                tab.classList.remove('active');
-                tab.panel.classList.remove('active');
-            });
-        }
-        connectedCallback() {
-            const adder = src.span({
-                content: '+',
-                classNames: ['adder', 'btn', 'tab'],
-                events: {
-                    pointerup: e => {
-                        if (e.button !== 0) {
-                            return true;
-                        }
-                        this.deactivateAll();
-                        tabManager.createTab();
-                    }
-                }
-            });
-            this.append(adder);
-        }
-        constructor(self) {
-            self = super(self);
-            self.on = on;
-            self.trigger = trigger;
-            return self;
-        }
-    }
-    const register$b = () => {
-        customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
-    };
-    var TabNavi$1 = {
-        register: register$b
-    };
-
     const toast = src.$('#toast');
     const softDelete = (element, label) => {
         props.set('softDeleted', true, element);
@@ -1744,6 +1543,162 @@
         })
     };
 
+    const lsKey = settings$1.get('storageKeys.tabs');
+    let appContainer$1;
+    let tabList = {};
+    let navi;
+    let contentArea;
+    let activeTab$1;
+    let activeTid;
+    const createTabEntry = () => {
+        const tid = nextIncrement();
+        return {
+            tid,
+            label: convertToRoman(tid)
+        }
+    };
+    const storage = {
+        read: () => {
+            const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
+            return Object.keys(stored).length ? stored : {
+                1: createTabEntry()
+            };
+        },
+        update: () => {
+            return localStorage.setItem(lsKey, JSON.stringify(tabList || {}))
+        }
+    };
+    const nextIncrement = () => {
+        return Math.max(...[0].concat(Object.keys(tabList))) + 1;
+    };
+    const setActiveTab = tab => {
+        activeTab$1 = tab || (activeTid ? src.$(`tab-handle[tid="${activeTid}"]`, navi) : src.$(`tab-handle`, navi));
+        activeTid = activeTab$1.tid;
+        src.$$('tab-handle', navi).forEach(tab => {
+            tab.classList.remove('active');
+            tab.panel.classList.remove('active');
+            delete tabList[tab.tid].active;
+        });
+        activeTab$1.classList.add('active');
+        activeTab$1.panel.classList.add('active');
+        tabList[activeTid].active = true;
+        storage.update();
+    };
+    const getActiveTab = () => {
+        return activeTab$1;
+    };
+    const createTab = tabEntry => {
+        tabEntry = tabEntry || createTabEntry();
+        const tab = document.createElement('tab-handle');
+        tab.panel = document.createElement('tab-panel');
+        tab.container = navi;
+        for (let [key, value] of Object.entries(tabEntry)) {
+            tab[key] = value;
+            tab.panel[key] = value;
+        }
+        contentArea.append(tab.panel);
+        src.$('.adder', navi).before(tab);
+        tabList[tab.tid] = tabEntry;
+        storage.update();
+        return tab;
+    };
+    const handleRemoval$1 = (tab, action) => {
+        switch (action) {
+            case 'soft':
+                softDelete(tab, 'Tab ' + tab.label)
+                    .then(data => {
+                        handleRemoval$1(tab, data.action);
+                    });
+                tabList[tab.tid].softDeleted = true;
+                if (tab.isSameNode(activeTab$1)) {
+                    setActiveTab(
+                        src.$(`tab-handle[tid="${activeTid}"] ~ tab-handle`, navi) ||
+                        tab.previousElementSibling
+                    );
+                }
+                break;
+            case 'restore':
+                delete tabList[tab.tid].softDeleted;
+                break;
+            case 'remove':
+                appContainer$1.trigger('tabDelete', {
+                    tid: tab.tid
+                });
+                delete tabList[tab.tid];
+                tab.panel.remove();
+                tab.remove();
+                if (Object.keys(tabList).length === 0) {
+                    createTab();
+                    setActiveTab();
+                }
+                break;
+        }
+        storage.update();
+    };
+    const restore = () => {
+        const entries = Object.values(tabList);
+        const activeSet = entries.filter(e => !!e.active);
+        activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabList)[0];
+        for (let tabEntry of entries) {
+            createTab(tabEntry);
+        }
+        setActiveTab();
+    };
+    const init$1 = app => {
+        appContainer$1 = app;
+        navi = src.$('tab-navi', appContainer$1);
+        contentArea = src.$('tab-content', appContainer$1);
+        tabList = storage.read();
+        restore();
+    };
+    var tabManager = {
+        init: init$1,
+        getActiveTab,
+        createTab,
+        handleRemoval: handleRemoval$1,
+        setActiveTab
+    };
+
+    const on = function(type, action)  {
+        this.addEventListener(type, action);
+    };
+    const trigger = function(type, data)  {
+        this.dispatchEvent(data ? new CustomEvent(type, {
+            detail: data
+        }) : new Event(type));
+    };
+
+    class TabNavi extends HTMLElement {
+        connectedCallback() {
+            const adder = src.span({
+                content: '🞤',
+                classNames: ['adder', 'btn', 'tab'],
+                events: {
+                    pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        const tab = tabManager.createTab();
+                        tabManager.setActiveTab(tab);
+                    }
+                }
+            });
+            this.append(adder);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$b = () => {
+        customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
+    };
+    var TabNavi$1 = {
+        register: register$b
+    };
+
     class TabHandle extends HTMLElement {
         get title() {
             return this.getAttribute('title');
@@ -1759,33 +1714,30 @@
         }
         connectedCallback() {
             const closer = src.span({
-                content: '×',
-                classNames: ['closer', 'btn']
+                content: '✖',
+                classNames: ['closer']
             });
             const label = src.span({
                 content: this.label
             });
-            this.classList.add('tab');
-            this.addEventListener('pointerup', e => {
-                if (e.button !== 0) {
+            this.on('pointerup', e => {
+                if (e.button > 1) {
                     return true;
                 }
-                if (e.target.isSameNode(closer)) {
+                if (e.button === 1 || e.target.isSameNode(closer)) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     tabManager.handleRemoval(this, 'soft');
-                    softDelete(this, 'Tab ' + this.label)
-                        .then(data => {
-                            tabManager.handleRemoval(this, data.action);
-                        });
-                }
-                else {
-                    this.container.deactivateAll();
-                    this.classList.add('active');
+                } else {
+                    tabManager.setActiveTab(this);
                 }
             });
             this.append(label, closer);
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
@@ -2820,16 +2772,94 @@
         register
     };
 
-    characterMap.init()
-        .then(() => {
-            registry.register();
-            tabManager.init();
-            cardManager.init();
+    let activeTab;
+    let appContainer;
+    const origin = 'user';
+    const getLabels = () => {
+        const characterLabels = {};
+        for (let [key, value] of Object.entries(labels$1)) {
+            if (key.startsWith('__')) {
+                continue;
+            }
+            characterLabels[key] = value.short;
+        }
+        return characterLabels;
+    };
+    const add = character => {
+        activeTab = tabManager.getActiveTab();
+        const cid = characterMap.nextIncrement(origin);
+        character = structuredClone(character);
+        character.meta = {
+            ...character.meta,
+            ...{
+                visibility,
+                tid: activeTab.tid,
+                cid,
+                origin
+            }
+        };
+        if (!character.labels) {
+            character.labels = getLabels();
+        }
+        characterMap.set(origin, cid, character);
+        const card = document.createElement('card-base');
+        card.character = character;
+        activeTab.panel.append(card);
+    };
+    const handleRemoval = (card, action) => {
+        const character = characterMap.get(origin, card.cid);
+        switch (action) {
+            case 'soft':
+                character.meta.softDeleted = true;
+                characterMap.set(origin, card.cid, character);
+                break;
+            case 'restore':
+                delete character.meta.softDeleted;
+                characterMap.set(origin, card.cid, character);
+                break;
+            case 'remove':
+                delete tabs[tab.tid];
+                characterMap.remove(type, cid);
+                break;
+        }
+    };
+    const init = app => {
+        appContainer = app;
+        appContainer.on('tabDelete', e => {
+            console.log(e.details);
         });
-    events.on('styleChange', e => {
-        [src.$('#editor'), src.$('#style-editor')].forEach(panel => {
-            props.set(e.detail.name, e.detail.value, panel);
+        events.on('characterSelection', e => {
+            add(e.detail);
         });
+    };
+    var cardManager = {
+        init,
+        handleRemoval
+    };
+
+    class AppContainer extends HTMLElement {
+        connectedCallback() {
+            characterMap.init()
+                .then(() => {
+                    registry.register();
+                    tabManager.init(this);
+                    cardManager.init(this);
+                });
+            events.on('styleChange', e => {
+                [editor, src.$('#style-editor')].forEach(panel => {
+                    props.set(e.detail.name, e.detail.value, panel);
+                });
+            });
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    customElements.define('app-container', AppContainer, {
+        extends: 'main'
     });
 
 })();

@@ -2,29 +2,20 @@ tab-navi {
   display: flex;
   background: var(--bg-2-color);
   line-height: 2;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   border-bottom: .1rem solid var(--border-color);
   padding: 0;
-  & .btn {
+  
+  & .adder {    
     cursor: pointer;
-    font-size: 2.2rem;
     display: flex;
     align-items: center;
-    line-height: 1;
-  }
-  & .tab {
-    cursor: pointer;
-    border-left: var(--border);
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-    display: flex;
-    padding: 0 1.25rem;
-    gap: 1rem;
-    &:hover:not(.active) {
+    font-size: 1.3rem;
+    padding: 0 1rem;
+    margin-left: .5rem;
+    &:hover {
       background: var(--bg-4-color);
     }
-  }
-
-  & .adder {    
-    border-right: var(--border);
   }
 }

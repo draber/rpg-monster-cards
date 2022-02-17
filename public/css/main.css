@@ -326,6 +326,7 @@ summary::marker{
 
 *::-webkit-scrollbar{
   width:1.2rem;
+  height:1.2rem;
 }
 
 *::-webkit-scrollbar-track{
@@ -490,10 +491,14 @@ library-organizer:hover svg{
     }
 
 tab-panel{
-    display:flex;
+    display:none;
     gap:2.5rem;
-    flex-wrap:wrap;
+    flex-wrap:wrap
 }
+
+tab-panel.active{
+        display:flex
+    }
 
 tab-content{
     display:block
@@ -504,56 +509,70 @@ tab-navi{
   background:hsl(15, 50%, 22%);
   background:var(--bg-2-color);
   line-height:2;
-  overflow:hidden;
+  overflow-x:auto;
+  overflow-y:hidden;
   border-bottom:.1rem solid hsla(46, 85%, 39%, .3);
   border-bottom:.1rem solid var(--border-color);
   padding:0
 }
 
-tab-navi .btn{
+tab-navi .adder{    
     cursor:pointer;
-    font-size:2.2rem;
     display:flex;
     align-items:center;
-    line-height:1;
+    font-size:1.3rem;
+    padding:0 1rem;
+    margin-left:.5rem
   }
 
-tab-navi .tab{
-    cursor:pointer;
-    border-left:.1rem solid hsla(46, 85%, 39%, .3);
-    border-left:var(--border);
-    border-radius:.3rem .3rem 0 0;
-    border-radius:var(--border-radius) var(--border-radius) 0 0;
-    display:flex;
-    padding:0 1.25rem;
-    gap:1rem
-  }
-
-tab-navi .tab:hover:not(.active){
+tab-navi .adder:hover{
       background:hsl(15, 50%, 28%);
       background:var(--bg-4-color);
     }
 
-tab-navi .adder{    
-    border-right:.1rem solid hsla(46, 85%, 39%, .3);    
-    border-right:var(--border);
-  }
-
 tab-handle{
+  display:flex;
+  cursor:pointer;
+  border-right:.1rem solid hsla(46, 85%, 39%, .3);
+  border-right:var(--border);
+  border-radius:.3rem .3rem 0 0;
+  border-radius:var(--border-radius) var(--border-radius) 0 0;
+  padding:0 1rem;
+  gap:.5rem
 }
 
+tab-handle:hover:not(.active){
+    background:hsl(15, 50%, 28%);
+    background:var(--bg-4-color);
+  }
+
 tab-handle .closer{
-        display:none;
-      }
+    font-size:1rem;
+    display:none;
+    line-height:1.8;
+    position:relative;
+    left:0.8rem;
+    top:0.7rem;
+    justify-content:center;
+    border-radius:50%;
+    height:1.8rem;
+    width:1.8rem;
+  }
 
 tab-handle.active{
-        background:hsl(29, 33%, 34%) url(../media/patterns/system/light-rocky-wall.png);
-        background:var(--bg-light) url(../media/patterns/system/light-rocky-wall.png)
-    }
+    background:hsl(29, 33%, 34%)
+      url(../media/patterns/system/light-rocky-wall.png);
+    background:var(--bg-light)
+      url(../media/patterns/system/light-rocky-wall.png)
+  }
 
 tab-handle.active .closer{
-          display:flex;
-        }
+      display:flex
+    }
+
+tab-handle.active .closer:hover{
+        background:hsla(0, 100%, 100%, 0.15);
+      }
 
 @-webkit-keyframes summon{
   0%{

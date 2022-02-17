@@ -1,20 +1,11 @@
 import fn from 'fancy-node';
 import tabManager from './tabManager.js';
 import {on, trigger}from '../../../modules/events/eventHandler.js';
-import properties from '../../../modules/properties/properties.js';
 
 /**
  * Custom element containing the list of fonts
  */
 class TabNavi extends HTMLElement {
-
-
-    deactivateAll(){
-        fn.$$('tab-handle', this).forEach(tab => {
-            tab.classList.remove('active');
-            tab.panel.classList.remove('active');
-        })
-    }
 
     /**
      * Called on element launch
@@ -22,15 +13,15 @@ class TabNavi extends HTMLElement {
     connectedCallback() {
 
         const adder = fn.span({
-            content: '+',
+            content: '🞤',
             classNames: ['adder', 'btn', 'tab'],
             events: {
                 pointerup: e => {
                     if (e.button !== 0) {
                         return true;
                     }
-                    this.deactivateAll();
-                    tabManager.createTab();
+                    const tab = tabManager.createTab();
+                    tabManager.setActiveTab(tab)
                 }
             }
         })

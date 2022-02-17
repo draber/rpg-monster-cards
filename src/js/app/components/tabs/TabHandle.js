@@ -1,6 +1,9 @@
 import fn from 'fancy-node';
-import softDelete from '../../../modules/softDelete/softdelete.js';
 import tabManager from './tabManager.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js';
 
 /**
  * Custom element containing the list of fonts
@@ -45,30 +48,24 @@ class TabHandle extends HTMLElement {
     connectedCallback() {
 
         const closer = fn.span({
-            content: '×',
-            classNames: ['closer', 'btn']
+            content: '✖',
+            classNames: ['closer']
         })
 
         const label = fn.span({
             content: this.label
         })
 
-        this.classList.add('tab');
-
-        this.addEventListener('pointerup', e => {
-            if (e.button !== 0) {
+        this.on('pointerup', e => {
+            if (e.button > 1) {
                 return true;
             }
-            if (e.target.isSameNode(closer)) {
-                tabManager.handleRemoval(this, 'soft')
-                softDelete(this, 'Tab ' + this.label)
-                    .then(data => {
-                        tabManager.handleRemoval(this, data.action);
-                    })
-            }
-            else {
-                this.container.deactivateAll();
-                this.classList.add('active');
+            if (e.button === 1 || e.target.isSameNode(closer)) {
+                e.preventDefault();
+                e.stopPropagation();
+                tabManager.handleRemoval(this, 'soft');
+            } else {
+                tabManager.setActiveTab(this);
             }
         })
 
@@ -78,6 +75,8 @@ class TabHandle extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
