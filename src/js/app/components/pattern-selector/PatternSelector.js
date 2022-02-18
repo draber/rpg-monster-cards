@@ -1,9 +1,12 @@
 import fn from 'fancy-node';
-import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import backgrounds from '../../../../data/backgrounds.json';
 import borders from '../../../../data/borders.json';
 import cssProps from '../../../modules/cssProps/cssProps.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 const patternPool = {
     backgrounds,
@@ -129,7 +132,7 @@ class PatternSelector extends HTMLElement {
                 change: e => {
                     this.value = this.getValue();
                     userPrefs.set(`patterns.${this.name}`, this.value);
-                    events.trigger(`styleChange`, {
+                    this.app.trigger(`styleChange`, {
                         name: this.name,
                         value: this.value
                     });
@@ -143,13 +146,16 @@ class PatternSelector extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    PatternSelector.prototype.app = app;
     customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector)
 }
 

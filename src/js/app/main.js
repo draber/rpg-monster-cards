@@ -1,5 +1,4 @@
 import registry from './components/registry.js';
-import events from '../modules/events/events.js';
 import props from '../modules/properties/properties.js';
 import cardManager from './components/character-cards/card-manager.js';
 import characterMap from './components/character-library/character-map.js';
@@ -10,12 +9,13 @@ import {
 } from '../modules/events/eventHandler.js';
 import fn from 'fancy-node';
 
+
 class AppContainer extends HTMLElement {
 
     connectedCallback() {
         characterMap.init()
             .then(() => {
-                registry.register();
+                registry.register(this);
 
                 // tabs must be created before any card can be added
                 tabManager.init(this);
@@ -23,8 +23,8 @@ class AppContainer extends HTMLElement {
             })
 
 
-        events.on('styleChange', e => {
-            [editor, fn.$('#style-editor')].forEach(panel => {
+        this.on('styleChange', e => {
+            [this.editor, this.styleEditor].forEach(panel => {
                 props.set(e.detail.name, e.detail.value, panel);
             })
         })
@@ -34,6 +34,8 @@ class AppContainer extends HTMLElement {
         self = super(self);
         self.on = on;
         self.trigger = trigger;
+        self.editor = fn.$('#editor');
+        self.styleEditor = fn.$('#style-editor');
         return self;
     }
 }

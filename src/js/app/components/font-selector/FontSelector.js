@@ -1,8 +1,11 @@
 import fn from 'fancy-node';
-import events from '../../../modules/events/events.js';
 import fonts from '../../../../data/fonts.json';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import cssProps from '../../../modules/cssProps/cssProps.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 /**
  * Custom element containing the list of fonts
@@ -60,7 +63,7 @@ class FontSelector extends HTMLElement {
                 change: e => {
                     this.selected = e.target.value;
                     userPrefs.set(`fonts.${this.name}`, this.selected);
-                    events.trigger(`styleChange`, {
+                    this.app.trigger(`styleChange`, {
                         name: this.name,
                         value: e.target.value
                     });
@@ -80,7 +83,8 @@ class FontSelector extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    FontSelector.prototype.app = app;
     customElements.get('font-selector') || customElements['define']('font-selector', FontSelector)
 }
 

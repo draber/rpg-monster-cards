@@ -2,6 +2,10 @@ import fn from 'fancy-node';
 import {
     camel
 } from '../../../modules/string/string.js'
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 /**
  * Custom element containing the list of fonts
@@ -14,7 +18,7 @@ class CardToolbar extends HTMLElement {
     connectedCallback() {
 
 
-        this.addEventListener('pointerup', e => {
+        this.on('pointerup', e => {
             const btn = e.target.closest('button');
             if (!btn || e.button !== 0) {
                 return true;
@@ -63,13 +67,16 @@ class CardToolbar extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    CardToolbar.prototype.app = app;
     customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar)
 }
 

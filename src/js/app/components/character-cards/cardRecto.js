@@ -1,4 +1,8 @@
 import fn from 'fancy-node';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 /**
  * Custom element containing the list of fonts
@@ -51,13 +55,16 @@ class CardRecto extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    CardRecto.prototype.app = app;
     customElements.get('card-recto') || customElements['define']('card-recto', CardRecto)
 }
 

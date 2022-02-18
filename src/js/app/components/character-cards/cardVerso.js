@@ -1,4 +1,8 @@
 import fn from 'fancy-node';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 class CardVerso extends HTMLElement {
 
@@ -95,13 +99,16 @@ class CardVerso extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    CardVerso.prototype.app = app;
     customElements.get('card-verso') || customElements['define']('card-verso', CardVerso)
 }
 

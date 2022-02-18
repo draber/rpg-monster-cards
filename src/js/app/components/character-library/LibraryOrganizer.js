@@ -1,8 +1,11 @@
 import fn from 'fancy-node';
 import visibility from '../../../../data/visibility.json';
 import labels from '../../../../data/labels.json';
-import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 /**
  * Custom HTM element to select a group to oder the library by
@@ -34,7 +37,7 @@ class LibraryOrganizer extends HTMLElement {
         /**
          * On click provide a the new criteria to group by
          */
-        this.addEventListener('pointerdown', e => {
+        this.on('pointerdown', e => {
             if(e.button !== 0){
                 return true;
             }
@@ -43,7 +46,7 @@ class LibraryOrganizer extends HTMLElement {
                 return false;
             }
             userPrefs.set('characters.groupBy', li.dataset.groupBy);
-            events.trigger('characterOrderChange', {
+            this.app.trigger('characterOrderChange', {
                 groupBy: li.dataset.groupBy
             })
         })
@@ -87,11 +90,14 @@ class LibraryOrganizer extends HTMLElement {
     }
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
 
-const register = () => {
+const register = app => {
+    LibraryOrganizer.prototype.app = app;
     customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer)
 }
 

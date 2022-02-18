@@ -1,7 +1,10 @@
 import fn from 'fancy-node';
-import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import cssProps from '../../../modules/cssProps/cssProps.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 /**
  * Custom element containing the list of fonts
@@ -102,7 +105,7 @@ class FontSize extends HTMLElement {
                 input: e => {
                     this.value = e.target.value + 'rem';
                     userPrefs.set(`fonts.${this.name}`, this.value);
-                    events.trigger(`styleChange`, {
+                    this.app.trigger(`styleChange`, {
                         name: this.name,
                         value: this.value
                     });
@@ -116,13 +119,16 @@ class FontSize extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    FontSize.prototype.app = app;
     customElements.get('font-size') || customElements['define']('font-size', FontSize)
 }
 

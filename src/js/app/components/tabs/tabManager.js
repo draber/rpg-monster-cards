@@ -8,7 +8,7 @@ import softDelete from '../../../modules/softDelete/softdelete.js';
  */
 const lsKey = settings.get('storageKeys.tabs');
 
-let appContainer;
+let app;
 let tabList = {}
 let navi;
 let contentArea;
@@ -103,7 +103,7 @@ const handleRemoval = (tab, action) => {
             delete tabList[tab.tid].softDeleted;
             break;
         case 'remove':
-            appContainer.trigger('tabDelete', {
+            app.trigger('tabDelete', {
                 tid: tab.tid
             })
             delete tabList[tab.tid];
@@ -134,10 +134,10 @@ const restore = () => {
 }
 
 
-const init = app => {
-    appContainer = app;
-    navi = fn.$('tab-navi', appContainer);
-    contentArea = fn.$('tab-content', appContainer);
+const init = _app => {
+    app = _app;
+    navi = fn.$('tab-navi', app);
+    contentArea = fn.$('tab-content', app);
     tabList = storage.read();
     restore();
 }

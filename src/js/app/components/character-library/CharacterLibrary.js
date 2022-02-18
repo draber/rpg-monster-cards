@@ -1,9 +1,12 @@
 import fn from 'fancy-node';
 import characterProvider from './character-provider.js';
-import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import characterMap from './character-map.js';
 import settings from '../../../modules/settings/settings.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 /**
  * Custom element containing the list of characters
@@ -172,7 +175,7 @@ class CharacterLibrary extends HTMLElement {
         /**
          * On click provide a copy of the requested character
          */
-        this.addEventListener('pointerdown', e => {
+        this.on('pointerdown', e => {
             if (e.button !== 0) {
                 return true;
             }
@@ -180,7 +183,7 @@ class CharacterLibrary extends HTMLElement {
             if (!li) {
                 return false;
             }
-            events.trigger('characterSelection', (() => {
+            this.app.trigger('characterSelection', (() => {
                 const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
                 const entry = characterMap.get(type, parseInt(li.dataset.cid, 10));
                 entry.meta._groupLabel && delete entry.meta._groupLabel;
@@ -202,11 +205,12 @@ class CharacterLibrary extends HTMLElement {
 
     constructor(self) {
         self = super(self);
-
+        self.on = on;
+        self.trigger = trigger;
         /**
          * Listen to changes in grouping, sort order etc. and refresh the tree
          */
-        events.on('characterOrderChange', e => {
+        self.app.on('characterOrderChange', e => {
             ['sortBy', 'groupBy', 'sortDir', 'groupDir'].forEach(crit => {
                 if (e.detail[crit]) {
                     self[crit] = e.detail[crit];
@@ -222,7 +226,8 @@ class CharacterLibrary extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    CharacterLibrary.prototype.app = app;
     customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary)
 }
 

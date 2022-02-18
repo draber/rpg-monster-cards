@@ -605,24 +605,6 @@
         getSortedCharacters
     };
 
-    const trigger$1 = (type, data, target) => {
-        (target || document.body).dispatchEvent(data ? new CustomEvent(type, {
-            detail: data
-        }) : new Event(type));
-    };
-    const on$1 = (types, action, target) => {
-        if (typeof types === 'string') {
-            types = [types];
-        }
-        types.forEach(type => {
-            (target || document.body).addEventListener(type, action);
-        });
-    };
-    var events = {
-        trigger: trigger$1,
-        on: on$1
-    };
-
     const lsKey$1 = settings$1.get('storageKeys.user');
     settings$1.set('userPrefs', JSON.parse(localStorage.getItem(lsKey$1) || '{}'));
     const getAll = () => {
@@ -640,6 +622,25 @@
         getAll,
         get: get$2,
         set: set$1
+    };
+
+    const on = function(types, action)  {
+        if (typeof types === 'string') {
+            types = [types];
+        }
+        types.forEach(type => {
+            this.addEventListener(type, action);
+        });
+    };
+    const trigger = function(types, data)  {
+        if (typeof types === 'string') {
+            types = [types];
+        }
+        types.forEach(type => {
+            this.dispatchEvent(data ? new CustomEvent(type, {
+                detail: data
+            }) : new Event(type));
+        });
     };
 
     class CharacterLibrary extends HTMLElement {
@@ -724,7 +725,7 @@
             src.empty(this).append(characterList);
         }
         connectedCallback() {
-            this.addEventListener('pointerdown', e => {
+            this.on('pointerdown', e => {
                 if (e.button !== 0) {
                     return true;
                 }
@@ -732,7 +733,7 @@
                 if (!li) {
                     return false;
                 }
-                events.trigger('characterSelection', (() => {
+                this.app.trigger('characterSelection', (() => {
                     const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
                     const entry = characterMap.get(type, parseInt(li.dataset.cid, 10));
                     entry.meta._groupLabel && delete entry.meta._groupLabel;
@@ -748,7 +749,9 @@
         }
         constructor(self) {
             self = super(self);
-            events.on('characterOrderChange', e => {
+            self.on = on;
+            self.trigger = trigger;
+            self.app.on('characterOrderChange', e => {
                 ['sortBy', 'groupBy', 'sortDir', 'groupDir'].forEach(crit => {
                     if (e.detail[crit]) {
                         self[crit] = e.detail[crit];
@@ -759,7 +762,8 @@
             return self;
         }
     }
-    const register$g = () => {
+    const register$g = app => {
+        CharacterLibrary.prototype.app = app;
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
@@ -975,7 +979,7 @@
             this.setAttribute('groupby', value);
         }
         connectedCallback() {
-            this.addEventListener('pointerdown', e => {
+            this.on('pointerdown', e => {
                 if(e.button !== 0){
                     return true;
                 }
@@ -984,7 +988,7 @@
                     return false;
                 }
                 userPrefs.set('characters.groupBy', li.dataset.groupBy);
-                events.trigger('characterOrderChange', {
+                this.app.trigger('characterOrderChange', {
                     groupBy: li.dataset.groupBy
                 });
             });
@@ -1023,10 +1027,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$f = () => {
+    const register$f = app => {
+        LibraryOrganizer.prototype.app = app;
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
@@ -1200,7 +1207,7 @@
                     change: e => {
                         this.selected = e.target.value;
                         userPrefs.set(`fonts.${this.name}`, this.selected);
-                        events.trigger(`styleChange`, {
+                        this.app.trigger(`styleChange`, {
                             name: this.name,
                             value: e.target.value
                         });
@@ -1215,7 +1222,8 @@
             return self;
         }
     }
-    const register$e = () => {
+    const register$e = app => {
+        FontSelector.prototype.app = app;
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
@@ -1269,7 +1277,7 @@
                     input: e => {
                         this.value = e.target.value + 'rem';
                         userPrefs.set(`fonts.${this.name}`, this.value);
-                        events.trigger(`styleChange`, {
+                        this.app.trigger(`styleChange`, {
                             name: this.name,
                             value: this.value
                         });
@@ -1281,10 +1289,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$d = () => {
+    const register$d = app => {
+        FontSize.prototype.app = app;
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
@@ -1432,7 +1443,7 @@
                     change: e => {
                         this.value = this.getValue();
                         userPrefs.set(`patterns.${this.name}`, this.value);
-                        events.trigger(`styleChange`, {
+                        this.app.trigger(`styleChange`, {
                             name: this.name,
                             value: this.value
                         });
@@ -1444,10 +1455,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$c = () => {
+    const register$c = app => {
+        PatternSelector.prototype.app = app;
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
@@ -1544,7 +1558,7 @@
     };
 
     const lsKey = settings$1.get('storageKeys.tabs');
-    let appContainer$1;
+    let app$1;
     let tabList = {};
     let navi;
     let contentArea;
@@ -1621,7 +1635,7 @@
                 delete tabList[tab.tid].softDeleted;
                 break;
             case 'remove':
-                appContainer$1.trigger('tabDelete', {
+                app$1.trigger('tabDelete', {
                     tid: tab.tid
                 });
                 delete tabList[tab.tid];
@@ -1644,10 +1658,10 @@
         }
         setActiveTab();
     };
-    const init$1 = app => {
-        appContainer$1 = app;
-        navi = src.$('tab-navi', appContainer$1);
-        contentArea = src.$('tab-content', appContainer$1);
+    const init$1 = _app => {
+        app$1 = _app;
+        navi = src.$('tab-navi', app$1);
+        contentArea = src.$('tab-content', app$1);
         tabList = storage.read();
         restore();
     };
@@ -1657,15 +1671,6 @@
         createTab,
         handleRemoval: handleRemoval$1,
         setActiveTab
-    };
-
-    const on = function(type, action)  {
-        this.addEventListener(type, action);
-    };
-    const trigger = function(type, data)  {
-        this.dispatchEvent(data ? new CustomEvent(type, {
-            detail: data
-        }) : new Event(type));
     };
 
     class TabNavi extends HTMLElement {
@@ -2034,7 +2039,7 @@
                     background.update(config.type, this.tracks);
                     const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
                     userPrefs.set(`colors.${e.target.name}`, formatted);
-                    events.trigger(`styleChange`, {
+                    this.app.trigger(`styleChange`, {
                         name: e.target.name,
                         value: formatted
                     });
@@ -2053,10 +2058,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$7 = () => {
+    const register$7 = app => {
+        ColorSelector.prototype.app = app;
         customElements.get('color-selector') || customElements['define']('color-selector', ColorSelector);
     };
     var ColorSelector$1 = {
@@ -2383,10 +2391,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$5 = () => {
+    const register$5 = app => {
+        CardForm.prototype.app = app;
         customElements.get('card-form') || customElements['define']('card-form', CardForm);
     };
     var CardForm$1 = {
@@ -2428,10 +2439,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$4 = () => {
+    const register$4 = app => {
+        CardRecto.prototype.app = app;
         customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
     };
     var CardRecto$1 = {
@@ -2543,7 +2557,7 @@
 
     class CardToolbar extends HTMLElement {
         connectedCallback() {
-            this.addEventListener('pointerup', e => {
+            this.on('pointerup', e => {
                 const btn = e.target.closest('button');
                 if (!btn || e.button !== 0) {
                     return true;
@@ -2588,10 +2602,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$3 = () => {
+    const register$3 = app => {
+        CardToolbar.prototype.app = app;
         customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar);
     };
     var CardToolbar$1 = {
@@ -2669,10 +2686,13 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$2 = () => {
+    const register$2 = app => {
+        CardVerso.prototype.app = app;
         customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
     };
     var CardVerso$1 = {
@@ -2763,9 +2783,9 @@
         CardVerso$1,
         UndoDialog$1
     ];
-    const register = () => {
+    const register = app => {
         components.forEach(component => {
-            component.register();
+            component.register(app);
         });
     };
     var registry = {
@@ -2773,7 +2793,7 @@
     };
 
     let activeTab;
-    let appContainer;
+    let app;
     const origin = 'user';
     const getLabels = () => {
         const characterLabels = {};
@@ -2823,12 +2843,12 @@
                 break;
         }
     };
-    const init = app => {
-        appContainer = app;
-        appContainer.on('tabDelete', e => {
+    const init = _app => {
+        app = _app;
+        app.on('tabDelete', e => {
             console.log(e.details);
         });
-        events.on('characterSelection', e => {
+        app.on('characterSelection', e => {
             add(e.detail);
         });
     };
@@ -2841,12 +2861,12 @@
         connectedCallback() {
             characterMap.init()
                 .then(() => {
-                    registry.register();
+                    registry.register(this);
                     tabManager.init(this);
                     cardManager.init(this);
                 });
-            events.on('styleChange', e => {
-                [editor, src.$('#style-editor')].forEach(panel => {
+            this.on('styleChange', e => {
+                [this.editor, this.styleEditor].forEach(panel => {
                     props.set(e.detail.name, e.detail.value, panel);
                 });
             });
@@ -2855,6 +2875,8 @@
             self = super(self);
             self.on = on;
             self.trigger = trigger;
+            self.editor = src.$('#editor');
+            self.styleEditor = src.$('#style-editor');
             return self;
         }
     }

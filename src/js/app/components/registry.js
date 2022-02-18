@@ -34,9 +34,9 @@ const components = [
     UndoDialog
 ];
 
-const register = () => {
+const register = app => {
     components.forEach(component => {
-        component.register();
+        component.register(app);
     })
 }
 

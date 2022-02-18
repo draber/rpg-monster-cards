@@ -1,9 +1,12 @@
 import buildConfig from './configurator.js';
 import format from './format.js';
 import background from './background.js';
-import events from '../../../modules/events/events.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
 import cssProps from '../../../modules/cssProps/cssProps.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 
 
@@ -104,7 +107,7 @@ class ColorSelector extends HTMLElement {
                 background.update(config.type, this.tracks);
                 const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
                 userPrefs.set(`colors.${e.target.name}`, formatted);                
-                events.trigger(`styleChange`, {
+                this.app.trigger(`styleChange`, {
                     name: e.target.name,
                     value: formatted
                 });
@@ -124,6 +127,8 @@ class ColorSelector extends HTMLElement {
     }
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
@@ -132,7 +137,8 @@ class ColorSelector extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    ColorSelector.prototype.app = app;
     customElements.get('color-selector') || customElements['define']('color-selector', ColorSelector)
 }
 

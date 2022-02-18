@@ -1,6 +1,10 @@
 import fn from 'fancy-node';
 import draggable from '../../../modules/draggable/draggable.js';
 import properties from '../../../modules/properties/properties.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js'
 
 class CardForm extends HTMLElement {
 
@@ -220,13 +224,16 @@ class CardForm extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    CardForm.prototype.app = app;
     customElements.get('card-form') || customElements['define']('card-form', CardForm)
 }
 

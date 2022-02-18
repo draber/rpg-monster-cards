@@ -1,4 +1,3 @@
-import events from '../../../modules/events/events.js';
 import characterMap from '../character-library/character-map.js';
 import visibility from '../../../../data/visibility.json';
 import labels from '../../../../data/labels.json';
@@ -6,7 +5,7 @@ import tabManager from '../tabs/tabManager.js';
 
 let activeTab;
 
-let appContainer;
+let app;
 
 /**
  * The context in which this character is handled, i.e. system|user
@@ -85,12 +84,12 @@ const handleRemoval = (card, action) => {
 }
 
 
-const init = app => {
-    appContainer = app;
-    appContainer.on('tabDelete', e => {
+const init = _app => {
+    app = _app;
+    app.on('tabDelete', e => {
         console.log(e.details)
     })
-    events.on('characterSelection', e => {
+    app.on('characterSelection', e => {
         add(e.detail)
     })
     restoreLastSession()
