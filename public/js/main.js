@@ -214,9 +214,9 @@
     	group: "Your Creatures"
     };
     var img$1 = {
-    	long: "Image",
+    	long: "Image URL",
     	short: "Img",
-    	group: "Image"
+    	group: "Image URL"
     };
     var cr$1 = {
     	long: "Challenge Rating",
@@ -1183,7 +1183,7 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
-            this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
+            this.currentFont = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
@@ -1192,7 +1192,7 @@
                     return src.option({
                         attributes: {
                             value: entry.family,
-                            selected: entry.family === this.selected
+                            selected: entry.family === this.currentFont
                         },
                         style: {
                             fontFamily: entry.family
@@ -1206,7 +1206,7 @@
                 events: {
                     change: e => {
                         this.selected = e.target.value;
-                        userPrefs.set(`fonts.${this.name}`, this.selected);
+                        userPrefs.set(`fonts.${this.name}`, this.currentFont);
                         this.app.trigger(`styleChange`, {
                             name: this.name,
                             value: e.target.value
@@ -1219,6 +1219,8 @@
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
@@ -1597,6 +1599,7 @@
         activeTab$1.panel.classList.add('active');
         tabList[activeTid].active = true;
         storage.update();
+        return activeTab$1;
     };
     const getActiveTab = () => {
         return activeTab$1;
@@ -1616,20 +1619,31 @@
         storage.update();
         return tab;
     };
+    const getUpcomingActiveTab = () => {
+        let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
+        if(!tabs.length) {
+            return createTab();
+        }
+        let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab$1)));
+        if (tabs[activeIdx + 1]) {
+            return tabs[activeIdx + 1];
+        }
+        if (tabs[activeIdx - 1]) {
+            return tabs[activeIdx - 1];
+        }
+        return createTab();
+    };
     const handleRemoval$1 = (tab, action) => {
         switch (action) {
             case 'soft':
+                if (tab.isSameNode(activeTab$1)) {
+                    setActiveTab(getUpcomingActiveTab());
+                }
                 softDelete(tab, 'Tab ' + tab.label)
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
                 tabList[tab.tid].softDeleted = true;
-                if (tab.isSameNode(activeTab$1)) {
-                    setActiveTab(
-                        src.$(`tab-handle[tid="${activeTid}"] ~ tab-handle`, navi) ||
-                        tab.previousElementSibling
-                    );
-                }
                 break;
             case 'restore':
                 delete tabList[tab.tid].softDeleted;
@@ -1675,6 +1689,43 @@
 
     class TabNavi extends HTMLElement {
         connectedCallback() {
+            const contextMenu = src.ul({
+                classNames: ['tab-context-menu'],
+                content: [
+                    src.li({
+                        content: 'Delete tab',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Delete others (irreversible)',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Delete all (irreversible)',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                            }
+                        }
+                    })
+                ]
+            });
             const adder = src.span({
                 content: '🞤',
                 classNames: ['adder', 'btn', 'tab'],
@@ -1689,6 +1740,7 @@
                 }
             });
             this.append(adder);
+            document.body.append(contextMenu);
         }
         constructor(self) {
             self = super(self);
@@ -1726,16 +1778,23 @@
                 content: this.label
             });
             this.on('pointerup', e => {
-                if (e.button > 1) {
-                    return true;
+                switch (true) {
+                    case e.button === 0:
+                        return tabManager.setActiveTab(this);
+                    case e.button === 1:
+                    case e.target.isSameNode(closer):
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return tabManager.handleRemoval(this, 'soft');
+                    default:
+                        return true;
                 }
-                if (e.button === 1 || e.target.isSameNode(closer)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    tabManager.handleRemoval(this, 'soft');
-                } else {
-                    tabManager.setActiveTab(this);
-                }
+            });
+            this.on('contextmenu', e => {
+                console.log(e);
+                e.preventDefault();
+                console.log('tabContext');
+                return props.set('tabContext', true);
             });
             this.append(label, closer);
         }
@@ -2342,7 +2401,7 @@
                                 },
                                 content: [
                                     src.th({
-                                        content: 'Image'
+                                        content: labels$1.img.long
                                     }),
                                     src.td({
                                         attributes: {
@@ -2857,7 +2916,7 @@
         handleRemoval
     };
 
-    class AppContainer extends HTMLElement {
+    class App extends HTMLElement {
         connectedCallback() {
             characterMap.init()
                 .then(() => {
@@ -2880,7 +2939,7 @@
             return self;
         }
     }
-    customElements.define('app-container', AppContainer, {
+    customElements.define('app-container', App, {
         extends: 'main'
     });
 

@@ -5,6 +5,7 @@ tab-handle {
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   padding: 0 1rem;
   gap: .5rem;
+  position: relative;
   &:hover:not(.active) {
     background: var(--bg-4-color);
   }

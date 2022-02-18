@@ -4,7 +4,8 @@ import properties from '../../../modules/properties/properties.js';
 import {
     on,
     trigger
-} from '../../../modules/events/eventHandler.js'
+} from '../../../modules/events/eventHandler.js';
+import labels from '../../../../data/labels.json';
 
 class CardForm extends HTMLElement {
 
@@ -172,7 +173,7 @@ class CardForm extends HTMLElement {
                             },
                             content: [
                                 fn.th({
-                                    content: 'Image'
+                                    content: labels.img.long
                                 }),
                                 fn.td({
                                     attributes: {

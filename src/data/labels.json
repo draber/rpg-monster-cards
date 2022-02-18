@@ -9,9 +9,9 @@
 		"group": "Your Creatures"
 	},
 	"img": {
-		"long": "Image",
+		"long": "Image URL",
 		"short": "Img",
-		"group": "Image"
+		"group": "Image URL"
 	},
 	"cr": {
 		"long": "Challenge Rating",

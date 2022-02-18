@@ -12,6 +12,50 @@ class TabNavi extends HTMLElement {
      */
     connectedCallback() {
 
+        const contextMenu = fn.ul({
+            classNames: ['tab-context-menu'],
+            content: [
+                fn.li({
+                    content: 'Delete tab',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                           // tabManager.handleRemoval(this, 'soft');
+                           // this.classList.remove('context');
+                        }
+                    }
+                }),
+                fn.li({
+                    classNames: ['context-danger'],
+                    content: 'Delete others (irreversible)',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                           // tabManager.handleRemoval(this, 'others');
+                           // this.classList.remove('context');
+                        }
+                    }
+                }),
+                fn.li({
+                    classNames: ['context-danger'],
+                    content: 'Delete all (irreversible)',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                           // tabManager.handleRemoval(this, 'destroy');
+                           // this.classList.remove('context');
+                        }
+                    }
+                })
+            ]
+        })
+
         const adder = fn.span({
             content: '🞤',
             classNames: ['adder', 'btn', 'tab'],
@@ -27,6 +71,8 @@ class TabNavi extends HTMLElement {
         })
 
         this.append(adder);
+
+        document.body.append(contextMenu);
 
     }
     constructor(self) {

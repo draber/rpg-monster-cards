@@ -446,7 +446,7 @@ library-organizer .sort-box{
     left:-1000rem
   }
 
-library-organizer .sort-box:after{
+library-organizer .sort-box::after{
       content:"";
       width:calc(100% + (2 * 3.3rem));
       height:100%;
@@ -510,7 +510,6 @@ tab-navi{
   background:var(--bg-2-color);
   line-height:2;
   overflow-x:auto;
-  overflow-y:hidden;
   border-bottom:.1rem solid hsla(46, 85%, 39%, .3);
   border-bottom:.1rem solid var(--border-color);
   padding:0
@@ -530,6 +529,50 @@ tab-navi .adder:hover{
       background:var(--bg-4-color);
     }
 
+.tab-context-menu{
+  position:absolute;
+  list-style:none;
+  padding:0;
+  border:.1rem solid hsla(46, 85%, 39%, .3);
+  border:var(--border);
+  min-width:20rem;
+  background:hsl(15, 50%, 24%);
+  background:var(--bg-3-color);
+  filter:drop-shadow(1rem 1rem 1rem rgba(0, 0, 0, 0.3))
+}
+
+.tab-context-menu li{
+    cursor:pointer;
+    padding:0 1rem;
+    cursor:pointer;
+    line-height:1.8;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    border-bottom:1px solid rgba(255, 255, 255, 0.08)
+  }
+
+.tab-context-menu li::before{
+      content:'';
+      width:2rem;
+      display:inline-block;
+      color:hsl(44, 81%, 38%);
+      color:var(--hd-color)
+    }
+
+.tab-context-menu li.context-danger::before{
+        content:'⚠';
+      }
+
+.tab-context-menu li:hover{
+      background:hsl(15, 50%, 28%);
+      background:var(--bg-4-color);
+    }
+
+& .tab-context .tab-context-menu{
+    display:block
+  }
+
 tab-handle{
   display:flex;
   cursor:pointer;
@@ -538,7 +581,8 @@ tab-handle{
   border-radius:.3rem .3rem 0 0;
   border-radius:var(--border-radius) var(--border-radius) 0 0;
   padding:0 1rem;
-  gap:.5rem
+  gap:.5rem;
+  position:relative
 }
 
 tab-handle:hover:not(.active){
@@ -1048,6 +1092,11 @@ card-form th{
     width:10ch;
   }
 
+card-form [data-key="img"] th{
+      width:auto;
+      white-space:nowrap
+    }
+
 card-form svg{
     width:1.2rem;
     aspect-ratio:1 / 1;
@@ -1261,7 +1310,7 @@ color-selector[type] > label span ~ span{
         }
 
 #toast{
-  width:30rem;
+  width:32rem;
   max-width:100%;
   position:absolute;
   bottom:0;

@@ -23,7 +23,7 @@ const getCharacters = (characterSrcFile, fieldSrcFile) => {
             }
             // fix broken images
             else if (charKey === 'img' && !value) {
-                characters[i][charKey] = 'media/character-fallback-image.png';
+                characters[i][charKey] = 'media/default.png';
             } else if (charKey === 'img' && value.startsWith('javascript')) {
                 characters[i][charKey] = value.replace(imgRe, '//wizards.com/dnd/images/$1.jpg');
             } 

@@ -16,6 +16,10 @@ let contentArea;
 let activeTab;
 let activeTid;
 
+/**
+ * Create data for a new tab (tid as in Tab ID)
+ * @returns {{label, tid: {Integer}}}
+ */
 const createTabEntry = () => {
     const tid = nextIncrement();
     return {
@@ -32,6 +36,7 @@ const storage = {
     read: () => {
         const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
         return Object.keys(stored).length ? stored : {
+            // ensure there is always at least one tab
             1: createTabEntry()
         };
     },
@@ -40,11 +45,18 @@ const storage = {
     }
 }
 
-
+/**
+ * Auto increment tab id (TID)
+ * @returns {Number}
+ */
 const nextIncrement = () => {
     return Math.max(...[0].concat(Object.keys(tabList))) + 1;
 }
 
+/**
+ * Set current ab to active
+ * @param {HTMLElement} tab
+ */
 const setActiveTab = tab => {
     activeTab = tab || (activeTid ? fn.$(`tab-handle[tid="${activeTid}"]`, navi) : fn.$(`tab-handle`, navi));
     activeTid = activeTab.tid;
@@ -53,16 +65,29 @@ const setActiveTab = tab => {
         tab.panel.classList.remove('active');
         delete tabList[tab.tid].active;
     });
+    // DOM Tab
     activeTab.classList.add('active');
+    // DOM Panel
     activeTab.panel.classList.add('active');
+    // model
     tabList[activeTid].active = true;
     storage.update();
+    return activeTab;
 }
 
+/**
+ * get the currently active tab
+ * @returns {HTMLElement}
+ */
 const getActiveTab = () => {
     return activeTab;
 }
 
+/**
+ * Create a new tab, either from existing or freshly create data
+ * @param {Object} [tabEntry]
+ * @returns {HTMLElement}
+ */
 const createTab = tabEntry => {
     tabEntry = tabEntry || createTabEntry();
 
@@ -78,31 +103,60 @@ const createTab = tabEntry => {
     contentArea.append(tab.panel);
 
     fn.$('.adder', navi).before(tab);
+
+    // inform model
     tabList[tab.tid] = tabEntry;
     storage.update();
     return tab;
 }
 
+/**
+ * Determine the next tab to activate upon deletion, can be the tab after (default), before or a newly create one
+ * @returns {HTMLElement}
+ */
+const getUpcomingActiveTab = () => {
+    let tabs = Array.from(fn.$$(`tab-handle:not([data-soft-deleted])`, navi));
+    if(!tabs.length) {
+        return createTab();
+    }
+    let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
+    if (tabs[activeIdx + 1]) {
+        return tabs[activeIdx + 1];
+    }
+    if (tabs[activeIdx - 1]) {
+        return tabs[activeIdx - 1];
+    }
+    return createTab();
+}
+
+/**
+ * Tabs are first soft deleted and expire after 10 secs
+ * All display functionality is handled by `softDelete()`
+ *
+ * @param {HTMLElement} tab
+ * @param {String} action
+ */
 const handleRemoval = (tab, action) => {
 
     switch (action) {
         case 'soft':
+            // when deleting the active tab
+            if (tab.isSameNode(activeTab)) {
+                setActiveTab(getUpcomingActiveTab());
+            }
+            // DOM
             softDelete(tab, 'Tab ' + tab.label)
                 .then(data => {
                     handleRemoval(tab, data.action);
                 })
+            // local model
             tabList[tab.tid].softDeleted = true;
-            if (tab.isSameNode(activeTab)) {
-                setActiveTab(
-                    fn.$(`tab-handle[tid="${activeTid}"] ~ tab-handle`, navi) ||
-                    tab.previousElementSibling
-                );
-            }
             break;
         case 'restore':
             delete tabList[tab.tid].softDeleted;
             break;
         case 'remove':
+            // inform app to delete cards
             app.trigger('tabDelete', {
                 tid: tab.tid
             })
@@ -118,6 +172,9 @@ const handleRemoval = (tab, action) => {
     storage.update();
 }
 
+/**
+ * Restore the tabs from earlier sessions, cards are added by the card manager
+ */
 const restore = () => {
 
     // find out which tab has been active in the last session, 

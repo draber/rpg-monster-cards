@@ -100,6 +100,13 @@ card-form {
     width: 10ch;
   }
 
+  & [data-key="img"] {
+    & th {
+      width: auto;
+      white-space: nowrap
+    }
+  }
+
   & svg {
     width: 1.2rem;
     aspect-ratio: 1 / 1;

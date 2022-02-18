@@ -3,12 +3,6 @@ import settings from '../../../modules/settings/settings.js';
 /**
  * Download characters and provide them to other parts of the site.
  * User build characters are handled in local storage.
- * 
- * The module uses a stack of two Maps that are accessed in the same way as regular maps with
- * two notable differences:
- * - All methods need the type argument (= system|user) as the first argument
- * - The user map is additionaly stored in localStorage
- * 
  */
 
 /**
@@ -17,7 +11,8 @@ import settings from '../../../modules/settings/settings.js';
 const lsKey = settings.get('storageKeys.cards');
 
 /**
- * The two-level Map
+ * `system` stands for data from `public/js/characters.json`
+ * `user` stands for characters create or modified by the user
  */
 const data = {
     system: {},
@@ -65,12 +60,17 @@ const get = (type, cid) => {
     return data[type][cid];
 }
 
+/**
+ * Get all data from either system or user
+ * @param {String} type system|user
+ * @returns {Object}
+ */
 const getAllByType = type => {
     return data[type];
 }
 
 /**
- * Equivalent of Map.delete() (variables can't be name `delete`)
+ * Equivalent of Map.delete()
  * 
  * @param {String} type system|user
  * @param {Integer} cid
@@ -85,7 +85,7 @@ const remove = (type, cid) => {
 
 /**
  * Get next key for data insertion
- * System IDs start at 0, user IDs at 5000
+ * System CID start at 0, user CID at 5000
  * 
  * @param {String} type system|user
  * @returns {Integer}
@@ -96,8 +96,7 @@ const nextIncrement = type => {
 }
 
 /**
- * Fetch characters from both localStorage and server and add them to the Maps.
- * Note the form in which the characters from the server are added to the Map.
+ * Fetch characters from both localStorage and server and add them to `data`.
  * 
  * @returns {Promise} 
  */

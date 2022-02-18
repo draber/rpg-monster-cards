@@ -37,18 +37,20 @@ class FontSelector extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-selector> element`);
         }
 
-        this.selected = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
+        // currently selected font
+        this.currentFont = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
 
+        // <select>
         const selector = fn.select({
             style: {
                 fontFamily: `var(${this.name})`
             },
             content: fonts.map(entry => {
-
+                // <option>
                 return fn.option({
                     attributes: {
                         value: entry.family,
-                        selected: entry.family === this.selected
+                        selected: entry.family === this.currentFont
                     },
                     style: {
                         fontFamily: entry.family
@@ -62,7 +64,7 @@ class FontSelector extends HTMLElement {
             events: {
                 change: e => {
                     this.selected = e.target.value;
-                    userPrefs.set(`fonts.${this.name}`, this.selected);
+                    userPrefs.set(`fonts.${this.name}`, this.currentFont);
                     this.app.trigger(`styleChange`, {
                         name: this.name,
                         value: e.target.value
@@ -77,6 +79,8 @@ class FontSelector extends HTMLElement {
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }

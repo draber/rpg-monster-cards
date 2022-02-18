@@ -5,8 +5,8 @@ import characterMap from './character-map.js';
 
 /**
  * Map 'group by' to a label and a value
- * @param entry
- * @param groupBy
+ * @param {Object} entry
+ * @param {String} groupBy
  * @returns {Object} modified entry
  */
 const prepareGroupSort = (entry, groupBy) => {
@@ -32,10 +32,10 @@ const prepareGroupSort = (entry, groupBy) => {
 
 /**
  * Retrieve characters grouped and sorted
- * @param groupBy
- * @param sortBy
- * @param groupDir
- * @param sortDir
+ * @param {String} groupBy
+ * @param {String} sortBy
+ * @param {String} groupDir
+ * @param {String} sortDir
  * @returns {Object}
  */
 const getSortedCharacters = (type, {
@@ -45,7 +45,6 @@ const getSortedCharacters = (type, {
     sortDir = 'name'
 } = {}) => {
     let grouped = {};
-   // console.log(characterMap.values('system'))
     for (let entry of characterMap.values(type)) {
         entry = prepareGroupSort(entry, groupBy);
         grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];

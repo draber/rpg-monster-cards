@@ -208,7 +208,7 @@ class CharacterLibrary extends HTMLElement {
         self.on = on;
         self.trigger = trigger;
         /**
-         * Listen to changes in grouping, sort order etc. and refresh the tree
+         * React to changes in grouping, sort order etc. and refresh the tree
          */
         self.app.on('characterOrderChange', e => {
             ['sortBy', 'groupBy', 'sortDir', 'groupDir'].forEach(crit => {
@@ -227,6 +227,7 @@ class CharacterLibrary extends HTMLElement {
  * Register the element type to the DOM
  */
 const register = app => {
+    // add app as property
     CharacterLibrary.prototype.app = app;
     customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary)
 }

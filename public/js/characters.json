@@ -34,7 +34,7 @@
 	},
 	{
 		"name": "Crocodile",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 22,
 		"ini": "+1",
@@ -197,7 +197,7 @@
 	},
 	{
 		"name": "Clay Golem",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Construct",
 		"hp": 90,
 		"ini": -1,
@@ -230,7 +230,7 @@
 	},
 	{
 		"name": "Flesh Golem",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Construct",
 		"hp": 79,
 		"ini": -1,
@@ -263,7 +263,7 @@
 	},
 	{
 		"name": "Iron Golem",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Construct",
 		"hp": 129,
 		"ini": -1,
@@ -296,7 +296,7 @@
 	},
 	{
 		"name": "Stone Golem",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Construct",
 		"hp": 107,
 		"ini": -1,
@@ -329,7 +329,7 @@
 	},
 	{
 		"name": "Greater Stone Golem",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Construct",
 		"hp": 271,
 		"ini": -2,
@@ -362,7 +362,7 @@
 	},
 	{
 		"name": "Elephant",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal",
 		"hp": 104,
 		"ini": "+0",
@@ -393,7 +393,7 @@
 	},
 	{
 		"name": "Monkey",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 4,
 		"ini": "+2",
@@ -425,7 +425,7 @@
 	},
 	{
 		"name": "Celestial Monkey",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Magical Beast (Extraplanar)",
 		"hp": 4,
 		"ini": "+2",
@@ -457,7 +457,7 @@
 	},
 	{
 		"name": "Raven",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 1,
 		"ini": "+2",
@@ -489,7 +489,7 @@
 	},
 	{
 		"name": "Fiendish Raven",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Magical Beast (Extraplanar)",
 		"hp": 1,
 		"ini": "+2",
@@ -620,7 +620,7 @@
 	},
 	{
 		"name": "Octopus, Giant",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal (Aquatic)",
 		"hp": 47,
 		"ini": "+2",
@@ -717,7 +717,7 @@
 	},
 	{
 		"name": "Dire Tiger",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 120,
 		"ini": "+2",
@@ -882,7 +882,7 @@
 	},
 	{
 		"name": "Owl",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 4,
 		"ini": "+3",
@@ -914,7 +914,7 @@
 	},
 	{
 		"name": "Celestial Owl",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Magical Beast (Extraplanar)",
 		"hp": 4,
 		"ini": "+3",
@@ -1210,7 +1210,7 @@
 	},
 	{
 		"name": "Constrictor Snake",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 19,
 		"ini": "+7",
@@ -1241,7 +1241,7 @@
 	},
 	{
 		"name": "Constrictor Snake, Giant",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal",
 		"hp": 63,
 		"ini": "+3",
@@ -1272,7 +1272,7 @@
 	},
 	{
 		"name": "Snake, Tiny Viper",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 1,
 		"ini": "+7",
@@ -1303,7 +1303,7 @@
 	},
 	{
 		"name": "Snake, Small Viper",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Animal",
 		"hp": 4,
 		"ini": "+7",
@@ -1334,7 +1334,7 @@
 	},
 	{
 		"name": "Snake, Medium Viper",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 9,
 		"ini": "+3",
@@ -1365,7 +1365,7 @@
 	},
 	{
 		"name": "Snake, Large Viper",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 13,
 		"ini": "+7",
@@ -1396,7 +1396,7 @@
 	},
 	{
 		"name": "Snake, Huge Viper",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal",
 		"hp": 33,
 		"ini": "+6",
@@ -1691,7 +1691,7 @@
 	},
 	{
 		"name": "Boar",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 25,
 		"ini": "+0",
@@ -1755,7 +1755,7 @@
 	},
 	{
 		"name": "Baleen Whale",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Animal",
 		"hp": 132,
 		"ini": "+1",
@@ -1786,7 +1786,7 @@
 	},
 	{
 		"name": "Cachalot Whale",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Animal",
 		"hp": 141,
 		"ini": "+1",
@@ -1817,7 +1817,7 @@
 	},
 	{
 		"name": "Orca",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal",
 		"hp": 88,
 		"ini": "+2",
@@ -1980,7 +1980,7 @@
 	},
 	{
 		"name": "Dire Badger",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 28,
 		"ini": "+3",
@@ -2013,7 +2013,7 @@
 	},
 	{
 		"name": "Cheetah",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 19,
 		"ini": "+4",
@@ -2176,7 +2176,7 @@
 	},
 	{
 		"name": "Dire Rat",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Animal",
 		"hp": 5,
 		"ini": "+3",
@@ -2209,7 +2209,7 @@
 	},
 	{
 		"name": "Fiendish Dire Rat",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Magical Beast (Extraplanar)",
 		"hp": 5,
 		"ini": "+3",
@@ -2340,7 +2340,7 @@
 	},
 	{
 		"name": "Rat",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 1,
 		"ini": "+2",
@@ -2371,7 +2371,7 @@
 	},
 	{
 		"name": "Pony, War",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 13,
 		"ini": "+1",
@@ -2666,7 +2666,7 @@
 	},
 	{
 		"name": "Dog",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Animal",
 		"hp": 6,
 		"ini": "+3",
@@ -2698,7 +2698,7 @@
 	},
 	{
 		"name": "Celestial Dog",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Magical Beast (Extraplanar)",
 		"hp": 6,
 		"ini": "+3",
@@ -2763,7 +2763,7 @@
 	},
 	{
 		"name": "Wolverine",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 28,
 		"ini": "+2",
@@ -2794,7 +2794,7 @@
 	},
 	{
 		"name": "Annis",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Monstrous Humanoid",
 		"hp": 45,
 		"ini": "+1",
@@ -2860,7 +2860,7 @@
 	},
 	{
 		"name": "Sea Hag",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Monstrous Humanoid (Aquatic)",
 		"hp": 19,
 		"ini": "+1",
@@ -2893,7 +2893,7 @@
 	},
 	{
 		"name": "Camel",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 19,
 		"ini": "+3",
@@ -2957,7 +2957,7 @@
 	},
 	{
 		"name": "Pony",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 11,
 		"ini": "+1",
@@ -2988,7 +2988,7 @@
 	},
 	{
 		"name": "Octopus",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Animal (Aquatic)",
 		"hp": 9,
 		"ini": "+3",
@@ -3118,7 +3118,7 @@
 	},
 	{
 		"name": "Giant Bee",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Vermin",
 		"hp": 13,
 		"ini": "+2",
@@ -3150,7 +3150,7 @@
 	},
 	{
 		"name": "Dire Bat",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 30,
 		"ini": "+6",
@@ -3183,7 +3183,7 @@
 	},
 	{
 		"name": "Weasel",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 2,
 		"ini": "+2",
@@ -3610,7 +3610,7 @@
 	},
 	{
 		"name": "Kolyarut",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Construct (Extraplanar, Lawful)",
 		"hp": 91,
 		"ini": "+1",
@@ -3643,7 +3643,7 @@
 	},
 	{
 		"name": "Marut",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Construct (Extraplanar, Lawful)",
 		"hp": 112,
 		"ini": "+1",
@@ -3676,7 +3676,7 @@
 	},
 	{
 		"name": "Zelekhut",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Construct (Extraplanar, Lawful)",
 		"hp": 74,
 		"ini": "+0",
@@ -3841,7 +3841,7 @@
 	},
 	{
 		"name": "Rhinoceros",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 76,
 		"ini": "+0",
@@ -3872,7 +3872,7 @@
 	},
 	{
 		"name": "Lizard",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 2,
 		"ini": "+2",
@@ -3903,7 +3903,7 @@
 	},
 	{
 		"name": "Nightcrawler",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Undead (Extraplanar)",
 		"hp": 212,
 		"ini": "+4",
@@ -3969,7 +3969,7 @@
 	},
 	{
 		"name": "Nightwing",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Undead (Extraplanar)",
 		"hp": 144,
 		"ini": "+8",
@@ -4035,7 +4035,7 @@
 	},
 	{
 		"name": "Giant Fire Beetle",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Vermin",
 		"hp": 4,
 		"ini": "+0",
@@ -4067,7 +4067,7 @@
 	},
 	{
 		"name": "Celestial Giant Fire Beetle",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Magical Beast (Extraplanar)",
 		"hp": 4,
 		"ini": "+0",
@@ -4132,7 +4132,7 @@
 	},
 	{
 		"name": "Giant Wasp",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Vermin",
 		"hp": 32,
 		"ini": "+1",
@@ -4262,7 +4262,7 @@
 	},
 	{
 		"name": "Djinni",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Outsider (Air, Extraplanar)",
 		"hp": 45,
 		"ini": "+8",
@@ -4328,7 +4328,7 @@
 	},
 	{
 		"name": "Janni",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Outsider (Native)",
 		"hp": 33,
 		"ini": "+6",
@@ -4361,7 +4361,7 @@
 	},
 	{
 		"name": "Lion",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 32,
 		"ini": "+3",
@@ -4392,7 +4392,7 @@
 	},
 	{
 		"name": "Donkey",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 11,
 		"ini": "+1",
@@ -4456,7 +4456,7 @@
 	},
 	{
 		"name": "Bear, Black",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 19,
 		"ini": "+1",
@@ -4586,7 +4586,7 @@
 	},
 	{
 		"name": "Derro",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Monstrous Humanoid",
 		"hp": 16,
 		"ini": "+6",
@@ -4619,7 +4619,7 @@
 	},
 	{
 		"name": "Squid",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal (Aquatic)",
 		"hp": 13,
 		"ini": "+3",
@@ -5176,7 +5176,7 @@
 	},
 	{
 		"name": "Horse, Heavy",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 19,
 		"ini": "+1",
@@ -5207,7 +5207,7 @@
 	},
 	{
 		"name": "Horse, Light",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 19,
 		"ini": "+1",
@@ -5238,7 +5238,7 @@
 	},
 	{
 		"name": "Warhorse, Heavy",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 30,
 		"ini": "+1",
@@ -5269,7 +5269,7 @@
 	},
 	{
 		"name": "Warhorse, Light",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 22,
 		"ini": "+1",
@@ -5333,7 +5333,7 @@
 	},
 	{
 		"name": "Tiger",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 45,
 		"ini": "+2",
@@ -5397,7 +5397,7 @@
 	},
 	{
 		"name": "Kobold Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Undead",
 		"hp": 16,
 		"ini": "+0",
@@ -5430,7 +5430,7 @@
 	},
 	{
 		"name": "Human Commoner Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Undead",
 		"hp": 16,
 		"ini": -1,
@@ -5463,7 +5463,7 @@
 	},
 	{
 		"name": "Troglodyte Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Undead",
 		"hp": 29,
 		"ini": -2,
@@ -5496,7 +5496,7 @@
 	},
 	{
 		"name": "Bugbear Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Undead",
 		"hp": 42,
 		"ini": "+0",
@@ -5529,7 +5529,7 @@
 	},
 	{
 		"name": "Ogre Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 55,
 		"ini": -2,
@@ -5562,7 +5562,7 @@
 	},
 	{
 		"name": "Minotaur Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 81,
 		"ini": -1,
@@ -5595,7 +5595,7 @@
 	},
 	{
 		"name": "Wyvern Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 94,
 		"ini": "+0",
@@ -5628,7 +5628,7 @@
 	},
 	{
 		"name": "Gray Render Zombie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 133,
 		"ini": -1,
@@ -5826,7 +5826,7 @@
 	},
 	{
 		"name": "Badger",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Animal",
 		"hp": 6,
 		"ini": "+3",
@@ -5858,7 +5858,7 @@
 	},
 	{
 		"name": "Celestial Badger",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Magical Beast (Extraplanar)",
 		"hp": 6,
 		"ini": "+3",
@@ -5890,7 +5890,7 @@
 	},
 	{
 		"name": "Dog, Riding",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 13,
 		"ini": "+2",
@@ -5954,7 +5954,7 @@
 	},
 	{
 		"name": "Mule",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 22,
 		"ini": "+1",
@@ -6117,7 +6117,7 @@
 	},
 	{
 		"name": "Deinonychus",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 34,
 		"ini": "+2",
@@ -6150,7 +6150,7 @@
 	},
 	{
 		"name": "Elasmosaurus",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal",
 		"hp": 111,
 		"ini": "+2",
@@ -6183,7 +6183,7 @@
 	},
 	{
 		"name": "Megaraptor",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 79,
 		"ini": "+2",
@@ -6216,7 +6216,7 @@
 	},
 	{
 		"name": "Triceratops",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal",
 		"hp": 196,
 		"ini": -1,
@@ -6480,7 +6480,7 @@
 	},
 	{
 		"name": "Bat",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Diminutive Animal",
 		"hp": 1,
 		"ini": "+2",
@@ -6511,7 +6511,7 @@
 	},
 	{
 		"name": "Wolf",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 13,
 		"ini": "+2",
@@ -6542,7 +6542,7 @@
 	},
 	{
 		"name": "Air Elemental, Small",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Elemental (Air, Extraplanar)",
 		"hp": 9,
 		"ini": "+7",
@@ -6575,7 +6575,7 @@
 	},
 	{
 		"name": "Air Elemental, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Elemental (Air, Extraplanar)",
 		"hp": 26,
 		"ini": "+9",
@@ -6608,7 +6608,7 @@
 	},
 	{
 		"name": "Air Elemental, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Elemental (Air, Extraplanar)",
 		"hp": 60,
 		"ini": "+11",
@@ -6641,7 +6641,7 @@
 	},
 	{
 		"name": "Air Elemental, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Air, Extraplanar)",
 		"hp": 136,
 		"ini": "+13",
@@ -6674,7 +6674,7 @@
 	},
 	{
 		"name": "Air Elemental, Greater",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Air, Extraplanar)",
 		"hp": 178,
 		"ini": "+14",
@@ -6707,7 +6707,7 @@
 	},
 	{
 		"name": "Air Elemental, Elder",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Air, Extraplanar)",
 		"hp": 204,
 		"ini": "+15",
@@ -6938,7 +6938,7 @@
 	},
 	{
 		"name": "Fire Elemental, Small",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Elemental (Fire, Extraplanar)",
 		"hp": 9,
 		"ini": "+5",
@@ -6971,7 +6971,7 @@
 	},
 	{
 		"name": "Fire Elemental, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Elemental (Fire, Extraplanar)",
 		"hp": 26,
 		"ini": "+7",
@@ -7004,7 +7004,7 @@
 	},
 	{
 		"name": "Fire Elemental, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Elemental (Fire, Extraplanar)",
 		"hp": 60,
 		"ini": "+9",
@@ -7037,7 +7037,7 @@
 	},
 	{
 		"name": "Fire Elemental, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Fire, Extraplanar)",
 		"hp": 136,
 		"ini": "+11",
@@ -7070,7 +7070,7 @@
 	},
 	{
 		"name": "Fire Elemental, Greater",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Fire, Extraplanar)",
 		"hp": 178,
 		"ini": "+12",
@@ -7103,7 +7103,7 @@
 	},
 	{
 		"name": "Fire Elemental, Elder",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Fire, Extraplanar)",
 		"hp": 204,
 		"ini": "+13",
@@ -7136,7 +7136,7 @@
 	},
 	{
 		"name": "Water Elemental, Small",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Elemental (Water, Extraplanar)",
 		"hp": 11,
 		"ini": "+0",
@@ -7169,7 +7169,7 @@
 	},
 	{
 		"name": "Water Elemental, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Elemental (Water, Extraplanar)",
 		"hp": 30,
 		"ini": "+1",
@@ -7202,7 +7202,7 @@
 	},
 	{
 		"name": "Water Elemental, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Elemental (Water, Extraplanar)",
 		"hp": 68,
 		"ini": "+2",
@@ -7235,7 +7235,7 @@
 	},
 	{
 		"name": "Water Elemental, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Water, Extraplanar)",
 		"hp": 152,
 		"ini": "+4",
@@ -7268,7 +7268,7 @@
 	},
 	{
 		"name": "Water Elemental, Greater",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Water, Extraplanar)",
 		"hp": 199,
 		"ini": "+5",
@@ -7301,7 +7301,7 @@
 	},
 	{
 		"name": "Water Elemental, Elder",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Elemental (Water, Extraplanar)",
 		"hp": 228,
 		"ini": "+6",
@@ -7400,7 +7400,7 @@
 	},
 	{
 		"name": "Aasimar, 1st-Level Warrior",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Outsider (Native)",
 		"hp": 5,
 		"ini": "+4",
@@ -7433,7 +7433,7 @@
 	},
 	{
 		"name": "Tiefling, 1st-Level Warrior",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Outsider (Native)",
 		"hp": 5,
 		"ini": "+1",
@@ -7499,7 +7499,7 @@
 	},
 	{
 		"name": "Squid, Giant",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal (Aquatic)",
 		"hp": 72,
 		"ini": "+3",
@@ -7596,7 +7596,7 @@
 	},
 	{
 		"name": "Bat Swarm",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Diminutive Animal (Swarm)",
 		"hp": 13,
 		"ini": "+2",
@@ -7629,7 +7629,7 @@
 	},
 	{
 		"name": "Centipede Swarm",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Diminutive Vermin (Swarm)",
 		"hp": 31,
 		"ini": "+4",
@@ -7662,7 +7662,7 @@
 	},
 	{
 		"name": "Hellwasp Swarm",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Diminutive Magical Beast (Extraplanar, Evil, Swarm)",
 		"hp": 93,
 		"ini": "+10",
@@ -7695,7 +7695,7 @@
 	},
 	{
 		"name": "Locust Swarm",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Diminutive Vermin (Swarm)",
 		"hp": 21,
 		"ini": "+4",
@@ -7728,7 +7728,7 @@
 	},
 	{
 		"name": "Rat Swarm",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal (Swarm)",
 		"hp": 18,
 		"ini": "+2",
@@ -7761,7 +7761,7 @@
 	},
 	{
 		"name": "Spider Swarm",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Diminutive Vermin (Swarm)",
 		"hp": 9,
 		"ini": "+3",
@@ -7793,7 +7793,7 @@
 	},
 	{
 		"name": "Hawk",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 4,
 		"ini": "+3",
@@ -7824,7 +7824,7 @@
 	},
 	{
 		"name": "Giant Stag Beetle",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Vermin",
 		"hp": 52,
 		"ini": "+0",
@@ -7888,7 +7888,7 @@
 	},
 	{
 		"name": "Dire Lion",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 60,
 		"ini": "+2",
@@ -7921,7 +7921,7 @@
 	},
 	{
 		"name": "Bear, Brown",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 51,
 		"ini": "+1",
@@ -7952,7 +7952,7 @@
 	},
 	{
 		"name": "Crocodile, Giant",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal",
 		"hp": 59,
 		"ini": "+1",
@@ -7983,7 +7983,7 @@
 	},
 	{
 		"name": "Cat",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Animal",
 		"hp": 2,
 		"ini": "+2",
@@ -8014,7 +8014,7 @@
 	},
 	{
 		"name": "Dire Boar",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 52,
 		"ini": "+0",
@@ -8179,7 +8179,7 @@
 	},
 	{
 		"name": "Leopard",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 19,
 		"ini": "+4",
@@ -8276,7 +8276,7 @@
 	},
 	{
 		"name": "Dire Shark",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal (Aquatic)",
 		"hp": 147,
 		"ini": "+2",
@@ -8342,7 +8342,7 @@
 	},
 	{
 		"name": "Angel, Astral Deva",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Outsider (Angel, Extraplanar, Good)",
 		"hp": 102,
 		"ini": "+8",
@@ -8375,7 +8375,7 @@
 	},
 	{
 		"name": "Angel, Planetar",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Outsider (Angel, Extraplanar, Good)",
 		"hp": 133,
 		"ini": "+8",
@@ -8408,7 +8408,7 @@
 	},
 	{
 		"name": "Angel, Solar",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Outsider (Angel, Extraplanar, Good)",
 		"hp": 209,
 		"ini": "+9",
@@ -8474,7 +8474,7 @@
 	},
 	{
 		"name": "Giant Ant, Worker",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Vermin",
 		"hp": 9,
 		"ini": "+0",
@@ -8506,7 +8506,7 @@
 	},
 	{
 		"name": "Giant Ant, Soldier",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Vermin",
 		"hp": 11,
 		"ini": "+0",
@@ -8538,7 +8538,7 @@
 	},
 	{
 		"name": "Giant Ant, Queen",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Vermin",
 		"hp": 22,
 		"ini": -1,
@@ -8746,7 +8746,7 @@
 	},
 	{
 		"name": "Baboon",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 5,
 		"ini": "+2",
@@ -8843,7 +8843,7 @@
 	},
 	{
 		"name": "Androsphinx",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Magical Beast",
 		"hp": 114,
 		"ini": "+0",
@@ -8876,7 +8876,7 @@
 	},
 	{
 		"name": "Criosphinx",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Magical Beast",
 		"hp": 85,
 		"ini": "+0",
@@ -8942,7 +8942,7 @@
 	},
 	{
 		"name": "Hieracosphinx",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Magical Beast",
 		"hp": 67,
 		"ini": "+2",
@@ -9041,7 +9041,7 @@
 	},
 	{
 		"name": "Giant Praying Mantis",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Vermin",
 		"hp": 26,
 		"ini": -1,
@@ -9072,7 +9072,7 @@
 	},
 	{
 		"name": "Eagle",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Animal",
 		"hp": 5,
 		"ini": "+2",
@@ -9334,7 +9334,7 @@
 	},
 	{
 		"name": "Grig",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Fey",
 		"hp": 2,
 		"ini": "+4",
@@ -9367,7 +9367,7 @@
 	},
 	{
 		"name": "Nixie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Fey (Aquatic)",
 		"hp": 3,
 		"ini": "+3",
@@ -9400,7 +9400,7 @@
 	},
 	{
 		"name": "Pixie",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Fey",
 		"hp": 3,
 		"ini": "+4",
@@ -9466,7 +9466,7 @@
 	},
 	{
 		"name": "Giant Bombardier Beetle",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Vermin",
 		"hp": 13,
 		"ini": "+0",
@@ -9693,7 +9693,7 @@
 	},
 	{
 		"name": "Lizard, Monitor",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 22,
 		"ini": "+2",
@@ -9724,7 +9724,7 @@
 	},
 	{
 		"name": "Human Warrior Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Undead",
 		"hp": 6,
 		"ini": "+5",
@@ -9756,7 +9756,7 @@
 	},
 	{
 		"name": "Wolf Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Undead",
 		"hp": 13,
 		"ini": "+7",
@@ -9788,7 +9788,7 @@
 	},
 	{
 		"name": "Owlbear Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 32,
 		"ini": "+6",
@@ -9820,7 +9820,7 @@
 	},
 	{
 		"name": "Troll Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 39,
 		"ini": "+7",
@@ -9852,7 +9852,7 @@
 	},
 	{
 		"name": "Chimera Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 58,
 		"ini": "+6",
@@ -9884,7 +9884,7 @@
 	},
 	{
 		"name": "Ettin Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Undead",
 		"hp": 65,
 		"ini": "+4",
@@ -9916,7 +9916,7 @@
 	},
 	{
 		"name": "Advanced Megaraptor Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Undead",
 		"hp": 78,
 		"ini": "+7",
@@ -9948,7 +9948,7 @@
 	},
 	{
 		"name": "Cloud Giant Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Undead",
 		"hp": 110,
 		"ini": "+6",
@@ -9980,7 +9980,7 @@
 	},
 	{
 		"name": "Young Adult Red Dragon Skeleton",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Undead (Fire)",
 		"hp": 123,
 		"ini": "+5",
@@ -10045,7 +10045,7 @@
 	},
 	{
 		"name": "Shark, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal (Aquatic)",
 		"hp": 16,
 		"ini": "+2",
@@ -10076,7 +10076,7 @@
 	},
 	{
 		"name": "Shark, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal (Aquatic)",
 		"hp": 38,
 		"ini": "+6",
@@ -10107,7 +10107,7 @@
 	},
 	{
 		"name": "Shark, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Animal (Aquatic)",
 		"hp": 65,
 		"ini": "+6",
@@ -10171,7 +10171,7 @@
 	},
 	{
 		"name": "Monstrous Spider, Tiny",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Vermin",
 		"hp": 2,
 		"ini": "+3",
@@ -10203,7 +10203,7 @@
 	},
 	{
 		"name": "Monstrous Spider, Small",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Vermin",
 		"hp": 4,
 		"ini": "+3",
@@ -10235,7 +10235,7 @@
 	},
 	{
 		"name": "Monstrous Spider, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Vermin",
 		"hp": 11,
 		"ini": "+3",
@@ -10267,7 +10267,7 @@
 	},
 	{
 		"name": "Monstrous Spider, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Vermin",
 		"hp": 22,
 		"ini": "+3",
@@ -10299,7 +10299,7 @@
 	},
 	{
 		"name": "Monstrous Spider, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Vermin",
 		"hp": 52,
 		"ini": "+3",
@@ -10331,7 +10331,7 @@
 	},
 	{
 		"name": "Monstrous Spider, Gargantuan",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Vermin",
 		"hp": 104,
 		"ini": "+3",
@@ -10363,7 +10363,7 @@
 	},
 	{
 		"name": "Monstrous Spider, Colossal",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Colossal Vermin",
 		"hp": 208,
 		"ini": "+2",
@@ -10461,7 +10461,7 @@
 	},
 	{
 		"name": "Dire Weasel",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 13,
 		"ini": "+4",
@@ -10527,7 +10527,7 @@
 	},
 	{
 		"name": "Dire Ape",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 35,
 		"ini": "+2",
@@ -10560,7 +10560,7 @@
 	},
 	{
 		"name": "Black Pudding",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Ooze",
 		"hp": 115,
 		"ini": -5,
@@ -10593,7 +10593,7 @@
 	},
 	{
 		"name": "Elder Black Pudding",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Ooze",
 		"hp": 290,
 		"ini": -5,
@@ -10659,7 +10659,7 @@
 	},
 	{
 		"name": "Gray Ooze",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Ooze",
 		"hp": 31,
 		"ini": -5,
@@ -10692,7 +10692,7 @@
 	},
 	{
 		"name": "Ochre Jelly",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Ooze",
 		"hp": 69,
 		"ini": -5,
@@ -10824,7 +10824,7 @@
 	},
 	{
 		"name": "Bison",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 37,
 		"ini": "+0",
@@ -10855,7 +10855,7 @@
 	},
 	{
 		"name": "Dire Wolf",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 45,
 		"ini": "+2",
@@ -10888,7 +10888,7 @@
 	},
 	{
 		"name": "Air Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Air, Extraplanar)",
 		"hp": 13,
 		"ini": "+7",
@@ -10921,7 +10921,7 @@
 	},
 	{
 		"name": "Dust Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Air, Extraplanar)",
 		"hp": 13,
 		"ini": "+7",
@@ -10954,7 +10954,7 @@
 	},
 	{
 		"name": "Earth Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Earth, Extraplanar)",
 		"hp": 19,
 		"ini": -1,
@@ -10987,7 +10987,7 @@
 	},
 	{
 		"name": "Fire Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Extraplanar, Fire)",
 		"hp": 13,
 		"ini": "+5",
@@ -11020,7 +11020,7 @@
 	},
 	{
 		"name": "Ice Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Air, Cold, Extraplanar)",
 		"hp": 13,
 		"ini": "+7",
@@ -11053,7 +11053,7 @@
 	},
 	{
 		"name": "Magma Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Fire, Extraplanar)",
 		"hp": 13,
 		"ini": "+5",
@@ -11086,7 +11086,7 @@
 	},
 	{
 		"name": "Ooze Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Extraplanar, Water)",
 		"hp": 19,
 		"ini": "+0",
@@ -11119,7 +11119,7 @@
 	},
 	{
 		"name": "Salt Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Earth, Extraplanar)",
 		"hp": 19,
 		"ini": -1,
@@ -11152,7 +11152,7 @@
 	},
 	{
 		"name": "Steam Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Extraplanar, Fire)",
 		"hp": 13,
 		"ini": "+5",
@@ -11185,7 +11185,7 @@
 	},
 	{
 		"name": "Water Mephit",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Extraplanar, Water)",
 		"hp": 19,
 		"ini": "+0",
@@ -11383,7 +11383,7 @@
 	},
 	{
 		"name": "Monstrous Centipede, Tiny",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Vermin",
 		"hp": 1,
 		"ini": "+2",
@@ -11414,7 +11414,7 @@
 	},
 	{
 		"name": "Monstrous Centipede, Small",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Vermin",
 		"hp": 2,
 		"ini": "+2",
@@ -11445,7 +11445,7 @@
 	},
 	{
 		"name": "Monstrous Centipede, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Vermin",
 		"hp": 4,
 		"ini": "+2",
@@ -11476,7 +11476,7 @@
 	},
 	{
 		"name": "Fiendish Monstrous Centipede, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Magical Beast (Extraplanar)",
 		"hp": 4,
 		"ini": "+2",
@@ -11507,7 +11507,7 @@
 	},
 	{
 		"name": "Monstrous Centipede, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Vermin",
 		"hp": 13,
 		"ini": "+2",
@@ -11538,7 +11538,7 @@
 	},
 	{
 		"name": "Fiendish Monstrous Centipede, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Magical Beast (Extraplanar)",
 		"hp": 13,
 		"ini": "+2",
@@ -11569,7 +11569,7 @@
 	},
 	{
 		"name": "Monstrous Centipede, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Vermin",
 		"hp": 33,
 		"ini": "+2",
@@ -11600,7 +11600,7 @@
 	},
 	{
 		"name": "Fiendish Monstrous Centipede, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Magical Beast (Extraplanar)",
 		"hp": 33,
 		"ini": "+2",
@@ -11631,7 +11631,7 @@
 	},
 	{
 		"name": "Monstrous Centipede, Gargantuan",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Vermin",
 		"hp": 66,
 		"ini": "+2",
@@ -11662,7 +11662,7 @@
 	},
 	{
 		"name": "Fiendish Monstrous Centipede, Gargantuan",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Magical Beast (Extraplanar)",
 		"hp": 66,
 		"ini": "+2",
@@ -11693,7 +11693,7 @@
 	},
 	{
 		"name": "Monstrous Centipede, Colossal",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Colossal Vermin",
 		"hp": 132,
 		"ini": "+1",
@@ -11724,7 +11724,7 @@
 	},
 	{
 		"name": "Fiendish Monstrous Centipede, Colossal",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Colossal Magical Beast (Extraplanar)",
 		"hp": 132,
 		"ini": "+1",
@@ -11788,7 +11788,7 @@
 	},
 	{
 		"name": "Dire Wolverine",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 45,
 		"ini": "+3",
@@ -11821,7 +11821,7 @@
 	},
 	{
 		"name": "Toad",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Diminutive Animal",
 		"hp": 1,
 		"ini": "+1",
@@ -11951,7 +11951,7 @@
 	},
 	{
 		"name": "Werebear, Human Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 62,
 		"ini": "+0",
@@ -11984,7 +11984,7 @@
 	},
 	{
 		"name": "Werebear, Bear Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Humanoid (Human, Shapechanger)",
 		"hp": 62,
 		"ini": "+1",
@@ -12017,7 +12017,7 @@
 	},
 	{
 		"name": "Werebear, Hybrid Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Humanoid (Human, Shapechanger)",
 		"hp": 62,
 		"ini": "+1",
@@ -12050,7 +12050,7 @@
 	},
 	{
 		"name": "Wereboar, Human Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 34,
 		"ini": "+0",
@@ -12083,7 +12083,7 @@
 	},
 	{
 		"name": "Wereboar, Boar Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 34,
 		"ini": "+0",
@@ -12116,7 +12116,7 @@
 	},
 	{
 		"name": "Wereboar, Hybrid Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 34,
 		"ini": "+0",
@@ -12149,7 +12149,7 @@
 	},
 	{
 		"name": "Hill Giant Dire Wereboar Giant Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Giant (Shapechanger)",
 		"hp": 185,
 		"ini": -1,
@@ -12182,7 +12182,7 @@
 	},
 	{
 		"name": "Hill Giant Dire Wereboar Dire Boar Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Giant (Shapechanger)",
 		"hp": 185,
 		"ini": -1,
@@ -12215,7 +12215,7 @@
 	},
 	{
 		"name": "Hill Giant Dire Wereboar Hybrid Boar Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Giant (Shapechanger)",
 		"hp": 185,
 		"ini": -1,
@@ -12248,7 +12248,7 @@
 	},
 	{
 		"name": "Wererat, Human Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 12,
 		"ini": "+0",
@@ -12281,7 +12281,7 @@
 	},
 	{
 		"name": "Wererat, Dire Rat Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Humanoid (Human, Shapechanger)",
 		"hp": 12,
 		"ini": "+3",
@@ -12314,7 +12314,7 @@
 	},
 	{
 		"name": "Wererat, Hybrid Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 12,
 		"ini": "+3",
@@ -12347,7 +12347,7 @@
 	},
 	{
 		"name": "Weretiger, Human Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 50,
 		"ini": "+4",
@@ -12380,7 +12380,7 @@
 	},
 	{
 		"name": "Weretiger, Tiger Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Humanoid (Human, Shapechanger)",
 		"hp": 50,
 		"ini": "+6",
@@ -12413,7 +12413,7 @@
 	},
 	{
 		"name": "Weretiger, Hybrid Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Humanoid (Human, Shapechanger)",
 		"hp": 50,
 		"ini": "+6",
@@ -12446,7 +12446,7 @@
 	},
 	{
 		"name": "Werewolf, Human Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 20,
 		"ini": "+4",
@@ -12479,7 +12479,7 @@
 	},
 	{
 		"name": "Werewolf, Wolf Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 20,
 		"ini": "+6",
@@ -12512,7 +12512,7 @@
 	},
 	{
 		"name": "Werewolf, Hybrid Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 20,
 		"ini": "+6",
@@ -12545,7 +12545,7 @@
 	},
 	{
 		"name": "Werewolf Lord, Human Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Humanoid (Human, Shapechanger)",
 		"hp": 132,
 		"ini": "+2",
@@ -12578,7 +12578,7 @@
 	},
 	{
 		"name": "Werewolf Lord, Dire Wolf Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Humanoid (Human, Shapechanger)",
 		"hp": 132,
 		"ini": "+4",
@@ -12611,7 +12611,7 @@
 	},
 	{
 		"name": "Werewolf Lord, Hybrid Form",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Humanoid (Human, Shapechanger)",
 		"hp": 132,
 		"ini": "+4",
@@ -12743,7 +12743,7 @@
 	},
 	{
 		"name": "Monstrous Scorpion, Tiny",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Tiny Vermin",
 		"hp": 4,
 		"ini": "+0",
@@ -12774,7 +12774,7 @@
 	},
 	{
 		"name": "Monstrous Scorpion, Small",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Vermin",
 		"hp": 6,
 		"ini": "+0",
@@ -12805,7 +12805,7 @@
 	},
 	{
 		"name": "Monstrous Scorpion, Medium",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Vermin",
 		"hp": 13,
 		"ini": "+0",
@@ -12836,7 +12836,7 @@
 	},
 	{
 		"name": "Monstrous Scorpion, Large",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Vermin",
 		"hp": 32,
 		"ini": "+0",
@@ -12868,7 +12868,7 @@
 	},
 	{
 		"name": "Monstrous Scorpion, Huge",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Vermin",
 		"hp": 75,
 		"ini": "+0",
@@ -12900,7 +12900,7 @@
 	},
 	{
 		"name": "Monstrous Scorpion, Gargantuan",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Gargantuan Vermin",
 		"hp": 150,
 		"ini": "+0",
@@ -12932,7 +12932,7 @@
 	},
 	{
 		"name": "Monstrous Scorpion, Colossal",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Colossal Vermin",
 		"hp": 300,
 		"ini": -1,
@@ -13490,7 +13490,7 @@
 	},
 	{
 		"name": "Lantern Archon",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Small Outsider (Archon, Extraplanar, Good, Lawful)",
 		"hp": 4,
 		"ini": "+4",
@@ -13523,7 +13523,7 @@
 	},
 	{
 		"name": "Hound Archon",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Outsider (Archon, Extraplanar, Good, Lawful)",
 		"hp": 33,
 		"ini": "+4",
@@ -13556,7 +13556,7 @@
 	},
 	{
 		"name": "Hound Archon Hero, 11th-Level Paladin",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Outsider (Archon, Extraplanar, Good, Lawful)",
 		"hp": 143,
 		"ini": "+4",
@@ -13589,7 +13589,7 @@
 	},
 	{
 		"name": "Trumpet Archon",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Outsider (Archon, Extraplanar, Good, Lawful)",
 		"hp": 126,
 		"ini": "+7",
@@ -13787,7 +13787,7 @@
 	},
 	{
 		"name": "Dragon Turtle",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Huge Dragon (Aquatic)",
 		"hp": 138,
 		"ini": "+0",
@@ -13820,7 +13820,7 @@
 	},
 	{
 		"name": "Bear, Polar",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 68,
 		"ini": "+1",
@@ -13851,7 +13851,7 @@
 	},
 	{
 		"name": "Ape",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal",
 		"hp": 29,
 		"ini": "+2",
@@ -13882,7 +13882,7 @@
 	},
 	{
 		"name": "Hyena",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 13,
 		"ini": "+2",
@@ -13913,7 +13913,7 @@
 	},
 	{
 		"name": "Dark Naga",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Aberration",
 		"hp": 58,
 		"ini": "+2",
@@ -13946,7 +13946,7 @@
 	},
 	{
 		"name": "Guardian Naga",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Aberration",
 		"hp": 93,
 		"ini": "+2",
@@ -14012,7 +14012,7 @@
 	},
 	{
 		"name": "Water Naga",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Aberration (Aquatic)",
 		"hp": 59,
 		"ini": "+1",
@@ -14309,7 +14309,7 @@
 	},
 	{
 		"name": "Manta Ray",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Large Animal (Aquatic)",
 		"hp": 18,
 		"ini": "+0",
@@ -14472,7 +14472,7 @@
 	},
 	{
 		"name": "Porpoise",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Animal",
 		"hp": 11,
 		"ini": "+3",
@@ -14504,7 +14504,7 @@
 	},
 	{
 		"name": "Celestial Porpoise",
-		"img": "media/character-fallback-image.png",
+		"img": "media/default.png",
 		"base": "Medium Magical Beast (Extraplanar)",
 		"hp": 11,
 		"ini": "+3",

@@ -10,11 +10,14 @@ import {
 import fn from 'fancy-node';
 
 
-class AppContainer extends HTMLElement {
+class App extends HTMLElement {
 
     connectedCallback() {
+        // load characters
         characterMap.init()
             .then(() => {
+
+                // register custom elements
                 registry.register(this);
 
                 // tabs must be created before any card can be added
@@ -22,7 +25,7 @@ class AppContainer extends HTMLElement {
                 cardManager.init(this);
             })
 
-
+        // event listeners on this element
         this.on('styleChange', e => {
             [this.editor, this.styleEditor].forEach(panel => {
                 props.set(e.detail.name, e.detail.value, panel);
@@ -40,6 +43,6 @@ class AppContainer extends HTMLElement {
     }
 }
 
-customElements.define('app-container', AppContainer, {
+customElements.define('app-container', App, {
     extends: 'main'
 });

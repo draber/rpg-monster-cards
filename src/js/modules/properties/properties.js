@@ -1,9 +1,26 @@
+/**
+ * All native style properties
+ * @type {string[]}
+ */
 const styles = Array.from(getComputedStyle(document.body));
 
+/**
+ * Find out if a property is a style or something else
+ * This is not bulletproof and will fail if you want to set something like data-width!
+ * @param {String} key
+ * @returns {Boolean}
+ */
 const isStyleProp = key => {
+    // consider custom CSS properties
     return key.startsWith('--') || styles.includes(key);
 }
 
+/**
+ * Set either a data property or a style property
+ * @param {String} key
+ * @param {String|Number|Boolean} value
+ * @param {HTMLElement} [target]
+ */
 const set = (key, value, target) => {
     target = target || document.body;
     if (isStyleProp(key)) {
@@ -11,7 +28,12 @@ const set = (key, value, target) => {
     }
     target.dataset[key] = value;
 }
-
+/**
+ * Retrieve either a data property or a style property
+ * @param {String} key
+ * @param {HTMLElement} [target]
+ * @returns {String|Number|Boolean}
+ */
 const get = (key, target) => {
     target = target || document.body;
     if (isStyleProp(key)) {
@@ -23,17 +45,28 @@ const get = (key, target) => {
     return JSON.parse(target.dataset[key]);
 }
 
-const toggle = (key, target) => {    
+/**
+ * Toggle between two booleans
+ * @param {String} key
+ * @param {HTMLElement} target
+ */
+const toggle = (key, target) => {
     set(key, !get(key, target), target);
-} 
+}
 
+/**
+ * Remove either a data property or a style property
+ * @param {String} key
+ * @param {HTMLElement} [target]
+ * @returns {String|undefined}
+ */
 const unset = (key, target) => {
     target = target || document.body;
     if (isStyleProp(key)) {
         return target.style.removeProperty(key);
     }
     delete target.dataset[key];
-} 
+}
 
 export default {
     unset,

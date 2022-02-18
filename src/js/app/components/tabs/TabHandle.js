@@ -4,6 +4,7 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js';
+import properties from '../../../modules/properties/properties.js';
 
 /**
  * Custom element containing the list of fonts
@@ -57,16 +58,25 @@ class TabHandle extends HTMLElement {
         })
 
         this.on('pointerup', e => {
-            if (e.button > 1) {
-                return true;
+            switch (true) {
+                case e.button === 0:
+                    return tabManager.setActiveTab(this);
+                case e.button === 1:
+                case e.target.isSameNode(closer):
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return tabManager.handleRemoval(this, 'soft');
+                default:
+                    return true;
             }
-            if (e.button === 1 || e.target.isSameNode(closer)) {
-                e.preventDefault();
-                e.stopPropagation();
-                tabManager.handleRemoval(this, 'soft');
-            } else {
-                tabManager.setActiveTab(this);
-            }
+        })
+
+        this.on('contextmenu', e => {
+            console.log(e)
+            e.preventDefault();
+         //   e.stopPropagation();
+            console.log('tabContext')
+            return properties.set('tabContext', true);
         })
 
         this.append(label, closer);
