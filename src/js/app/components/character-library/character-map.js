@@ -60,6 +60,14 @@ const get = (type, cid) => {
     return data[type][cid];
 }
 
+const bulkDeleteByTid = tid => {
+    for(let [cid, character] of Object.entries(data['user'])){
+        if(character.meta.tid === tid){
+            remove('user', cid);
+        }
+    }
+}
+
 /**
  * Get all data from either system or user
  * @param {String} type system|user
@@ -125,5 +133,6 @@ export default {
     remove,
     values,
     nextIncrement,
-    getAllByType
+    getAllByType,
+    bulkDeleteByTid
 }

@@ -4,12 +4,21 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js';
-import properties from '../../../modules/properties/properties.js';
+import contextMenu from '../../../modules/context-menu/context-menu.js';
 
 /**
  * Custom element containing the list of fonts
  */
 class TabHandle extends HTMLElement {
+
+    rename() {
+        let selection = window.getSelection();
+        selection.removeAllRanges();
+        let range = document.createRange();
+        this.label.contentEditable = true;
+        range.selectNodeContents(this.label);
+        selection.addRange(range);
+    }
 
     /**
      * Map attribute and property, getter for 'title'
@@ -48,38 +57,102 @@ class TabHandle extends HTMLElement {
      */
     connectedCallback() {
 
-        const closer = fn.span({
+        const menu = fn.ul({
+            content: [
+                fn.li({
+                    content: 'Rename',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                            this.rename(e.target);
+                            menu.remove();
+                        }
+                    },
+                }),
+                fn.li({
+                    classNames: ['context-separator'],
+                    content: 'Close',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                            tabManager.handleRemoval(this, 'soft');
+                            menu.remove();
+                        }
+                    },
+                }),
+                fn.li({
+                    classNames: ['context-danger'],
+                    content: 'Close others permanently',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                            tabManager.handleRemoval(this, 'others');
+                            menu.remove();
+                        }
+                    },
+                }),
+                fn.li({
+                    classNames: ['context-danger'],
+                    content: 'Close all permanently',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                            tabManager.handleRemoval(this, 'all');
+                            menu.remove();
+                        }
+                    },
+                })
+            ]
+        })
+
+        contextMenu.register(this, menu);
+
+        this.closer = fn.span({
             content: '✖',
             classNames: ['closer']
         })
 
-        const label = fn.span({
-            content: this.label
-        })
-
-        this.on('pointerup', e => {
-            switch (true) {
-                case e.button === 0:
-                    return tabManager.setActiveTab(this);
-                case e.button === 1:
-                case e.target.isSameNode(closer):
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return tabManager.handleRemoval(this, 'soft');
-                default:
-                    return true;
+        this.label = fn.span({
+            content: this.title,
+            classNames: ['label'],
+            events: {
+                blur: e => {
+                    this.title = e.target.textContent.trim();
+                    tabManager.renameTab(this, this.title);
+                },
+                keydown: e => {
+                    if(e.key === 'Enter'){
+                        e.preventDefault();
+                        e.target.blur();
+                        return false;
+                    }
+                },
+                dblclick: e => this.rename()
             }
         })
 
-        this.on('contextmenu', e => {
-            console.log(e)
-            e.preventDefault();
-         //   e.stopPropagation();
-            console.log('tabContext')
-            return properties.set('tabContext', true);
+        this.on('pointerup', e => {
+            if (e.button > 1) {
+                return true;
+            }
+            if (e.button === 1 || e.target.isSameNode(this.closer)) {
+                e.preventDefault();
+                e.stopPropagation();
+                tabManager.handleRemoval(this, 'soft');
+            } else {
+                tabManager.setActiveTab(this);
+            }
         })
 
-        this.append(label, closer);
+        this.append(this.label, this.closer);
 
     }
 

@@ -1,0 +1,39 @@
+[data-context-menu="true"] {
+  z-index: 3;
+  position: absolute;
+  list-style: none;
+  padding: 0;
+  border: var(--border);
+  min-width: 20rem;
+  background: var(--bg-3-color);
+  filter: drop-shadow(1rem 1rem 1rem rgb(0, 0, 0, 0.3));
+
+  & li {
+    cursor: pointer;
+    padding: 0 1rem;
+    cursor: pointer;
+    line-height: 1.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+    &::before {
+      content: "";
+      width: 2rem;
+      display: inline-block;
+      color: var(--hd-color);
+    }
+    &.context-separator {
+      border-bottom: 0.2rem groove var(--hd-color);
+    }
+    &.context-danger {
+      &::before {
+        content: "⚠";
+      }
+    }
+
+    &:hover {
+      background: var(--bg-4-color);
+    }
+  }
+}

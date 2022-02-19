@@ -1,13 +1,26 @@
 tab-handle {
+  flex: 1;
+  max-width: 10rem;
+  min-width: 6rem;
   display: flex;
   cursor: pointer;
   border-right: var(--border);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
-  padding: 0 1rem;
-  gap: .5rem;
+  padding: 0;
+  justify-content:space-between;
   position: relative;
   &:hover:not(.active) {
     background: var(--bg-4-color);
+  }
+
+  & .label {
+    padding: 0 .5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    &:focus {
+      outline: var(--border);
+    }
   }
 
   & .closer {
@@ -15,7 +28,7 @@ tab-handle {
     display: none;
     line-height: 1.8;
     position: relative;
-    left: 0.8rem;
+    left: 0rem;
     top: 0.7rem;
     justify-content: center;
     border-radius: 50%;

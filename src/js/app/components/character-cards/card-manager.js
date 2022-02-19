@@ -38,11 +38,16 @@ const add = character => {
     activeTab = tabManager.getActiveTab();
     const cid = characterMap.nextIncrement(origin);
     character = structuredClone(character);
+    // this is the case when cards are restored
+    const tab = character.meta.tid ?
+        tabManager.getTabByTid(character.meta.tid) :
+        activeTab
+    const tid = parseInt(tab.tid, 10)
     character.meta = {
         ...character.meta,
         ...{
             visibility,
-            tid: activeTab.tid,
+            tid,
             cid,
             origin
         }
@@ -53,15 +58,12 @@ const add = character => {
     characterMap.set(origin, cid, character);
     const card = document.createElement('card-base');
     card.character = character;
-    activeTab.panel.append(card);
+    tab.panel.append(card);
 }
 
 const restoreLastSession = () => {
-    return;
     for (let character of Object.values(characterMap.getAllByType('user'))) {
-        const card = document.createElement('card-base');
-        card.character = character;
-        tabManager.getTab(activeTab.tid).append(card);
+        add(character);
     }
 }
 
@@ -87,7 +89,7 @@ const handleRemoval = (card, action) => {
 const init = _app => {
     app = _app;
     app.on('tabDelete', e => {
-        console.log(e.details)
+        characterMap.bulkDeleteByTid(e.detail.tid);
     })
     app.on('characterSelection', e => {
         add(e.detail)

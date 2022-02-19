@@ -18,13 +18,13 @@ let activeTid;
 
 /**
  * Create data for a new tab (tid as in Tab ID)
- * @returns {{label, tid: {Integer}}}
+ * @returns {{title, tid: {Integer}}}
  */
 const createTabEntry = () => {
     const tid = nextIncrement();
     return {
         tid,
-        label: convertToRoman(tid)
+        title: convertToRoman(tid)
     }
 }
 
@@ -59,11 +59,11 @@ const nextIncrement = () => {
  */
 const setActiveTab = tab => {
     activeTab = tab || (activeTid ? fn.$(`tab-handle[tid="${activeTid}"]`, navi) : fn.$(`tab-handle`, navi));
-    activeTid = activeTab.tid;
+    activeTid = parseInt(activeTab.tid, 10);
     fn.$$('tab-handle', navi).forEach(tab => {
         tab.classList.remove('active');
         tab.panel.classList.remove('active');
-        delete tabList[tab.tid].active;
+        delete tabList[parseInt(tab.tid, 10)].active;
     });
     // DOM Tab
     activeTab.classList.add('active');
@@ -81,6 +81,15 @@ const setActiveTab = tab => {
  */
 const getActiveTab = () => {
     return activeTab;
+}
+
+const getTabByTid = tid => {
+    return fn.$(`tab-handle[tid="${tid}"]`, navi);
+}
+
+const renameTab = (tab, title) => {
+    tabList[parseInt(tab.tid, 10)].title = title;
+    storage.update();
 }
 
 /**
@@ -105,7 +114,7 @@ const createTab = tabEntry => {
     fn.$('.adder', navi).before(tab);
 
     // inform model
-    tabList[tab.tid] = tabEntry;
+    tabList[tabEntry.tid] = tabEntry;
     storage.update();
     return tab;
 }
@@ -116,7 +125,7 @@ const createTab = tabEntry => {
  */
 const getUpcomingActiveTab = () => {
     let tabs = Array.from(fn.$$(`tab-handle:not([data-soft-deleted])`, navi));
-    if(!tabs.length) {
+    if (!tabs.length) {
         return createTab();
     }
     let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
@@ -129,6 +138,12 @@ const getUpcomingActiveTab = () => {
     return createTab();
 }
 
+const bulkDelete = triggerTab => {
+    fn.$$(triggerTab ? `tab-handle:not([tid="${triggerTab.tid}"])` : `tab-handle`, navi).forEach(tab => {
+        handleRemoval(tab, 'remove');
+    })
+}
+
 /**
  * Tabs are first soft deleted and expire after 10 secs
  * All display functionality is handled by `softDelete()`
@@ -137,7 +152,7 @@ const getUpcomingActiveTab = () => {
  * @param {String} action
  */
 const handleRemoval = (tab, action) => {
-
+    const tid = parseInt(tab.tid, 10);
     switch (action) {
         case 'soft':
             // when deleting the active tab
@@ -145,28 +160,34 @@ const handleRemoval = (tab, action) => {
                 setActiveTab(getUpcomingActiveTab());
             }
             // DOM
-            softDelete(tab, 'Tab ' + tab.label)
+            softDelete(tab, 'Tab ' + tab.title)
                 .then(data => {
                     handleRemoval(tab, data.action);
                 })
             // local model
-            tabList[tab.tid].softDeleted = true;
+            tabList[tid].softDeleted = true;
             break;
         case 'restore':
-            delete tabList[tab.tid].softDeleted;
+            delete tabList[tid].softDeleted;
             break;
         case 'remove':
             // inform app to delete cards
             app.trigger('tabDelete', {
-                tid: tab.tid
+                tid
             })
-            delete tabList[tab.tid];
+            delete tabList[tid];
             tab.panel.remove();
             tab.remove();
             if (Object.keys(tabList).length === 0) {
-                createTab();
-                setActiveTab();
+                setActiveTab(createTab());
             }
+            break;
+        case 'others':
+            bulkDelete(tab);
+            setActiveTab(tab);
+            break;
+        case 'all':
+            bulkDelete();
             break;
     }
     storage.update();
@@ -204,5 +225,7 @@ export default {
     getActiveTab,
     createTab,
     handleRemoval,
-    setActiveTab
+    setActiveTab,
+    renameTab,
+    getTabByTid
 }

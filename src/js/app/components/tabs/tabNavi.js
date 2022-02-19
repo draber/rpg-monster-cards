@@ -1,6 +1,9 @@
 import fn from 'fancy-node';
 import tabManager from './tabManager.js';
-import {on, trigger}from '../../../modules/events/eventHandler.js';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js';
 
 /**
  * Custom element containing the list of fonts
@@ -12,49 +15,7 @@ class TabNavi extends HTMLElement {
      */
     connectedCallback() {
 
-        const contextMenu = fn.ul({
-            classNames: ['tab-context-menu'],
-            content: [
-                fn.li({
-                    content: 'Delete tab',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                           // tabManager.handleRemoval(this, 'soft');
-                           // this.classList.remove('context');
-                        }
-                    }
-                }),
-                fn.li({
-                    classNames: ['context-danger'],
-                    content: 'Delete others (irreversible)',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                           // tabManager.handleRemoval(this, 'others');
-                           // this.classList.remove('context');
-                        }
-                    }
-                }),
-                fn.li({
-                    classNames: ['context-danger'],
-                    content: 'Delete all (irreversible)',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                           // tabManager.handleRemoval(this, 'destroy');
-                           // this.classList.remove('context');
-                        }
-                    }
-                })
-            ]
-        })
+
 
         const adder = fn.span({
             content: '🞤',
@@ -70,9 +31,13 @@ class TabNavi extends HTMLElement {
             }
         })
 
-        this.append(adder);
+        this.addEventListener('dblclick', e => {
+            if (e.target.isSameNode(this)) {
+                tabManager.setActiveTab(tabManager.createTab());
+            }
+        })
 
-        document.body.append(contextMenu);
+        this.append(adder);
 
     }
     constructor(self) {

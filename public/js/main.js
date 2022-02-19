@@ -523,6 +523,13 @@
     const get$3 = (type, cid) => {
         return data[type][cid];
     };
+    const bulkDeleteByTid = tid => {
+        for(let [cid, character] of Object.entries(data['user'])){
+            if(character.meta.tid === tid){
+                remove('user', cid);
+            }
+        }
+    };
     const getAllByType = type => {
         return data[type];
     };
@@ -559,7 +566,8 @@
         remove,
         values,
         nextIncrement: nextIncrement$1,
-        getAllByType
+        getAllByType,
+        bulkDeleteByTid
     };
 
     const prepareGroupSort = (entry, groupBy) => {
@@ -762,12 +770,12 @@
             return self;
         }
     }
-    const register$g = app => {
+    const register$h = app => {
         CharacterLibrary.prototype.app = app;
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$g
+        register: register$h
     };
 
     var name = {
@@ -1032,12 +1040,12 @@
             return self;
         }
     }
-    const register$f = app => {
+    const register$g = app => {
         LibraryOrganizer.prototype.app = app;
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
-        register: register$f
+        register: register$g
     };
 
     var fonts = [
@@ -1224,12 +1232,12 @@
             return self;
         }
     }
-    const register$e = app => {
+    const register$f = app => {
         FontSelector.prototype.app = app;
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$e
+        register: register$f
     };
 
     class FontSize extends HTMLElement {
@@ -1296,12 +1304,12 @@
             return self;
         }
     }
-    const register$d = app => {
+    const register$e = app => {
         FontSize.prototype.app = app;
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$d
+        register: register$e
     };
 
     var backgrounds = [
@@ -1462,12 +1470,12 @@
             return self;
         }
     }
-    const register$c = app => {
+    const register$d = app => {
         PatternSelector.prototype.app = app;
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
-        register: register$c
+        register: register$d
     };
 
     const convertToRoman = num => {
@@ -1570,7 +1578,7 @@
         const tid = nextIncrement();
         return {
             tid,
-            label: convertToRoman(tid)
+            title: convertToRoman(tid)
         }
     };
     const storage = {
@@ -1589,11 +1597,11 @@
     };
     const setActiveTab = tab => {
         activeTab$1 = tab || (activeTid ? src.$(`tab-handle[tid="${activeTid}"]`, navi) : src.$(`tab-handle`, navi));
-        activeTid = activeTab$1.tid;
+        activeTid = parseInt(activeTab$1.tid, 10);
         src.$$('tab-handle', navi).forEach(tab => {
             tab.classList.remove('active');
             tab.panel.classList.remove('active');
-            delete tabList[tab.tid].active;
+            delete tabList[parseInt(tab.tid, 10)].active;
         });
         activeTab$1.classList.add('active');
         activeTab$1.panel.classList.add('active');
@@ -1603,6 +1611,13 @@
     };
     const getActiveTab = () => {
         return activeTab$1;
+    };
+    const getTabByTid = tid => {
+        return src.$(`tab-handle[tid="${tid}"]`, navi);
+    };
+    const renameTab = (tab, title) => {
+        tabList[parseInt(tab.tid, 10)].title = title;
+        storage.update();
     };
     const createTab = tabEntry => {
         tabEntry = tabEntry || createTabEntry();
@@ -1615,13 +1630,13 @@
         }
         contentArea.append(tab.panel);
         src.$('.adder', navi).before(tab);
-        tabList[tab.tid] = tabEntry;
+        tabList[tabEntry.tid] = tabEntry;
         storage.update();
         return tab;
     };
     const getUpcomingActiveTab = () => {
         let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
-        if(!tabs.length) {
+        if (!tabs.length) {
             return createTab();
         }
         let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab$1)));
@@ -1633,32 +1648,44 @@
         }
         return createTab();
     };
+    const bulkDelete = triggerTab => {
+        src.$$(triggerTab ? `tab-handle:not([tid="${triggerTab.tid}"])` : `tab-handle`, navi).forEach(tab => {
+            handleRemoval$1(tab, 'remove');
+        });
+    };
     const handleRemoval$1 = (tab, action) => {
+        const tid = parseInt(tab.tid, 10);
         switch (action) {
             case 'soft':
                 if (tab.isSameNode(activeTab$1)) {
                     setActiveTab(getUpcomingActiveTab());
                 }
-                softDelete(tab, 'Tab ' + tab.label)
+                softDelete(tab, 'Tab ' + tab.title)
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
-                tabList[tab.tid].softDeleted = true;
+                tabList[tid].softDeleted = true;
                 break;
             case 'restore':
-                delete tabList[tab.tid].softDeleted;
+                delete tabList[tid].softDeleted;
                 break;
             case 'remove':
                 app$1.trigger('tabDelete', {
-                    tid: tab.tid
+                    tid
                 });
-                delete tabList[tab.tid];
+                delete tabList[tid];
                 tab.panel.remove();
                 tab.remove();
                 if (Object.keys(tabList).length === 0) {
-                    createTab();
-                    setActiveTab();
+                    setActiveTab(createTab());
                 }
+                break;
+            case 'others':
+                bulkDelete(tab);
+                setActiveTab(tab);
+                break;
+            case 'all':
+                bulkDelete();
                 break;
         }
         storage.update();
@@ -1684,48 +1711,13 @@
         getActiveTab,
         createTab,
         handleRemoval: handleRemoval$1,
-        setActiveTab
+        setActiveTab,
+        renameTab,
+        getTabByTid
     };
 
     class TabNavi extends HTMLElement {
         connectedCallback() {
-            const contextMenu = src.ul({
-                classNames: ['tab-context-menu'],
-                content: [
-                    src.li({
-                        content: 'Delete tab',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }),
-                    src.li({
-                        classNames: ['context-danger'],
-                        content: 'Delete others (irreversible)',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }),
-                    src.li({
-                        classNames: ['context-danger'],
-                        content: 'Delete all (irreversible)',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                            }
-                        }
-                    })
-                ]
-            });
             const adder = src.span({
                 content: '🞤',
                 classNames: ['adder', 'btn', 'tab'],
@@ -1739,8 +1731,12 @@
                     }
                 }
             });
+            this.addEventListener('dblclick', e => {
+                if (e.target.isSameNode(this)) {
+                    tabManager.setActiveTab(tabManager.createTab());
+                }
+            });
             this.append(adder);
-            document.body.append(contextMenu);
         }
         constructor(self) {
             self = super(self);
@@ -1749,14 +1745,75 @@
             return self;
         }
     }
-    const register$b = () => {
+    const register$c = () => {
         customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
     };
     var TabNavi$1 = {
+        register: register$c
+    };
+
+    let current;
+    let firstUse = true;
+    const handleFirstUse = () => {
+        if (firstUse) {
+            document.addEventListener('pointerdown', e => {
+                if (current && !e.target.closest('[data-context-menu="true"]')) {
+                    current.remove();
+                }
+            });
+        }
+        firstUse = false;
+    };
+    const getPosition = e => {
+        const menuXY = {
+            x: current.offsetWidth,
+            y: current.offsetHeight
+        };
+        const screenXY = {
+            x: screen.availWidth,
+            y: screen.availHeight
+        };
+        const mouseXY = {
+            x: e.pageX,
+            y: e.pageY,
+        };
+        const offset = 8;
+        const style = {
+            x: (mouseXY.x + menuXY.x - offset) <= screenXY.x ? mouseXY.x - offset : mouseXY.x - menuXY.x + offset,
+            y: (mouseXY.y + menuXY.y - offset) <= screenXY.y ? mouseXY.y - offset : mouseXY.y - menuXY.y + offset,
+        };
+        return {
+            left: style.x + 'px',
+            top: style.y + 'px'
+        }
+    };
+    const launch = (e, menu) => {
+        e.preventDefault();
+        current = menu;
+        document.body.append(current);
+        Object.assign(current.style, getPosition(e));
+    };
+    const register$b = (owner, menu) => {
+        menu.dataset.contextMenu = true;
+        handleFirstUse();
+        owner.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            launch(e, menu);
+        });
+    };
+    var contextMenu = {
         register: register$b
     };
 
     class TabHandle extends HTMLElement {
+        rename() {
+            let selection = window.getSelection();
+            selection.removeAllRanges();
+            let range = document.createRange();
+            this.label.contentEditable = true;
+            range.selectNodeContents(this.label);
+            selection.addRange(range);
+        }
         get title() {
             return this.getAttribute('title');
         }
@@ -1770,33 +1827,97 @@
             this.setAttribute('tid', value);
         }
         connectedCallback() {
-            const closer = src.span({
+            const menu = src.ul({
+                content: [
+                    src.li({
+                        content: 'Rename',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.rename(e.target);
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-separator'],
+                        content: 'Close',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this, 'soft');
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Close others permanently',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this, 'others');
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Close all permanently',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this, 'all');
+                                menu.remove();
+                            }
+                        },
+                    })
+                ]
+            });
+            contextMenu.register(this, menu);
+            this.closer = src.span({
                 content: '✖',
                 classNames: ['closer']
             });
-            const label = src.span({
-                content: this.label
-            });
-            this.on('pointerup', e => {
-                switch (true) {
-                    case e.button === 0:
-                        return tabManager.setActiveTab(this);
-                    case e.button === 1:
-                    case e.target.isSameNode(closer):
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return tabManager.handleRemoval(this, 'soft');
-                    default:
-                        return true;
+            this.label = src.span({
+                content: this.title,
+                classNames: ['label'],
+                events: {
+                    blur: e => {
+                        this.title = e.target.textContent.trim();
+                        tabManager.renameTab(this, this.title);
+                    },
+                    keydown: e => {
+                        if(e.key === 'Enter'){
+                            e.preventDefault();
+                            e.target.blur();
+                            return false;
+                        }
+                    },
+                    dblclick: e => this.rename()
                 }
             });
-            this.on('contextmenu', e => {
-                console.log(e);
-                e.preventDefault();
-                console.log('tabContext');
-                return props.set('tabContext', true);
+            this.on('pointerup', e => {
+                if (e.button > 1) {
+                    return true;
+                }
+                if (e.button === 1 || e.target.isSameNode(this.closer)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    tabManager.handleRemoval(this, 'soft');
+                } else {
+                    tabManager.setActiveTab(this);
+                }
             });
-            this.append(label, closer);
+            this.append(this.label, this.closer);
         }
         constructor(self) {
             self = super(self);
@@ -2868,11 +2989,15 @@
         activeTab = tabManager.getActiveTab();
         const cid = characterMap.nextIncrement(origin);
         character = structuredClone(character);
+        const tab = character.meta.tid ?
+            tabManager.getTabByTid(character.meta.tid) :
+            activeTab;
+        const tid = parseInt(tab.tid, 10);
         character.meta = {
             ...character.meta,
             ...{
                 visibility,
-                tid: activeTab.tid,
+                tid,
                 cid,
                 origin
             }
@@ -2883,7 +3008,12 @@
         characterMap.set(origin, cid, character);
         const card = document.createElement('card-base');
         card.character = character;
-        activeTab.panel.append(card);
+        tab.panel.append(card);
+    };
+    const restoreLastSession = () => {
+        for (let character of Object.values(characterMap.getAllByType('user'))) {
+            add(character);
+        }
     };
     const handleRemoval = (card, action) => {
         const character = characterMap.get(origin, card.cid);
@@ -2905,11 +3035,12 @@
     const init = _app => {
         app = _app;
         app.on('tabDelete', e => {
-            console.log(e.details);
+            characterMap.bulkDeleteByTid(e.detail.tid);
         });
         app.on('characterSelection', e => {
             add(e.detail);
         });
+        restoreLastSession();
     };
     var cardManager = {
         init,
