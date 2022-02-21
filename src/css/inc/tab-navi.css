@@ -6,8 +6,12 @@ tab-navi {
   overflow-y: hidden;
   border-bottom: .1rem solid var(--border-color);
   padding: 0;
+  position: relative;
   
-  & .adder {    
+  & .adder {   
+    position: sticky;
+    background: var(--bg-3-color);
+    right: 0; 
     cursor: pointer;
     display: flex;
     align-items: center;

@@ -1,12 +1,12 @@
 import buildConfig from './configurator.js';
 import format from './format.js';
 import background from './background.js';
-import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import cssProps from '../../../modules/cssProps/cssProps.js';
+import cssProps from '../../../../modules/cssProps/cssProps.js';
 import {
     on,
     trigger
-} from '../../../modules/events/eventHandler.js'
+} from '../../../../modules/events/eventHandler.js'
+import fn from 'fancy-node';
 
 
 
@@ -41,7 +41,6 @@ class ColorSelector extends HTMLElement {
     }
 
     getInitialColor() {
-        const userVal = userPrefs.get(`colors.${this.name}`);
         const pattern = this.name.replace('-color', '-');
         const channels =[];
         ['h', 's', 'l'].forEach(channel => {
@@ -71,6 +70,7 @@ class ColorSelector extends HTMLElement {
 
         this.tracks = config.tracks;
         this.value = config.original;
+        this.styleArea = 'colors';
 
         const valueInput = document.createElement('input');
         valueInput.type = 'hidden';
@@ -106,10 +106,10 @@ class ColorSelector extends HTMLElement {
                 valueInput.value = this.value;
                 background.update(config.type, this.tracks);
                 const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
-                userPrefs.set(`colors.${e.target.name}`, formatted);                
                 this.app.trigger(`styleChange`, {
                     name: e.target.name,
-                    value: formatted
+                    value: formatted,
+                    area: this.styleArea
                 });
             });
             input.addEventListener('change', e => {
@@ -123,6 +123,19 @@ class ColorSelector extends HTMLElement {
         // update background-colors
         ranges.forEach(input => {
             input.dispatchEvent(new Event('input'));
+        })       
+        
+        
+        // change from the active tab
+        this.app.on('activeTabChange', e => {
+            if(e.detail.styles[this.styleArea]) {
+                for(let [name, value] of Object.entries(e.detail.styles[this.styleArea])){
+                    let target = fn.$(`input[name="${name}"]`, this);
+                    if(target){
+                        target.value = parseFloat(value, 10);
+                    }
+                }
+            }
         })
     }
     constructor(self) {

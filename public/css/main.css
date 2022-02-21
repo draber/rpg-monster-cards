@@ -273,6 +273,10 @@ details{
   margin:0
 }
 
+details[open]{
+    padding:0 0 .5rem 0
+  }
+
 details[open] summary:before{
         transform:rotate(-90deg);
         top:0.9rem;
@@ -376,7 +380,7 @@ main{
   display:flex;
 }
 
-section.column{
+section.column, style-editor.column{
     display:flex;
     flex-direction:column;
     overflow:hidden;
@@ -384,11 +388,11 @@ section.column{
     border-left:var(--border) 
   }
 
-section.column:first-of-type{
+section.column:first-of-type, style-editor.column:first-of-type{
       border-left:none;
     }
 
-section.column .column-heading{
+section.column .column-heading, style-editor.column .column-heading{
       margin:0;
       font-size:2.2rem;
       font-weight:normal;
@@ -402,13 +406,13 @@ section.column .column-heading{
       color:var(--hd-color);
     }
 
-section.column h3{
+section.column h3, style-editor.column h3{
       margin:0;
       font-size:1.5rem;
       font-weight:400;
     }
 
-section.column .column-content{
+section.column .column-content, style-editor.column .column-content{
       flex:2;
       overflow-y:auto;
     }
@@ -504,6 +508,7 @@ library-organizer:hover svg{
 }
 
 [data-context-menu="true"] li{
+    font-size:1.4rem;
     cursor:pointer;
     padding:0 1rem;
     cursor:pointer;
@@ -522,9 +527,15 @@ library-organizer:hover svg{
       color:var(--hd-color);
     }
 
+[data-context-menu="true"] li[data-disabled]{
+      pointer-events:none;
+      opacity:0.5;
+      cursor:not-allowed;
+    }
+
 [data-context-menu="true"] li.context-separator{
-      border-bottom:0.2rem groove hsl(44, 81%, 38%);
-      border-bottom:0.2rem groove var(--hd-color);
+      border-top:0.2rem groove hsl(44, 81%, 38%);
+      border-top:0.2rem groove var(--hd-color);
     }
 
 [data-context-menu="true"] li.context-danger::before{
@@ -559,10 +570,16 @@ tab-navi{
   overflow-y:hidden;
   border-bottom:.1rem solid hsla(46, 85%, 39%, .3);
   border-bottom:.1rem solid var(--border-color);
-  padding:0
+  padding:0;
+  position:relative
 }
 
-tab-navi .adder{    
+tab-navi .adder{   
+    position:-webkit-sticky;   
+    position:sticky;
+    background:hsl(15, 50%, 24%);
+    background:var(--bg-3-color);
+    right:0; 
     cursor:pointer;
     display:flex;
     align-items:center;
@@ -597,7 +614,7 @@ tab-handle:hover:not(.active){
   }
 
 tab-handle .label{
-    padding:0 .5rem;
+    padding:0 0.5rem;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis
@@ -635,6 +652,10 @@ tab-handle.active .closer{
 tab-handle.active .closer:hover{
         background:hsla(0, 100%, 100%, 0.15);
       }
+
+tab-navi.overflown tab-handle{
+      min-width:.3rem;
+    }
 
 @-webkit-keyframes summon{
   0%{
@@ -1327,7 +1348,7 @@ color-selector[type] > label span ~ span{
           flex:2;
         }
 
-#toast{
+[data-undo-dialogs]{
   width:32rem;
   max-width:100%;
   position:absolute;
@@ -1339,7 +1360,7 @@ color-selector[type] > label span ~ span{
   gap:0.1rem
 }
 
-#toast undo-dialog{
+[data-undo-dialogs] undo-dialog{
     display:block;
     border:.1rem solid hsla(46, 85%, 39%, .3);
     border:var(--border);
@@ -1353,20 +1374,20 @@ color-selector[type] > label span ~ span{
     padding:1.5rem 3.5rem 1.5rem 1.5rem
   }
 
-#toast undo-dialog aside{
+[data-undo-dialogs] undo-dialog aside{
       justify-content:space-between;
       display:flex;
       gap:2rem;
     }
 
-#toast undo-dialog *{
+[data-undo-dialogs] undo-dialog *{
       font-size:1.5rem;
       font-weight:normal;
       padding:0;
       margin:0;
     }
 
-#toast undo-dialog .closer{
+[data-undo-dialogs] undo-dialog .closer{
       cursor:pointer;
       padding:1rem;
       font-size:2.8rem;
@@ -1378,11 +1399,11 @@ color-selector[type] > label span ~ span{
       opacity:.7
     }
 
-#toast undo-dialog .closer:hover{
+[data-undo-dialogs] undo-dialog .closer:hover{
           opacity:1;
       }
 
-#toast undo-dialog button{
+[data-undo-dialogs] undo-dialog button{
       border:none;
       cursor:pointer;
       color:hsl(228, 62%, 76%);
@@ -1530,7 +1551,8 @@ form .control{
     mix-blend-mode:screen;
   }
 
-#style-editor{
+style-editor{
+  display:block;
   min-width:20rem;
   max-width:30rem;
   width:15%;

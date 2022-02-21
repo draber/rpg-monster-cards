@@ -1,11 +1,10 @@
 import fn from 'fancy-node';
-import fonts from '../../../../data/fonts.json';
-import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import cssProps from '../../../modules/cssProps/cssProps.js';
+import fonts from '../../../../../data/fonts.json';
+import cssProps from '../../../../modules/cssProps/cssProps.js';
 import {
     on,
     trigger
-} from '../../../modules/events/eventHandler.js'
+} from '../../../../modules/events/eventHandler.js'
 
 /**
  * Custom element containing the list of fonts
@@ -37,8 +36,10 @@ class FontSelector extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-selector> element`);
         }
 
+        this.styleArea = 'fonts';
+
         // currently selected font
-        this.currentFont = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
+        this.currentFont = cssProps.get(this.name) || '';
 
         // <select>
         const selector = fn.select({
@@ -64,10 +65,10 @@ class FontSelector extends HTMLElement {
             events: {
                 change: e => {
                     this.selected = e.target.value;
-                    userPrefs.set(`fonts.${this.name}`, this.currentFont);
                     this.app.trigger(`styleChange`, {
                         name: this.name,
-                        value: e.target.value
+                        value: e.target.value,
+                        area: this.styleArea
                     });
                 }
             }
@@ -75,6 +76,14 @@ class FontSelector extends HTMLElement {
 
         this.append(selector);
         selector.dispatchEvent(new Event('change'));
+
+        
+        // change from the active tab
+        this.app.on('activeTabChange', e => {
+            if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
+                selector.value = e.detail.styles[this.styleArea][this.name];
+            }
+        })
     }
 
     constructor(self) {

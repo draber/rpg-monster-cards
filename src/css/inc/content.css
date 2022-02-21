@@ -4,7 +4,7 @@ main {
   display: flex;
 }
 
-section {
+section, style-editor {
   &.column {
     display: flex;
     flex-direction: column;

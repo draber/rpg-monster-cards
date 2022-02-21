@@ -60,7 +60,35 @@ class TabHandle extends HTMLElement {
         const menu = fn.ul({
             content: [
                 fn.li({
-                    content: 'Rename',
+                    content: 'Copy card style',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                            this.app.styleStorage = this.styles
+                            menu.remove();
+                        }
+                    },
+                }),
+                fn.li({
+                    content: 'Paste card style',
+                    data: {
+                        disabled: !this.app.styleStorage
+                    },
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0 || e.target.dataset.disabled) {
+                                return true;
+                            }
+                            this.styles = this.app.styleStorage
+                            menu.remove();
+                        }
+                    },
+                }),
+                fn.li({
+                    classNames: ['context-separator'],
+                    content: 'Rename tab',
                     events: {
                         pointerup: e => {
                             if (e.button !== 0) {
@@ -72,14 +100,26 @@ class TabHandle extends HTMLElement {
                     },
                 }),
                 fn.li({
-                    classNames: ['context-separator'],
-                    content: 'Close',
+                    content: 'Close tab',
                     events: {
                         pointerup: e => {
                             if (e.button !== 0) {
                                 return true;
                             }
                             tabManager.handleRemoval(this, 'soft');
+                            menu.remove();
+                        }
+                    },
+                }),
+                fn.li({
+                    classNames: ['context-separator'],
+                    content: 'Close empty tabs',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                            tabManager.handleRemoval(this, 'empty');
                             menu.remove();
                         }
                     },
@@ -129,7 +169,7 @@ class TabHandle extends HTMLElement {
                     tabManager.renameTab(this, this.title);
                 },
                 keydown: e => {
-                    if(e.key === 'Enter'){
+                    if (e.key === 'Enter') {
                         e.preventDefault();
                         e.target.blur();
                         return false;
@@ -166,7 +206,8 @@ class TabHandle extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    TabHandle.prototype.app = app;
     customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle)
 }
 

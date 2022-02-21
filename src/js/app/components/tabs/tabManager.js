@@ -2,6 +2,7 @@ import fn from 'fancy-node';
 import settings from '../../../modules/settings/settings.js';
 import convertToRoman from '../../../modules/roman-numerals/roman-numerals.js';
 import softDelete from '../../../modules/softDelete/softdelete.js';
+import styleManager from '../styles/styleManager.js';
 
 /**
  * Key of the user's collection in localStorage
@@ -15,18 +16,6 @@ let contentArea;
 
 let activeTab;
 let activeTid;
-
-/**
- * Create data for a new tab (tid as in Tab ID)
- * @returns {{title, tid: {Integer}}}
- */
-const createTabEntry = () => {
-    const tid = nextIncrement();
-    return {
-        tid,
-        title: convertToRoman(tid)
-    }
-}
 
 
 /**
@@ -54,6 +43,19 @@ const nextIncrement = () => {
 }
 
 /**
+ * Create data for a new tab (tid as in Tab ID)
+ * @returns {{title, tid: {Integer}}}
+ */
+const createTabEntry = () => {
+    const tid = nextIncrement();
+    return {
+        tid,
+        title: convertToRoman(tid),
+        styles: {}
+    }
+}
+
+/**
  * Set current ab to active
  * @param {HTMLElement} tab
  */
@@ -64,9 +66,29 @@ const setActiveTab = tab => {
         tab.classList.remove('active');
         tab.panel.classList.remove('active');
         delete tabList[parseInt(tab.tid, 10)].active;
+        tab.removeAttribute('style');
     });
     // DOM Tab
     activeTab.classList.add('active');
+    styleManager.setStyles(activeTab.styles, activeTab.panel);
+    app.trigger('activeTabChange', activeTab);
+
+    const naviRect = navi.getBoundingClientRect();
+    const atRect = activeTab.getBoundingClientRect();
+    const addRect = navi.lastChild.getBoundingClientRect();
+    const space = naviRect.width - (addRect.width - 5) - atRect.width;
+    
+    navi.classList.remove('overflown');
+
+    if (navi.scrollWidth > navi.clientWidth) {
+        navi.classList.add('overflown');
+        const nonActiveTabs = getTabs(activeTab);
+        const tabMaxWidth = space / nonActiveTabs.length
+        nonActiveTabs.forEach(tab => {
+            tab.style.maxWidth = tabMaxWidth + 'px'
+        })
+    }
+
     // DOM Panel
     activeTab.panel.classList.add('active');
     // model
@@ -87,6 +109,30 @@ const getTabByTid = tid => {
     return fn.$(`tab-handle[tid="${tid}"]`, navi);
 }
 
+/**
+ * Retrieve tabs as array
+ * @param {HTMLElement|String} exclude 
+ * @returns 
+ */
+const getTabs = exclude => {
+    let tabs = Array.from(fn.$$(`tab-handle`, navi));
+    switch (true) {
+        // all but this
+        case exclude instanceof customElements.get('tab-handle'):
+            return tabs.filter(tab => !tab.isSameNode(exclude));
+            // non active
+        case exclude instanceof customElements.get('tab-handle'):
+            return tabs.filter(tab => !tab.isSameNode(activeTab));
+            // empty tabs
+        case exclude === 'empty':
+            return tabs.filter(tab => !fn.$('card-base', tab));
+        case exclude === 'nonEmpty':
+            return tabs.filter(tab => !!fn.$('card-base', tab));
+        default:
+            return tabs;
+    }
+}
+
 const renameTab = (tab, title) => {
     tabList[parseInt(tab.tid, 10)].title = title;
     storage.update();
@@ -97,7 +143,11 @@ const renameTab = (tab, title) => {
  * @param {Object} [tabEntry]
  * @returns {HTMLElement}
  */
-const createTab = tabEntry => {
+const createTab = ({
+    tabEntry,
+    previousTab,
+    activate = false
+} = {}) => {
     tabEntry = tabEntry || createTabEntry();
 
     // build DOM elements
@@ -111,10 +161,19 @@ const createTab = tabEntry => {
     }
     contentArea.append(tab.panel);
 
-    fn.$('.adder', navi).before(tab);
+    if (previousTab) {
+        previousTab.after(tab)
+    } else {
+        fn.$('.adder', navi).before(tab);
+    }
 
     // inform model
     tabList[tabEntry.tid] = tabEntry;
+
+    if (activate) {
+        setActiveTab(tab);
+    }
+
     storage.update();
     return tab;
 }
@@ -138,15 +197,16 @@ const getUpcomingActiveTab = () => {
     return createTab();
 }
 
-const bulkDelete = triggerTab => {
-    fn.$$(triggerTab ? `tab-handle:not([tid="${triggerTab.tid}"])` : `tab-handle`, navi).forEach(tab => {
+const bulkDelete = exclude => {
+    getTabs(exclude).forEach(tab => {
         handleRemoval(tab, 'remove');
+        softDelete.cancel();
     })
 }
 
 /**
  * Tabs are first soft deleted and expire after 10 secs
- * All display functionality is handled by `softDelete()`
+ * All display functionality is handled by `softDelete`
  *
  * @param {HTMLElement} tab
  * @param {String} action
@@ -160,7 +220,7 @@ const handleRemoval = (tab, action) => {
                 setActiveTab(getUpcomingActiveTab());
             }
             // DOM
-            softDelete(tab, 'Tab ' + tab.title)
+            softDelete.initiate(tab, 'Tab ' + tab.title)
                 .then(data => {
                     handleRemoval(tab, data.action);
                 })
@@ -179,8 +239,14 @@ const handleRemoval = (tab, action) => {
             tab.panel.remove();
             tab.remove();
             if (Object.keys(tabList).length === 0) {
-                setActiveTab(createTab());
+                createTab({
+                    activate: true
+                });
             }
+            break;
+        case 'empty':
+            bulkDelete('empty');
+            setActiveTab();
             break;
         case 'others':
             bulkDelete(tab);
@@ -205,11 +271,15 @@ const restore = () => {
     activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabList)[0];
 
     for (let tabEntry of entries) {
-        createTab(tabEntry);
+        createTab({
+            tabEntry
+        });
     }
 
     setActiveTab();
 }
+
+
 
 
 const init = _app => {
@@ -218,6 +288,14 @@ const init = _app => {
     contentArea = fn.$('tab-content', app);
     tabList = storage.read();
     restore();
+
+    // events
+    app.on('styleChange', e => {
+        activeTab.panel.style.setProperty(e.detail.name, e.detail.value);
+        tabList[activeTid].styles[e.detail.area] = tabList[activeTid].styles[e.detail.area] || {};
+        tabList[activeTid].styles[e.detail.area][e.detail.name] = e.detail.value;
+        storage.update();
+    });
 }
 
 export default {
@@ -227,5 +305,6 @@ export default {
     handleRemoval,
     setActiveTab,
     renameTab,
-    getTabByTid
+    getTabByTid,
+    getTabs
 }

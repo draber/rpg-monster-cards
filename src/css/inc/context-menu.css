@@ -9,6 +9,7 @@
   filter: drop-shadow(1rem 1rem 1rem rgb(0, 0, 0, 0.3));
 
   & li {
+    font-size: 1.4rem;
     cursor: pointer;
     padding: 0 1rem;
     cursor: pointer;
@@ -23,8 +24,14 @@
       display: inline-block;
       color: var(--hd-color);
     }
+
+    &[data-disabled] {
+      pointer-events: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
     &.context-separator {
-      border-bottom: 0.2rem groove var(--hd-color);
+      border-top: 0.2rem groove var(--hd-color);
     }
     &.context-danger {
       &::before {

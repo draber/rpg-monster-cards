@@ -20,7 +20,8 @@ class TabContent extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    TabContent.prototype.app = app;
     customElements.get('tab-content') || customElements['define']('tab-content', TabContent)
 }
 

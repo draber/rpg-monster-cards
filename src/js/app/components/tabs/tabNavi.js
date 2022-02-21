@@ -25,15 +25,18 @@ class TabNavi extends HTMLElement {
                     if (e.button !== 0) {
                         return true;
                     }
-                    const tab = tabManager.createTab();
-                    tabManager.setActiveTab(tab)
+                    tabManager.createTab({
+                        activate: true
+                    })
                 }
             }
         })
 
         this.addEventListener('dblclick', e => {
             if (e.target.isSameNode(this)) {
-                tabManager.setActiveTab(tabManager.createTab());
+                tabManager.createTab({
+                    activate: true
+                })
             }
         })
 
@@ -50,7 +53,8 @@ class TabNavi extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    TabNavi.prototype.app = app;
     customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi)
 }
 

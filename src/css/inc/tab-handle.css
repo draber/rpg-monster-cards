@@ -7,14 +7,14 @@ tab-handle {
   border-right: var(--border);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   padding: 0;
-  justify-content:space-between;
+  justify-content: space-between;
   position: relative;
   &:hover:not(.active) {
     background: var(--bg-4-color);
   }
 
   & .label {
-    padding: 0 .5rem;
+    padding: 0 0.5rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -43,6 +43,14 @@ tab-handle {
       &:hover {
         background: hsl(0 100% 100% / 0.15);
       }
+    }
+  }
+}
+
+tab-navi {
+  &.overflown {
+    & tab-handle {
+      min-width: .3rem;
     }
   }
 }

@@ -35,7 +35,8 @@ class TabPanel extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    TabPanel.prototype.app = app;
     customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel)
 }
 

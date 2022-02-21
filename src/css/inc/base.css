@@ -35,6 +35,7 @@ details {
   margin: 0;
 
   &[open] {
+    padding: 0 0 .5rem 0;
     & summary {
       &:before {
         transform: rotate(-90deg);

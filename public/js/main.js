@@ -770,12 +770,12 @@
             return self;
         }
     }
-    const register$h = app => {
+    const register$i = app => {
         CharacterLibrary.prototype.app = app;
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$h
+        register: register$i
     };
 
     var name = {
@@ -1040,12 +1040,648 @@
             return self;
         }
     }
-    const register$g = app => {
+    const register$h = app => {
         LibraryOrganizer.prototype.app = app;
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
+        register: register$h
+    };
+
+    const convertToRoman = num => {
+      const roman = {
+        M: 1000,
+        CM: 900,
+        D: 500,
+        CD: 400,
+        C: 100,
+        XC: 90,
+        L: 50,
+        XL: 40,
+        X: 10,
+        IX: 9,
+        V: 5,
+        IV: 4,
+        I: 1
+      };
+      let str = '';
+      for (let i of Object.keys(roman)) {
+        const q = Math.floor(num / roman[i]);
+        num -= q * roman[i];
+        str += i.repeat(q);
+      }
+      return str;
+    };
+
+    const set = (key, value, target) => {
+        target = target || document.body;
+        target.dataset[key] = value;
+    };
+    const get$1 = (key, target) => {
+        target = target || document.body;
+        if (typeof target.dataset[key] === 'undefined') {
+            return false;
+        }
+        return JSON.parse(target.dataset[key]);
+    };
+    const toggle$1 = (key, target) => {
+        set(key, !get$1(key, target), target);
+    };
+    const unset = (key, target) => {
+        target = target || document.body;
+        delete target.dataset[key];
+    };
+    var properties = {
+        unset,
+        get: get$1,
+        set,
+        toggle: toggle$1
+    };
+
+    let toast;
+    const initiate = (element, label) => {
+        if (!toast) {
+            toast = src.div({
+                data: {
+                    undoDialogs: true
+                }
+            });
+            document.body.append(toast);
+        }
+        properties.set('softDeleted', true, element);
+        const dialog = document.createElement('undo-dialog');
+        dialog.element = element;
+        if (label) {
+            dialog.label = label;
+        }
+        toast.append(dialog);
+        return new Promise(resolve => {
+            dialog.on('restore', e => {
+                properties.unset('softDeleted', element);
+                resolve({
+                    action: 'restore',
+                    element: e.detail.element
+                });
+            });
+            dialog.on('remove', e => {
+                resolve({
+                    action: 'remove',
+                    element: e.detail.element
+                });
+            });
+        })
+    };
+    const cancel = () => {
+        if (toast) {
+            toast = src.empty(toast);
+        }
+    };
+    var softDelete = {
+        initiate,
+        cancel
+    };
+
+    const setStyles = (styles, target) => {
+        Object.values(styles).forEach(style => {
+            for(let [prop, value] of Object.entries(style)) {
+                target.style.setProperty(prop, value);
+            }
+        });
+    };
+    var styleManager = {
+        setStyles
+    };
+
+    const lsKey = settings$1.get('storageKeys.tabs');
+    let app$1;
+    let tabList = {};
+    let navi;
+    let contentArea;
+    let activeTab$1;
+    let activeTid;
+    const storage = {
+        read: () => {
+            const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
+            return Object.keys(stored).length ? stored : {
+                1: createTabEntry()
+            };
+        },
+        update: () => {
+            return localStorage.setItem(lsKey, JSON.stringify(tabList || {}))
+        }
+    };
+    const nextIncrement = () => {
+        return Math.max(...[0].concat(Object.keys(tabList))) + 1;
+    };
+    const createTabEntry = () => {
+        const tid = nextIncrement();
+        return {
+            tid,
+            title: convertToRoman(tid),
+            styles: {}
+        }
+    };
+    const setActiveTab = tab => {
+        activeTab$1 = tab || (activeTid ? src.$(`tab-handle[tid="${activeTid}"]`, navi) : src.$(`tab-handle`, navi));
+        activeTid = parseInt(activeTab$1.tid, 10);
+        src.$$('tab-handle', navi).forEach(tab => {
+            tab.classList.remove('active');
+            tab.panel.classList.remove('active');
+            delete tabList[parseInt(tab.tid, 10)].active;
+            tab.removeAttribute('style');
+        });
+        activeTab$1.classList.add('active');
+        styleManager.setStyles(activeTab$1.styles, activeTab$1.panel);
+        app$1.trigger('activeTabChange', activeTab$1);
+        const naviRect = navi.getBoundingClientRect();
+        const atRect = activeTab$1.getBoundingClientRect();
+        const addRect = navi.lastChild.getBoundingClientRect();
+        const space = naviRect.width - (addRect.width - 5) - atRect.width;
+        navi.classList.remove('overflown');
+        if (navi.scrollWidth > navi.clientWidth) {
+            navi.classList.add('overflown');
+            const nonActiveTabs = getTabs(activeTab$1);
+            const tabMaxWidth = space / nonActiveTabs.length;
+            nonActiveTabs.forEach(tab => {
+                tab.style.maxWidth = tabMaxWidth + 'px';
+            });
+        }
+        activeTab$1.panel.classList.add('active');
+        tabList[activeTid].active = true;
+        storage.update();
+        return activeTab$1;
+    };
+    const getActiveTab = () => {
+        return activeTab$1;
+    };
+    const getTabByTid = tid => {
+        return src.$(`tab-handle[tid="${tid}"]`, navi);
+    };
+    const getTabs = exclude => {
+        let tabs = Array.from(src.$$(`tab-handle`, navi));
+        switch (true) {
+            case exclude instanceof customElements.get('tab-handle'):
+                return tabs.filter(tab => !tab.isSameNode(exclude));
+            case exclude instanceof customElements.get('tab-handle'):
+                return tabs.filter(tab => !tab.isSameNode(activeTab$1));
+            case exclude === 'empty':
+                return tabs.filter(tab => !src.$('card-base', tab));
+            case exclude === 'nonEmpty':
+                return tabs.filter(tab => !!src.$('card-base', tab));
+            default:
+                return tabs;
+        }
+    };
+    const renameTab = (tab, title) => {
+        tabList[parseInt(tab.tid, 10)].title = title;
+        storage.update();
+    };
+    const createTab = ({
+        tabEntry,
+        previousTab,
+        activate = false
+    } = {}) => {
+        tabEntry = tabEntry || createTabEntry();
+        const tab = document.createElement('tab-handle');
+        tab.panel = document.createElement('tab-panel');
+        tab.container = navi;
+        for (let [key, value] of Object.entries(tabEntry)) {
+            tab[key] = value;
+            tab.panel[key] = value;
+        }
+        contentArea.append(tab.panel);
+        if (previousTab) {
+            previousTab.after(tab);
+        } else {
+            src.$('.adder', navi).before(tab);
+        }
+        tabList[tabEntry.tid] = tabEntry;
+        if (activate) {
+            setActiveTab(tab);
+        }
+        storage.update();
+        return tab;
+    };
+    const getUpcomingActiveTab = () => {
+        let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
+        if (!tabs.length) {
+            return createTab();
+        }
+        let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab$1)));
+        if (tabs[activeIdx + 1]) {
+            return tabs[activeIdx + 1];
+        }
+        if (tabs[activeIdx - 1]) {
+            return tabs[activeIdx - 1];
+        }
+        return createTab();
+    };
+    const bulkDelete = exclude => {
+        getTabs(exclude).forEach(tab => {
+            handleRemoval$1(tab, 'remove');
+            softDelete.cancel();
+        });
+    };
+    const handleRemoval$1 = (tab, action) => {
+        const tid = parseInt(tab.tid, 10);
+        switch (action) {
+            case 'soft':
+                if (tab.isSameNode(activeTab$1)) {
+                    setActiveTab(getUpcomingActiveTab());
+                }
+                softDelete.initiate(tab, 'Tab ' + tab.title)
+                    .then(data => {
+                        handleRemoval$1(tab, data.action);
+                    });
+                tabList[tid].softDeleted = true;
+                break;
+            case 'restore':
+                delete tabList[tid].softDeleted;
+                break;
+            case 'remove':
+                app$1.trigger('tabDelete', {
+                    tid
+                });
+                delete tabList[tid];
+                tab.panel.remove();
+                tab.remove();
+                if (Object.keys(tabList).length === 0) {
+                    createTab({
+                        activate: true
+                    });
+                }
+                break;
+            case 'empty':
+                bulkDelete('empty');
+                setActiveTab();
+                break;
+            case 'others':
+                bulkDelete(tab);
+                setActiveTab(tab);
+                break;
+            case 'all':
+                bulkDelete();
+                break;
+        }
+        storage.update();
+    };
+    const restore = () => {
+        const entries = Object.values(tabList);
+        const activeSet = entries.filter(e => !!e.active);
+        activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabList)[0];
+        for (let tabEntry of entries) {
+            createTab({
+                tabEntry
+            });
+        }
+        setActiveTab();
+    };
+    const init$1 = _app => {
+        app$1 = _app;
+        navi = src.$('tab-navi', app$1);
+        contentArea = src.$('tab-content', app$1);
+        tabList = storage.read();
+        restore();
+        app$1.on('styleChange', e => {
+            activeTab$1.panel.style.setProperty(e.detail.name, e.detail.value);
+            tabList[activeTid].styles[e.detail.area] = tabList[activeTid].styles[e.detail.area] || {};
+            tabList[activeTid].styles[e.detail.area][e.detail.name] = e.detail.value;
+            storage.update();
+        });
+    };
+    var tabManager = {
+        init: init$1,
+        getActiveTab,
+        createTab,
+        handleRemoval: handleRemoval$1,
+        setActiveTab,
+        renameTab,
+        getTabByTid,
+        getTabs
+    };
+
+    class TabNavi extends HTMLElement {
+        connectedCallback() {
+            const adder = src.span({
+                content: '🞤',
+                classNames: ['adder', 'btn', 'tab'],
+                events: {
+                    pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        tabManager.createTab({
+                            activate: true
+                        });
+                    }
+                }
+            });
+            this.addEventListener('dblclick', e => {
+                if (e.target.isSameNode(this)) {
+                    tabManager.createTab({
+                        activate: true
+                    });
+                }
+            });
+            this.append(adder);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$g = app => {
+        TabNavi.prototype.app = app;
+        customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
+    };
+    var TabNavi$1 = {
         register: register$g
+    };
+
+    let current;
+    let firstUse = true;
+    const handleFirstUse = () => {
+        if (firstUse) {
+            document.addEventListener('pointerdown', e => {
+                if (current && !e.target.closest('[data-context-menu="true"]')) {
+                    current.remove();
+                }
+            });
+        }
+        firstUse = false;
+    };
+    const getPosition = e => {
+        const menuXY = {
+            x: current.offsetWidth,
+            y: current.offsetHeight
+        };
+        const screenXY = {
+            x: screen.availWidth,
+            y: screen.availHeight
+        };
+        const mouseXY = {
+            x: e.pageX,
+            y: e.pageY,
+        };
+        const offset = 8;
+        const style = {
+            x: (mouseXY.x + menuXY.x - offset) <= screenXY.x ? mouseXY.x - offset : mouseXY.x - menuXY.x + offset,
+            y: (mouseXY.y + menuXY.y - offset) <= screenXY.y ? mouseXY.y - offset : mouseXY.y - menuXY.y + offset,
+        };
+        return {
+            left: style.x + 'px',
+            top: style.y + 'px'
+        }
+    };
+    const launch = (e, menu) => {
+        e.preventDefault();
+        current = menu;
+        document.body.append(current);
+        Object.assign(current.style, getPosition(e));
+    };
+    const register$f = (owner, menu) => {
+        menu.dataset.contextMenu = true;
+        handleFirstUse();
+        owner.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            launch(e, menu);
+        });
+    };
+    var contextMenu = {
+        register: register$f
+    };
+
+    class TabHandle extends HTMLElement {
+        rename() {
+            let selection = window.getSelection();
+            selection.removeAllRanges();
+            let range = document.createRange();
+            this.label.contentEditable = true;
+            range.selectNodeContents(this.label);
+            selection.addRange(range);
+        }
+        get title() {
+            return this.getAttribute('title');
+        }
+        set title(value) {
+            this.setAttribute('title', value);
+        }
+        get tid() {
+            return this.getAttribute('tid');
+        }
+        set tid(value) {
+            this.setAttribute('tid', value);
+        }
+        connectedCallback() {
+            const menu = src.ul({
+                content: [
+                    src.li({
+                        content: 'Copy card style',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.app.styleStorage = this.styles;
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        content: 'Paste card style',
+                        data: {
+                            disabled: !this.app.styleStorage
+                        },
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0 || e.target.dataset.disabled) {
+                                    return true;
+                                }
+                                this.styles = this.app.styleStorage;
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-separator'],
+                        content: 'Rename tab',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.rename(e.target);
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        content: 'Close tab',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this, 'soft');
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-separator'],
+                        content: 'Close empty tabs',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this, 'empty');
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Close others permanently',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this, 'others');
+                                menu.remove();
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Close all permanently',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this, 'all');
+                                menu.remove();
+                            }
+                        },
+                    })
+                ]
+            });
+            contextMenu.register(this, menu);
+            this.closer = src.span({
+                content: '✖',
+                classNames: ['closer']
+            });
+            this.label = src.span({
+                content: this.title,
+                classNames: ['label'],
+                events: {
+                    blur: e => {
+                        this.title = e.target.textContent.trim();
+                        tabManager.renameTab(this, this.title);
+                    },
+                    keydown: e => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            e.target.blur();
+                            return false;
+                        }
+                    },
+                    dblclick: e => this.rename()
+                }
+            });
+            this.on('pointerup', e => {
+                if (e.button > 1) {
+                    return true;
+                }
+                if (e.button === 1 || e.target.isSameNode(this.closer)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    tabManager.handleRemoval(this, 'soft');
+                } else {
+                    tabManager.setActiveTab(this);
+                }
+            });
+            this.append(this.label, this.closer);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$e = app => {
+        TabHandle.prototype.app = app;
+        customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
+    };
+    var TabHandle$1 = {
+        register: register$e
+    };
+
+    class TabContent extends HTMLElement {
+        connectedCallback() {
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$d = app => {
+        TabContent.prototype.app = app;
+        customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
+    };
+    var TabContent$1 = {
+        register: register$d
+    };
+
+    class TabPanel extends HTMLElement {
+        get tid() {
+            return this.getAttribute('tid');
+        }
+        set tid(value) {
+            this.setAttribute('tid', value);
+        }
+        connectedCallback() {
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$c = app => {
+        TabPanel.prototype.app = app;
+        customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel);
+    };
+    var TabPanel$1 = {
+        register: register$c
+    };
+
+    class StyleEditor extends HTMLElement {
+        connectedCallback() {
+            this.app.on('styleChange', e => {
+                this.style.setProperty(e.detail.name, e.detail.value);
+            });
+            this.app.on('activeTabChange', e => {
+                styleManager.setStyles(e.detail.styles, this);
+            });
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$b = app => {
+        StyleEditor.prototype.app = app;
+        customElements.get('style-editor') || customElements['define']('style-editor', StyleEditor);
+    };
+    var StyleEditor$1 = {
+        register: register$b
     };
 
     var fonts = [
@@ -1166,18 +1802,18 @@
     }
     };
 
-    let props$1 = {};
+    let props = {};
     for (let values of Object.values(cssProps$1)) {
-        props$1 = {
-            ...props$1,
+        props = {
+            ...props,
             ...values
         };
     }
-    const get$1 = key => {
-        return props$1[key];
+    const get = key => {
+        return props[key];
     };
     var cssProps = {
-        get: get$1
+        get
     };
 
     class FontSelector extends HTMLElement {
@@ -1191,7 +1827,8 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
-            this.currentFont = userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || '';
+            this.styleArea = 'fonts';
+            this.currentFont = cssProps.get(this.name) || '';
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
@@ -1214,16 +1851,21 @@
                 events: {
                     change: e => {
                         this.selected = e.target.value;
-                        userPrefs.set(`fonts.${this.name}`, this.currentFont);
                         this.app.trigger(`styleChange`, {
                             name: this.name,
-                            value: e.target.value
+                            value: e.target.value,
+                            area: this.styleArea
                         });
                     }
                 }
             });
             this.append(selector);
             selector.dispatchEvent(new Event('change'));
+            this.app.on('activeTabChange', e => {
+                if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
+                    selector.value = e.detail.styles[this.styleArea][this.name];
+                }
+            });
         }
         constructor(self) {
             self = super(self);
@@ -1232,12 +1874,12 @@
             return self;
         }
     }
-    const register$f = app => {
+    const register$a = app => {
         FontSelector.prototype.app = app;
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$f
+        register: register$a
     };
 
     class FontSize extends HTMLElement {
@@ -1269,7 +1911,8 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-size> element`);
             }
-            this.value = parseFloat(userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || 1.4, 10);
+            this.value = parseFloat(cssProps.get(this.name) || 1.4, 10);
+            this.styleArea = 'fonts';
             const attributes = {
                 value: this.value,
                 type: 'range',
@@ -1286,16 +1929,21 @@
                 events: {
                     input: e => {
                         this.value = e.target.value + 'rem';
-                        userPrefs.set(`fonts.${this.name}`, this.value);
                         this.app.trigger(`styleChange`, {
                             name: this.name,
-                            value: this.value
+                            value: this.value,
+                            area: this.styleArea
                         });
                     }
                 }
             });
             this.append(input);
             input.dispatchEvent(new Event('input'));
+            this.app.on('activeTabChange', e => {
+                if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
+                    input.value = parseFloat(e.detail.styles[this.styleArea][this.name], 10);
+                }
+            });
         }
         constructor(self) {
             self = super(self);
@@ -1304,12 +1952,12 @@
             return self;
         }
     }
-    const register$e = app => {
+    const register$9 = app => {
         FontSize.prototype.app = app;
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$e
+        register: register$9
     };
 
     var backgrounds = [
@@ -1411,7 +2059,7 @@
                     return input.value;
                 }
             }
-            return userPrefs.get(`patterns.${this.name}`) || cssProps.get(this.name) || '';
+            return cssProps.get(this.name) || '';
         }
         connectedCallback() {
             if (!this.name) {
@@ -1421,6 +2069,7 @@
                 throw Error(`Missing attribute "type" on <pattern-selector> element`);
             }
             this.value = this.getValue();
+            this.styleArea = 'patterns';
             const patterns = patternPool[this.type];
             const selector = src.ul({
                 content: patterns.map(entry => {
@@ -1452,16 +2101,21 @@
                 events: {
                     change: e => {
                         this.value = this.getValue();
-                        userPrefs.set(`patterns.${this.name}`, this.value);
                         this.app.trigger(`styleChange`, {
                             name: this.name,
-                            value: this.value
+                            value: this.value,
+                            area: this.styleArea
                         });
                     }
                 }
             });
             this.append(selector);
             selector.dispatchEvent(new Event('change'));
+            this.app.on('activeTabChange', e => {
+                if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
+                    src.$(`input[value="${e.detail.styles[this.styleArea][this.name]}"]`, this).checked = true;
+                }
+            });
         }
         constructor(self) {
             self = super(self);
@@ -1470,502 +2124,11 @@
             return self;
         }
     }
-    const register$d = app => {
+    const register$8 = app => {
         PatternSelector.prototype.app = app;
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
-        register: register$d
-    };
-
-    const convertToRoman = num => {
-      const roman = {
-        M: 1000,
-        CM: 900,
-        D: 500,
-        CD: 400,
-        C: 100,
-        XC: 90,
-        L: 50,
-        XL: 40,
-        X: 10,
-        IX: 9,
-        V: 5,
-        IV: 4,
-        I: 1
-      };
-      let str = '';
-      for (let i of Object.keys(roman)) {
-        const q = Math.floor(num / roman[i]);
-        num -= q * roman[i];
-        str += i.repeat(q);
-      }
-      return str;
-    };
-
-    const styles = Array.from(getComputedStyle(document.body));
-    const isStyleProp = key => {
-        return key.startsWith('--') || styles.includes(key);
-    };
-    const set = (key, value, target) => {
-        target = target || document.body;
-        if (isStyleProp(key)) {
-            return target.style.setProperty(key, value);
-        }
-        target.dataset[key] = value;
-    };
-    const get = (key, target) => {
-        target = target || document.body;
-        if (isStyleProp(key)) {
-            return JSON.parse(target.style.getPropertyValue(key));
-        }
-        if (typeof target.dataset[key] === 'undefined') {
-            return false;
-        }
-        return JSON.parse(target.dataset[key]);
-    };
-    const toggle$1 = (key, target) => {
-        set(key, !get(key, target), target);
-    };
-    const unset = (key, target) => {
-        target = target || document.body;
-        if (isStyleProp(key)) {
-            return target.style.removeProperty(key);
-        }
-        delete target.dataset[key];
-    };
-    var props = {
-        unset,
-        get,
-        set,
-        toggle: toggle$1
-    };
-
-    const toast = src.$('#toast');
-    const softDelete = (element, label) => {
-        props.set('softDeleted', true, element);
-        const dialog = document.createElement('undo-dialog');
-        dialog.element = element;
-        if(label) {
-            dialog.label = label;
-        }
-        toast.append(dialog);
-        return new Promise(resolve => {
-            dialog.on('restore', e => {
-                props.unset('softDeleted', element);
-                resolve({
-                    action: 'restore',
-                    element: e.detail.element
-                });
-            });
-            dialog.on('remove', e => {
-                resolve({
-                    action: 'remove',
-                    element: e.detail.element
-                });
-            });
-        })
-    };
-
-    const lsKey = settings$1.get('storageKeys.tabs');
-    let app$1;
-    let tabList = {};
-    let navi;
-    let contentArea;
-    let activeTab$1;
-    let activeTid;
-    const createTabEntry = () => {
-        const tid = nextIncrement();
-        return {
-            tid,
-            title: convertToRoman(tid)
-        }
-    };
-    const storage = {
-        read: () => {
-            const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
-            return Object.keys(stored).length ? stored : {
-                1: createTabEntry()
-            };
-        },
-        update: () => {
-            return localStorage.setItem(lsKey, JSON.stringify(tabList || {}))
-        }
-    };
-    const nextIncrement = () => {
-        return Math.max(...[0].concat(Object.keys(tabList))) + 1;
-    };
-    const setActiveTab = tab => {
-        activeTab$1 = tab || (activeTid ? src.$(`tab-handle[tid="${activeTid}"]`, navi) : src.$(`tab-handle`, navi));
-        activeTid = parseInt(activeTab$1.tid, 10);
-        src.$$('tab-handle', navi).forEach(tab => {
-            tab.classList.remove('active');
-            tab.panel.classList.remove('active');
-            delete tabList[parseInt(tab.tid, 10)].active;
-        });
-        activeTab$1.classList.add('active');
-        activeTab$1.panel.classList.add('active');
-        tabList[activeTid].active = true;
-        storage.update();
-        return activeTab$1;
-    };
-    const getActiveTab = () => {
-        return activeTab$1;
-    };
-    const getTabByTid = tid => {
-        return src.$(`tab-handle[tid="${tid}"]`, navi);
-    };
-    const renameTab = (tab, title) => {
-        tabList[parseInt(tab.tid, 10)].title = title;
-        storage.update();
-    };
-    const createTab = tabEntry => {
-        tabEntry = tabEntry || createTabEntry();
-        const tab = document.createElement('tab-handle');
-        tab.panel = document.createElement('tab-panel');
-        tab.container = navi;
-        for (let [key, value] of Object.entries(tabEntry)) {
-            tab[key] = value;
-            tab.panel[key] = value;
-        }
-        contentArea.append(tab.panel);
-        src.$('.adder', navi).before(tab);
-        tabList[tabEntry.tid] = tabEntry;
-        storage.update();
-        return tab;
-    };
-    const getUpcomingActiveTab = () => {
-        let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
-        if (!tabs.length) {
-            return createTab();
-        }
-        let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab$1)));
-        if (tabs[activeIdx + 1]) {
-            return tabs[activeIdx + 1];
-        }
-        if (tabs[activeIdx - 1]) {
-            return tabs[activeIdx - 1];
-        }
-        return createTab();
-    };
-    const bulkDelete = triggerTab => {
-        src.$$(triggerTab ? `tab-handle:not([tid="${triggerTab.tid}"])` : `tab-handle`, navi).forEach(tab => {
-            handleRemoval$1(tab, 'remove');
-        });
-    };
-    const handleRemoval$1 = (tab, action) => {
-        const tid = parseInt(tab.tid, 10);
-        switch (action) {
-            case 'soft':
-                if (tab.isSameNode(activeTab$1)) {
-                    setActiveTab(getUpcomingActiveTab());
-                }
-                softDelete(tab, 'Tab ' + tab.title)
-                    .then(data => {
-                        handleRemoval$1(tab, data.action);
-                    });
-                tabList[tid].softDeleted = true;
-                break;
-            case 'restore':
-                delete tabList[tid].softDeleted;
-                break;
-            case 'remove':
-                app$1.trigger('tabDelete', {
-                    tid
-                });
-                delete tabList[tid];
-                tab.panel.remove();
-                tab.remove();
-                if (Object.keys(tabList).length === 0) {
-                    setActiveTab(createTab());
-                }
-                break;
-            case 'others':
-                bulkDelete(tab);
-                setActiveTab(tab);
-                break;
-            case 'all':
-                bulkDelete();
-                break;
-        }
-        storage.update();
-    };
-    const restore = () => {
-        const entries = Object.values(tabList);
-        const activeSet = entries.filter(e => !!e.active);
-        activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabList)[0];
-        for (let tabEntry of entries) {
-            createTab(tabEntry);
-        }
-        setActiveTab();
-    };
-    const init$1 = _app => {
-        app$1 = _app;
-        navi = src.$('tab-navi', app$1);
-        contentArea = src.$('tab-content', app$1);
-        tabList = storage.read();
-        restore();
-    };
-    var tabManager = {
-        init: init$1,
-        getActiveTab,
-        createTab,
-        handleRemoval: handleRemoval$1,
-        setActiveTab,
-        renameTab,
-        getTabByTid
-    };
-
-    class TabNavi extends HTMLElement {
-        connectedCallback() {
-            const adder = src.span({
-                content: '🞤',
-                classNames: ['adder', 'btn', 'tab'],
-                events: {
-                    pointerup: e => {
-                        if (e.button !== 0) {
-                            return true;
-                        }
-                        const tab = tabManager.createTab();
-                        tabManager.setActiveTab(tab);
-                    }
-                }
-            });
-            this.addEventListener('dblclick', e => {
-                if (e.target.isSameNode(this)) {
-                    tabManager.setActiveTab(tabManager.createTab());
-                }
-            });
-            this.append(adder);
-        }
-        constructor(self) {
-            self = super(self);
-            self.on = on;
-            self.trigger = trigger;
-            return self;
-        }
-    }
-    const register$c = () => {
-        customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
-    };
-    var TabNavi$1 = {
-        register: register$c
-    };
-
-    let current;
-    let firstUse = true;
-    const handleFirstUse = () => {
-        if (firstUse) {
-            document.addEventListener('pointerdown', e => {
-                if (current && !e.target.closest('[data-context-menu="true"]')) {
-                    current.remove();
-                }
-            });
-        }
-        firstUse = false;
-    };
-    const getPosition = e => {
-        const menuXY = {
-            x: current.offsetWidth,
-            y: current.offsetHeight
-        };
-        const screenXY = {
-            x: screen.availWidth,
-            y: screen.availHeight
-        };
-        const mouseXY = {
-            x: e.pageX,
-            y: e.pageY,
-        };
-        const offset = 8;
-        const style = {
-            x: (mouseXY.x + menuXY.x - offset) <= screenXY.x ? mouseXY.x - offset : mouseXY.x - menuXY.x + offset,
-            y: (mouseXY.y + menuXY.y - offset) <= screenXY.y ? mouseXY.y - offset : mouseXY.y - menuXY.y + offset,
-        };
-        return {
-            left: style.x + 'px',
-            top: style.y + 'px'
-        }
-    };
-    const launch = (e, menu) => {
-        e.preventDefault();
-        current = menu;
-        document.body.append(current);
-        Object.assign(current.style, getPosition(e));
-    };
-    const register$b = (owner, menu) => {
-        menu.dataset.contextMenu = true;
-        handleFirstUse();
-        owner.addEventListener('contextmenu', e => {
-            e.preventDefault();
-            launch(e, menu);
-        });
-    };
-    var contextMenu = {
-        register: register$b
-    };
-
-    class TabHandle extends HTMLElement {
-        rename() {
-            let selection = window.getSelection();
-            selection.removeAllRanges();
-            let range = document.createRange();
-            this.label.contentEditable = true;
-            range.selectNodeContents(this.label);
-            selection.addRange(range);
-        }
-        get title() {
-            return this.getAttribute('title');
-        }
-        set title(value) {
-            this.setAttribute('title', value);
-        }
-        get tid() {
-            return this.getAttribute('tid');
-        }
-        set tid(value) {
-            this.setAttribute('tid', value);
-        }
-        connectedCallback() {
-            const menu = src.ul({
-                content: [
-                    src.li({
-                        content: 'Rename',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                this.rename(e.target);
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        classNames: ['context-separator'],
-                        content: 'Close',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                tabManager.handleRemoval(this, 'soft');
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        classNames: ['context-danger'],
-                        content: 'Close others permanently',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                tabManager.handleRemoval(this, 'others');
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        classNames: ['context-danger'],
-                        content: 'Close all permanently',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                tabManager.handleRemoval(this, 'all');
-                                menu.remove();
-                            }
-                        },
-                    })
-                ]
-            });
-            contextMenu.register(this, menu);
-            this.closer = src.span({
-                content: '✖',
-                classNames: ['closer']
-            });
-            this.label = src.span({
-                content: this.title,
-                classNames: ['label'],
-                events: {
-                    blur: e => {
-                        this.title = e.target.textContent.trim();
-                        tabManager.renameTab(this, this.title);
-                    },
-                    keydown: e => {
-                        if(e.key === 'Enter'){
-                            e.preventDefault();
-                            e.target.blur();
-                            return false;
-                        }
-                    },
-                    dblclick: e => this.rename()
-                }
-            });
-            this.on('pointerup', e => {
-                if (e.button > 1) {
-                    return true;
-                }
-                if (e.button === 1 || e.target.isSameNode(this.closer)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    tabManager.handleRemoval(this, 'soft');
-                } else {
-                    tabManager.setActiveTab(this);
-                }
-            });
-            this.append(this.label, this.closer);
-        }
-        constructor(self) {
-            self = super(self);
-            self.on = on;
-            self.trigger = trigger;
-            return self;
-        }
-    }
-    const register$a = () => {
-        customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
-    };
-    var TabHandle$1 = {
-        register: register$a
-    };
-
-    class TabContent extends HTMLElement {
-        connectedCallback() {
-        }
-        constructor(self) {
-            self = super(self);
-            return self;
-        }
-    }
-    const register$9 = () => {
-        customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
-    };
-    var TabContent$1 = {
-        register: register$9
-    };
-
-    class TabPanel extends HTMLElement {
-        get tid() {
-            return this.getAttribute('tid');
-        }
-        set tid(value) {
-            this.setAttribute('tid', value);
-        }
-        connectedCallback() {
-        }
-        constructor(self) {
-            self = super(self);
-            return self;
-        }
-    }
-    const register$8 = () => {
-        customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel);
-    };
-    var TabPanel$1 = {
         register: register$8
     };
 
@@ -2162,7 +2325,6 @@
             }
         }
         getInitialColor() {
-            userPrefs.get(`colors.${this.name}`);
             const pattern = this.name.replace('-color', '-');
             const channels =[];
             ['h', 's', 'l'].forEach(channel => {
@@ -2187,6 +2349,7 @@
             const config = buildConfig(this.value);
             this.tracks = config.tracks;
             this.value = config.original;
+            this.styleArea = 'colors';
             const valueInput = document.createElement('input');
             valueInput.type = 'hidden';
             valueInput.value = this.value;
@@ -2218,10 +2381,10 @@
                     valueInput.value = this.value;
                     background.update(config.type, this.tracks);
                     const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
-                    userPrefs.set(`colors.${e.target.name}`, formatted);
                     this.app.trigger(`styleChange`, {
                         name: e.target.name,
-                        value: formatted
+                        value: formatted,
+                        area: this.styleArea
                     });
                 });
                 input.addEventListener('change', e => {
@@ -2234,6 +2397,16 @@
             }
             ranges.forEach(input => {
                 input.dispatchEvent(new Event('input'));
+            });
+            this.app.on('activeTabChange', e => {
+                if(e.detail.styles[this.styleArea]) {
+                    for(let [name, value] of Object.entries(e.detail.styles[this.styleArea])){
+                        let target = src.$(`input[name="${name}"]`, this);
+                        if(target){
+                            target.value = parseFloat(value, 10);
+                        }
+                    }
+                }
             });
         }
         constructor(self) {
@@ -2295,11 +2468,11 @@
                 this.remove();
             });
             this.on('characterEdit', function (e) {
-                props.set('cardState', 'edit');
+                properties.set('cardState', 'edit');
                 this.classList.add('editable');
             });
             this.on('characterDone', function (e) {
-                props.unset('cardState');
+                properties.unset('cardState');
                 this.classList.remove('editable');
             });
         }
@@ -2556,8 +2729,8 @@
                         const row = trigger.closest('[data-key]');
                         const key = row.dataset.key;
                         const field = trigger.dataset.type;
-                        props.toggle(field, row);
-                        const value = props.get(field, row);
+                        properties.toggle(field, row);
+                        const value = properties.get(field, row);
                         this.card.trigger('visibilityChange', {
                             field,
                             key,
@@ -2948,13 +3121,14 @@
     const components = [
         CharacterLibrary$1,
         LibraryOrganizer$1,
-        FontSelector$1,
-        FontSize$1,
-        PatternSelector$1,
         TabNavi$1,
         TabHandle$1,
         TabContent$1,
         TabPanel$1,
+        StyleEditor$1,
+        FontSelector$1,
+        FontSize$1,
+        PatternSelector$1,
         ColorSelector$1,
         CardBase$1,
         CardForm$1,
@@ -3055,18 +3229,12 @@
                     tabManager.init(this);
                     cardManager.init(this);
                 });
-            this.on('styleChange', e => {
-                [this.editor, this.styleEditor].forEach(panel => {
-                    props.set(e.detail.name, e.detail.value, panel);
-                });
-            });
         }
         constructor(self) {
             self = super(self);
             self.on = on;
             self.trigger = trigger;
-            self.editor = src.$('#editor');
-            self.styleEditor = src.$('#style-editor');
+            self.styleStorage = false;
             return self;
         }
     }

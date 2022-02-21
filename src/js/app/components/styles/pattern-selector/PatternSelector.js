@@ -1,12 +1,11 @@
 import fn from 'fancy-node';
-import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import backgrounds from '../../../../data/backgrounds.json';
-import borders from '../../../../data/borders.json';
-import cssProps from '../../../modules/cssProps/cssProps.js';
+import backgrounds from '../../../../../data/backgrounds.json';
+import borders from '../../../../../data/borders.json';
+import cssProps from '../../../../modules/cssProps/cssProps.js';
 import {
     on,
     trigger
-} from '../../../modules/events/eventHandler.js'
+} from '../../../../modules/events/eventHandler.js'
 
 const patternPool = {
     backgrounds,
@@ -81,7 +80,7 @@ class PatternSelector extends HTMLElement {
                 return input.value;
             }
         }
-        return userPrefs.get(`patterns.${this.name}`) || cssProps.get(this.name) || '';
+        return cssProps.get(this.name) || '';
     }
 
     /**
@@ -98,6 +97,8 @@ class PatternSelector extends HTMLElement {
         }
 
         this.value = this.getValue();
+
+        this.styleArea = 'patterns';
 
         const patterns = patternPool[this.type];
 
@@ -131,10 +132,10 @@ class PatternSelector extends HTMLElement {
             events: {
                 change: e => {
                     this.value = this.getValue();
-                    userPrefs.set(`patterns.${this.name}`, this.value);
                     this.app.trigger(`styleChange`, {
                         name: this.name,
-                        value: this.value
+                        value: this.value,
+                        area: this.styleArea
                     });
                 }
             }
@@ -142,6 +143,14 @@ class PatternSelector extends HTMLElement {
 
         this.append(selector);
         selector.dispatchEvent(new Event('change'));
+        
+        
+        // change from the active tab
+        this.app.on('activeTabChange', e => {
+            if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
+                fn.$(`input[value="${e.detail.styles[this.styleArea][this.name]}"]`, this).checked = true;
+            }
+        })
     }
 
     constructor(self) {

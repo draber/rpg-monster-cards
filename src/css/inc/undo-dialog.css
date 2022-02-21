@@ -1,4 +1,4 @@
-#toast {
+[data-undo-dialogs] {
   width: 32rem;
   max-width: 100%;
   position: absolute;

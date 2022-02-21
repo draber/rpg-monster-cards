@@ -1,10 +1,9 @@
 import fn from 'fancy-node';
-import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import cssProps from '../../../modules/cssProps/cssProps.js';
+import cssProps from '../../../../modules/cssProps/cssProps.js';
 import {
     on,
     trigger
-} from '../../../modules/events/eventHandler.js'
+} from '../../../../modules/events/eventHandler.js'
 
 /**
  * Custom element containing the list of fonts
@@ -84,7 +83,8 @@ class FontSize extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-size> element`);
         }
 
-        this.value = parseFloat(userPrefs.get(`fonts.${this.name}`) || cssProps.get(this.name) || 1.4, 10);
+        this.value = parseFloat(cssProps.get(this.name) || 1.4, 10);
+        this.styleArea = 'fonts';
 
         const attributes = {  
             value: this.value,  
@@ -104,10 +104,10 @@ class FontSize extends HTMLElement {
             events: {
                 input: e => {
                     this.value = e.target.value + 'rem';
-                    userPrefs.set(`fonts.${this.name}`, this.value);
                     this.app.trigger(`styleChange`, {
                         name: this.name,
-                        value: this.value
+                        value: this.value,
+                        area: this.styleArea
                     });
                 }
             }
@@ -115,6 +115,14 @@ class FontSize extends HTMLElement {
 
         this.append(input);
         input.dispatchEvent(new Event('input'));
+        
+        
+        // change from the active tab
+        this.app.on('activeTabChange', e => {
+            if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
+                input.value = parseFloat(e.detail.styles[this.styleArea][this.name], 10);
+            }
+        })
     }
 
     constructor(self) {

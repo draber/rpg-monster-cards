@@ -1,13 +1,14 @@
 import CharacterLibrary from './character-library/CharacterLibrary.js';
 import LibraryOrganizer from './character-library/LibraryOrganizer.js';
-import FontSelector from './font-selector/FontSelector.js';
-import FontSize from './font-selector/FontSize.js';
-import PatternSelector from './pattern-selector/PatternSelector.js';
 import TabNavi from './tabs/TabNavi.js';
 import TabHandle from './tabs/TabHandle.js';
 import TabContent from './tabs/TabContent.js';
 import TabPanel from './tabs/TabPanel.js';
-import ColorSelector from './color-selector/ColorSelector.js';
+import StyleEditor from './styles/style-editor/StyleEditor.js';
+import FontSelector from './styles/font-selector/FontSelector.js';
+import FontSize from './styles/font-selector/FontSize.js';
+import PatternSelector from './styles/pattern-selector/PatternSelector.js';
+import ColorSelector from './styles/color-selector/ColorSelector.js';
 import CardBase from './character-cards/CardBase.js';
 import CardForm from './character-cards/CardForm.js';
 import CardRecto from './character-cards/CardRecto.js';
@@ -15,16 +16,18 @@ import CardToolbar from './character-cards/CardToolbar.js';
 import CardVerso from './character-cards/CardVerso.js';
 import UndoDialog from './undo-dialog/UndoDialog.js';
 
+
 const components = [
     CharacterLibrary,
     LibraryOrganizer,
-    FontSelector,
-    FontSize,
-    PatternSelector,  
     TabNavi,
-    TabHandle, 
+    TabHandle,
     TabContent,
     TabPanel,
+    StyleEditor,
+    FontSelector,
+    FontSize,
+    PatternSelector,
     ColorSelector,
     CardBase,
     CardForm,
