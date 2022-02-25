@@ -2,7 +2,7 @@ import {
     on,
     trigger
 } from '../../../../modules/events/eventHandler.js'
-import styleManager from '../styleManager.js';
+import tabManager from '../../tabs/tabManager.js';
 
 /**
  * Custom element containing the list of fonts
@@ -16,13 +16,12 @@ class StyleEditor extends HTMLElement {
 
         // event listeners on this element
         // single change from one of the controls
-        this.app.on('styleChange', e => {
-            this.style.setProperty(e.detail.name, e.detail.value);
-        })
-
-        // bulk change from the active tab
-        this.app.on('activeTabChange', e => {
-            styleManager.setStyles(e.detail.styles, this);
+        this.app.on('singleStyleChange', e => {
+            const activeTab = tabManager.getTab('active');
+            const tab = e.detail.tab || activeTab;
+            if (tab.isSameNode(activeTab)) {
+                this.style.setProperty(e.detail.name, e.detail.value);
+            }
         })
     }
 

@@ -74,9 +74,9 @@ class PatternSelector extends HTMLElement {
         return `url(${path}/${this.type}/${img.split('/').pop()})`;
     }
 
-    getValue(){
-        for(let input of fn.$$('input', this)) {
-            if(input.checked){
+    getValue() {
+        for (let input of fn.$$('input', this)) {
+            if (input.checked) {
                 return input.value;
             }
         }
@@ -102,37 +102,43 @@ class PatternSelector extends HTMLElement {
 
         const patterns = patternPool[this.type];
 
+        const inputs = [];
+
+        const choices = patterns.map(entry => {
+            let input = fn.input({
+                attributes: {
+                    type: 'radio',
+                    name: `${this.type}-pattern`,
+                    value: this.getUrl(entry.name, 'css'),
+                    id: `${this.type}-${entry.id}`,
+                    checked: this.getUrl(entry.name, 'css') === this.value
+                }
+            });
+            inputs.push(input);
+            return fn.li({
+                style: {
+                    backgroundImage: this.getUrl(entry.name, 'html')
+                },
+                attributes: {
+                    title: entry.label
+                },
+                content: [
+                    input,
+                    fn.label({
+                        attributes: {
+                            for: `${this.type}-${entry.id}`
+                        }
+                    })
+                ]
+            })
+        });
+
         const selector = fn.ul({
-            content: patterns.map(entry => {
-                return fn.li({
-                    style: {
-                        backgroundImage: this.getUrl(entry.name, 'html')
-                    },
-                    attributes: {
-                        title: entry.label
-                    },
-                    content: [
-                        fn.input({
-                            attributes: {
-                                type: 'radio',
-                                name: `${this.type}-pattern`,
-                                value: this.getUrl(entry.name, 'css'),
-                                id: `${this.type}-${entry.id}`,
-                                checked: this.getUrl(entry.name, 'css') === this.value
-                            }
-                        }),
-                        fn.label({
-                            attributes: {
-                                for: `${this.type}-${entry.id}`
-                            }
-                        })
-                    ]
-                })
-            }),
+            content: choices,
             events: {
                 change: e => {
                     this.value = this.getValue();
-                    this.app.trigger(`styleChange`, {
+                    this.app.trigger(`singleStyleChange`, {
                         name: this.name,
                         value: this.value,
                         area: this.styleArea
@@ -143,13 +149,21 @@ class PatternSelector extends HTMLElement {
 
         this.append(selector);
         selector.dispatchEvent(new Event('change'));
-        
-        
+
+
         // change from the active tab
-        this.app.on('activeTabChange', e => {
-            if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
-                fn.$(`input[value="${e.detail.styles[this.styleArea][this.name]}"]`, this).checked = true;
-            }
+        this.app.on('tabStyleChange', e => {
+            this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
+                e.detail.styles[this.styleArea][this.name] :
+                cssProps.get(this.name);
+            inputs.find(e => e.value === this.value).checked = true;
+
+            this.app.trigger(`singleStyleChange`, {
+                name: this.name,
+                value: this.value,
+                area: this.styleArea,
+                tab: e.detail.tab
+            });
         })
     }
 

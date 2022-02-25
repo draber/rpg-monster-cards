@@ -467,7 +467,7 @@
     let settings = {
         ...config
     };
-    const get$4 = key => {
+    const get$5 = key => {
         let current = Object.create(settings);
         for (let token of key.split('.')) {
             if (typeof current[token] === 'undefined') {
@@ -477,7 +477,7 @@
         }
         return current;
     };
-    const set$3 = (key, value) => {
+    const set$4 = (key, value) => {
         const keys = key.split('.');
         const last = keys.pop();
         let current = settings;
@@ -494,8 +494,8 @@
         current[last] = value;
     };
     var settings$1 = {
-        get: get$4,
-        set: set$3
+        get: get$5,
+        set: set$4
     };
 
     const lsKey$2 = settings$1.get('storageKeys.cards');
@@ -503,7 +503,7 @@
         system: {},
         user: {}
     };
-    const storage$1 = {
+    const storage = {
         read: () => {
             return JSON.parse(localStorage.getItem(lsKey$2) || '{}')
         },
@@ -514,42 +514,42 @@
     const values = type => {
         return Object.values(data[type]);
     };
-    const set$2 = (type, cid, character) => {
+    const set$3 = (type, cid, character) => {
         data[type][cid] = character;
         if (type === 'user') {
-            storage$1.update();
+            storage.update();
         }
     };
-    const get$3 = (type, cid) => {
+    const get$4 = (type, cid) => {
         return data[type][cid];
     };
     const bulkDeleteByTid = tid => {
         for(let [cid, character] of Object.entries(data['user'])){
             if(character.meta.tid === tid){
-                remove('user', cid);
+                remove$1('user', cid);
             }
         }
     };
     const getAllByType = type => {
         return data[type];
     };
-    const remove = (type, cid) => {
+    const remove$1 = (type, cid) => {
         delete data[type][cid];
         if (type === 'user') {
-            storage$1.update();
+            storage.update();
         }
     };
     const nextIncrement$1 = type => {
         const lowest = type === 'system' ? 0 : 5000;
         return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
     };
-    const init$2 = () => {
-        data.user = storage$1.read();
+    const init$4 = () => {
+        data.user = storage.read();
         return (fetch('js/characters.json')
             .then(response => response.json())
             .then(data => {
                 data.forEach((props, cid) => {
-                    set$2('system', cid, {
+                    set$3('system', cid, {
                         meta: {
                             cid,
                             origin: 'system'
@@ -560,10 +560,10 @@
             }));
     };
     var characterMap = {
-        init: init$2,
-        get: get$3,
-        set: set$2,
-        remove,
+        init: init$4,
+        get: get$4,
+        set: set$3,
+        remove: remove$1,
         values,
         nextIncrement: nextIncrement$1,
         getAllByType,
@@ -618,18 +618,18 @@
     const getAll = () => {
         return settings$1.get(`userPrefs`);
     };
-    const get$2 = key => {
+    const get$3 = key => {
         return settings$1.get(`userPrefs.${key}`);
     };
-    const set$1 = (key, value) => {
+    const set$2 = (key, value) => {
         settings$1.set(`userPrefs.${key}`, value);
         localStorage.setItem(lsKey$1, JSON.stringify(getAll()));
         return true;
     };
     var userPrefs = {
         getAll,
-        get: get$2,
-        set: set$1
+        get: get$3,
+        set: set$2
     };
 
     const on = function(types, action)  {
@@ -1048,36 +1048,11 @@
         register: register$h
     };
 
-    const convertToRoman = num => {
-      const roman = {
-        M: 1000,
-        CM: 900,
-        D: 500,
-        CD: 400,
-        C: 100,
-        XC: 90,
-        L: 50,
-        XL: 40,
-        X: 10,
-        IX: 9,
-        V: 5,
-        IV: 4,
-        I: 1
-      };
-      let str = '';
-      for (let i of Object.keys(roman)) {
-        const q = Math.floor(num / roman[i]);
-        num -= q * roman[i];
-        str += i.repeat(q);
-      }
-      return str;
-    };
-
-    const set = (key, value, target) => {
+    const set$1 = (key, value, target) => {
         target = target || document.body;
         target.dataset[key] = value;
     };
-    const get$1 = (key, target) => {
+    const get$2 = (key, target) => {
         target = target || document.body;
         if (typeof target.dataset[key] === 'undefined') {
             return false;
@@ -1085,7 +1060,7 @@
         return JSON.parse(target.dataset[key]);
     };
     const toggle$1 = (key, target) => {
-        set(key, !get$1(key, target), target);
+        set$1(key, !get$2(key, target), target);
     };
     const unset = (key, target) => {
         target = target || document.body;
@@ -1093,8 +1068,8 @@
     };
     var properties = {
         unset,
-        get: get$1,
-        set,
+        get: get$2,
+        set: set$1,
         toggle: toggle$1
     };
 
@@ -1141,39 +1116,56 @@
         cancel
     };
 
-    const setStyles = (styles, target) => {
-        Object.values(styles).forEach(style => {
-            for(let [prop, value] of Object.entries(style)) {
-                target.style.setProperty(prop, value);
-            }
-        });
-    };
-    var styleManager = {
-        setStyles
+    const convertToRoman = num => {
+      const roman = {
+        M: 1000,
+        CM: 900,
+        D: 500,
+        CD: 400,
+        C: 100,
+        XC: 90,
+        L: 50,
+        XL: 40,
+        X: 10,
+        IX: 9,
+        V: 5,
+        IV: 4,
+        I: 1
+      };
+      let str = '';
+      for (let i of Object.keys(roman)) {
+        const q = Math.floor(num / roman[i]);
+        num -= q * roman[i];
+        str += i.repeat(q);
+      }
+      return str;
     };
 
+    let tabList;
     const lsKey = settings$1.get('storageKeys.tabs');
-    let app$1;
-    let tabList = {};
-    let navi;
-    let contentArea;
-    let activeTab$1;
-    let activeTid;
-    const storage = {
-        read: () => {
-            const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
-            return Object.keys(stored).length ? stored : {
-                1: createTabEntry()
+    const init$3 = () => {
+        tabList = tabList || read();
+    };
+    const read = () => {
+        const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
+        return Object.keys(stored).length ?
+            stored :
+            {
+                1: blank()
             };
-        },
-        update: () => {
-            return localStorage.setItem(lsKey, JSON.stringify(tabList || {}))
-        }
+    };
+    const write = () => {
+        init$3();
+        return localStorage.setItem(lsKey, JSON.stringify(tabList));
     };
     const nextIncrement = () => {
-        return Math.max(...[0].concat(Object.keys(tabList))) + 1;
+        let keys = tabList ? Object.keys(tabList).map(e => parseInt(e)) : [];
+        if(!keys.length){
+            keys = [0];
+        }
+        return Math.max(...keys) + 1;
     };
-    const createTabEntry = () => {
+    const blank = () => {
         const tid = nextIncrement();
         return {
             tid,
@@ -1181,22 +1173,71 @@
             styles: {}
         }
     };
+    const parseTid = data => {
+        return parseInt((data.tid ? data.tid : data), 10);
+    };
+    const get$1 = data => {
+        init$3();
+        if (data === 'all') {
+            return tabList;
+        }
+        if (!data) {
+            return blank();
+        }
+        const tid = parseTid(data);
+        return tabList[tid] ? tabList[tid] : blank();
+    };
+    const set = (tidData, data) => {
+        init$3();
+        tabList[parseTid(tidData)] = data;
+        write();
+    };
+    const update$1 = (tidData, key, value) => {
+        const tid = parseTid(tidData);
+        const entry = get$1(tid);
+        if (value === null) {
+            delete entry[key];
+        } else {
+            entry[key] = value;
+        }
+        set(tid, entry);
+    };
+    const remove = tidData => {
+        init$3();
+        delete tabList[parseTid(tidData)];
+        write();
+    };
+    var tabStorage = {
+        get: get$1,
+        set,
+        update: update$1,
+        remove,
+        parseTid
+    };
+
+    let app$1;
+    let navi;
+    let contentArea;
+    let activeTab$1;
     const setActiveTab = tab => {
-        activeTab$1 = tab || (activeTid ? src.$(`tab-handle[tid="${activeTid}"]`, navi) : src.$(`tab-handle`, navi));
-        activeTid = parseInt(activeTab$1.tid, 10);
+        activeTab$1 = tab || activeTab$1 || src.$(`tab-handle`, navi);
         src.$$('tab-handle', navi).forEach(tab => {
             tab.classList.remove('active');
             tab.panel.classList.remove('active');
-            delete tabList[parseInt(tab.tid, 10)].active;
+            tabStorage.update(tab, 'active', null);
             tab.removeAttribute('style');
         });
         activeTab$1.classList.add('active');
-        styleManager.setStyles(activeTab$1.styles, activeTab$1.panel);
-        app$1.trigger('activeTabChange', activeTab$1);
+        app$1.trigger('tabStyleChange', {
+            tab: activeTab$1,
+            styles: tabStorage.get(activeTab$1).styles
+        });
         const naviRect = navi.getBoundingClientRect();
         const atRect = activeTab$1.getBoundingClientRect();
         const addRect = navi.lastChild.getBoundingClientRect();
-        const space = naviRect.width - (addRect.width - 5) - atRect.width;
+        const space = naviRect.width -
+            (addRect.width + parseInt(getComputedStyle(navi.lastChild).marginLeft)) -
+            atRect.width;
         navi.classList.remove('overflown');
         if (navi.scrollWidth > navi.clientWidth) {
             navi.classList.add('overflown');
@@ -1207,41 +1248,35 @@
             });
         }
         activeTab$1.panel.classList.add('active');
-        tabList[activeTid].active = true;
-        storage.update();
+        tabStorage.update(activeTab$1, 'active', true);
         return activeTab$1;
     };
-    const getActiveTab = () => {
-        return activeTab$1;
-    };
-    const getTabByTid = tid => {
-        return src.$(`tab-handle[tid="${tid}"]`, navi);
+    const getTab = tabData => {
+        if (tabData === 'active') {
+            return activeTab$1;
+        }
+        if (tabData instanceof HTMLElement) {
+            return tabData
+        }
+        return src.$(`tab-handle[tid="${tabStorage.parseTid(tabData)}"]`, navi);
     };
     const getTabs = exclude => {
         let tabs = Array.from(src.$$(`tab-handle`, navi));
         switch (true) {
             case exclude instanceof customElements.get('tab-handle'):
                 return tabs.filter(tab => !tab.isSameNode(exclude));
-            case exclude instanceof customElements.get('tab-handle'):
-                return tabs.filter(tab => !tab.isSameNode(activeTab$1));
             case exclude === 'empty':
                 return tabs.filter(tab => !src.$('card-base', tab));
-            case exclude === 'nonEmpty':
-                return tabs.filter(tab => !!src.$('card-base', tab));
             default:
                 return tabs;
         }
-    };
-    const renameTab = (tab, title) => {
-        tabList[parseInt(tab.tid, 10)].title = title;
-        storage.update();
     };
     const createTab = ({
         tabEntry,
         previousTab,
         activate = false
     } = {}) => {
-        tabEntry = tabEntry || createTabEntry();
+        tabEntry = tabEntry || tabStorage.get();
         const tab = document.createElement('tab-handle');
         tab.panel = document.createElement('tab-panel');
         tab.container = navi;
@@ -1255,11 +1290,10 @@
         } else {
             src.$('.adder', navi).before(tab);
         }
-        tabList[tabEntry.tid] = tabEntry;
+        tabStorage.set(tabEntry, tabEntry);
         if (activate) {
             setActiveTab(tab);
         }
-        storage.update();
         return tab;
     };
     const getUpcomingActiveTab = () => {
@@ -1277,13 +1311,12 @@
         return createTab();
     };
     const bulkDelete = exclude => {
+        softDelete.cancel();
         getTabs(exclude).forEach(tab => {
             handleRemoval$1(tab, 'remove');
-            softDelete.cancel();
         });
     };
     const handleRemoval$1 = (tab, action) => {
-        const tid = parseInt(tab.tid, 10);
         switch (action) {
             case 'soft':
                 if (tab.isSameNode(activeTab$1)) {
@@ -1293,19 +1326,19 @@
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
-                tabList[tid].softDeleted = true;
+                tabStorage.update(tab, 'softDeleted', true);
                 break;
             case 'restore':
-                delete tabList[tid].softDeleted;
+                tabStorage.update(tab, 'softDeleted', null);
                 break;
             case 'remove':
                 app$1.trigger('tabDelete', {
-                    tid
+                    tid: tabStorage.parseTid(tab)
                 });
-                delete tabList[tid];
+                tabStorage.remove(tab);
                 tab.panel.remove();
                 tab.remove();
-                if (Object.keys(tabList).length === 0) {
+                if (Object.keys(tabStorage.get('all')).length === 0) {
                     createTab({
                         activate: true
                     });
@@ -1323,40 +1356,47 @@
                 bulkDelete();
                 break;
         }
-        storage.update();
     };
     const restore = () => {
-        const entries = Object.values(tabList);
+        const entries = Object.values(tabStorage.get('all'));
         const activeSet = entries.filter(e => !!e.active);
-        activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabList)[0];
+        const activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabStorage.get('all'))[0];
         for (let tabEntry of entries) {
             createTab({
                 tabEntry
             });
         }
-        setActiveTab();
+        setActiveTab(getTab(activeTid));
     };
-    const init$1 = _app => {
+    const init$2 = _app => {
         app$1 = _app;
         navi = src.$('tab-navi', app$1);
         contentArea = src.$('tab-content', app$1);
-        tabList = storage.read();
         restore();
-        app$1.on('styleChange', e => {
-            activeTab$1.panel.style.setProperty(e.detail.name, e.detail.value);
-            tabList[activeTid].styles[e.detail.area] = tabList[activeTid].styles[e.detail.area] || {};
-            tabList[activeTid].styles[e.detail.area][e.detail.name] = e.detail.value;
-            storage.update();
+        app$1.on('singleStyleChange', e => {
+            const tab = e.detail.tab || activeTab$1;
+            const entry = tabStorage.get(tab);
+            entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
+            entry.styles[e.detail.area][e.detail.name] = e.detail.value;
+            tabStorage.set(tab, entry);
+            if (tab.isSameNode(activeTab$1)) {
+                tab.panel.style.setProperty(e.detail.name, e.detail.value);
+            }
+        });
+        app$1.on('styleReset', e => {
+            tabStorage.update(e.detail.tab, 'styles', {});
+            app$1.trigger('tabStyleChange', {
+                tab: e.detail.tab,
+                styles: {}
+            });
         });
     };
     var tabManager = {
-        init: init$1,
-        getActiveTab,
+        init: init$2,
         createTab,
         handleRemoval: handleRemoval$1,
         setActiveTab,
-        renameTab,
-        getTabByTid,
+        getTab,
         getTabs
     };
 
@@ -1400,22 +1440,11 @@
         register: register$g
     };
 
-    let current;
-    let firstUse = true;
-    const handleFirstUse = () => {
-        if (firstUse) {
-            document.addEventListener('pointerdown', e => {
-                if (current && !e.target.closest('[data-context-menu="true"]')) {
-                    current.remove();
-                }
-            });
-        }
-        firstUse = false;
-    };
-    const getPosition = e => {
+    let firstRegistration = true;
+    const getPosition = (e, menu) => {
         const menuXY = {
-            x: current.offsetWidth,
-            y: current.offsetHeight
+            x: menu.offsetWidth,
+            y: menu.offsetHeight
         };
         const screenXY = {
             x: screen.availWidth,
@@ -1425,42 +1454,73 @@
             x: e.pageX,
             y: e.pageY,
         };
-        const offset = 8;
         const style = {
-            x: (mouseXY.x + menuXY.x - offset) <= screenXY.x ? mouseXY.x - offset : mouseXY.x - menuXY.x + offset,
-            y: (mouseXY.y + menuXY.y - offset) <= screenXY.y ? mouseXY.y - offset : mouseXY.y - menuXY.y + offset,
+            x: (mouseXY.x + menuXY.x) <= screenXY.x ? mouseXY.x : mouseXY.x - menuXY.x,
+            y: (mouseXY.y + menuXY.y) <= screenXY.y ? mouseXY.y : mouseXY.y - menuXY.y,
         };
         return {
             left: style.x + 'px',
             top: style.y + 'px'
         }
     };
-    const launch = (e, menu) => {
+    function onContextMenu(e) {
         e.preventDefault();
-        current = menu;
-        document.body.append(current);
-        Object.assign(current.style, getPosition(e));
+        this.contextMenu.show(e);
+    }
+    function offContextMenu(e) {
+        const menu = document.querySelector('[data-type="context-menu"]:not([hidden])');
+        if(menu){
+            menu.hide();
+        }
+    }
+    const init$1 = () => {
+        if(firstRegistration) {
+            document.addEventListener('pointerup', offContextMenu);
+            firstRegistration = false;
+        }
+    };
+    const unregister = owner => {
+        owner.contextMenu.remove();
     };
     const register$f = (owner, menu) => {
-        menu.dataset.contextMenu = true;
-        handleFirstUse();
-        owner.addEventListener('contextmenu', e => {
-            e.preventDefault();
-            launch(e, menu);
-        });
+        init$1();
+        menu.setAttribute('aria-role', 'menu');
+        menu.dataset.type = 'context-menu';
+        owner.contextMenu = menu;
+        menu.owner = owner;
+        menu.show = e => {
+            Object.assign(menu.style, getPosition(e, menu));
+            menu.removeAttribute('hidden');
+            if(!menu.isConnected){
+                document.body.append(menu);
+            }
+        };
+        menu.hide = () => {
+            menu.hidden =true;
+        };
+        owner.addEventListener('contextmenu', onContextMenu);
+        return menu;
     };
     var contextMenu = {
-        register: register$f
+        register: register$f,
+        unregister
     };
 
     class TabHandle extends HTMLElement {
-        rename() {
+        sanitize(text) {
+            return new DOMParser()
+                .parseFromString(text, 'text/html').body.textContent
+                .replace(/\s+/g, ' ')
+                .substring(0, 30);
+        }
+        makeEditable() {
             let selection = window.getSelection();
             selection.removeAllRanges();
             let range = document.createRange();
             this.label.contentEditable = true;
             range.selectNodeContents(this.label);
             selection.addRange(range);
+            this.focus();
         }
         get title() {
             return this.getAttribute('title');
@@ -1474,103 +1534,11 @@
         set tid(value) {
             this.setAttribute('tid', value);
         }
+        disconnectedCallback() {
+            contextMenu.unregister(this);
+        }
         connectedCallback() {
-            const menu = src.ul({
-                content: [
-                    src.li({
-                        content: 'Copy card style',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                this.app.styleStorage = this.styles;
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        content: 'Paste card style',
-                        data: {
-                            disabled: !this.app.styleStorage
-                        },
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0 || e.target.dataset.disabled) {
-                                    return true;
-                                }
-                                this.styles = this.app.styleStorage;
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        classNames: ['context-separator'],
-                        content: 'Rename tab',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                this.rename(e.target);
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        content: 'Close tab',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                tabManager.handleRemoval(this, 'soft');
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        classNames: ['context-separator'],
-                        content: 'Close empty tabs',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                tabManager.handleRemoval(this, 'empty');
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        classNames: ['context-danger'],
-                        content: 'Close others permanently',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                tabManager.handleRemoval(this, 'others');
-                                menu.remove();
-                            }
-                        },
-                    }),
-                    src.li({
-                        classNames: ['context-danger'],
-                        content: 'Close all permanently',
-                        events: {
-                            pointerup: e => {
-                                if (e.button !== 0) {
-                                    return true;
-                                }
-                                tabManager.handleRemoval(this, 'all');
-                                menu.remove();
-                            }
-                        },
-                    })
-                ]
-            });
-            contextMenu.register(this, menu);
+            contextMenu.register(this, document.createElement('tab-menu'));
             this.closer = src.span({
                 content: '✖',
                 classNames: ['closer']
@@ -1580,17 +1548,28 @@
                 classNames: ['label'],
                 events: {
                     blur: e => {
-                        this.title = e.target.textContent.trim();
-                        tabManager.renameTab(this, this.title);
+                        this.label.contentEditable = false;
+                        this.label.textContent = this.sanitize(this.label.textContent);
+                        this.title = this.label.textContent.trim();
+                        tabStorage.update(this, 'title', this.title);
+                    },
+                    paste: e => {
+                        e.preventDefault();
+                        this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
                     },
                     keydown: e => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
-                            e.target.blur();
+                            this.label.blur();
                             return false;
                         }
-                    },
-                    dblclick: e => this.rename()
+                        if (e.key === 'Escape') {
+                            e.preventDefault();
+                            this.label.textContent = this.title;
+                            this.label.blur();
+                            return false;
+                        }
+                    }
                 }
             });
             this.on('pointerup', e => {
@@ -1604,6 +1583,9 @@
                 } else {
                     tabManager.setActiveTab(this);
                 }
+            });
+            this.on('dblclick', () => {
+                this.makeEditable();
             });
             this.append(this.label, this.closer);
         }
@@ -1660,13 +1642,134 @@
         register: register$c
     };
 
+    class TabMenu extends HTMLElement {
+        connectedCallback() {
+            const menu = src.ul({
+                content: [
+                    src.li({
+                        content: 'Copy card style',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.app.styleStorage = this.owner.styles;
+                                properties.set('styleStorage', true);
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['storage-dependent'],
+                        content: 'Paste card style',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.app.trigger('tabStyleChange', {
+                                    tab: this.owner,
+                                    styles: this.app.styleStorage
+                                });
+                            }
+                        },
+                    }),
+                    src.li({
+                        content: 'Reset card style',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.app.trigger('styleReset', {
+                                    tab: this.owner
+                                });
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-separator'],
+                        content: 'Rename tab',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.owner.makeEditable();
+                            }
+                        },
+                    }),
+                    src.li({
+                        content: 'Close tab',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this.owner, 'soft');
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-separator'],
+                        content: 'Close empty tabs',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this.owner, 'empty');
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Close others permanently',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this.owner, 'others');
+                            }
+                        },
+                    }),
+                    src.li({
+                        classNames: ['context-danger'],
+                        content: 'Close all permanently',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                tabManager.handleRemoval(this.owner, 'all');
+                            }
+                        },
+                    })
+                ]
+            });
+            this.append(menu);
+        }
+        constructor(self) {
+            self = super(self);
+            return self;
+        }
+    }
+    const register$b = app => {
+        TabMenu.prototype.app = app;
+        customElements.get('tab-menu') || customElements['define']('tab-menu', TabMenu);
+    };
+    var TabMenu$1 = {
+        register: register$b
+    };
+
     class StyleEditor extends HTMLElement {
         connectedCallback() {
-            this.app.on('styleChange', e => {
-                this.style.setProperty(e.detail.name, e.detail.value);
-            });
-            this.app.on('activeTabChange', e => {
-                styleManager.setStyles(e.detail.styles, this);
+            this.app.on('singleStyleChange', e => {
+                const activeTab = tabManager.getTab('active');
+                const tab = e.detail.tab || activeTab;
+                if (tab.isSameNode(activeTab)) {
+                    this.style.setProperty(e.detail.name, e.detail.value);
+                }
             });
         }
         constructor(self) {
@@ -1676,12 +1779,12 @@
             return self;
         }
     }
-    const register$b = app => {
+    const register$a = app => {
         StyleEditor.prototype.app = app;
         customElements.get('style-editor') || customElements['define']('style-editor', StyleEditor);
     };
     var StyleEditor$1 = {
-        register: register$b
+        register: register$a
     };
 
     var fonts = [
@@ -1828,7 +1931,7 @@
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
             this.styleArea = 'fonts';
-            this.currentFont = cssProps.get(this.name) || '';
+            this.currentFont = cssProps.get(this.name);
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
@@ -1851,7 +1954,7 @@
                 events: {
                     change: e => {
                         this.selected = e.target.value;
-                        this.app.trigger(`styleChange`, {
+                        this.app.trigger(`singleStyleChange`, {
                             name: this.name,
                             value: e.target.value,
                             area: this.styleArea
@@ -1861,10 +1964,18 @@
             });
             this.append(selector);
             selector.dispatchEvent(new Event('change'));
-            this.app.on('activeTabChange', e => {
-                if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
-                    selector.value = e.detail.styles[this.styleArea][this.name];
-                }
+            this.app.on('tabStyleChange', e => {
+                const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
+                    e.detail.styles[this.styleArea][this.name] :
+                    cssProps.get(this.name);
+                selector.selectedIndex = fonts.findIndex(e => e.family === value);
+                this.selected = value;
+                this.app.trigger(`singleStyleChange`, {
+                    name: this.name,
+                    value,
+                    area: this.styleArea,
+                    tab: e.detail.tab
+                });
             });
         }
         constructor(self) {
@@ -1874,12 +1985,12 @@
             return self;
         }
     }
-    const register$a = app => {
+    const register$9 = app => {
         FontSelector.prototype.app = app;
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$a
+        register: register$9
     };
 
     class FontSize extends HTMLElement {
@@ -1916,7 +2027,7 @@
             const attributes = {
                 value: this.value,
                 type: 'range',
-                step:  (this.max - this.min) / 100
+                step: (this.max - this.min) / 100
             };
             attributes.min = attributes.value * .7;
             attributes.max = attributes.value * 1.3;
@@ -1929,7 +2040,7 @@
                 events: {
                     input: e => {
                         this.value = e.target.value + 'rem';
-                        this.app.trigger(`styleChange`, {
+                        this.app.trigger(`singleStyleChange`, {
                             name: this.name,
                             value: this.value,
                             area: this.styleArea
@@ -1939,10 +2050,17 @@
             });
             this.append(input);
             input.dispatchEvent(new Event('input'));
-            this.app.on('activeTabChange', e => {
-                if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
-                    input.value = parseFloat(e.detail.styles[this.styleArea][this.name], 10);
-                }
+            this.app.on('tabStyleChange', e => {
+                this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
+                    e.detail.styles[this.styleArea][this.name] :
+                    cssProps.get(this.name);
+                input.value = parseFloat(this.value, 10);
+                this.app.trigger(`singleStyleChange`, {
+                    name: this.name,
+                    value: this.value,
+                    area: this.styleArea,
+                    tab: e.detail.tab
+                });
             });
         }
         constructor(self) {
@@ -1952,12 +2070,12 @@
             return self;
         }
     }
-    const register$9 = app => {
+    const register$8 = app => {
         FontSize.prototype.app = app;
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$9
+        register: register$8
     };
 
     var backgrounds = [
@@ -2053,9 +2171,9 @@
             const path = target === 'html' ? 'media/patterns' : '../media/patterns';
             return `url(${path}/${this.type}/${img.split('/').pop()})`;
         }
-        getValue(){
-            for(let input of src.$$('input', this)) {
-                if(input.checked){
+        getValue() {
+            for (let input of src.$$('input', this)) {
+                if (input.checked) {
                     return input.value;
                 }
             }
@@ -2071,37 +2189,41 @@
             this.value = this.getValue();
             this.styleArea = 'patterns';
             const patterns = patternPool[this.type];
+            const inputs = [];
+            const choices = patterns.map(entry => {
+                let input = src.input({
+                    attributes: {
+                        type: 'radio',
+                        name: `${this.type}-pattern`,
+                        value: this.getUrl(entry.name, 'css'),
+                        id: `${this.type}-${entry.id}`,
+                        checked: this.getUrl(entry.name, 'css') === this.value
+                    }
+                });
+                inputs.push(input);
+                return src.li({
+                    style: {
+                        backgroundImage: this.getUrl(entry.name, 'html')
+                    },
+                    attributes: {
+                        title: entry.label
+                    },
+                    content: [
+                        input,
+                        src.label({
+                            attributes: {
+                                for: `${this.type}-${entry.id}`
+                            }
+                        })
+                    ]
+                })
+            });
             const selector = src.ul({
-                content: patterns.map(entry => {
-                    return src.li({
-                        style: {
-                            backgroundImage: this.getUrl(entry.name, 'html')
-                        },
-                        attributes: {
-                            title: entry.label
-                        },
-                        content: [
-                            src.input({
-                                attributes: {
-                                    type: 'radio',
-                                    name: `${this.type}-pattern`,
-                                    value: this.getUrl(entry.name, 'css'),
-                                    id: `${this.type}-${entry.id}`,
-                                    checked: this.getUrl(entry.name, 'css') === this.value
-                                }
-                            }),
-                            src.label({
-                                attributes: {
-                                    for: `${this.type}-${entry.id}`
-                                }
-                            })
-                        ]
-                    })
-                }),
+                content: choices,
                 events: {
                     change: e => {
                         this.value = this.getValue();
-                        this.app.trigger(`styleChange`, {
+                        this.app.trigger(`singleStyleChange`, {
                             name: this.name,
                             value: this.value,
                             area: this.styleArea
@@ -2111,10 +2233,17 @@
             });
             this.append(selector);
             selector.dispatchEvent(new Event('change'));
-            this.app.on('activeTabChange', e => {
-                if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
-                    src.$(`input[value="${e.detail.styles[this.styleArea][this.name]}"]`, this).checked = true;
-                }
+            this.app.on('tabStyleChange', e => {
+                this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
+                    e.detail.styles[this.styleArea][this.name] :
+                    cssProps.get(this.name);
+                inputs.find(e => e.value === this.value).checked = true;
+                this.app.trigger(`singleStyleChange`, {
+                    name: this.name,
+                    value: this.value,
+                    area: this.styleArea,
+                    tab: e.detail.tab
+                });
             });
         }
         constructor(self) {
@@ -2124,12 +2253,12 @@
             return self;
         }
     }
-    const register$8 = app => {
+    const register$7 = app => {
         PatternSelector.prototype.app = app;
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
-        register: register$8
+        register: register$7
     };
 
     const tracksToValueObj = tracks => {
@@ -2326,7 +2455,7 @@
         }
         getInitialColor() {
             const pattern = this.name.replace('-color', '-');
-            const channels =[];
+            const channels = [];
             ['h', 's', 'l'].forEach(channel => {
                 channels.push(cssProps.get(pattern + channel));
             });
@@ -2343,7 +2472,7 @@
             }))
         }
         connectedCallback() {
-            if(!this.value){
+            if (!this.value) {
                 this.value = this.getInitialColor();
             }
             const config = buildConfig(this.value);
@@ -2381,7 +2510,7 @@
                     valueInput.value = this.value;
                     background.update(config.type, this.tracks);
                     const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
-                    this.app.trigger(`styleChange`, {
+                    this.app.trigger(`singleStyleChange`, {
                         name: e.target.name,
                         value: formatted,
                         area: this.styleArea
@@ -2398,15 +2527,19 @@
             ranges.forEach(input => {
                 input.dispatchEvent(new Event('input'));
             });
-            this.app.on('activeTabChange', e => {
-                if(e.detail.styles[this.styleArea]) {
-                    for(let [name, value] of Object.entries(e.detail.styles[this.styleArea])){
-                        let target = src.$(`input[name="${name}"]`, this);
-                        if(target){
-                            target.value = parseFloat(value, 10);
-                        }
-                    }
-                }
+            this.app.on('tabStyleChange', e => {
+                ranges.forEach(input => {
+                    const formatted = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][input.name] ?
+                        e.detail.styles[this.styleArea][input.name] :
+                        cssProps.get(input.name);
+                    input.value = parseFloat(formatted, 10);
+                    this.app.trigger(`singleStyleChange`, {
+                        name: input.name,
+                        value: formatted,
+                        area: this.styleArea,
+                        tab: e.detail.tab
+                    });
+                });
             });
         }
         constructor(self) {
@@ -2416,12 +2549,12 @@
             return self;
         }
     }
-    const register$7 = app => {
+    const register$6 = app => {
         ColorSelector.prototype.app = app;
         customElements.get('color-selector') || customElements['define']('color-selector', ColorSelector);
     };
     var ColorSelector$1 = {
-        register: register$7
+        register: register$6
     };
 
     class CardBase extends HTMLElement {
@@ -2483,11 +2616,11 @@
             return self;
         }
     }
-    const register$6 = () => {
+    const register$5 = () => {
         customElements.get('card-base') || customElements['define']('card-base', CardBase);
     };
     var CardBase$1 = {
-        register: register$6
+        register: register$5
     };
 
     let dragSrcEl = null;
@@ -2749,12 +2882,12 @@
             return self;
         }
     }
-    const register$5 = app => {
+    const register$4 = app => {
         CardForm.prototype.app = app;
         customElements.get('card-form') || customElements['define']('card-form', CardForm);
     };
     var CardForm$1 = {
-        register: register$5
+        register: register$4
     };
 
     class CardRecto extends HTMLElement {
@@ -2797,12 +2930,12 @@
             return self;
         }
     }
-    const register$4 = app => {
+    const register$3 = app => {
         CardRecto.prototype.app = app;
         customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
     };
     var CardRecto$1 = {
-        register: register$4
+        register: register$3
     };
 
     const defaultDiacriticsRemovalMap = [
@@ -2960,12 +3093,12 @@
             return self;
         }
     }
-    const register$3 = app => {
+    const register$2 = app => {
         CardToolbar.prototype.app = app;
         customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar);
     };
     var CardToolbar$1 = {
-        register: register$3
+        register: register$2
     };
 
     class CardVerso extends HTMLElement {
@@ -3044,12 +3177,12 @@
             return self;
         }
     }
-    const register$2 = app => {
+    const register$1 = app => {
         CardVerso.prototype.app = app;
         customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
     };
     var CardVerso$1 = {
-        register: register$2
+        register: register$1
     };
 
     class UndoDialog extends HTMLElement {
@@ -3111,38 +3244,10 @@
             return self;
         }
     }
-    const register$1 = () => {
+    const register = () => {
         customElements.get('undo-dialog') || customElements['define']('undo-dialog', UndoDialog);
     };
     var UndoDialog$1 = {
-        register: register$1
-    };
-
-    const components = [
-        CharacterLibrary$1,
-        LibraryOrganizer$1,
-        TabNavi$1,
-        TabHandle$1,
-        TabContent$1,
-        TabPanel$1,
-        StyleEditor$1,
-        FontSelector$1,
-        FontSize$1,
-        PatternSelector$1,
-        ColorSelector$1,
-        CardBase$1,
-        CardForm$1,
-        CardRecto$1,
-        CardToolbar$1,
-        CardVerso$1,
-        UndoDialog$1
-    ];
-    const register = app => {
-        components.forEach(component => {
-            component.register(app);
-        });
-    };
-    var registry = {
         register
     };
 
@@ -3160,13 +3265,13 @@
         return characterLabels;
     };
     const add = character => {
-        activeTab = tabManager.getActiveTab();
+        activeTab = tabManager.getTab('active');
         const cid = characterMap.nextIncrement(origin);
         character = structuredClone(character);
         const tab = character.meta.tid ?
-            tabManager.getTabByTid(character.meta.tid) :
+            tabManager.getTab(character.meta.tid) :
             activeTab;
-        const tid = parseInt(tab.tid, 10);
+        const tid = tabStorage.parseTid(tab);
         character.meta = {
             ...character.meta,
             ...{
@@ -3225,9 +3330,34 @@
         connectedCallback() {
             characterMap.init()
                 .then(() => {
-                    registry.register(this);
+                    [
+                        TabContent$1,
+                        TabHandle$1,
+                        TabNavi$1,
+                        TabPanel$1,
+                        TabMenu$1
+                    ].forEach(component => {
+                        component.register(this);
+                    });
                     tabManager.init(this);
                     cardManager.init(this);
+                    [
+                        CharacterLibrary$1,
+                        LibraryOrganizer$1,
+                        StyleEditor$1,
+                        FontSelector$1,
+                        FontSize$1,
+                        PatternSelector$1,
+                        ColorSelector$1,
+                        CardBase$1,
+                        CardForm$1,
+                        CardRecto$1,
+                        CardToolbar$1,
+                        CardVerso$1,
+                        UndoDialog$1
+                    ].forEach(component => {
+                        component.register(this);
+                    });
                 });
         }
         constructor(self) {

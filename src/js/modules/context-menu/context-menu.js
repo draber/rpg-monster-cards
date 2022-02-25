@@ -1,22 +1,9 @@
-let current;
+let firstRegistration = true;
 
-let firstUse = true;
-
-const handleFirstUse = () => {
-    if (firstUse) {
-        document.addEventListener('pointerdown', e => {
-            if (current && !e.target.closest('[data-context-menu="true"]')) {
-                current.remove();
-            }
-        })
-    }
-    firstUse = false;
-}
-
-const getPosition = e => {
+const getPosition = (e, menu) => {
     const menuXY = {
-        x: current.offsetWidth,
-        y: current.offsetHeight
+        x: menu.offsetWidth,
+        y: menu.offsetHeight
     }
     const screenXY = {
         x: screen.availWidth,
@@ -26,10 +13,9 @@ const getPosition = e => {
         x: e.pageX,
         y: e.pageY,
     }
-    const offset = 8; // about half the cursor size to move menu towards cursor center
     const style = {
-        x: (mouseXY.x + menuXY.x - offset) <= screenXY.x ? mouseXY.x - offset : mouseXY.x - menuXY.x + offset,
-        y: (mouseXY.y + menuXY.y - offset) <= screenXY.y ? mouseXY.y - offset : mouseXY.y - menuXY.y + offset,
+        x: (mouseXY.x + menuXY.x) <= screenXY.x ? mouseXY.x : mouseXY.x - menuXY.x,
+        y: (mouseXY.y + menuXY.y) <= screenXY.y ? mouseXY.y : mouseXY.y - menuXY.y,
     }
     return {
         left: style.x + 'px',
@@ -37,22 +23,60 @@ const getPosition = e => {
     }
 }
 
-const launch = (e, menu) => {
+
+
+
+function onContextMenu(e) {
     e.preventDefault();
-    current = menu;
-    document.body.append(current);
-    Object.assign(current.style, getPosition(e));
+    this.contextMenu.show(e);
+}
+
+
+
+function offContextMenu(e) {
+    const menu = document.querySelector('[data-type="context-menu"]:not([hidden])');
+    if(menu){
+        menu.hide()
+    }
+}
+
+const init = () => {
+    if(firstRegistration) {
+        document.addEventListener('pointerup', offContextMenu);
+        firstRegistration = false;
+    }
+}
+
+
+const unregister = owner => {
+    owner.contextMenu.remove();
 }
 
 const register = (owner, menu) => {
-    menu.dataset.contextMenu = true;
-    handleFirstUse();
-    owner.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        launch(e, menu);
-    })
+    init();
+    menu.setAttribute('aria-role', 'menu');
+    menu.dataset.type = 'context-menu';
+    owner.contextMenu = menu;
+    menu.owner = owner;
+    
+    menu.show = e => {
+        Object.assign(menu.style, getPosition(e, menu));
+        menu.removeAttribute('hidden');
+        if(!menu.isConnected){
+            document.body.append(menu);
+        }
+    }
+ 
+    menu.hide = () => {        
+        menu.hidden =true;
+    }
+
+    owner.addEventListener('contextmenu', onContextMenu)
+
+    return menu;
 }
 
 export default {
-    register
+    register,
+    unregister
 };

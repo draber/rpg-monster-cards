@@ -15,11 +15,16 @@ tab-handle {
 
   & .label {
     padding: 0 0.5rem;
+    flex: 2;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     &:focus {
       outline: var(--border);
+    }
+    &:focus {
+      border: .1rem var(--hd-color) solid;
+      background: var(--bg-light)
     }
   }
 
@@ -50,7 +55,9 @@ tab-handle {
 tab-navi {
   &.overflown {
     & tab-handle {
-      min-width: .3rem;
+      &:not(.active) {
+        min-width: initial;
+      }
     }
   }
 }

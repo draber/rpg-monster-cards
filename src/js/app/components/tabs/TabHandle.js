@@ -4,6 +4,7 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js';
+import tabStorage from './tabStorage.js';
 import contextMenu from '../../../modules/context-menu/context-menu.js';
 
 /**
@@ -11,13 +12,21 @@ import contextMenu from '../../../modules/context-menu/context-menu.js';
  */
 class TabHandle extends HTMLElement {
 
-    rename() {
+    sanitize(text) {
+        return new DOMParser()
+            .parseFromString(text, 'text/html').body.textContent
+            .replace(/\s+/g, ' ')
+            .substring(0, 30);
+    }
+
+    makeEditable() {
         let selection = window.getSelection();
         selection.removeAllRanges();
         let range = document.createRange();
         this.label.contentEditable = true;
         range.selectNodeContents(this.label);
         selection.addRange(range);
+        this.focus();
     }
 
     /**
@@ -52,108 +61,17 @@ class TabHandle extends HTMLElement {
         this.setAttribute('tid', value);
     }
 
+    disconnectedCallback() {
+
+        contextMenu.unregister(this);
+    }
+
     /**
      * Called on element launch
      */
     connectedCallback() {
 
-        const menu = fn.ul({
-            content: [
-                fn.li({
-                    content: 'Copy card style',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                            this.app.styleStorage = this.styles
-                            menu.remove();
-                        }
-                    },
-                }),
-                fn.li({
-                    content: 'Paste card style',
-                    data: {
-                        disabled: !this.app.styleStorage
-                    },
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0 || e.target.dataset.disabled) {
-                                return true;
-                            }
-                            this.styles = this.app.styleStorage
-                            menu.remove();
-                        }
-                    },
-                }),
-                fn.li({
-                    classNames: ['context-separator'],
-                    content: 'Rename tab',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                            this.rename(e.target);
-                            menu.remove();
-                        }
-                    },
-                }),
-                fn.li({
-                    content: 'Close tab',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                            tabManager.handleRemoval(this, 'soft');
-                            menu.remove();
-                        }
-                    },
-                }),
-                fn.li({
-                    classNames: ['context-separator'],
-                    content: 'Close empty tabs',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                            tabManager.handleRemoval(this, 'empty');
-                            menu.remove();
-                        }
-                    },
-                }),
-                fn.li({
-                    classNames: ['context-danger'],
-                    content: 'Close others permanently',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                            tabManager.handleRemoval(this, 'others');
-                            menu.remove();
-                        }
-                    },
-                }),
-                fn.li({
-                    classNames: ['context-danger'],
-                    content: 'Close all permanently',
-                    events: {
-                        pointerup: e => {
-                            if (e.button !== 0) {
-                                return true;
-                            }
-                            tabManager.handleRemoval(this, 'all');
-                            menu.remove();
-                        }
-                    },
-                })
-            ]
-        })
-
-        contextMenu.register(this, menu);
+        contextMenu.register(this, document.createElement('tab-menu'));
 
         this.closer = fn.span({
             content: '✖',
@@ -165,17 +83,28 @@ class TabHandle extends HTMLElement {
             classNames: ['label'],
             events: {
                 blur: e => {
-                    this.title = e.target.textContent.trim();
-                    tabManager.renameTab(this, this.title);
+                    this.label.contentEditable = false;
+                    this.label.textContent = this.sanitize(this.label.textContent);
+                    this.title = this.label.textContent.trim();
+                    tabStorage.update(this, 'title', this.title);
+                },
+                paste: e => {
+                    e.preventDefault();
+                    this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
                 },
                 keydown: e => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        e.target.blur();
+                        this.label.blur();
                         return false;
                     }
-                },
-                dblclick: e => this.rename()
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        this.label.textContent = this.title;
+                        this.label.blur();
+                        return false;
+                    }
+                }
             }
         })
 
@@ -190,6 +119,10 @@ class TabHandle extends HTMLElement {
             } else {
                 tabManager.setActiveTab(this);
             }
+        })
+
+        this.on('dblclick', () => {
+            this.makeEditable();
         })
 
         this.append(this.label, this.closer);

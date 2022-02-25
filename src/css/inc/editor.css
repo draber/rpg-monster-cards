@@ -2,10 +2,17 @@
   flex: 2;
   position: relative;
 
+  & :not(.column-heading) {
+    & ::selection {
+      background: #12E1E1;
+    }
+  }
+
   & .column-content {
     padding: 3.5rem 2.5rem;
-    display:block;
-    background: var(--bg-light) url(../media/patterns/system/light-rocky-wall.png);
+    display: block;
+    background: var(--bg-light)
+      url(../media/patterns/system/light-rocky-wall.png);
   }
 
   & #smoke {

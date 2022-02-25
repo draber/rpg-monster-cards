@@ -4,6 +4,7 @@ import {
     on,
     trigger
 } from '../../../../modules/events/eventHandler.js'
+import tabManager from '../../tabs/tabManager.js';
 
 /**
  * Custom element containing the list of fonts
@@ -86,25 +87,25 @@ class FontSize extends HTMLElement {
         this.value = parseFloat(cssProps.get(this.name) || 1.4, 10);
         this.styleArea = 'fonts';
 
-        const attributes = {  
-            value: this.value,  
+        const attributes = {
+            value: this.value,
             type: 'range',
-            step:  (this.max - this.min) / 100
+            step: (this.max - this.min) / 100
         }
 
         attributes.min = attributes.value * .7;
         attributes.max = attributes.value * 1.3;
         attributes.step = (attributes.max - attributes.min) / 100;
-        
+
         const input = fn.input({
             attributes,
             data: {
-                prop: this.name 
+                prop: this.name
             },
             events: {
                 input: e => {
                     this.value = e.target.value + 'rem';
-                    this.app.trigger(`styleChange`, {
+                    this.app.trigger(`singleStyleChange`, {
                         name: this.name,
                         value: this.value,
                         area: this.styleArea
@@ -115,13 +116,20 @@ class FontSize extends HTMLElement {
 
         this.append(input);
         input.dispatchEvent(new Event('input'));
-        
-        
+
+
         // change from the active tab
-        this.app.on('activeTabChange', e => {
-            if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
-                input.value = parseFloat(e.detail.styles[this.styleArea][this.name], 10);
-            }
+        this.app.on('tabStyleChange', e => {   
+            this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
+                e.detail.styles[this.styleArea][this.name] :
+                cssProps.get(this.name);
+            input.value = parseFloat(this.value, 10);
+            this.app.trigger(`singleStyleChange`, {
+                name: this.name,
+                value: this.value,
+                area: this.styleArea,
+                tab: e.detail.tab
+            });
         })
     }
 

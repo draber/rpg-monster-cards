@@ -30,6 +30,11 @@ a {
   color: currentColor;
 }
 
+::selection {
+  background-color: transparent;
+}
+
+
 details {
   padding: 0;
   margin: 0;

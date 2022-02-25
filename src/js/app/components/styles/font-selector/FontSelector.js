@@ -39,7 +39,7 @@ class FontSelector extends HTMLElement {
         this.styleArea = 'fonts';
 
         // currently selected font
-        this.currentFont = cssProps.get(this.name) || '';
+        this.currentFont = cssProps.get(this.name);
 
         // <select>
         const selector = fn.select({
@@ -65,7 +65,7 @@ class FontSelector extends HTMLElement {
             events: {
                 change: e => {
                     this.selected = e.target.value;
-                    this.app.trigger(`styleChange`, {
+                    this.app.trigger(`singleStyleChange`, {
                         name: this.name,
                         value: e.target.value,
                         area: this.styleArea
@@ -77,12 +77,21 @@ class FontSelector extends HTMLElement {
         this.append(selector);
         selector.dispatchEvent(new Event('change'));
 
-        
+
         // change from the active tab
-        this.app.on('activeTabChange', e => {
-            if(e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name]) {
-                selector.value = e.detail.styles[this.styleArea][this.name];
-            }
+        this.app.on('tabStyleChange', e => {  
+            const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
+                e.detail.styles[this.styleArea][this.name] :
+                cssProps.get(this.name);
+            selector.selectedIndex = fonts.findIndex(e => e.family === value);
+
+            this.selected = value; 
+            this.app.trigger(`singleStyleChange`, {
+                name: this.name,
+                value,
+                area: this.styleArea,
+                tab: e.detail.tab
+            });
         })
     }
 

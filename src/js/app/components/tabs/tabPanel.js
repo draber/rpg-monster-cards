@@ -1,5 +1,3 @@
-import fn from 'fancy-node';
-
 /**
  * Custom element containing the list of fonts
  */

@@ -2,6 +2,7 @@ import characterMap from '../character-library/character-map.js';
 import visibility from '../../../../data/visibility.json';
 import labels from '../../../../data/labels.json';
 import tabManager from '../tabs/tabManager.js';
+import tabStorage from '../tabs/tabStorage.js'
 
 let activeTab;
 
@@ -35,14 +36,14 @@ const getLabels = () => {
 }
 
 const add = character => {
-    activeTab = tabManager.getActiveTab();
+    activeTab = tabManager.getTab('active');
     const cid = characterMap.nextIncrement(origin);
     character = structuredClone(character);
     // this is the case when cards are restored
     const tab = character.meta.tid ?
-        tabManager.getTabByTid(character.meta.tid) :
+        tabManager.getTab(character.meta.tid) :
         activeTab
-    const tid = parseInt(tab.tid, 10)
+    const tid = tabStorage.parseTid(tab)
     character.meta = {
         ...character.meta,
         ...{

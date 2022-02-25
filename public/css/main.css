@@ -268,6 +268,14 @@ a{
   color:currentColor;
 }
 
+::-moz-selection{
+  background-color:transparent;
+}
+
+::selection{
+  background-color:transparent;
+}
+
 details{
   padding:0;
   margin:0
@@ -494,11 +502,9 @@ library-organizer:hover svg{
       fill:var(--text-color);
     }
 
-[data-context-menu="true"]{
+[data-type="context-menu"]{
   z-index:3;
   position:absolute;
-  list-style:none;
-  padding:0;
   border:.1rem solid hsla(46, 85%, 39%, .3);
   border:var(--border);
   min-width:20rem;
@@ -507,9 +513,18 @@ library-organizer:hover svg{
   filter:drop-shadow(1rem 1rem 1rem rgba(0, 0, 0, 0.3))
 }
 
-[data-context-menu="true"] li{
+[data-type="context-menu"]:not([hidden]){
+    display:block;
+  }
+
+[data-type="context-menu"] ul{
+    list-style:none;
+    padding:0;
+    margin:0;
+  }
+
+[data-type="context-menu"] li{
     font-size:1.4rem;
-    cursor:pointer;
     padding:0 1rem;
     cursor:pointer;
     line-height:1.8;
@@ -519,7 +534,7 @@ library-organizer:hover svg{
     border-bottom:1px solid rgba(255, 255, 255, 0.08)
   }
 
-[data-context-menu="true"] li::before{
+[data-type="context-menu"] li::before{
       content:"";
       width:2rem;
       display:inline-block;
@@ -527,25 +542,31 @@ library-organizer:hover svg{
       color:var(--hd-color);
     }
 
-[data-context-menu="true"] li[data-disabled]{
+[data-type="context-menu"] li.storage-dependent{
       pointer-events:none;
       opacity:0.5;
       cursor:not-allowed;
     }
 
-[data-context-menu="true"] li.context-separator{
+[data-type="context-menu"] li.context-separator{
       border-top:0.2rem groove hsl(44, 81%, 38%);
       border-top:0.2rem groove var(--hd-color);
     }
 
-[data-context-menu="true"] li.context-danger::before{
+[data-type="context-menu"] li.context-danger::before{
         content:"⚠";
       }
 
-[data-context-menu="true"] li:hover{
+[data-type="context-menu"] li:hover{
       background:hsl(15, 50%, 28%);
       background:var(--bg-4-color);
     }
+
+[data-style-storage] [data-type="context-menu"] li.storage-dependent{
+        pointer-events:all;
+        opacity:1;
+        cursor:pointer;
+      }
 
 tab-panel{
     display:none;
@@ -577,8 +598,14 @@ tab-navi{
 tab-navi .adder{   
     position:-webkit-sticky;   
     position:sticky;
-    background:hsl(15, 50%, 24%);
-    background:var(--bg-3-color);
+    background:hsl(15, 50%, 22%);
+    background:var(--bg-2-color);
+    border-left:.1rem solid hsla(46, 85%, 39%, .3);
+    border-left:var(--border);
+    border-right:.1rem solid hsla(46, 85%, 39%, .3);
+    border-right:var(--border);
+    border-radius:.3rem .3rem 0 0;
+    border-radius:var(--border-radius) var(--border-radius) 0 0;
     right:0; 
     cursor:pointer;
     display:flex;
@@ -615,6 +642,7 @@ tab-handle:hover:not(.active){
 
 tab-handle .label{
     padding:0 0.5rem;
+    flex:2;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis
@@ -623,6 +651,13 @@ tab-handle .label{
 tab-handle .label:focus{
       outline:.1rem solid hsla(46, 85%, 39%, .3);
       outline:var(--border);
+    }
+
+tab-handle .label:focus{
+      border:.1rem hsl(44, 81%, 38%) solid;
+      border:.1rem var(--hd-color) solid;
+      background:hsl(29, 33%, 34%);
+      background:var(--bg-light)
     }
 
 tab-handle .closer{
@@ -653,9 +688,10 @@ tab-handle.active .closer:hover{
         background:hsla(0, 100%, 100%, 0.15);
       }
 
-tab-navi.overflown tab-handle{
-      min-width:.3rem;
-    }
+tab-navi.overflown tab-handle:not(.active){
+        min-width:0;
+        min-width:initial;
+      }
 
 @-webkit-keyframes summon{
   0%{
@@ -1415,14 +1451,6 @@ form .form-row{
     margin-bottom:0.5rem;
   }
 
-form ::-moz-selection{
-    background-color:transparent;
-  }
-
-form ::selection{
-    background-color:transparent;
-  }
-
 form fieldset{
     border:none;
     padding:0;
@@ -1464,14 +1492,6 @@ form .control{
   overflow:visible;
   transition:width .5s
 }
-
-#library ::-moz-selection{
-    background-color:transparent;
-  }
-
-#library ::selection{
-    background-color:transparent;
-  }
 
 #library .column-heading-container{
     display:flex;
@@ -1535,11 +1555,21 @@ form .control{
   position:relative
 }
 
+#editor :not(.column-heading) ::-moz-selection{
+      background:#12E1E1;
+    }
+
+#editor :not(.column-heading) ::selection{
+      background:#12E1E1;
+    }
+
 #editor .column-content{
     padding:3.5rem 2.5rem;
     display:block;
-    background:hsl(29, 33%, 34%) url(../media/patterns/system/light-rocky-wall.png);
-    background:var(--bg-light) url(../media/patterns/system/light-rocky-wall.png);
+    background:hsl(29, 33%, 34%)
+      url(../media/patterns/system/light-rocky-wall.png);
+    background:var(--bg-light)
+      url(../media/patterns/system/light-rocky-wall.png);
   }
 
 #editor #smoke{

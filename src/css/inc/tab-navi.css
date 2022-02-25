@@ -10,7 +10,10 @@ tab-navi {
   
   & .adder {   
     position: sticky;
-    background: var(--bg-3-color);
+    background: var(--bg-2-color);
+    border-left: var(--border);
+    border-right: var(--border);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
     right: 0; 
     cursor: pointer;
     display: flex;

@@ -1,16 +1,23 @@
-[data-context-menu="true"] {
+[data-type="context-menu"] {
   z-index: 3;
   position: absolute;
-  list-style: none;
-  padding: 0;
   border: var(--border);
   min-width: 20rem;
   background: var(--bg-3-color);
   filter: drop-shadow(1rem 1rem 1rem rgb(0, 0, 0, 0.3));
 
+  &:not([hidden]) {
+    display: block;
+  }
+
+  & ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
   & li {
     font-size: 1.4rem;
-    cursor: pointer;
     padding: 0 1rem;
     cursor: pointer;
     line-height: 1.8;
@@ -25,7 +32,7 @@
       color: var(--hd-color);
     }
 
-    &[data-disabled] {
+    &.storage-dependent {
       pointer-events: none;
       opacity: 0.5;
       cursor: not-allowed;
@@ -41,6 +48,18 @@
 
     &:hover {
       background: var(--bg-4-color);
+    }
+  }
+}
+
+[data-style-storage] {
+  & [data-type="context-menu"] {
+    & li {
+      &.storage-dependent {
+        pointer-events: all;
+        opacity: 1;
+        cursor: pointer;
+      }
     }
   }
 }

@@ -5,9 +5,6 @@
   overflow: visible;
   transition: width .5s;
 
-  & ::selection {
-    background-color: transparent;
-  }
   & .column-heading-container {
     display: flex;
     justify-content: space-between;

@@ -42,7 +42,7 @@ class ColorSelector extends HTMLElement {
 
     getInitialColor() {
         const pattern = this.name.replace('-color', '-');
-        const channels =[];
+        const channels = [];
         ['h', 's', 'l'].forEach(channel => {
             channels.push(cssProps.get(pattern + channel));
         })
@@ -62,7 +62,7 @@ class ColorSelector extends HTMLElement {
 
     connectedCallback() {
 
-        if(!this.value){
+        if (!this.value) {
             this.value = this.getInitialColor();
         }
 
@@ -98,7 +98,7 @@ class ColorSelector extends HTMLElement {
             input.value = track.value;
             input.name = `${this.name.replace('color', channel)}`;
             this.tracks[channel].element = input;
-            
+
             input.addEventListener('input', e => {
                 e.stopPropagation();
                 this.tracks[e.target.dataset.channel].value = e.target.value;
@@ -106,7 +106,7 @@ class ColorSelector extends HTMLElement {
                 valueInput.value = this.value;
                 background.update(config.type, this.tracks);
                 const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
-                this.app.trigger(`styleChange`, {
+                this.app.trigger(`singleStyleChange`, {
                     name: e.target.name,
                     value: formatted,
                     area: this.styleArea
@@ -123,19 +123,22 @@ class ColorSelector extends HTMLElement {
         // update background-colors
         ranges.forEach(input => {
             input.dispatchEvent(new Event('input'));
-        })       
-        
-        
-        // change from the active tab
-        this.app.on('activeTabChange', e => {
-            if(e.detail.styles[this.styleArea]) {
-                for(let [name, value] of Object.entries(e.detail.styles[this.styleArea])){
-                    let target = fn.$(`input[name="${name}"]`, this);
-                    if(target){
-                        target.value = parseFloat(value, 10);
-                    }
-                }
-            }
+        })
+
+        this.app.on('tabStyleChange', e => {
+            ranges.forEach(input => {
+                const formatted = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][input.name] ?
+                    e.detail.styles[this.styleArea][input.name] :
+                    cssProps.get(input.name);
+
+                input.value = parseFloat(formatted, 10);
+                this.app.trigger(`singleStyleChange`, {
+                    name: input.name,
+                    value: formatted,
+                    area: this.styleArea,
+                    tab: e.detail.tab
+                });
+            })
         })
     }
     constructor(self) {

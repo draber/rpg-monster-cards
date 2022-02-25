@@ -4,10 +4,6 @@ form {
     margin-bottom: 0.5rem;
   }
 
-  & ::selection {
-    background-color: transparent;
-  }
-
   & fieldset {
     border: none;
     padding: 0;
