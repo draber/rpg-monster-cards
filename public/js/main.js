@@ -1218,22 +1218,22 @@
     let app$1;
     let navi;
     let contentArea;
-    let activeTab$1;
+    let activeTab;
     const setActiveTab = tab => {
-        activeTab$1 = tab || activeTab$1 || src.$(`tab-handle`, navi);
+        activeTab = tab || activeTab || src.$(`tab-handle`, navi);
         src.$$('tab-handle', navi).forEach(tab => {
             tab.classList.remove('active');
             tab.panel.classList.remove('active');
             tabStorage.update(tab, 'active', null);
             tab.removeAttribute('style');
         });
-        activeTab$1.classList.add('active');
+        activeTab.classList.add('active');
         app$1.trigger('tabStyleChange', {
-            tab: activeTab$1,
-            styles: tabStorage.get(activeTab$1).styles
+            tab: activeTab,
+            styles: tabStorage.get(activeTab).styles
         });
         const naviRect = navi.getBoundingClientRect();
-        const atRect = activeTab$1.getBoundingClientRect();
+        const atRect = activeTab.getBoundingClientRect();
         const addRect = navi.lastChild.getBoundingClientRect();
         const space = naviRect.width -
             (addRect.width + parseInt(getComputedStyle(navi.lastChild).marginLeft)) -
@@ -1241,19 +1241,19 @@
         navi.classList.remove('overflown');
         if (navi.scrollWidth > navi.clientWidth) {
             navi.classList.add('overflown');
-            const nonActiveTabs = getTabs(activeTab$1);
+            const nonActiveTabs = getTabs(activeTab);
             const tabMaxWidth = space / nonActiveTabs.length;
             nonActiveTabs.forEach(tab => {
                 tab.style.maxWidth = tabMaxWidth + 'px';
             });
         }
-        activeTab$1.panel.classList.add('active');
-        tabStorage.update(activeTab$1, 'active', true);
-        return activeTab$1;
+        activeTab.panel.classList.add('active');
+        tabStorage.update(activeTab, 'active', true);
+        return activeTab;
     };
     const getTab = tabData => {
         if (tabData === 'active') {
-            return activeTab$1;
+            return activeTab;
         }
         if (tabData instanceof HTMLElement) {
             return tabData
@@ -1282,8 +1282,9 @@
         tab.container = navi;
         for (let [key, value] of Object.entries(tabEntry)) {
             tab[key] = value;
-            tab.panel[key] = value;
         }
+        tab.panel.active = tab.active;
+        tab.panel.tid = tab.tid;
         contentArea.append(tab.panel);
         if (previousTab) {
             previousTab.after(tab);
@@ -1301,7 +1302,7 @@
         if (!tabs.length) {
             return createTab();
         }
-        let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab$1)));
+        let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
         if (tabs[activeIdx + 1]) {
             return tabs[activeIdx + 1];
         }
@@ -1319,7 +1320,7 @@
     const handleRemoval$1 = (tab, action) => {
         switch (action) {
             case 'soft':
-                if (tab.isSameNode(activeTab$1)) {
+                if (tab.isSameNode(activeTab)) {
                     setActiveTab(getUpcomingActiveTab());
                 }
                 softDelete.initiate(tab, 'Tab ' + tab.title)
@@ -1336,7 +1337,6 @@
                     tid: tabStorage.parseTid(tab)
                 });
                 tabStorage.remove(tab);
-                tab.panel.remove();
                 tab.remove();
                 if (Object.keys(tabStorage.get('all')).length === 0) {
                     createTab({
@@ -1374,12 +1374,12 @@
         contentArea = src.$('tab-content', app$1);
         restore();
         app$1.on('singleStyleChange', e => {
-            const tab = e.detail.tab || activeTab$1;
+            const tab = e.detail.tab || activeTab;
             const entry = tabStorage.get(tab);
             entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
             entry.styles[e.detail.area][e.detail.name] = e.detail.value;
             tabStorage.set(tab, entry);
-            if (tab.isSameNode(activeTab$1)) {
+            if (tab.isSameNode(activeTab)) {
                 tab.panel.style.setProperty(e.detail.name, e.detail.value);
             }
         });
@@ -1535,6 +1535,7 @@
             this.setAttribute('tid', value);
         }
         disconnectedCallback() {
+            this.panel.remove();
             contextMenu.unregister(this);
         }
         connectedCallback() {
@@ -2113,9 +2114,9 @@
 
     var borders = [
     	{
-    		label: "Cloud 1",
-    		id: "cloud-1",
-    		name: "cloud-1.png"
+    		label: "Cloud",
+    		id: "cloud",
+    		name: "cloud.png"
     	},
     	{
     		label: "Crosshatch 1",
@@ -2128,19 +2129,19 @@
     		name: "crosshatch-2.png"
     	},
     	{
-    		label: "Etching Dirty 1",
-    		id: "etching-dirty-1",
-    		name: "etching-dirty-1.png"
+    		label: "Etching Dirty",
+    		id: "etching-dirty",
+    		name: "etching-dirty.png"
     	},
     	{
-    		label: "Spatter 1",
-    		id: "spatter-1",
-    		name: "spatter-1.png"
+    		label: "Spatter",
+    		id: "spatter",
+    		name: "spatter.png"
     	},
     	{
-    		label: "Wood 1",
-    		id: "wood-1",
-    		name: "wood-1.png"
+    		label: "Wood",
+    		id: "wood",
+    		name: "wood.png"
     	}
     ];
 
@@ -3251,7 +3252,6 @@
         register
     };
 
-    let activeTab;
     let app;
     const origin = 'user';
     const getLabels = () => {
@@ -3265,13 +3265,20 @@
         return characterLabels;
     };
     const add = character => {
-        activeTab = tabManager.getTab('active');
-        const cid = characterMap.nextIncrement(origin);
-        character = structuredClone(character);
-        const tab = character.meta.tid ?
-            tabManager.getTab(character.meta.tid) :
-            activeTab;
-        const tid = tabStorage.parseTid(tab);
+        let cid;
+        let tid;
+        let tab;
+        if(character.meta && character.meta.tid) {
+            cid = character.meta.cid;
+            tab = tabManager.getTab(character.meta.tid);
+            tid = character.meta.tid;
+        }
+        else {
+            cid = characterMap.nextIncrement(origin);
+            character = structuredClone(character);
+            tab = tabManager.getTab('active');
+            tid = tabStorage.parseTid(tab);
+        }
         character.meta = {
             ...character.meta,
             ...{

@@ -104,8 +104,9 @@ const createTab = ({
 
     for (let [key, value] of Object.entries(tabEntry)) {
         tab[key] = value;
-        tab.panel[key] = value;
     }
+    tab.panel.active = tab.active;
+    tab.panel.tid = tab.tid;
     contentArea.append(tab.panel);
 
     if (previousTab) {
@@ -181,7 +182,6 @@ const handleRemoval = (tab, action) => {
                 tid: tabStorage.parseTid(tab)
             })
             tabStorage.remove(tab);
-            tab.panel.remove();
             tab.remove();
             if (Object.keys(tabStorage.get('all')).length === 0) {
                 createTab({

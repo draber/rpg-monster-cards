@@ -4,8 +4,6 @@ import labels from '../../../../data/labels.json';
 import tabManager from '../tabs/tabManager.js';
 import tabStorage from '../tabs/tabStorage.js'
 
-let activeTab;
-
 let app;
 
 /**
@@ -36,14 +34,22 @@ const getLabels = () => {
 }
 
 const add = character => {
-    activeTab = tabManager.getTab('active');
-    const cid = characterMap.nextIncrement(origin);
-    character = structuredClone(character);
-    // this is the case when cards are restored
-    const tab = character.meta.tid ?
-        tabManager.getTab(character.meta.tid) :
-        activeTab
-    const tid = tabStorage.parseTid(tab)
+
+    let cid; // character ID
+    let tid; // tab ID
+    let tab;
+    // if the character comes from a previous session
+    if(character.meta && character.meta.tid) {
+        cid = character.meta.cid;
+        tab = tabManager.getTab(character.meta.tid);
+        tid = character.meta.tid;
+    }
+    else {
+        cid = characterMap.nextIncrement(origin);
+        character = structuredClone(character);
+        tab = tabManager.getTab('active');
+        tid = tabStorage.parseTid(tab);
+    }
     character.meta = {
         ...character.meta,
         ...{

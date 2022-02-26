@@ -62,7 +62,7 @@ class TabHandle extends HTMLElement {
     }
 
     disconnectedCallback() {
-
+        this.panel.remove();
         contextMenu.unregister(this);
     }
 
