@@ -17,7 +17,7 @@ __user:
   labels:
     long: Your Creatures
   visibility:
-    group: true  
+    group: false  
 
 # back to regular fields
 img:

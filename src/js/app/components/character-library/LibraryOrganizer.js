@@ -67,7 +67,7 @@ class LibraryOrganizer extends HTMLElement {
             classNames: ['sort-box']
         })
         const title = fn.h3({
-            content: 'Order by:'
+            content: 'Order library by:'
         })
         const list = fn.ul();
         box.append(title, list);

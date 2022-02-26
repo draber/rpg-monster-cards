@@ -6,7 +6,7 @@
 	},
 	"__user": {
 		"card": true,
-		"group": true,
+		"group": false,
 		"label": true
 	},
 	"img": {

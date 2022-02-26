@@ -785,7 +785,7 @@
     };
     var __user = {
     	card: true,
-    	group: true,
+    	group: false,
     	label: true
     };
     var img = {
@@ -1014,7 +1014,7 @@
                 classNames: ['sort-box']
             });
             const title = src.h3({
-                content: 'Order by:'
+                content: 'Order library by:'
             });
             const list = src.ul();
             box.append(title, list);
@@ -1968,7 +1968,7 @@
                 const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
                     cssProps.get(this.name);
-                selector.selectedIndex = fonts.findIndex(e => e.family === value);
+                selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
                 this.selected = value;
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
