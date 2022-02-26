@@ -1,6 +1,6 @@
 import fn from 'fancy-node';
 import softDelete from '../../../modules/softDelete/softdelete.js';
-import tabStorage from './tabStorage.js';
+import tabStorage from './tab-storage.js';
 
 let app;
 let navi;
@@ -179,7 +179,7 @@ const handleRemoval = (tab, action) => {
         case 'remove':
             // inform app to delete cards
             app.trigger('tabDelete', {
-                tid: tabStorage.parseTid(tab)
+                tab
             })
             tabStorage.remove(tab);
             tab.remove();

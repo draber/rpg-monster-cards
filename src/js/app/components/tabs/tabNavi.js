@@ -1,5 +1,5 @@
 import fn from 'fancy-node';
-import tabManager from './tabManager.js';
+import tabManager from './tab-manager.js';
 import {
     on,
     trigger

@@ -1,8 +1,5 @@
 import fn from 'fancy-node';
 import {
-    camel
-} from '../../../modules/string/string.js'
-import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js'
@@ -17,52 +14,123 @@ class CardToolbar extends HTMLElement {
      */
     connectedCallback() {
 
-
-        this.on('pointerup', e => {
-            const btn = e.target.closest('button');
-            if (!btn || e.button !== 0) {
-                return true;
-            }
-            this.card.trigger(camel(`character-${e.target.name}`));
-        })
-
-        const buttons = {
-            remove: {
-                text: 'Delete',
-                icon: 'media/icons.svg#icon-axe'
+        const doneBtn = fn.button({
+            attributes: {
+                type: 'button',
+                name: 'done'
             },
-            edit: {
-                text: 'Edit',
-                icon: 'media/icons.svg#icon-quill'
-            },
-            done: {
-                text: 'Done',
-                icon: 'media/icons.svg#icon-quill'
-            }
-        }
-
-        for (let [name, data] of Object.entries(buttons)) {
-            const tpl = fn.button({
-                attributes: {
-                    type: 'button',
-                    name
-                },
-                content: [
-                    data.text,
-                    fn.svg({
+            content: [
+                'Done',
+                fn.svg({
+                    isSvg: true,
+                    content: fn.use({
                         isSvg: true,
-                        content: fn.use({
-                            isSvg: true,
-                            attributes: {
-                                href: data.icon
-                            }
-                        })
+                        attributes: {
+                            href: 'media/icons.svg#icon-quill'
+                        }
                     })
-                ]
-            })
+                })
+            ],
+            events: {
+                pointerup: e => {
+                    this.card.trigger('characterDone');
+                }
+            }
+        });
 
-            this.append(fn.toNode(tpl));
-        }
+        const cutBtn = fn.button({
+            attributes: {
+                type: 'button'
+            },
+            content: [
+                'Cut',
+                fn.svg({
+                    isSvg: true,
+                    content: fn.use({
+                        isSvg: true,
+                        attributes: {
+                            href: 'media/icons.svg#icon-axe'
+                        }
+                    })
+                })
+            ],
+            events: {
+                pointerup: e => {
+                    this.card.trigger('characterCut');
+                }
+            }
+        });
+
+        const copyBtn = fn.button({
+            attributes: {
+                type: 'button'
+            },
+            content: [
+                'Copy',
+                fn.svg({
+                    isSvg: true,
+                    content: fn.use({
+                        isSvg: true,
+                        attributes: {
+                            href: 'media/icons.svg#icon-axe'
+                        }
+                    })
+                })
+            ],
+            events: {
+                pointerup: e => {
+                    this.card.trigger('characterCopy');
+                }
+            }
+        });
+
+        const deleteBtn = fn.button({
+            attributes: {
+                type: 'button'
+            },
+            content: [
+                'Delete',
+                fn.svg({
+                    isSvg: true,
+                    content: fn.use({
+                        isSvg: true,
+                        attributes: {
+                            href: 'media/icons.svg#icon-axe'
+                        }
+                    })
+                })
+            ],
+            events: {
+                pointerup: e => {
+                    this.card.trigger('characterRemove');
+                }
+            }
+        });
+
+        const editBtn = fn.button({
+            attributes: {
+                type: 'button'
+            },
+            content: [
+                'Edit',
+                fn.svg({
+                    isSvg: true,
+                    content: fn.use({
+                        isSvg: true,
+                        attributes: {
+                            href: 'media/icons.svg#icon-quill'
+                        }
+                    })
+                })
+            ],
+            events: {
+                pointerup: e => {
+                    this.card.trigger('characterEdit');
+                }
+            }
+        });
+
+        this.append(doneBtn, deleteBtn, cutBtn, copyBtn, editBtn);
     }
 
     constructor(self) {

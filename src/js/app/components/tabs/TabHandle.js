@@ -1,10 +1,10 @@
 import fn from 'fancy-node';
-import tabManager from './tabManager.js';
+import tabManager from './tab-manager.js';
 import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js';
-import tabStorage from './tabStorage.js';
+import tabStorage from './tab-storage.js';
 import contextMenu from '../../../modules/context-menu/context-menu.js';
 
 /**

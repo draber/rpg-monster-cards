@@ -1,8 +1,10 @@
-import characterMap from '../character-library/character-map.js';
+import characterStorage from '../character-library/character-storage.js';
 import visibility from '../../../../data/visibility.json';
 import labels from '../../../../data/labels.json';
-import tabManager from '../tabs/tabManager.js';
-import tabStorage from '../tabs/tabStorage.js'
+import tabManager from '../tabs/tab-manager.js';
+import tabStorage from '../tabs/tab-storage.js';
+import softDelete from '../../../modules/softDelete/softDelete.js';
+import fn from 'fancy-node';
 
 let app;
 
@@ -39,13 +41,12 @@ const add = character => {
     let tid; // tab ID
     let tab;
     // if the character comes from a previous session
-    if(character.meta && character.meta.tid) {
-        cid = character.meta.cid;
+    if (character.meta && character.meta.tid) {
+        cid = characterStorage.parseCid(character);
         tab = tabManager.getTab(character.meta.tid);
-        tid = character.meta.tid;
-    }
-    else {
-        cid = characterMap.nextIncrement(origin);
+        tid = tabStorage.parseTid(tab);
+    } else {
+        cid = characterStorage.nextIncrement(origin);
         character = structuredClone(character);
         tab = tabManager.getTab('active');
         tid = tabStorage.parseTid(tab);
@@ -62,32 +63,48 @@ const add = character => {
     if (!character.labels) {
         character.labels = getLabels();
     }
-    characterMap.set(origin, cid, character);
+    characterStorage.set(origin, cid, character);
     const card = document.createElement('card-base');
+    card.cid = cid;
+    card.tid = tid;
     card.character = character;
     tab.panel.append(card);
 }
 
 const restoreLastSession = () => {
-    for (let character of Object.values(characterMap.getAllByType('user'))) {
+    for (let character of Object.values(characterStorage.getAllByType('user'))) {
         add(character);
     }
 }
 
-const handleRemoval = (card, action) => {
-    const character = characterMap.get(origin, card.cid)
+const bulkDelete = (type, tidData) => {
+    fn.$$('card-base', tabManager.getTab(tidData)).forEach(card => {
+        characterStorage.remove(type, card);
+        handleRemoval(card, 'remove');
+    })
+}
+
+const handleRemoval = (element, action) => {
+
     switch (action) {
         case 'soft':
-            character.meta.softDeleted = true;
-            characterMap.set(origin, card.cid, character);
+            // DOM
+            softDelete.initiate(element, characterStorage.get(origin, element).props.name)
+                .then(data => {
+                    handleRemoval(element, data.action);
+                })
+            // local model
+            characterStorage.update(origin, element, 'softDeleted', true);
             break;
         case 'restore':
-            delete character.meta.softDeleted;
-            characterMap.set(origin, card.cid, character);
+            characterStorage.update(origin, element, 'softDeleted', null);
             break;
         case 'remove':
-            delete tabs[tab.tid];
-            characterMap.remove(type, cid);
+            characterStorage.remove(origin, element);
+            element.remove();
+            break;
+        case 'all':
+            bulkDelete(origin, element);
             break;
     }
 }
@@ -96,7 +113,7 @@ const handleRemoval = (card, action) => {
 const init = _app => {
     app = _app;
     app.on('tabDelete', e => {
-        characterMap.bulkDeleteByTid(e.detail.tid);
+        handleRemoval(e.detail.tab, 'all');
     })
     app.on('characterSelection', e => {
         add(e.detail)

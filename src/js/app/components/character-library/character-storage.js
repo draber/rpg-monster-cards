@@ -43,6 +43,7 @@ const values = type => {
  * @param {Object} character character data
  */
 const set = (type, cid, character) => {
+    cid = parseCid(cid);
     data[type][cid] = character;
     if (type === 'user') {
         storage.update();
@@ -53,19 +54,53 @@ const set = (type, cid, character) => {
  * Equivalent of Map.get()
  * 
  * @param {String} type system|user
- * @param {Integer} cid
+ * @param {HTMLElement|Entry|String|Number} cidData
  * @returns {Object} character data
  */
-const get = (type, cid) => {
+const get = (type, cidData) => {
+    const cid = parseCid(cidData);
     return data[type][cid];
 }
 
-const bulkDeleteByTid = tid => {
-    for(let [cid, character] of Object.entries(data['user'])){
-        if(character.meta.tid === tid){
-            remove('user', cid);
-        }
+/**
+ * Retrieve the CID from either a DOM card or character or a {String|Number} CID 
+ * @param {HTMLElement|Entry|String|Number} data 
+ * @returns 
+ */
+const parseCid = data => {
+    let cid;
+    switch (true) {
+        case !!data.cid:
+            cid = data.cid;
+            break;
+        case !!(data.meta && data.meta.cid):
+            cid = data.meta.cid;
+            break;
+        default:
+            cid = data;
+
     }
+    if(isNaN(cid)){
+        throw `${cid} is not a valid character identifier`;
+    }
+    return parseInt(cid, 10);
+}
+
+/**
+ * Update an entry in the tabList and commit it to local storage
+ * @param {HTMLElement|Entry|String|Number} cidData 
+ * @param {String} key  
+ * @param {Any} value 
+ */
+ const update = (type, cidData, key, value) => {
+    const cid = parseCid(cidData);
+    const character = get(type, cidData);
+    if (value === null) {
+        delete character[key];
+    } else {
+        character[key] = value;
+    }
+    set(type, cid, character);
 }
 
 /**
@@ -81,10 +116,11 @@ const getAllByType = type => {
  * Equivalent of Map.delete()
  * 
  * @param {String} type system|user
- * @param {Integer} cid
+ * @param {HTMLElement|Entry|String|Number} cidData
  * @returns {Boolean} whether the cid existed prior to deletion
  */
-const remove = (type, cid) => {
+const remove = (type, cidData) => {
+    const cid = parseCid(cidData);
     delete data[type][cid];
     if (type === 'user') {
         storage.update();
@@ -130,9 +166,10 @@ export default {
     init,
     get,
     set,
+    update,
     remove,
+    parseCid,
     values,
     nextIncrement,
-    getAllByType,
-    bulkDeleteByTid
+    getAllByType
 }

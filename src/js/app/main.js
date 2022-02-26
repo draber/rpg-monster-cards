@@ -17,8 +17,8 @@ import CardToolbar from './components/character-cards/CardToolbar.js';
 import CardVerso from './components/character-cards/CardVerso.js';
 import UndoDialog from './components/undo-dialog/UndoDialog.js';
 import cardManager from './components/character-cards/card-manager.js';
-import characterMap from './components/character-library/character-map.js';
-import tabManager from './components/tabs/tabManager.js';
+import characterStorage from './components/character-library/character-storage.js';
+import tabManager from './components/tabs/tab-manager.js';
 import {
     on,
     trigger
@@ -29,7 +29,7 @@ class App extends HTMLElement {
 
     connectedCallback() {
         // load characters
-        characterMap.init()
+        characterStorage.init()
             .then(() => {
                 [
                     TabContent,

@@ -1,6 +1,5 @@
 import fn from 'fancy-node';
-import tabManager from './tabManager.js';
-import contextMenu from '../../../modules/context-menu/context-menu.js';
+import tabManager from './tab-manager.js';
 import properties from '../../../modules/properties/properties.js';
 
 

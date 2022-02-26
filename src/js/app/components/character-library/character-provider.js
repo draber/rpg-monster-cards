@@ -1,6 +1,6 @@
 import sorter from '../../../modules/sorter/sorter.js';
 import labels from '../../../../data/labels.json';
-import characterMap from './character-map.js';
+import characterStorage from './character-storage.js';
 
 
 /**
@@ -45,7 +45,7 @@ const getSortedCharacters = (type, {
     sortDir = 'name'
 } = {}) => {
     let grouped = {};
-    for (let entry of characterMap.values(type)) {
+    for (let entry of characterStorage.values(type)) {
         entry = prepareGroupSort(entry, groupBy);
         grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
         grouped[entry.meta._groupValue].push(entry)
