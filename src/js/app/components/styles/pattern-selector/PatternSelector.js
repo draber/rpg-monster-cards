@@ -7,6 +7,9 @@ import {
     trigger
 } from '../../../../modules/events/eventHandler.js'
 
+/**
+ * Combine the patterns for background and border, the mechanism is the same for both
+ */
 const patternPool = {
     backgrounds,
     borders
@@ -64,7 +67,7 @@ class PatternSelector extends HTMLElement {
     }
 
     /**
-     * The path of the image dependson whether it's used in HTML or CSS
+     * The path of the image depends on whether it's used in HTML or CSS
      * @param {String} img 
      * @param {String} target html|css
      * @returns {String}
@@ -74,6 +77,10 @@ class PatternSelector extends HTMLElement {
         return `url(${path}/${this.type}/${img.split('/').pop()})`;
     }
 
+    /**
+     * Retrieve the value of the widget
+     * @returns {String}
+     */
     getValue() {
         for (let input of fn.$$('input', this)) {
             if (input.checked) {
@@ -104,6 +111,9 @@ class PatternSelector extends HTMLElement {
 
         const inputs = [];
 
+        /**
+         * Radiobuttons with the different patterns
+         */
         const choices = patterns.map(entry => {
             let input = fn.input({
                 attributes: {
@@ -133,6 +143,9 @@ class PatternSelector extends HTMLElement {
             })
         });
 
+        /**
+         * The actula widget
+         */
         const selector = fn.ul({
             content: choices,
             events: {

@@ -12,6 +12,11 @@ tab-handle {
   &:hover:not(.active) {
     background: var(--bg-4-color);
   }
+  
+  & ::selection {
+    background: #336;
+    color: #ccc
+  }
 
   & .label {
     padding: 0 0.5rem;
@@ -20,11 +25,8 @@ tab-handle {
     overflow: hidden;
     text-overflow: ellipsis;
     &:focus {
-      outline: var(--border);
-    }
-    &:focus {
-      border: .1rem var(--hd-color) solid;
-      background: var(--bg-light)
+      outline: none;
+      background: var(--hd-color);
     }
   }
 

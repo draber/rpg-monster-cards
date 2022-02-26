@@ -6,9 +6,6 @@ import {
     on,
     trigger
 } from '../../../../modules/events/eventHandler.js'
-import fn from 'fancy-node';
-
-
 
 class ColorSelector extends HTMLElement {
 

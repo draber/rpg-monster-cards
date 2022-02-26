@@ -83,7 +83,7 @@ class FontSelector extends HTMLElement {
             const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                 e.detail.styles[this.styleArea][this.name] :
                 cssProps.get(this.name);
-                // quotes need to be replaced because they can be either ' or " due to the different transformations
+                // quotes need to be neutralized because they can be either ' or " due to the different transformations
             selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
 
             this.selected = value; 

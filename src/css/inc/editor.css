@@ -2,11 +2,11 @@
   flex: 2;
   position: relative;
 
-  & :not(.column-heading) {
+  /* & :not(.column-heading) {
     & ::selection {
       background: #12E1E1;
     }
-  }
+  } */
 
   & .column-content {
     padding: 3.5rem 2.5rem;

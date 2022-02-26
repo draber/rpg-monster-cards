@@ -630,6 +630,16 @@ tab-handle:hover:not(.active){
     background:var(--bg-4-color);
   }
 
+tab-handle ::-moz-selection{
+    background:#336;
+    color:#ccc
+  }
+
+tab-handle ::selection{
+    background:#336;
+    color:#ccc
+  }
+
 tab-handle .label{
     padding:0 0.5rem;
     flex:2;
@@ -639,15 +649,9 @@ tab-handle .label{
   }
 
 tab-handle .label:focus{
-      outline:.1rem solid hsla(46, 85%, 39%, .3);
-      outline:var(--border);
-    }
-
-tab-handle .label:focus{
-      border:.1rem hsl(44, 81%, 38%) solid;
-      border:.1rem var(--hd-color) solid;
-      background:hsl(29, 33%, 34%);
-      background:var(--bg-light)
+      outline:none;
+      background:hsl(44, 81%, 38%);
+      background:var(--hd-color);
     }
 
 tab-handle .closer{
@@ -1544,14 +1548,6 @@ form .control{
   flex:2;
   position:relative
 }
-
-#editor :not(.column-heading) ::-moz-selection{
-      background:#12E1E1;
-    }
-
-#editor :not(.column-heading) ::selection{
-      background:#12E1E1;
-    }
 
 #editor .column-content{
     padding:3.5rem 2.5rem;

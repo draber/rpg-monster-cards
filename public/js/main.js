@@ -571,7 +571,7 @@
     };
 
     const prepareGroupSort = (entry, groupBy) => {
-        if (entry.props[groupBy] === '') {
+        if (entry.props[groupBy] === '' || typeof entry.props[groupBy] === 'undefined') {
             entry.props[groupBy] = 'n/a';
         }
         switch (groupBy) {

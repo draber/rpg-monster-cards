@@ -4,7 +4,6 @@ import {
     on,
     trigger
 } from '../../../../modules/events/eventHandler.js'
-import tabManager from '../../tabs/tabManager.js';
 
 /**
  * Custom element containing the list of fonts
