@@ -56,6 +56,21 @@ class TabMenu extends HTMLElement {
                     },
                 }),
                 fn.li({
+                    classNames: ['context-separator','storage-dependent'],
+                    content: 'Paste card',
+                    events: {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
+                            this.app.trigger('cardPaste', {
+                                tab: this.owner,
+                                styles: this.app.cardCopy
+                            });;
+                        }
+                    },
+                }),
+                fn.li({
                     classNames: ['context-separator'],
                     content: 'Rename tab',
                     events: {

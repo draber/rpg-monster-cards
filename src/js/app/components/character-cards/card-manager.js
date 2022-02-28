@@ -118,7 +118,7 @@ const init = _app => {
     app.on('characterSelection', e => {
         add(e.detail)
     })
-    restoreLastSession()
+   // restoreLastSession()
 }
 
 export default {

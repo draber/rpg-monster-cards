@@ -1712,6 +1712,20 @@
                         },
                     }),
                     src.li({
+                        classNames: ['context-separator','storage-dependent'],
+                        content: 'Paste card',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                this.app.trigger('cardPaste', {
+                                    tab: this.owner,
+                                    styles: this.app.cardCopy
+                                });                        }
+                        },
+                    }),
+                    src.li({
                         classNames: ['context-separator'],
                         content: 'Rename tab',
                         events: {
@@ -2670,11 +2684,6 @@
         card.character = character;
         tab.panel.append(card);
     };
-    const restoreLastSession = () => {
-        for (let character of Object.values(characterStorage.getAllByType('user'))) {
-            add(character);
-        }
-    };
     const bulkDelete = (type, tidData) => {
         src.$$('card-base', tabManager.getTab(tidData)).forEach(card => {
             characterStorage.remove(type, card);
@@ -2710,7 +2719,6 @@
         app.on('characterSelection', e => {
             add(e.detail);
         });
-        restoreLastSession();
     };
     var cardManager = {
         init,
@@ -3149,7 +3157,7 @@
                         content: src.use({
                             isSvg: true,
                             attributes: {
-                                href: 'media/icons.svg#icon-axe'
+                                href: 'media/icons.svg#icon-scissors'
                             }
                         })
                     })
@@ -3171,7 +3179,7 @@
                         content: src.use({
                             isSvg: true,
                             attributes: {
-                                href: 'media/icons.svg#icon-axe'
+                                href: 'media/icons.svg#icon-copy'
                             }
                         })
                     })

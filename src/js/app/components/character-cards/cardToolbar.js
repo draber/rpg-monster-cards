@@ -49,7 +49,7 @@ class CardToolbar extends HTMLElement {
                     content: fn.use({
                         isSvg: true,
                         attributes: {
-                            href: 'media/icons.svg#icon-axe'
+                            href: 'media/icons.svg#icon-scissors'
                         }
                     })
                 })
@@ -72,7 +72,7 @@ class CardToolbar extends HTMLElement {
                     content: fn.use({
                         isSvg: true,
                         attributes: {
-                            href: 'media/icons.svg#icon-axe'
+                            href: 'media/icons.svg#icon-copy'
                         }
                     })
                 })
