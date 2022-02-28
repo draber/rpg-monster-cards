@@ -8,7 +8,7 @@
     "target": "src/data/css-props.json"
   },
   "fonts": {
-    "src": "src/data/raw/fonts.txt",
+    "src": "src/config/fonts.txt",
     "target": "src/data/fonts.json"
   },
   "backgrounds": {
@@ -20,23 +20,28 @@
     "target": "src/data/borders.json"
   },
   "characters": {
-    "src": "src/data/raw/monsters.json",
-    "target": "src/data/characters.json"
+    "src": "src/config/monsters.json",
+    "target": "public/js/characters.json"
   },
-  "cardLabels": {
-    "src": "src/data/raw/labels.json",
-    "target": "src/data/card-labels.json"
+  "fields": {
+    "src": "src/config/field-config.yml"
   },
-  "groupLabels": {
-    "src": "src/data/raw/labels.json",
-    "target": "src/data/group-labels.json"
+  "labels": {
+    "target": "src/data/labels.json"
   },
+  "visibility": {
+    "target": "src/data/visibility.json"
+  },  
   "js": {
     "entryPoint": "src/js/app/main.js",
     "public": "public/js/main.js"
   },
   "storageKeys": {
-    "user": "gb-user-prefs",
-    "cards": "gb-cards"
+    "user": "gc-user-prefs",
+    "cards": "gc-cards",
+    "tabs": "gc-tabs"
+  },
+  "userCharacters": {
+    "inLibrary": true
   }
 }

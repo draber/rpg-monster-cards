@@ -3,123 +3,43 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Ghastly Beasts Card Maker</title>
+  <title>Ghastly Creatures Card Maker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/main.css">
-  <link rel="icon" href="media/favicon.svg">
+  <link rel="icon" href="media/favicon-gc.svg">
 </head>
 
 <body>
   <header>
     <h1 id="logo-area">
       <svg>
-        <title>Ghastly Beasts Card Maker</title>
-        <use href="media/logo.svg#logo"></use>
+        <title>Ghastly Creatures Card Maker</title>
+        <use href="media/ghastly-creatures.svg#logo"></use>
       </svg>
     </h1>
   </header>
 
-  <main>
+  <main is="app-container">
     <section class="column" id="library">
       <div class="column-heading-container">
-        <h2 class="column-heading">Beasts
-        </h2>
-        <character-sorter></character-sorter>
+        <h2 class="column-heading">Library</h2>
+        <library-organizer></library-organizer>
       </div>
       <character-library sortby="name" groupby="name" sortdir="asc" groupdir="asc"></character-library>
     </section>
     <section class="column" id="editor">
-      <h2 class="column-heading">Gathering</h2>
-
-      <video id="smoke">
+      <h2 class="column-heading">Workbench</h2>
+      <tab-navi></tab-navi>
+      <!--video id="smoke">
         <source src="media/video/fog.webm" type="video/webm">
         <source src="media/video/fog.mp4" type="video/mp4">
-      </video>
+      </video-->
       <div class="column-content" id="card-listing">
-        <div class="card-container">
-          <article class="𝔘𝔫𝔥𝔬𝔩𝔡">
-            <figure class="𝔎𝔬𝔫𝔱𝔢𝔯𝔣𝔢𝔦">
-              <img src="media/MM35_PG133.jpg">
-              <figcaption class="badge">Teufelsbraten</figcaption>
-            </figure>
-
-            <figure class="𝔈𝔦𝔤𝔢𝔫𝔱ü𝔪𝔩𝔦𝔠𝔥𝔨𝔢𝔦𝔱𝔢𝔫">
-              <table>
-                <colgroup>
-                  <col width="25%">
-                  <col width="25%">
-                  <col width="25%">
-                  <col width="25%">
-                </colgroup>
-                <tbody>
-                  <tr>
-                    <td>AC</td>
-                    <td class="value">15</td>
-                    <td>HP</td>
-                    <td class="value">5</td>
-                  </tr>
-                  <tr>
-                    <td>Attack</td>
-                    <td colspan="3" class="value">club +2/d6</td>
-                  </tr>
-                  <tr>
-                    <td>Saves</td>
-                    <td colspan="3" class="value"><span class="value-part">3</span> <span class="value-part">1</span>
-                      <span class="value-part">-1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Stats</td>
-                    <td colspan="3" class="value"><span class="value-part">11</span> <span class="value-part">13</span>
-                      <span class="value-part">12</span> <span class="value-part">10</span> <span
-                        class="value-part">9</span> <span class="value-part">6</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Init</td>
-                    <td class="value">1</td>
-                    <td>Speed</td>
-                    <td class="value">30
-                      feet</td>
-                  </tr>
-                  <tr>
-                    <td colspan="4" class="long-text">
-                      <ul style="list-style: none;padding:0; margin:0;">
-                        <li>Hide: +5</li>
-                        <li>Listen: +2</li>
-                        <li>Move Silently: +5</li>
-                        <li>Ride: +4</li>
-                        <li>Spot: +2</li>
-                      </ul>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="badge cr">⅓</div>
-              <figcaption class="badge">Teufelsbraten</figcaption>
-            </figure>
-
-
-            <div class="toolbar"><button type="button">Eradicate
-                <svg>
-                  <use href="media/icons.svg#icon-axe"></use>
-                </svg>
-              </button>
-              <button type="button">Mutate
-                <svg>
-                  <use href="media/icons.svg#icon-quill"></use>
-                </svg>
-              </button>
-            </div>
-
-          </article>
-        </div>
-
-
+        <tab-content></tab-content>
       </div>
     </section>
-    <section class="column" class="column" id="style-editor">
-      <h2 class="column-heading">Mutations</h2>
+    <style-editor class="column">
+      <h2 class="column-heading">Style</h2>
       <form class="column-content">
         <details open>
           <summary>Card</summary>
@@ -127,8 +47,13 @@
             <h3>Font</h3>
             <font-selector name="--c-card-font"></font-selector>
           </div>
+          <div class="form-row">
+            <h3>Font Size</h3>
+            <font-size name="--c-card-font-size"></font-size>
+          </div>
           <div class="form-row" id="card-bg-color-selector">
-            <h3>Color</h3>
+            <h3>Background Color</h3>
+            <color-selector type="backgrounds" name="--c-bg-color"></color-selector>
           </div>
           <div class="form-row">
             <h3>Pattern</h3>
@@ -141,14 +66,20 @@
             <h3>Font</h3>
             <font-selector name="--c-badge-font"></font-selector>
           </div>
-          <div class="form-row" id="badge-color-selector">
-            <h3>Color</h3>
+          <div class="form-row">
+            <h3>Font Size</h3>
+            <font-size name="--c-badge-font-size"></font-size>
+          </div>
+          <div class="form-row">
+            <h3>Background Color</h3>
+            <color-selector type="badge" name="--c-badge-color"></color-selector>
           </div>
         </details>
         <details>
           <summary>Frame</summary>
-          <div class="form-row" id="card-border-color-selector">
-            <h3>Color</h3>
+          <div class="form-row">
+            <h3>Background ColorColor</h3>
+            <color-selector type="borders" name="--c-border-color"></color-selector>
           </div>
           <div class="form-row">
             <label>Pattern</label>
@@ -159,7 +90,7 @@
     </section>
   </main>
   <footer>
-    <span>Ghastly Beasts Card Maker</span>
+    <span>Ghastly Creatures Card Maker</span>
     <span>© 2022 Joel Bout</span>
   </footer>
   <script src="js/main.js"></script>

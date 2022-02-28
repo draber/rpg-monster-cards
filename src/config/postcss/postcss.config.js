@@ -14,9 +14,11 @@ const plugins = [
     require('postcss-discard-comments')
 ]
 
-if (args['config-env']) {
+if (args['env']) {
     plugins.push(require('cssnano'));
 }
+
+
 
 module.exports = {
     parser: 'postcss-scss',

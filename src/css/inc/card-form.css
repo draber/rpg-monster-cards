@@ -1,0 +1,163 @@
+card-form {
+  display: none;
+  flex: 2;
+  background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l)) var(--c-bg-pattern);
+  box-shadow: 0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
+  color: var(--c-color);
+  position: relative;
+
+  & [contenteditable] {
+    border: 0.1rem dotted var(--bg-6-color);
+    padding: 0.2rem 0.5rem;
+    background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
+    border-radius: var(--border-radius);
+    &:focus {
+      outline: none;
+      border-style: solid;
+      background: hsl(0 0% 100% / 0.6);
+    }
+  }
+
+  & caption {
+    display: inline-block;
+    padding: 0 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    text-align: left;
+    fill: var(--bg-6-color);
+  }
+
+  & table {
+    display: block;
+    padding: 2rem;
+  }
+
+  & tbody,
+  & thead {
+    display: block;
+    padding: 0;
+    font-size: 1.3rem;
+  }
+
+  & thead {
+    display: block;
+    margin-bottom: 2rem;
+    & td {
+      display: inline-block;
+    }
+  }
+
+  & tbody {
+    display: block;
+    column-count: 2;
+    column-gap: 3rem;
+    & tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    & td {
+      &:nth-child(2) {
+        flex: 2;
+        resize: vertical;
+        overflow-y: auto;
+      }
+    }
+  }
+
+  & tr {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.2rem 0;
+  }
+
+  & th,
+  & td {
+    display: block;
+    text-align: left;
+    border: none;
+    background: transparent;
+    padding: 2px;
+    border-radius: var(--border-radius);
+  }
+
+  & td {
+    &.icon {
+      background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));
+      border: 0.1rem dotted var(--bg-3-color);
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      padding: 0.5rem;
+      cursor: pointer;
+      &.handle {
+        cursor: move;
+      }
+    }
+  }
+
+  & th {
+    width: 10ch;
+  }
+
+  & [data-key="img"] {
+    & th {
+      width: auto;
+      white-space: nowrap
+    }
+  }
+
+  & svg {
+    width: 1.2rem;
+    aspect-ratio: 1 / 1;
+    fill: var(--bg-3-color);
+  }
+
+  // icon toggle
+  & use {
+    &[href*="show-card"],
+    &[href*="show-label"] {
+      display: inline;
+    }
+    &[href*="hide-card"],
+    &[href*="hide-label"] {
+      display: none;
+    }
+  }
+  & [data-card="false"] {
+    opacity: 0.8;
+    & use {
+      &[href*="hide-card"] {
+        display: inline;
+      }
+      &[href*="show-card"] {
+        display: none;
+      }
+    }
+  }
+  & [data-label="false"] {
+    & use {
+      &[href*="hide-label"] {
+        display: inline;
+      }
+      &[href*="show-label"] {
+        display: none;
+      }
+    }
+    & th {
+      opacity: 0.5;
+    }
+  }
+
+  & .dragover {
+    border-bottom: 3px green solid;
+  }
+}
+
+card-base {
+  &.editable {
+    & card-form {
+      display: block;
+    }
+  }
+}

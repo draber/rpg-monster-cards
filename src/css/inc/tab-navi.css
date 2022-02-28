@@ -1,0 +1,28 @@
+tab-navi {
+  display: flex;
+  background: var(--bg-2-color);
+  line-height: 2;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: .1rem solid var(--border-color);
+  padding: 0;
+  position: relative;
+  
+  & .adder {   
+    position: sticky;
+    background: var(--bg-2-color);
+    border-left: var(--border);
+    border-right: var(--border);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    right: 0; 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 1.3rem;
+    padding: 0 1rem;
+    margin-left: .5rem;
+    &:hover {
+      background: var(--bg-4-color);
+    }
+  }
+}

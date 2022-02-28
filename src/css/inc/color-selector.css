@@ -1,0 +1,20 @@
+color-selector {
+  display: block;
+
+  &[type] {
+    & > label {
+      display: flex;
+      align-items: center;
+      padding: 0.1rem 0;
+      gap: .5rem;
+      font-size: 1.3rem;
+      & span {
+        padding: 3px;
+        min-width: 1.5rem;
+        & ~ span {
+          flex: 2;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+card-verso {
+  display: block;
+  position: relative;
+
+  & .badge {
+    top: -0.4rem;
+
+    &.cr {
+      top: auto;
+      display: inline-block;
+      position: absolute;
+      right: 0.56rem;
+      bottom: 0.56rem;
+      padding: 0.16rem 0.8rem;
+      font-size: 1.5rem;
+      line-height: 1.3;
+      border-radius: 50%;
+    }
+  }
+
+  & tbody {
+    width: calc(100% - 1rem);
+    display: flex;
+    font-size: var(--c-card-font-size);
+    line-height: 1.6;
+    flex-wrap: wrap;
+    gap: 0 1.2ch;
+    overflow-y: auto;
+  }
+
+  & tr {
+    gap: 0.5ch;
+
+    // fields visibility on card
+    &[data-card="true"] {
+      display: flex;
+    }
+
+    &[data-card="false"] {
+      display: none;
+    }
+
+    &[data-label="false"] {
+      & th {
+        display: none;
+      }
+    }
+
+    &[data-label="true"] {
+      & th {
+        display: inline-block;
+      }
+    }
+  }
+  & th {
+    white-space: nowrap;
+    color: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
+    filter: contrast(25%);
+    &::after {
+      content: ":";
+    }
+  }
+  & td {
+    display: inline-block;
+  }
+
+  & use {
+  }
+  & [data-card="false"] {
+    opacity: 0.8;
+    & use {
+      &[data-card="false"] {
+        display: inline;
+      }
+      &[data-card="true"] {
+        display: none;
+      }
+    }
+  }
+  & [data-label="false"] {
+    & use {
+    }
+  }
+}

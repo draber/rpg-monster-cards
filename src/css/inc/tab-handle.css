@@ -1,0 +1,65 @@
+tab-handle {
+  flex: 1;
+  max-width: 10rem;
+  min-width: 6rem;
+  display: flex;
+  cursor: pointer;
+  border-right: var(--border);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding: 0;
+  justify-content: space-between;
+  position: relative;
+  &:hover:not(.active) {
+    background: var(--bg-4-color);
+  }
+  
+  & ::selection {
+    background: #336;
+    color: #ccc
+  }
+
+  & .label {
+    padding: 0 0.5rem;
+    flex: 2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    &:focus {
+      outline: none;
+      background: var(--hd-color);
+    }
+  }
+
+  & .closer {
+    font-size: 1rem;
+    display: none;
+    line-height: 1.8;
+    position: relative;
+    left: 0rem;
+    top: 0.7rem;
+    justify-content: center;
+    border-radius: 50%;
+    height: 1.8rem;
+    width: 1.8rem;
+  }
+  &.active {
+    background: var(--bg-light)
+      url(../media/patterns/system/light-rocky-wall.png);
+    & .closer {
+      display: flex;
+      &:hover {
+        background: hsl(0 100% 100% / 0.15);
+      }
+    }
+  }
+}
+
+tab-navi {
+  &.overflown {
+    & tab-handle {
+      &:not(.active) {
+        min-width: initial;
+      }
+    }
+  }
+}

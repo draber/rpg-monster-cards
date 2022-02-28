@@ -4,7 +4,7 @@ main {
   display: flex;
 }
 
-section {
+section, style-editor {
   &.column {
     display: flex;
     flex-direction: column;
@@ -28,7 +28,7 @@ section {
 
     & h3 {
       margin: 0;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 400;
     }
 

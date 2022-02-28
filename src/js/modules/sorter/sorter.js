@@ -9,12 +9,11 @@ const group = (dataObj, direction = 'asc') => {
     }, {});
 }
 
-
 const sort = (dataArr, sortBy = null, direction = 'asc') => {
     return dataArr.sort((a, b) => {
-        a = sortBy ? a[sortBy] : a;
-        b = sortBy ? b[sortBy] : b;
-        if(!isNaN(a) && !isNaN(b)){
+        a = sortBy ? sortBy.split('.').reduce((o, i) => o[i], a) : a;
+        b = sortBy ? sortBy.split('.').reduce((o, i) => o[i], b) : b;
+        if (!isNaN(a) && !isNaN(b)) {
             return direction === 'asc' ? Number(a - b) : Number(b - a);
         }
         if (a > b) {

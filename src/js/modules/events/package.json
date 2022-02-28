@@ -1,6 +1,6 @@
 {
     "name": "events",
     "version": "1.0.0",
-    "main": "events.js",
+    "main": "eventHandler.js",
     "type": "module"
 }

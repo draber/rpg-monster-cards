@@ -1,0 +1,6 @@
+{
+    "name": "soft-delete",
+    "version": "1.0.0",
+    "main": "softDelete.js",
+    "type": "module"
+}

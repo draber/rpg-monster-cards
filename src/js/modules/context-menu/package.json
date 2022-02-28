@@ -1,0 +1,6 @@
+{
+    "name": "context-menu",
+    "version": "1.0.0",
+    "main": "context-menu.js",
+    "type": "module"
+}

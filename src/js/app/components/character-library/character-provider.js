@@ -1,78 +1,65 @@
 import sorter from '../../../modules/sorter/sorter.js';
-import groupLabels from '../../../../data/group-labels.json';
-import characters from '../../../../data/characters.json';
+import labels from '../../../../data/labels.json';
+import characterStorage from './character-storage.js';
+
 
 /**
  * Map 'group by' to a label and a value
- * @param character
- * @param groupBy
- * @returns {*&{_groupValue: *, _groupLabel: *}}
+ * @param {Object} entry
+ * @param {String} groupBy
+ * @returns {Object} modified entry
  */
-const prepareGroupSort = (character, groupBy) => {
-    let _groupLabel;
-    let _groupValue;
-    if (character[groupBy] === '') {
-        character[groupBy] = 'n/a';
+const prepareGroupSort = (entry, groupBy) => {
+    if (entry.props[groupBy] === '' || typeof entry.props[groupBy] === 'undefined') {
+        entry.props[groupBy] = 'n/a';
     }
     switch (groupBy) {
+        case '__user':
+            entry.meta._groupValue = labels.__user.group;
+            entry.meta._groupLabel = labels.__user.group;
+            break;
         case 'name':
-            _groupValue = character.name.charAt(0).toUpperCase();
-            _groupLabel = `${groupLabels[groupBy]}: ${_groupValue}`;
+            entry.meta._groupValue = entry.props.name.charAt(0).toUpperCase();
+            entry.meta._groupLabel = `${labels[groupBy].group}: ${entry.meta._groupValue}`;
             break
         default:
-            _groupValue = character[groupBy];
-            _groupLabel = `${groupLabels[groupBy]}: ${character[groupBy]}`
+            entry.meta._groupValue = entry.props[groupBy];
+            entry.meta._groupLabel = `${labels[groupBy].group}: ${entry.props[groupBy]}`
     }
 
-    return {
-        ...character,
-        ...{
-            _groupLabel,
-            _groupValue
-        }
-    };
+    return entry;
 }
 
 /**
  * Retrieve characters grouped and sorted
- * @param groupBy
- * @param sortBy
- * @param groupDir
- * @param sortDir
+ * @param {String} groupBy
+ * @param {String} sortBy
+ * @param {String} groupDir
+ * @param {String} sortDir
  * @returns {Object}
  */
-const getSortedCharacters = ({
-    groupBy,
-    sortBy,
-    groupDir,
-    sortDir
-}) => {
+const getSortedCharacters = (type, {
+    groupBy = 'name',
+    sortBy = 'name',
+    groupDir = 'asc',
+    sortDir = 'name'
+} = {}) => {
     let grouped = {};
-    characters.forEach(character => {
-        character = prepareGroupSort(character, groupBy);
-        grouped[character._groupValue] = grouped[character._groupValue] || [];
-        grouped[character._groupValue].push(character)
-    });
-    grouped = sorter.group(grouped, groupDir);
+    for (let entry of characterStorage.values(type)) {
+        entry = prepareGroupSort(entry, groupBy);
+        grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
+        grouped[entry.meta._groupValue].push(entry)
+    }
+    if (type === 'system') {
+        grouped = sorter.group(grouped, groupDir);
+    }
     for (let [key, values] of Object.entries(grouped)) {
-        grouped[key] = sorter.sort(values, sortBy, sortDir);
+        grouped[key] = sorter.sort(values, `props.${sortBy}`, sortDir);
     }
     return grouped;
 }
 
-/**
- * Retrieve a clone of a character to build a card from.
- * This falls back to the first available character
- * @param key
- * @param value
- * @returns {{img?: string, notes?: string, con?: string, hp?: string, "full attack"?: string, attack_parameters?: string, feats?: string, speed?: string, skills?: string, "base attack/grapple"?: string, attack?: string, dex?: string, treasure?: string, cha?: string, wis?: string, ac?: string, ini?: string, "special attacks"?: string, will?: string, reflex?: string, int?: string, "level adjustment"?: string, cr?: number, str?: string, environment?: string, "space/reach"?: string, organization?: string, name?: string, fort?: string, alignment?: string, base?: string}}
- */
-const getSingleCharacter = (key, value) => {
-    const current = characters.filter(e => e[key] = value);
-    return {...{}, ...(current.length ? current.pop() : characters[0])};
-}
 
 export default {
-    getSortedCharacters,
-    getSingleCharacter
+    getSortedCharacters
 }

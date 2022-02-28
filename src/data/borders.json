@@ -1,8 +1,8 @@
 [
 	{
-		"label": "Cloud 1",
-		"id": "cloud-1",
-		"name": "cloud-1.png"
+		"label": "Cloud",
+		"id": "cloud",
+		"name": "cloud.png"
 	},
 	{
 		"label": "Crosshatch 1",
@@ -15,18 +15,18 @@
 		"name": "crosshatch-2.png"
 	},
 	{
-		"label": "Etching Dirty 1",
-		"id": "etching-dirty-1",
-		"name": "etching-dirty-1.png"
+		"label": "Etching Dirty",
+		"id": "etching-dirty",
+		"name": "etching-dirty.png"
 	},
 	{
-		"label": "Spatter 1",
-		"id": "spatter-1",
-		"name": "spatter-1.png"
+		"label": "Spatter",
+		"id": "spatter",
+		"name": "spatter.png"
 	},
 	{
-		"label": "Wood 1",
-		"id": "wood-1",
-		"name": "wood-1.png"
+		"label": "Wood",
+		"id": "wood",
+		"name": "wood.png"
 	}
 ]
