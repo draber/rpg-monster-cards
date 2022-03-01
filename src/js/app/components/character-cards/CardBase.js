@@ -6,6 +6,7 @@ import {
     trigger
 } from '../../../modules/events/eventHandler.js';
 import cardManager from './card-manager.js';
+import cardCopy from '../../../modules/card-copy/card-copy.js';
 
 /**
  * Custom element containing the list of patterns
@@ -43,11 +44,28 @@ class CardBase extends HTMLElement {
     set tid(value) {
         this.setAttribute('tid', value);
     }
+    /**
+     * Map attribute and property, getter for 'tabindex'
+     * @returns {string}
+     */
+    get tabindex() {
+        return this.getAttribute('tabindex');
+    }
+
+    /**
+     * Map attribute and property, setter for 'tabindex'
+     * @param value
+     */
+    set tabindex(value) {
+        this.setAttribute('tabindex', value);
+    }
 
     /**
      * Called on element launch
      */
     connectedCallback() {
+
+
 
         ['recto', 'verso', 'form', 'toolbar'].forEach(view => {
             this[view] = document.createElement(`card-${view}`);
@@ -69,6 +87,8 @@ class CardBase extends HTMLElement {
         })
 
         this.append(cardInner);
+
+        this.tabIndex = 0;
 
         /**
          * Update model and local storage
@@ -95,16 +115,15 @@ class CardBase extends HTMLElement {
             this.trigger('afterOrderChange');
         });
 
-        this.on('characterCut', function (e) {            
-           // cardManager.handleRemoval(this, 'soft');
+        this.on('characterCut', function (e) {
+            cardCopy.cut(this);
         })
 
         this.on('characterCopy', function (e) {
-           // properties.set('cardState', 'edit');
-           // this.classList.add('editable');
+            cardCopy.copy(this);
         })
 
-        this.on('characterRemove', function (e) {            
+        this.on('characterRemove', function (e) {
             cardManager.handleRemoval(this, 'soft');
         })
 
@@ -117,6 +136,18 @@ class CardBase extends HTMLElement {
             properties.unset('cardState');
             this.classList.remove('editable');
         })
+
+        this.on('keyup', e => {
+
+            if (e.ctrlKey && ['x', 'c'].includes(e.key)) {
+                cardCopy[e.key === 'x' ? 'cut' : 'copy'](this);
+            }
+            if (e.key === 'Escape') {
+                cardCopy.clear(this);
+            }
+
+        })
+
     }
 
     constructor(self) {
@@ -129,7 +160,8 @@ class CardBase extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    CardBase.prototype.app = app;
     customElements.get('card-base') || customElements['define']('card-base', CardBase)
 }
 

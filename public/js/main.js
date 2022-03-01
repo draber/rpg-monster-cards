@@ -429,7 +429,7 @@
     	target: "public/js/characters.json"
     };
     var fields = {
-    	src: "src/data/raw/field-config.yml"
+    	src: "src/config/field-config.yml"
     };
     var labels = {
     	target: "src/data/labels.json"
@@ -477,7 +477,7 @@
         }
         return current;
     };
-    const set$4 = (key, value) => {
+    const set$5 = (key, value) => {
         const keys = key.split('.');
         const last = keys.pop();
         let current = settings;
@@ -495,7 +495,7 @@
     };
     var settings$1 = {
         get: get$5,
-        set: set$4
+        set: set$5
     };
 
     const lsKey$2 = settings$1.get('storageKeys.cards');
@@ -514,7 +514,7 @@
     const values = type => {
         return Object.values(data[type]);
     };
-    const set$3 = (type, cid, character) => {
+    const set$4 = (type, cid, character) => {
         cid = parseCid(cid);
         data[type][cid] = character;
         if (type === 'user') {
@@ -550,7 +550,7 @@
         } else {
             character[key] = value;
         }
-        set$3(type, cid, character);
+        set$4(type, cid, character);
     };
     const getAllByType = type => {
         return data[type];
@@ -572,7 +572,7 @@
             .then(response => response.json())
             .then(data => {
                 data.forEach((props, cid) => {
-                    set$3('system', cid, {
+                    set$4('system', cid, {
                         meta: {
                             cid,
                             origin: 'system'
@@ -585,7 +585,7 @@
     var characterStorage = {
         init: init$4,
         get: get$4,
-        set: set$3,
+        set: set$4,
         update: update$2,
         remove: remove$1,
         parseCid,
@@ -645,7 +645,7 @@
     const get$3 = key => {
         return settings$1.get(`userPrefs.${key}`);
     };
-    const set$2 = (key, value) => {
+    const set$3 = (key, value) => {
         settings$1.set(`userPrefs.${key}`, value);
         localStorage.setItem(lsKey$1, JSON.stringify(getAll()));
         return true;
@@ -653,7 +653,7 @@
     var userPrefs = {
         getAll,
         get: get$3,
-        set: set$2
+        set: set$3
     };
 
     const on = function(types, action)  {
@@ -767,10 +767,10 @@
                 }
                 this.app.trigger('characterSelection', (() => {
                     const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
-                    const entry = characterStorage.get(type, parseInt(li.dataset.cid, 10));
-                    entry.meta._groupLabel && delete entry.meta._groupLabel;
-                    entry.meta._groupValue && delete entry.meta._groupValue;
-                    return entry;
+                    const character = characterStorage.get(type, li.dataset.cid);
+                    character.meta._groupLabel && delete character.meta._groupLabel;
+                    character.meta._groupValue && delete character.meta._groupValue;
+                    return character;
                 })());
             });
             this.sortBy = userPrefs.get('characters.sortBy') || this.sortBy || 'name';
@@ -1072,7 +1072,7 @@
         register: register$h
     };
 
-    const set$1 = (key, value, target) => {
+    const set$2 = (key, value, target) => {
         target = target || document.body;
         target.dataset[key] = value;
     };
@@ -1084,7 +1084,7 @@
         return JSON.parse(target.dataset[key]);
     };
     const toggle$1 = (key, target) => {
-        set$1(key, !get$2(key, target), target);
+        set$2(key, !get$2(key, target), target);
     };
     const unset = (key, target) => {
         target = target || document.body;
@@ -1093,7 +1093,7 @@
     var properties = {
         unset,
         get: get$2,
-        set: set$1,
+        set: set$2,
         toggle: toggle$1
     };
 
@@ -1211,7 +1211,7 @@
         const tid = parseTid(data);
         return tabList[tid] ? tabList[tid] : blank();
     };
-    const set = (tidData, data) => {
+    const set$1 = (tidData, data) => {
         init$3();
         tabList[parseTid(tidData)] = data;
         write();
@@ -1224,7 +1224,7 @@
         } else {
             entry[key] = value;
         }
-        set(tid, entry);
+        set$1(tid, entry);
     };
     const remove = tidData => {
         init$3();
@@ -1233,7 +1233,7 @@
     };
     var tabStorage = {
         get: get$1,
-        set,
+        set: set$1,
         update: update$1,
         remove,
         parseTid
@@ -1629,11 +1629,70 @@
         register: register$e
     };
 
+    const deepClone = obj => {
+        return !(structuredClone instanceof Function) ? JSON.parse(JSON.stringify(obj)) : structuredClone(obj);
+    };
+
+    const origin$1 = 'user';
+    const set = (element, mode) => {
+        clear(element);
+        element.app.pastableCard = {
+            cid: characterStorage.parseCid(element),
+            tid: tabStorage.parseTid(element),
+            mode
+        };
+        element.classList.add(element.app.pastableCard.mode);
+    };
+    const cut = element => {
+        set(element, 'cut');
+    };
+    const copy = element => {
+        set(element, 'copy');
+    };
+    const paste = element => {
+        const character = deepClone(characterStorage.get(origin$1, element.app.pastableCard));
+        character.meta.cid = characterStorage.nextIncrement(origin$1);
+        character.meta.tid = tabStorage.parseTid(element);
+        element.app.trigger('characterSelection', character);
+        if(element.app.pastableCard.mode === 'cut'){
+            characterStorage.remove(origin$1, element.app.pastableCard);
+        }
+        clear();
+    };
+    const clear = element => {
+        const lastCopied = src.$('card-base.cut, card-base.copy', element.app);
+        if (lastCopied) {
+            lastCopied.classList.remove('cut', 'copy');
+        }
+        delete element.app.pastableCard;
+    };
+    var cardCopy = {
+        copy,
+        cut,
+        paste,
+        clear
+    };
+
     class TabContent extends HTMLElement {
+        get tid() {
+            return this.getAttribute('tid');
+        }
+        set tid(value) {
+            this.setAttribute('tid', value);
+        }
+        disconnectedCallback() {
+            contextMenu.unregister(this);
+        }
         connectedCallback() {
+            contextMenu.register(this, document.createElement('tab-menu'));
+            this.on('paste', e => {
+                cardCopy.paste(this);
+            });
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
@@ -2661,7 +2720,7 @@
             tid = tabStorage.parseTid(tab);
         } else {
             cid = characterStorage.nextIncrement(origin);
-            character = structuredClone(character);
+            character = deepClone(character);
             tab = tabManager.getTab('active');
             tid = tabStorage.parseTid(tab);
         }
@@ -2738,6 +2797,12 @@
         set tid(value) {
             this.setAttribute('tid', value);
         }
+        get tabindex() {
+            return this.getAttribute('tabindex');
+        }
+        set tabindex(value) {
+            this.setAttribute('tabindex', value);
+        }
         connectedCallback() {
             ['recto', 'verso', 'form', 'toolbar'].forEach(view => {
                 this[view] = document.createElement(`card-${view}`);
@@ -2757,6 +2822,7 @@
                 ]
             });
             this.append(cardInner);
+            this.tabIndex = 0;
             this.on('contentChange', function (e) {
                 const section = e.detail.field === 'text' ? 'props' : 'labels';
                 this.character[section][e.detail.key] = e.detail.value;
@@ -2777,8 +2843,10 @@
                 this.trigger('afterOrderChange');
             });
             this.on('characterCut', function (e) {
+                cardCopy.cut(this);
             });
             this.on('characterCopy', function (e) {
+                cardCopy.copy(this);
             });
             this.on('characterRemove', function (e) {
                 cardManager.handleRemoval(this, 'soft');
@@ -2791,6 +2859,14 @@
                 properties.unset('cardState');
                 this.classList.remove('editable');
             });
+            this.on('keyup', e => {
+                if (e.ctrlKey && ['x', 'c'].includes(e.key)) {
+                    cardCopy[e.key === 'x' ? 'cut' : 'copy'](this);
+                }
+                if (e.key === 'Escape') {
+                    cardCopy.clear(this);
+                }
+            });
         }
         constructor(self) {
             self = super(self);
@@ -2799,7 +2875,8 @@
             return self;
         }
     }
-    const register$5 = () => {
+    const register$5 = app => {
+        CardBase.prototype.app = app;
         customElements.get('card-base') || customElements['define']('card-base', CardBase);
     };
     var CardBase$1 = {

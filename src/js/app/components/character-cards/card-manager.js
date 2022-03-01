@@ -5,6 +5,7 @@ import tabManager from '../tabs/tab-manager.js';
 import tabStorage from '../tabs/tab-storage.js';
 import softDelete from '../../../modules/softDelete/softDelete.js';
 import fn from 'fancy-node';
+import { deepClone } from '../../../modules/deep-clone/deep-clone.js'
 
 let app;
 
@@ -12,17 +13,6 @@ let app;
  * The context in which this character is handled, i.e. system|user
  */
 const origin = 'user';
-
-// polyfill for structuredClone()
-// this is currently bleeding edge
-// it works in all major browsers but only if the are up-to-date
-// note that this polyfill is very superficial 
-// but gets the job done for the usage below
-if (typeof structuredClone !== 'function') {
-    function structuredClone(obj) {
-        return JSON.parse(JSON.stringify(obj));
-    }
-}
 
 const getLabels = () => {
     const characterLabels = {};
@@ -47,7 +37,7 @@ const add = character => {
         tid = tabStorage.parseTid(tab);
     } else {
         cid = characterStorage.nextIncrement(origin);
-        character = structuredClone(character);
+        character = deepClone(character);
         tab = tabManager.getTab('active');
         tid = tabStorage.parseTid(tab);
     }

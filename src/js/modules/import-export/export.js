@@ -3,7 +3,7 @@ import dataUri from "../data-uri/data-uri.js";
 const asObject = (keys, storage = 'localStorage') => {
     const data = {};
     keys.forEach(key => {
-        data[key] = storage.getItem(key);
+        data[key] = window[storage].getItem(key);
     });
 
     return data;

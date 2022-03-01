@@ -66,16 +66,18 @@ Whenever you make changes to the underlying data, the files in the root folder n
 | `npm run build`      | Includes `npm run data:build`       |
 
 ## User data
-All user data are stored in `localStorage` under keys which are defined in `src/config/config.json#storageKeys`.
+All user data are stored in `localStorage` under keys which are defined in `src/config/config.json#storageKeys`:
 
-- `storageKeys.cards`: All cards and their modifications made along the way
-- `storageKeys.tabs`:  All tabs along with their styles
-- `storageKeys.user`:  Everything that doesn't fit the other two, such as the preferred order of characters in the library
+| Key                 | Purpose             |
+|:--------------------|:--------------------|
+| `storageKeys.cards` | Card data           |
+| `storageKeys.tabs`  | Tab data and styles |
+| `storageKeys.user`  | User preferences    |
 
 ## UI elements in general
 
 ### Fancy node in a nutshell
-DOM elements anywhere in the code are accessed or created with [fancy-node](https://www.npmjs.com/package/fancy-node). This isn't a JS framework but a simple set of wrappers around `document.createElement`, `document.querySelector` and `document.querySelectorAll`. All of the blow functions return valid HTML or SVG elements:
+DOM elements anywhere in the code are accessed or created with [Fancy Node](https://www.npmjs.com/package/fancy-node). This isn't a JS framework but a simple set of wrappers around `document.createElement`, `document.querySelector` and `document.querySelectorAll`. All of the functions below return valid HTML or SVG elements:
 
 | Fancy Node    | JS Equivalent                       |
 |:--------------|:------------------------------------|
@@ -97,7 +99,9 @@ Most of the UI elements are built as Web Components. Usually, all related files 
 | HTML element | `<card-recto>`   |
 | CSS file     | card-recto.css   |
 
-More complex scenarios, such as cards or tabs, where multiple components act alongside, are usually controlled or supported by a `*manager.js` module. Notably, these components don't use the `Shadow DOM`. They act within a clearly defined scope where `<style>` or `<script>` encapsulations don't matter. 
+More complex scenarios, such as cards or tabs, where multiple components act alongside, are usually controlled or supported by a `*-manager.js` module. If storage is involved this is handled by a `*-storage.js` module. 
+
+Notably, these components don't use the `Shadow DOM`. They act within a clearly defined scope where `<style>` or `<script>` encapsulations don't matter. 
 
 ## Character library
 The library lists all characters and is built from `public/js/characters.json`. It can be grouped by using the order symbol above the library. Whether or not grouping by a specific criterion is possible depends on `src/config/field-config.yml#<field>.visibility.group`.
@@ -112,18 +116,18 @@ The workbench is organized into tabs; all cards live inside these tabs. Launchin
 
 Tabs have a context menu that can be accessed by right-clicking on the tab heading. There will always be at least one tab open, even after closing all. Closing a tab will also destroy all its cards. Some tasks can be undone within a 10-second window. By default, tabs are named with Roman numerals, but they can be renamed.
 
-| Task             | How to                                                   | Undo |
-|:-----------------|:---------------------------------------------------------|:----:|
-| Add tab          | + icon or double-click on the tab bar                    | n/a  |
-| Rename tab       | context menu or double-click on the tab heading          | n/a  |
-| Close tab        | × icon or context menu, _destroys all cards_ on this tab | ✓    |
-| Close empty tabs | context menu, _invalids all pending undo timeouts_       | ✗    |
-| Close other tabs | context menu, _invalids all pending undo timeouts_       | ✗    |
-| Close all tabs   | context menu, _invalids all pending undo timeouts_       | ✗    |
-| Paste card       | context menu                                             | ✗    |
-| Copy style       | context menu                                             | n/a  |
-| Paste style      | context menu                                             | ✗    |
-| Reset style      | context menu                                             | ✗    |
+| Task             | Access                                         | Undo | Note                           |
+|:-----------------|:-----------------------------------------------|:----:|:-------------------------------|
+| Add tab          | + icon / double-click on the tab bar           | n/a  |                                |
+| Rename tab       | context menu / double-click on the tab heading | n/a  |                                |
+| Close tab        | × icon / context menu                          | ✓    | destroys all cards on this tab |
+| Close empty tabs | context menu                                   | ✗    | invalids pending undo timeouts |
+| Close other tabs | context menu                                   | ✗    | invalids pending undo timeouts |
+| Close all tabs   | context menu                                   | ✗    | invalids pending undo timeouts |
+| Paste card       | context menu                                   | ✗    |                                |
+| Copy style       | context menu                                   | n/a  |                                |
+| Paste style      | context menu                                   | ✗    |                                |
+| Reset style      | context menu                                   | ✗    |                                |
 
 ### Cards
 
@@ -132,20 +136,19 @@ Cards have a toolbar that appears when hovering over the card. This implies that
 | Button | Task                                                            | Undo |
 |:-------|:----------------------------------------------------------------|:----:|
 | Delete | removes a card from the canvas                                  | ✓    | 
-| Cut    | takes a reference to the card, removes original after pasting | n/a  |
-| Copy   | takes a reference to the card, keeps original after pasting   | n/a  |
+| Cut    | takes a reference to the card, removes original after pasting   | n/a  |
+| Copy   | takes a reference to the card, keeps original after pasting     | n/a  |
 | Edit   | opens the card editor                                           | n/a  |
 | Done   | closes the card editor, only visible in editor                  | n/a  |  
 
 
 ## Style editor
-All styles are per-tab and can be copied from one tab to another. They are stored in `localStorage` as part of the tab configuration.
+All styles are per-tab and can be copied from one tab to another. They are stored in `localStorage[storageKeys.tabs]` as part of the tab configuration.
 
-The editor has three sections, namely
-- **Card:** Styles that apply to the cards directly
-- **Badge:** Title and challenge rating
-- **Frame:** Everything related to the card border
-
-Four different widget types are used where applicable. Their default values are taken from `src/data/css-props.json`, i.e. based on `src/css/inc/card-defs.css`. 
-
-The font families correspond to `src/data/fonts.json`, the patterns to `src/data/backgrounds.json` and `src/data/borders.json`.
+| Feature / Section  | Card | Badge | Frame | Data source                 |
+|:-------------------|:----:|:-----:|:-----:|:----------------------------|
+| Font selection     | ✓    | ✓    | ✗     | `src/data/fonts.json`       |
+| Font size          | ✓    | ✓    | ✗     | `src/data/css-props.json`   |
+| Color picker       | ✓    | ✓    | ✓     | `src/data/css-props.json`   |
+| Background pattern | ✓    | ✗    | ✗     | `src/data/backgrounds.json` |
+| Border pattern     | ✗    | ✗    | ✓     | `src/data/borders.json`     |

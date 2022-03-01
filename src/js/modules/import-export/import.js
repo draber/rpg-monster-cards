@@ -2,7 +2,7 @@ import dataUri from "../data-uri/data-uri.js";
 
 const fromObject = (data, storage = 'localStorage') => {
     for(let [key, value] of Object.entries(data)) {
-        storage.setItem(key, value)
+        window[storage].setItem(key, value)
     }
 }
 

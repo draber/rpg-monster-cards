@@ -569,7 +569,9 @@ tab-panel.active{
     }
 
 tab-content{
-    display:block
+    display:block;
+    min-height:100%;
+    padding:3.5rem 2.5rem;
 }
 
 tab-navi{
@@ -739,6 +741,10 @@ card-base{
   display:block
 }
 
+card-base:not(.editable){
+    cursor:pointer;
+  }
+
 card-base article{
     position:relative;
     font-family:"Della Respira";
@@ -838,15 +844,8 @@ card-base .badge{
     max-width:calc(100% - 0.8rem);
   }
 
-card-base.summon .𝔘𝔫𝔥𝔬𝔩𝔡{
-      -webkit-animation:summon 1s ease-in;
-              animation:summon 1s ease-in;
-    }
-
-card-base.banish .𝔘𝔫𝔥𝔬𝔩𝔡{
-      -webkit-animation:banish 1s ease-out;
-              animation:banish 1s ease-out;
-    }
+card-base{
+}
 
 card-base.editable{
     width:100%
@@ -860,6 +859,15 @@ card-base.editable article{
       height:100%;
       gap:1rem
     }
+
+card-base.cut{
+    opacity:.6
+  }
+
+card-base:focus{
+    outline:.4rem hsl(44, 81%, 38%) solid;
+    outline:.4rem var(--hd-color) solid
+  }
 
 [data-card-state="edit"] card-base:not(.editable){
       display:none;
@@ -904,8 +912,12 @@ card-verso .badge.cr{
       padding:0.16rem 0.8rem;
       font-size:1.5rem;
       line-height:1.3;
-      border-radius:50%;
+      border-radius:50%
     }
+
+card-verso .badge.cr:empty{
+        display:none;
+      }
 
 card-verso tbody{
     width:calc(100% - 1rem);
@@ -989,6 +1001,11 @@ card-toolbar{
   transition:opacity 0.5s
 }
 
+card-toolbar :focus{
+    outline:0.1rem hsl(44, 81%, 38%) solid;
+    outline:0.1rem var(--hd-color) solid;
+  }
+
 card-toolbar button{
     display:flex;
     align-items:center;
@@ -1021,7 +1038,7 @@ card-toolbar svg{
     fill:var(--c-button-color);
   }
 
-card-base:hover card-toolbar{
+card-base:hover card-toolbar, card-base:focus card-toolbar, card-base:focus-within card-toolbar{
       opacity:1;
     }
 
@@ -1550,7 +1567,7 @@ form .control{
 }
 
 #editor .column-content{
-    padding:3.5rem 2.5rem;
+    padding:0;
     display:block;
     background:hsl(29, 33%, 34%)
       url(../media/patterns/system/light-rocky-wall.png);

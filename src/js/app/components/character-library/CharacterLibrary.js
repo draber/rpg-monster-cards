@@ -185,10 +185,10 @@ class CharacterLibrary extends HTMLElement {
             }
             this.app.trigger('characterSelection', (() => {
                 const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
-                const entry = characterStorage.get(type, parseInt(li.dataset.cid, 10));
-                entry.meta._groupLabel && delete entry.meta._groupLabel;
-                entry.meta._groupValue && delete entry.meta._groupValue;
-                return entry;
+                const character = characterStorage.get(type, li.dataset.cid);
+                character.meta._groupLabel && delete character.meta._groupLabel;
+                character.meta._groupValue && delete character.meta._groupValue;
+                return character;
             })());
         })
 
