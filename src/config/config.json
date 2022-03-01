@@ -8,7 +8,7 @@
     "target": "src/data/css-props.json"
   },
   "fonts": {
-    "src": "src/config/fonts.txt",
+    "src": "src/data/raw/fonts.txt",
     "target": "src/data/fonts.json"
   },
   "backgrounds": {
@@ -20,7 +20,7 @@
     "target": "src/data/borders.json"
   },
   "characters": {
-    "src": "src/config/monsters.json",
+    "src": "src/data/raw/monsters.json",
     "target": "public/js/characters.json"
   },
   "fields": {
