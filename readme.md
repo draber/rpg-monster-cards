@@ -114,7 +114,7 @@ The workbench is organized into tabs; all cards live inside these tabs. Launchin
 
 ### Tabs 
 
-Tabs have a context menu that can be accessed by right-clicking on the tab heading. There will always be at least one tab open, even after closing all. Closing a tab will also destroy all its cards. Some tasks can be undone within a 10-second window. By default, tabs are named with Roman numerals, but they can be renamed.
+Tabs have a context menu that can be accessed by right-clicking. There will always be at least one tab open, even after closing all. Closing a tab will also destroy all its cards. Some tasks can be undone within a 10-second window. By default, tabs are named with Roman numerals, but they can be renamed.
 
 | Task             | Access                                         | Undo | Note                           |
 |:-----------------|:-----------------------------------------------|:----:|:-------------------------------|
