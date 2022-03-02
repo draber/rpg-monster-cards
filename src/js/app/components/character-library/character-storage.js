@@ -64,22 +64,11 @@ const get = (type, cidData) => {
 
 /**
  * Retrieve the CID from either a DOM card or character or a {String|Number} CID 
- * @param {HTMLElement|Entry|String|Number} data 
+ * @param {HTMLElement|Entry|String|Number} cidData 
  * @returns 
  */
-const parseCid = data => {
-    let cid;
-    switch (true) {
-        case !!data.cid:
-            cid = data.cid;
-            break;
-        case !!(data.meta && data.meta.cid):
-            cid = data.meta.cid;
-            break;
-        default:
-            cid = data;
-
-    }
+const parseCid = cidData => {
+    const cid = cidData.cid || cidData;
     if(isNaN(cid)){
         throw `${cid} is not a valid character identifier`;
     }
@@ -152,10 +141,8 @@ const init = () => {
         .then(data => {
             data.forEach((props, cid) => {
                 set('system', cid, {
-                    meta: {
-                        cid,
-                        origin: 'system'
-                    },
+                    cid,
+                    origin: 'system',
                     props
                 });
             });

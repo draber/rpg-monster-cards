@@ -526,17 +526,7 @@
         return data[type][cid];
     };
     const parseCid = data => {
-        let cid;
-        switch (true) {
-            case !!data.cid:
-                cid = data.cid;
-                break;
-            case !!(data.meta && data.meta.cid):
-                cid = data.meta.cid;
-                break;
-            default:
-                cid = data;
-        }
+        const cid = data.cid ? data.cid : data;
         if(isNaN(cid)){
             throw `${cid} is not a valid character identifier`;
         }
@@ -573,10 +563,8 @@
             .then(data => {
                 data.forEach((props, cid) => {
                     set$4('system', cid, {
-                        meta: {
-                            cid,
-                            origin: 'system'
-                        },
+                        cid,
+                        origin: 'system',
                         props
                     });
                 });
@@ -600,16 +588,16 @@
         }
         switch (groupBy) {
             case '__user':
-                entry.meta._groupValue = labels$1.__user.group;
-                entry.meta._groupLabel = labels$1.__user.group;
+                entry._groupValue = labels$1.__user.group;
+                entry._groupLabel = labels$1.__user.group;
                 break;
             case 'name':
-                entry.meta._groupValue = entry.props.name.charAt(0).toUpperCase();
-                entry.meta._groupLabel = `${labels$1[groupBy].group}: ${entry.meta._groupValue}`;
+                entry._groupValue = entry.props.name.charAt(0).toUpperCase();
+                entry._groupLabel = `${labels$1[groupBy].group}: ${entry._groupValue}`;
                 break
             default:
-                entry.meta._groupValue = entry.props[groupBy];
-                entry.meta._groupLabel = `${labels$1[groupBy].group}: ${entry.props[groupBy]}`;
+                entry._groupValue = entry.props[groupBy];
+                entry._groupLabel = `${labels$1[groupBy].group}: ${entry.props[groupBy]}`;
         }
         return entry;
     };
@@ -622,8 +610,8 @@
         let grouped = {};
         for (let entry of characterStorage.values(type)) {
             entry = prepareGroupSort(entry, groupBy);
-            grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
-            grouped[entry.meta._groupValue].push(entry);
+            grouped[entry._groupValue] = grouped[entry._groupValue] || [];
+            grouped[entry._groupValue].push(entry);
         }
         if (type === 'system') {
             grouped = sorter.group(grouped, groupDir);
@@ -720,9 +708,9 @@
                     },
                     content: [
                         src.summary({
-                            content: values[0].meta._groupLabel,
+                            content: values[0]._groupLabel,
                             attributes: {
-                                title: values[0].meta._groupLabel
+                                title: values[0]._groupLabel
                             }
                         }),
                         list
@@ -749,7 +737,7 @@
                             title: value.props.name
                         },
                         data: {
-                            cid: value.meta.cid
+                            cid: value.cid
                         }
                     }));
                 });
@@ -768,8 +756,8 @@
                 this.app.trigger('characterSelection', (() => {
                     const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
                     const character = characterStorage.get(type, li.dataset.cid);
-                    character.meta._groupLabel && delete character.meta._groupLabel;
-                    character.meta._groupValue && delete character.meta._groupValue;
+                    character._groupLabel && delete character._groupLabel;
+                    character._groupValue && delete character._groupValue;
                     return character;
                 })());
             });
@@ -1651,8 +1639,8 @@
     };
     const paste = element => {
         const character = deepClone(characterStorage.get(origin$1, element.app.pastableCard));
-        character.meta.cid = characterStorage.nextIncrement(origin$1);
-        character.meta.tid = tabStorage.parseTid(element);
+        character.cid = characterStorage.nextIncrement(origin$1);
+        character.tid = tabStorage.parseTid(element);
         element.app.trigger('characterSelection', character);
         if(element.app.pastableCard.mode === 'cut'){
             characterStorage.remove(origin$1, element.app.pastableCard);
@@ -2714,9 +2702,9 @@
         let cid;
         let tid;
         let tab;
-        if (character.meta && character.meta.tid) {
+        if (character.tid) {
             cid = characterStorage.parseCid(character);
-            tab = tabManager.getTab(character.meta.tid);
+            tab = tabManager.getTab(character.tid);
             tid = tabStorage.parseTid(tab);
         } else {
             cid = characterStorage.nextIncrement(origin);
@@ -2724,8 +2712,7 @@
             tab = tabManager.getTab('active');
             tid = tabStorage.parseTid(tab);
         }
-        character.meta = {
-            ...character.meta,
+        character = {...character,
             ...{
                 visibility,
                 tid,
@@ -2826,11 +2813,11 @@
             this.on('contentChange', function (e) {
                 const section = e.detail.field === 'text' ? 'props' : 'labels';
                 this.character[section][e.detail.key] = e.detail.value;
-                characterStorage.set('user', this.character.meta.cid, this.character);
+                characterStorage.set('user', this.character.cid, this.character);
             });
             this.on('visibilityChange', function (e) {
-                this.character.meta.visibility[e.detail.key][e.detail.field] = e.detail.value;
-                characterStorage.set('user', this.character.meta.cid, this.character);
+                this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
+                characterStorage.set('user', this.character.cid, this.character);
                 this.trigger('afterVisibilityChange');
             });
             this.on('orderChange', function (e) {
@@ -2839,7 +2826,7 @@
                     props[key] = this.character.props[key];
                 });
                 this.character.props = props;
-                characterStorage.set('user', this.character.meta.cid, this.character);
+                characterStorage.set('user', this.character.cid, this.character);
                 this.trigger('afterOrderChange');
             });
             this.on('characterCut', function (e) {
@@ -2944,9 +2931,9 @@
     class CardForm extends HTMLElement {
         isVisible(key, type) {
             if (type === 'text') {
-                return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+                return this.card.character.visibility[key][type] && !!this.card.character.props[key];
             }
-            return this.card.character.meta.visibility[key][type];
+            return this.card.character.visibility[key][type];
         }
         icon(type) {
             let title;
@@ -3330,7 +3317,7 @@
 
     class CardVerso extends HTMLElement {
         isVisible(key, type) {
-            return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+            return this.card.character.visibility[key][type] && !!this.card.character.props[key];
         }
         populateTbody(tbody) {
             tbody = src.empty(tbody);

@@ -96,12 +96,12 @@ class CardBase extends HTMLElement {
         this.on('contentChange', function (e) {
             const section = e.detail.field === 'text' ? 'props' : 'labels';
             this.character[section][e.detail.key] = e.detail.value;
-            characterStorage.set('user', this.character.meta.cid, this.character);
+            characterStorage.set('user', this.character.cid, this.character);
         })
 
         this.on('visibilityChange', function (e) {
-            this.character.meta.visibility[e.detail.key][e.detail.field] = e.detail.value;
-            characterStorage.set('user', this.character.meta.cid, this.character);
+            this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
+            characterStorage.set('user', this.character.cid, this.character);
             this.trigger('afterVisibilityChange');
         });
 
@@ -111,7 +111,7 @@ class CardBase extends HTMLElement {
                 props[key] = this.character.props[key];
             })
             this.character.props = props;
-            characterStorage.set('user', this.character.meta.cid, this.character);
+            characterStorage.set('user', this.character.cid, this.character);
             this.trigger('afterOrderChange');
         });
 

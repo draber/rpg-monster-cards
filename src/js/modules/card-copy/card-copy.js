@@ -27,8 +27,8 @@ const paste = element => {
 
     const character = deepClone(characterStorage.get(origin, element.app.pastableCard));
 
-    character.meta.cid = characterStorage.nextIncrement(origin);
-    character.meta.tid = tabStorage.parseTid(element);
+    character.cid = characterStorage.nextIncrement(origin);
+    character.tid = tabStorage.parseTid(element);
 
     element.app.trigger('characterSelection', character);
 

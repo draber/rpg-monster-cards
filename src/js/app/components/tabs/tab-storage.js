@@ -66,11 +66,15 @@ const blank = () => {
 
 /**
  * Retrieve the TID from either a DOM tab or a {String|Number} TID 
- * @param {HTMLElement|Entry|String|Number} data 
+ * @param {HTMLElement|Entry|String|Number} tidData 
  * @returns 
  */
-const parseTid = data => {
-    return parseInt((data.tid ? data.tid : data), 10);
+const parseTid = tidData => {
+    const tid = tidData.cid || tidData;
+    if(isNaN(tid)){
+        throw `${tid} is not a valid tab identifier`;
+    }
+    return parseInt(tid, 10);
 }
 
 /**

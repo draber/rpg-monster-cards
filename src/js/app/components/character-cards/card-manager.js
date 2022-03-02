@@ -31,9 +31,9 @@ const add = character => {
     let tid; // tab ID
     let tab;
     // if the character comes from a previous session
-    if (character.meta && character.meta.tid) {
+    if (character.tid) {
         cid = characterStorage.parseCid(character);
-        tab = tabManager.getTab(character.meta.tid);
+        tab = tabManager.getTab(character.tid);
         tid = tabStorage.parseTid(tab);
     } else {
         cid = characterStorage.nextIncrement(origin);
@@ -41,8 +41,7 @@ const add = character => {
         tab = tabManager.getTab('active');
         tid = tabStorage.parseTid(tab);
     }
-    character.meta = {
-        ...character.meta,
+    character = {...character,
         ...{
             visibility,
             tid,

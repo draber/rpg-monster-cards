@@ -11,9 +11,9 @@ class CardForm extends HTMLElement {
 
     isVisible(key, type) {
         if (type === 'text') {
-            return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+            return this.card.character.visibility[key][type] && !!this.card.character.props[key];
         }
-        return this.card.character.meta.visibility[key][type];
+        return this.card.character.visibility[key][type];
     }
 
     icon(type) {

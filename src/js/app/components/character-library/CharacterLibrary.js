@@ -123,9 +123,9 @@ class CharacterLibrary extends HTMLElement {
                 },
                 content: [
                     fn.summary({
-                        content: values[0].meta._groupLabel,
+                        content: values[0]._groupLabel,
                         attributes: {
-                            title: values[0].meta._groupLabel
+                            title: values[0]._groupLabel
                         }
                     }),
                     list
@@ -157,7 +157,7 @@ class CharacterLibrary extends HTMLElement {
                         title: value.props.name
                     },
                     data: {
-                        cid: value.meta.cid
+                        cid: value.cid
                     }
                 }))
             })
@@ -186,8 +186,8 @@ class CharacterLibrary extends HTMLElement {
             this.app.trigger('characterSelection', (() => {
                 const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
                 const character = characterStorage.get(type, li.dataset.cid);
-                character.meta._groupLabel && delete character.meta._groupLabel;
-                character.meta._groupValue && delete character.meta._groupValue;
+                character._groupLabel && delete character._groupLabel;
+                character._groupValue && delete character._groupValue;
                 return character;
             })());
         })

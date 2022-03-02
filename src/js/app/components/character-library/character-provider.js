@@ -15,16 +15,16 @@ const prepareGroupSort = (entry, groupBy) => {
     }
     switch (groupBy) {
         case '__user':
-            entry.meta._groupValue = labels.__user.group;
-            entry.meta._groupLabel = labels.__user.group;
+            entry._groupValue = labels.__user.group;
+            entry._groupLabel = labels.__user.group;
             break;
         case 'name':
-            entry.meta._groupValue = entry.props.name.charAt(0).toUpperCase();
-            entry.meta._groupLabel = `${labels[groupBy].group}: ${entry.meta._groupValue}`;
+            entry._groupValue = entry.props.name.charAt(0).toUpperCase();
+            entry._groupLabel = `${labels[groupBy].group}: ${entry._groupValue}`;
             break
         default:
-            entry.meta._groupValue = entry.props[groupBy];
-            entry.meta._groupLabel = `${labels[groupBy].group}: ${entry.props[groupBy]}`
+            entry._groupValue = entry.props[groupBy];
+            entry._groupLabel = `${labels[groupBy].group}: ${entry.props[groupBy]}`
     }
 
     return entry;
@@ -47,8 +47,8 @@ const getSortedCharacters = (type, {
     let grouped = {};
     for (let entry of characterStorage.values(type)) {
         entry = prepareGroupSort(entry, groupBy);
-        grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
-        grouped[entry.meta._groupValue].push(entry)
+        grouped[entry._groupValue] = grouped[entry._groupValue] || [];
+        grouped[entry._groupValue].push(entry)
     }
     if (type === 'system') {
         grouped = sorter.group(grouped, groupDir);
