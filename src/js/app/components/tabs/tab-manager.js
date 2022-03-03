@@ -1,6 +1,6 @@
 import fn from 'fancy-node';
 import softDelete from '../../../modules/softDelete/softdelete.js';
-import tabStore from '../../storage/tab-storage.js';
+import { tabStore } from '../../storage/storage.js';
 
 let app;
 let navi;
@@ -104,9 +104,8 @@ const createTab = ({
 
     for (let [key, value] of Object.entries(tabEntry)) {
         tab[key] = value;
+        tab.panel[key] = value;
     }
-    tab.panel.active = tab.active;
-    tab.panel.tid = tab.tid;
     contentArea.append(tab.panel);
 
     if (previousTab) {

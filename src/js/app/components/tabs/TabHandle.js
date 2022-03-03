@@ -4,7 +4,10 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js';
-import tabStore from '../../storage/tab-storage.js';
+import {
+    copyStore,
+    tabStore
+} from '../../storage/storage.js';
 import contextMenu from '../../../modules/context-menu/context-menu.js';
 
 /**
@@ -26,7 +29,7 @@ class TabHandle extends HTMLElement {
         this.label.contentEditable = true;
         range.selectNodeContents(this.label);
         selection.addRange(range);
-        this.focus();
+        this.label.focus();
     }
 
     /**
@@ -91,7 +94,14 @@ class TabHandle extends HTMLElement {
                 },
                 paste: e => {
                     e.preventDefault();
-                    this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
+                    if (this.label.contentEditable === true) {
+                        this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
+                        return true;
+                    };
+                    // if it's a card paste it on the panel
+                    if(copyStore.length){
+                        this.panel.trigger('paste');
+                    }
                 },
                 keydown: e => {
                     if (e.key === 'Enter') {

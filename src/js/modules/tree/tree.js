@@ -25,6 +25,18 @@ class Tree {
         return current;
     }
 
+    flush() {
+        this.obj = {};
+        this.save();
+    }
+
+    /**
+     * Storage handling: write to local storage
+     */
+    save() {
+        return this.lsKey ? localStorage.setItem(this.lsKey, JSON.stringify(this.object())) : null;
+    }
+
     /**
      * Set a new or overwrite an existing value
      * @param {String} key
@@ -44,6 +56,7 @@ class Tree {
             current = current[token];
         }
         current[last] = value;
+        this.save();
     }
 
     /**
@@ -140,6 +153,7 @@ class Tree {
         keys.forEach(key => {
             delete this.obj[key]
         })
+        this.save();
     }
 
     /**
@@ -151,8 +165,12 @@ class Tree {
         return JSON.stringify(this.obj, null, (pretty ? '\t' : null));
     }
 
-    constructor(obj = {}) {
-        this.obj = obj;
+    constructor({
+        data = {},
+        lsKey
+    }={}) {
+        this.obj = data;
+        this.lsKey = lsKey
     }
 }
 

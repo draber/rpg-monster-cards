@@ -1,5 +1,4 @@
 import fn from 'fancy-node';
-import characterStorage from '../character-library/character-storage.js';
 import properties from '../../../modules/properties/properties.js';
 import {
     on,
@@ -7,6 +6,9 @@ import {
 } from '../../../modules/events/eventHandler.js';
 import cardManager from './card-manager.js';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
+import {
+    cardStore
+} from '../../storage/storage.js';
 
 /**
  * Custom element containing the list of patterns
@@ -96,12 +98,12 @@ class CardBase extends HTMLElement {
         this.on('contentChange', function (e) {
             const section = e.detail.field === 'text' ? 'props' : 'labels';
             this.character[section][e.detail.key] = e.detail.value;
-            characterStorage.set('user', this.character.cid, this.character);
+            cardStore.set(this.character.cid, this.character);
         })
 
         this.on('visibilityChange', function (e) {
             this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
-            characterStorage.set('user', this.character.cid, this.character);
+            cardStore.set(this.character.cid, this.character);
             this.trigger('afterVisibilityChange');
         });
 
@@ -110,8 +112,7 @@ class CardBase extends HTMLElement {
             e.detail.order.forEach(key => {
                 props[key] = this.character.props[key];
             })
-            this.character.props = props;
-            characterStorage.set('user', this.character.cid, this.character);
+            cardStore.set(`${this.character.cid}.props`, props);
             this.trigger('afterOrderChange');
         });
 
@@ -144,6 +145,9 @@ class CardBase extends HTMLElement {
             }
             if (e.key === 'Escape') {
                 cardCopy.clear(this);
+            }
+            if (e.key === 'Delete') {
+                cardManager.handleRemoval(this, 'soft');
             }
 
         })

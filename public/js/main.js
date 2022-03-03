@@ -404,391 +404,168 @@
     	ini: ini$1
     };
 
-    var css = {
-    	entryPoint: "src/css/main.css",
-    	"public": "public/css/main.css"
-    };
-    var cssProps$2 = {
-    	src: "src/css/inc/card-defs.css",
-    	target: "src/data/css-props.json"
-    };
-    var fonts$1 = {
-    	src: "src/data/raw/fonts.txt",
-    	target: "src/data/fonts.json"
-    };
-    var backgrounds$1 = {
-    	src: "public/media/patterns/backgrounds",
-    	target: "src/data/backgrounds.json"
-    };
-    var borders$1 = {
-    	src: "public/media/patterns/borders",
-    	target: "src/data/borders.json"
-    };
-    var characters = {
-    	src: "src/data/raw/monsters.json",
-    	target: "public/js/characters.json"
-    };
-    var fields = {
-    	src: "src/config/field-config.yml"
-    };
-    var labels = {
-    	target: "src/data/labels.json"
-    };
-    var visibility$1 = {
-    	target: "src/data/visibility.json"
-    };
-    var js = {
-    	entryPoint: "src/js/app/main.js",
-    	"public": "public/js/main.js"
-    };
-    var storageKeys = {
-    	user: "gc-user-prefs",
-    	cards: "gc-cards",
-    	tabs: "gc-tabs"
-    };
-    var userCharacters = {
-    	inLibrary: true
-    };
-    var config = {
-    	css: css,
-    	cssProps: cssProps$2,
-    	fonts: fonts$1,
-    	backgrounds: backgrounds$1,
-    	borders: borders$1,
-    	characters: characters,
-    	fields: fields,
-    	labels: labels,
-    	visibility: visibility$1,
-    	js: js,
-    	storageKeys: storageKeys,
-    	userCharacters: userCharacters
+    const convertToRoman = num => {
+      const roman = {
+        M: 1000,
+        CM: 900,
+        D: 500,
+        CD: 400,
+        C: 100,
+        XC: 90,
+        L: 50,
+        XL: 40,
+        X: 10,
+        IX: 9,
+        V: 5,
+        IV: 4,
+        I: 1
+      };
+      let str = '';
+      for (let i of Object.keys(roman)) {
+        const q = Math.floor(num / roman[i]);
+        num -= q * roman[i];
+        str += i.repeat(q);
+      }
+      return str;
     };
 
-    let settings = {
-        ...config
-    };
-    const get$4 = key => {
-        let current = Object.create(settings);
-        for (let token of key.split('.')) {
-            if (typeof current[token] === 'undefined') {
-                return undefined;
-            }
-            current = current[token];
+    class Tree {
+        get length() {
+            return this.keys().length;
         }
-        return current;
-    };
-    const set$4 = (key, value) => {
-        const keys = key.split('.');
-        const last = keys.pop();
-        let current = settings;
-        for (let part of keys) {
-            if (!current[part]) {
-                current[part] = {};
-            }
-            if (Object.prototype.toString.call(current) !== '[object Object]') {
-                console.error(`${part} is not of the type Object`);
-                return false;
-            }
-            current = current[part];
-        }
-        current[last] = value;
-    };
-    var settings$1 = {
-        get: get$4,
-        set: set$4
-    };
-
-    const lsKey$1 = settings$1.get('storageKeys.cards');
-    const data = {
-        system: {},
-        user: {}
-    };
-    const storage = {
-        read: () => {
-            return JSON.parse(localStorage.getItem(lsKey$1) || '{}')
-        },
-        update: () => {
-            return localStorage.setItem(lsKey$1, JSON.stringify(data.user || {}))
-        }
-    };
-    const values = type => {
-        return Object.values(data[type]);
-    };
-    const set$3 = (type, cid, character) => {
-        cid = parseCid(cid);
-        data[type][cid] = character;
-        if (type === 'user') {
-            storage.update();
-        }
-    };
-    const get$3 = (type, cidData) => {
-        const cid = parseCid(cidData);
-        return data[type][cid];
-    };
-    const parseCid = cidData => {
-        const cid = cidData.cid || cidData;
-        if(isNaN(cid)){
-            throw `${cid} is not a valid character identifier`;
-        }
-        return parseInt(cid, 10);
-    };
-     const update$1 = (type, cidData, key, value) => {
-        const cid = parseCid(cidData);
-        const character = get$3(type, cidData);
-        if (value === null) {
-            delete character[key];
-        } else {
-            character[key] = value;
-        }
-        set$3(type, cid, character);
-    };
-    const getAllByType = type => {
-        return data[type];
-    };
-    const remove = (type, cidData) => {
-        const cid = parseCid(cidData);
-        delete data[type][cid];
-        if (type === 'user') {
-            storage.update();
-        }
-    };
-    const nextIncrement = type => {
-        const lowest = type === 'system' ? 0 : 5000;
-        return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
-    };
-    const init$3 = () => {
-        data.user = storage.read();
-        return (fetch('js/characters.json')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach((props, cid) => {
-                    set$3('system', cid, {
-                        cid,
-                        origin: 'system',
-                        props
-                    });
-                });
-            }));
-    };
-    var characterStorage = {
-        init: init$3,
-        get: get$3,
-        set: set$3,
-        update: update$1,
-        remove,
-        parseCid,
-        values,
-        nextIncrement,
-        getAllByType
-    };
-
-    const prepareGroupSort = (entry, groupBy) => {
-        if (entry.props[groupBy] === '' || typeof entry.props[groupBy] === 'undefined') {
-            entry.props[groupBy] = 'n/a';
-        }
-        switch (groupBy) {
-            case '__user':
-                entry._groupValue = labels$1.__user.group;
-                entry._groupLabel = labels$1.__user.group;
-                break;
-            case 'name':
-                entry._groupValue = entry.props.name.charAt(0).toUpperCase();
-                entry._groupLabel = `${labels$1[groupBy].group}: ${entry._groupValue}`;
-                break
-            default:
-                entry._groupValue = entry.props[groupBy];
-                entry._groupLabel = `${labels$1[groupBy].group}: ${entry.props[groupBy]}`;
-        }
-        return entry;
-    };
-    const getSortedCharacters = (type, {
-        groupBy = 'name',
-        sortBy = 'name',
-        groupDir = 'asc',
-        sortDir = 'name'
-    } = {}) => {
-        let grouped = {};
-        for (let entry of characterStorage.values(type)) {
-            entry = prepareGroupSort(entry, groupBy);
-            grouped[entry._groupValue] = grouped[entry._groupValue] || [];
-            grouped[entry._groupValue].push(entry);
-        }
-        if (type === 'system') {
-            grouped = sorter.group(grouped, groupDir);
-        }
-        for (let [key, values] of Object.entries(grouped)) {
-            grouped[key] = sorter.sort(values, `props.${sortBy}`, sortDir);
-        }
-        return grouped;
-    };
-    var characterProvider = {
-        getSortedCharacters
-    };
-
-    const lsKey = settings$1.get('storageKeys.user');
-    settings$1.set('userPrefs', JSON.parse(localStorage.getItem(lsKey) || '{}'));
-    const getAll = () => {
-        return settings$1.get(`userPrefs`);
-    };
-    const get$2 = key => {
-        return settings$1.get(`userPrefs.${key}`);
-    };
-    const set$2 = (key, value) => {
-        settings$1.set(`userPrefs.${key}`, value);
-        localStorage.setItem(lsKey, JSON.stringify(getAll()));
-        return true;
-    };
-    var userPrefs = {
-        getAll,
-        get: get$2,
-        set: set$2
-    };
-
-    const on = function(types, action)  {
-        if (typeof types === 'string') {
-            types = [types];
-        }
-        types.forEach(type => {
-            this.addEventListener(type, action);
-        });
-    };
-    const trigger = function(types, data)  {
-        if (typeof types === 'string') {
-            types = [types];
-        }
-        types.forEach(type => {
-            this.dispatchEvent(data ? new CustomEvent(type, {
-                detail: data
-            }) : new Event(type));
-        });
-    };
-
-    class CharacterLibrary extends HTMLElement {
-        get groupBy() {
-            return this.getAttribute('groupby');
-        }
-        set groupBy(value) {
-            this.setAttribute('groupby', value);
-        }
-        get sortBy() {
-            return this.getAttribute('sortby');
-        }
-        set sortBy(value) {
-            this.setAttribute('sortby', value);
-        }
-        get groupDir() {
-            return this.getAttribute('groupdir');
-        }
-        set groupDir(value) {
-            this.setAttribute('groupdir', value);
-        }
-        get sortDir() {
-            return this.getAttribute('sortdir');
-        }
-        set sortDir(value) {
-            this.setAttribute('sortdir', value);
-        }
-        populate() {
-            const characterList = new DocumentFragment();
-            const groupContainers = [];
-            let firstGroupClassNames = [];
-            const systemCollection = Object.values(characterProvider.getSortedCharacters('system', this));
-            const userCollection = Object.values(characterProvider.getSortedCharacters('user', {
-                groupBy: '__user',
-                sortBy: 'name'
-            }));
-            let collection = systemCollection;
-            if (settings$1.get('userCharacters.inLibrary') && userCollection.length) ;
-            collection.forEach((values, index) => {
-                let list = src.ul();
-                let groupContainer = src.details({
-                    classNames: index === 0 ? firstGroupClassNames : [],
-                    attributes: {
-                        open: index === 0
-                    },
-                    content: [
-                        src.summary({
-                            content: values[0]._groupLabel,
-                            attributes: {
-                                title: values[0]._groupLabel
-                            }
-                        }),
-                        list
-                    ],
-                    events: {
-                        toggle: e => {
-                            if (e.target.open) {
-                                groupContainers.forEach(container => {
-                                    if (container.isSameNode(e.target)) {
-                                        return true;
-                                    }
-                                    container.open = false;
-                                });
-                            }
-                        }
-                    }
-                });
-                characterList.append(groupContainer);
-                groupContainers.push(groupContainer);
-                values.forEach(value => {
-                    list.append(src.li({
-                        content: value.props.name,
-                        attributes: {
-                            title: value.props.name
-                        },
-                        data: {
-                            cid: value.cid
-                        }
-                    }));
-                });
-            });
-            src.empty(this).append(characterList);
-        }
-        connectedCallback() {
-            this.on('pointerdown', e => {
-                if (e.button !== 0) {
-                    return true;
+        #get(key) {
+            const keys = key.toString().split('.');
+            let current = Object.create(this.obj);
+            for (let token of keys) {
+                if (typeof current[token] === 'undefined') {
+                    return undefined;
                 }
-                const li = e.target.closest('li');
-                if (!li) {
-                    return false;
-                }
-                this.app.trigger('characterSelection', (() => {
-                    const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
-                    const character = characterStorage.get(type, li.dataset.cid);
-                    character._groupLabel && delete character._groupLabel;
-                    character._groupValue && delete character._groupValue;
-                    return character;
-                })());
-            });
-            this.sortBy = userPrefs.get('characters.sortBy') || this.sortBy || 'name';
-            this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
-            this.sortDir = userPrefs.get('characters.sortDir') || this.sortDir || 'asc';
-            this.groupDir = userPrefs.get('characters.groupDir') || this.groupDir || 'asc';
-            this.populate();
+                current = current[token];
+            }
+            return current;
         }
-        constructor(self) {
-            self = super(self);
-            self.on = on;
-            self.trigger = trigger;
-            self.app.on('characterOrderChange', e => {
-                ['sortBy', 'groupBy', 'sortDir', 'groupDir'].forEach(crit => {
-                    if (e.detail[crit]) {
-                        self[crit] = e.detail[crit];
-                    }
-                });
-                self.populate();
+        flush() {
+            this.obj = {};
+            this.save();
+        }
+        save() {
+            return this.lsKey ? localStorage.setItem(this.lsKey, JSON.stringify(this.object())) : null;
+        }
+        set(key, value) {
+            const keys = key.toString().split('.');
+            const last = keys.pop();
+            let current = this.obj;
+            for (let token of keys) {
+                if (!current[token]) {
+                    current[token] = {};
+                }
+                if (Object.getPrototypeOf(current) !== Object.prototype) {
+                    throw (`${token} is not of the type Object`);
+                }
+                current = current[token];
+            }
+            current[last] = value;
+            this.save();
+        }
+        unset(key) {
+            const keys = key.toString().split('.');
+            const last = keys.pop();
+            let current = this.obj;
+            for (let token of keys) {
+                if (!current[token]) {
+                    current[token] = {};
+                }
+                if (Object.getPrototypeOf(current) !== Object.prototype) {
+                    throw (`${token} is not of the type Object`);
+                }
+                current = current[token];
+            }
+            delete current[last];
+        }
+        get(...keys) {
+            if (keys.length === 1) {
+                return this.#get(keys[0]);
+            }
+            const result = {};
+            keys.forEach(key => {
+                result[key] = this.#get(key);
             });
-            return self;
+            return result;
+        }
+        object(searchKey = null, condition = null) {
+            if (!searchKey || !(condition instanceof Function)) {
+                return this.obj;
+            }
+            const result = {};
+            for (let [key, value] of Object.entries(this.obj)) {
+                const compVal = this.#get(`${key}.${searchKey}`);
+                if (condition(compVal)) {
+                    result[key] = value;
+                }
+            }
+            return result;
+        }
+        entries(searchKey = null, condition = null) {
+            return Object.entries(this.object(searchKey, condition));
+        }
+        values(searchKey = null, condition = null) {
+            return Object.values(this.object(searchKey, condition));
+        }
+        keys(searchKey = null, condition = null) {
+            return Object.keys(this.object(searchKey, condition));
+        }
+        remove(...keys) {
+            console.log(keys, this.lsKey);
+            keys.forEach(key => {
+                console.log(this.obj[key]);
+                delete this.obj[key];
+            });
+            this.save();
+        }
+        toJson(pretty = false) {
+            return JSON.stringify(this.obj, null, (pretty ? '\t' : null));
+        }
+        constructor({
+            data = {},
+            lsKey
+        }={}) {
+            this.obj = data;
+            this.lsKey = lsKey;
         }
     }
-    const register$i = app => {
-        CharacterLibrary.prototype.app = app;
-        customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
-    };
-    var CharacterLibrary$1 = {
-        register: register$i
-    };
+
+    class TabTree extends Tree {
+        toTid(tidData) {
+            const tid = tidData.tid || tidData;
+            if (isNaN(tid)) {
+                throw `${tid} is not a valid tab identifier`;
+            }
+            return parseInt(tid, 10);
+        }
+        blank() {
+            const tid = this.nextIncrement();
+            return {
+                tid,
+                title: convertToRoman(tid),
+                styles: {}
+            }
+        }
+        nextIncrement() {
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
+            return Math.max(...keys) + 1;
+        }
+        constructor({
+            data = {},
+            lsKey
+        } = {}) {
+            super({
+                data: Object.keys(data).length ? data : {
+                    1: this.blank()
+                },
+                lsKey
+            });
+        }
+    }
 
     var name = {
     	card: true,
@@ -955,7 +732,7 @@
     	group: true,
     	label: true
     };
-    var visibility = {
+    var visibility$1 = {
     	name: name,
     	__user: __user,
     	img: img,
@@ -989,6 +766,338 @@
     	fort: fort,
     	ac: ac,
     	ini: ini
+    };
+
+    class CharTree extends Tree {
+        #getLabels() {
+            const _labels = {};
+            for (let [key, value] of Object.entries(labels$1)) {
+                if (key.startsWith('__')) {
+                    continue;
+                }
+                _labels[key] = value.short;
+            }
+            return _labels;
+        }
+        toCid(cidData) {
+            const cid = cidData.cid || cidData;
+            if (isNaN(cid)) {
+                throw `${cid} is not a valid character identifier`;
+            }
+            return parseInt(cid, 10);
+        }
+        blank() {
+            const props = {};
+            Object.keys(labels$1).forEach(key => {
+                props[key] = '';
+            });
+            return {
+                cid: this.nextIncrement(),
+                props,
+                visibility: visibility$1,
+                labels: this.#getLabels()
+            }
+        }
+        nextIncrement() {
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
+            return Math.max(...keys) + 1;
+        }
+        constructor({
+            data = {},
+            minIncrement = 0,
+            lsKey
+        } = {}) {
+            super({
+                data,
+                lsKey
+            });
+            this.minIncrement = minIncrement;
+        }
+    }
+
+    var css = {
+    	entryPoint: "src/css/main.css",
+    	"public": "public/css/main.css"
+    };
+    var cssProps$2 = {
+    	src: "src/css/inc/card-defs.css",
+    	target: "src/data/css-props.json"
+    };
+    var fonts$1 = {
+    	src: "src/data/raw/fonts.txt",
+    	target: "src/data/fonts.json"
+    };
+    var backgrounds$1 = {
+    	src: "public/media/patterns/backgrounds",
+    	target: "src/data/backgrounds.json"
+    };
+    var borders$1 = {
+    	src: "public/media/patterns/borders",
+    	target: "src/data/borders.json"
+    };
+    var characters = {
+    	src: "src/data/raw/monsters.json",
+    	target: "public/js/characters.json"
+    };
+    var fields = {
+    	src: "src/config/field-config.yml"
+    };
+    var labels = {
+    	target: "src/data/labels.json"
+    };
+    var visibility = {
+    	target: "src/data/visibility.json"
+    };
+    var js = {
+    	entryPoint: "src/js/app/main.js",
+    	"public": "public/js/main.js"
+    };
+    var storageKeys = {
+    	user: "gc-user-prefs",
+    	cards: "gc-cards",
+    	tabs: "gc-tabs"
+    };
+    var userCharacters = {
+    	inLibrary: true
+    };
+    var config = {
+    	css: css,
+    	cssProps: cssProps$2,
+    	fonts: fonts$1,
+    	backgrounds: backgrounds$1,
+    	borders: borders$1,
+    	characters: characters,
+    	fields: fields,
+    	labels: labels,
+    	visibility: visibility,
+    	js: js,
+    	storageKeys: storageKeys,
+    	userCharacters: userCharacters
+    };
+
+    const settings = new Tree({
+        data: config
+    });
+
+    let tabStore;
+    let systemStore;
+    let cardStore;
+    let copyStore;
+    const initStorage = launchData => {
+        tabStore = new TabTree({
+            data: launchData.tabs,
+            lsKey: settings.get('storageKeys.tabs')
+        });
+        systemStore = new CharTree({
+            data: launchData.system
+        });
+        cardStore = new CharTree({
+            data: launchData.stored,
+            lsKey: settings.get('storageKeys.cards'),
+            minIncrement: 3000
+        });
+        copyStore = new CharTree({
+            minIncrement: 6000
+        });
+        new CharTree({
+            minIncrement: 9000
+        });
+    };
+
+    const prepareGroupSort = (entry, groupBy) => {
+        if (typeof entry.props[groupBy] === 'undefined') {
+            entry.props[groupBy] = '';
+        }
+        switch (groupBy) {
+            case '__user':
+                entry._groupValue = labels$1.__user.group;
+                entry._groupLabel = labels$1.__user.group;
+                break;
+            case 'name':
+                entry._groupValue = entry.props.name.charAt(0).toUpperCase();
+                entry._groupLabel = `${labels$1[groupBy].group}: ${entry._groupValue}`;
+                break
+            default:
+                entry._groupValue = entry.props[groupBy];
+                entry._groupLabel = `${labels$1[groupBy].group}: ${entry.props[groupBy]}`;
+        }
+        return entry;
+    };
+    const getSortedCharacters = (type, {
+        groupBy = 'name',
+        sortBy = 'name',
+        groupDir = 'asc',
+        sortDir = 'name'
+    } = {}) => {
+        let grouped = {};
+        const store = type === 'user' ? cardStore : systemStore;
+        for (let entry of store.values()) {
+            entry = prepareGroupSort(entry, groupBy);
+            grouped[entry._groupValue] = grouped[entry._groupValue] || [];
+            grouped[entry._groupValue].push(entry);
+        }
+        if (type === 'system') {
+            grouped = sorter.group(grouped, groupDir);
+        }
+        for (let [key, values] of Object.entries(grouped)) {
+            grouped[key] = sorter.sort(values, `props.${sortBy}`, sortDir);
+        }
+        return grouped;
+    };
+    var characterProvider = {
+        getSortedCharacters
+    };
+
+    const lsKey = settings.get('storageKeys.user');
+    const userPrefs = new Tree({
+        data: JSON.parse(localStorage.getItem(lsKey) || {}),
+        lsKey
+    });
+
+    const on = function(types, action)  {
+        if (typeof types === 'string') {
+            types = [types];
+        }
+        types.forEach(type => {
+            this.addEventListener(type, action);
+        });
+    };
+    const trigger = function(types, data)  {
+        if (typeof types === 'string') {
+            types = [types];
+        }
+        types.forEach(type => {
+            this.dispatchEvent(data ? new CustomEvent(type, {
+                detail: data
+            }) : new Event(type));
+        });
+    };
+
+    class CharacterLibrary extends HTMLElement {
+        get groupBy() {
+            return this.getAttribute('groupby');
+        }
+        set groupBy(value) {
+            this.setAttribute('groupby', value);
+        }
+        get sortBy() {
+            return this.getAttribute('sortby');
+        }
+        set sortBy(value) {
+            this.setAttribute('sortby', value);
+        }
+        get groupDir() {
+            return this.getAttribute('groupdir');
+        }
+        set groupDir(value) {
+            this.setAttribute('groupdir', value);
+        }
+        get sortDir() {
+            return this.getAttribute('sortdir');
+        }
+        set sortDir(value) {
+            this.setAttribute('sortdir', value);
+        }
+        populate() {
+            const characterList = new DocumentFragment();
+            const groupContainers = [];
+            let firstGroupClassNames = [];
+            const systemCollection = Object.values(characterProvider.getSortedCharacters('system', this));
+            const userCollection = Object.values(characterProvider.getSortedCharacters('user', {
+                groupBy: '__user',
+                sortBy: 'name'
+            }));
+            let collection = systemCollection;
+            if (settings.get('userCharacters.inLibrary') && userCollection.length) ;
+            collection.forEach((values, index) => {
+                let list = src.ul();
+                let groupContainer = src.details({
+                    classNames: index === 0 ? firstGroupClassNames : [],
+                    attributes: {
+                        open: index === 0
+                    },
+                    content: [
+                        src.summary({
+                            content: values[0]._groupLabel,
+                            attributes: {
+                                title: values[0]._groupLabel
+                            }
+                        }),
+                        list
+                    ],
+                    events: {
+                        toggle: e => {
+                            if (e.target.open) {
+                                groupContainers.forEach(container => {
+                                    if (container.isSameNode(e.target)) {
+                                        return true;
+                                    }
+                                    container.open = false;
+                                });
+                            }
+                        }
+                    }
+                });
+                characterList.append(groupContainer);
+                groupContainers.push(groupContainer);
+                values.forEach(value => {
+                    list.append(src.li({
+                        content: value.props.name,
+                        attributes: {
+                            title: value.props.name
+                        },
+                        data: {
+                            cid: value.cid
+                        }
+                    }));
+                });
+            });
+            src.empty(this).append(characterList);
+        }
+        connectedCallback() {
+            this.on('pointerdown', e => {
+                if (e.button !== 0) {
+                    return true;
+                }
+                const li = e.target.closest('li');
+                if (!li) {
+                    return false;
+                }
+                this.app.trigger('characterSelection', (() => {
+                    const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
+                    const character = store.get(li.dataset.cid);
+                    character._groupLabel && delete character._groupLabel;
+                    character._groupValue && delete character._groupValue;
+                    return character;
+                })());
+            });
+            this.sortBy = userPrefs.get('characters.sortBy') || this.sortBy || 'name';
+            this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
+            this.sortDir = userPrefs.get('characters.sortDir') || this.sortDir || 'asc';
+            this.groupDir = userPrefs.get('characters.groupDir') || this.groupDir || 'asc';
+            this.populate();
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            self.app.on('characterOrderChange', e => {
+                ['sortBy', 'groupBy', 'sortDir', 'groupDir'].forEach(crit => {
+                    if (e.detail[crit]) {
+                        self[crit] = e.detail[crit];
+                    }
+                });
+                self.populate();
+            });
+            return self;
+        }
+    }
+    const register$i = app => {
+        CharacterLibrary.prototype.app = app;
+        customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
+    };
+    var CharacterLibrary$1 = {
+        register: register$i
     };
 
     class LibraryOrganizer extends HTMLElement {
@@ -1031,7 +1140,7 @@
             const list = src.ul();
             box.append(title, list);
             for (let [key, value] of Object.entries(labels$1)) {
-                if(!visibility[key].group){
+                if(!visibility$1[key].group){
                     continue;
                 }
                 let classNames = key === this.groupBy ? ['active'] : [];
@@ -1128,158 +1237,6 @@
         cancel: cancel$1
     };
 
-    const convertToRoman = num => {
-      const roman = {
-        M: 1000,
-        CM: 900,
-        D: 500,
-        CD: 400,
-        C: 100,
-        XC: 90,
-        L: 50,
-        XL: 40,
-        X: 10,
-        IX: 9,
-        V: 5,
-        IV: 4,
-        I: 1
-      };
-      let str = '';
-      for (let i of Object.keys(roman)) {
-        const q = Math.floor(num / roman[i]);
-        num -= q * roman[i];
-        str += i.repeat(q);
-      }
-      return str;
-    };
-
-    class Tree {
-        get length() {
-            return this.keys().length;
-        }
-        #get(key) {
-            const keys = key.toString().split('.');
-            let current = Object.create(this.obj);
-            for (let token of keys) {
-                if (typeof current[token] === 'undefined') {
-                    return undefined;
-                }
-                current = current[token];
-            }
-            return current;
-        }
-        set(key, value) {
-            const keys = key.toString().split('.');
-            const last = keys.pop();
-            let current = this.obj;
-            for (let token of keys) {
-                if (!current[token]) {
-                    current[token] = {};
-                }
-                if (Object.getPrototypeOf(current) !== Object.prototype) {
-                    throw (`${token} is not of the type Object`);
-                }
-                current = current[token];
-            }
-            current[last] = value;
-        }
-        unset(key) {
-            const keys = key.toString().split('.');
-            const last = keys.pop();
-            let current = this.obj;
-            for (let token of keys) {
-                if (!current[token]) {
-                    current[token] = {};
-                }
-                if (Object.getPrototypeOf(current) !== Object.prototype) {
-                    throw (`${token} is not of the type Object`);
-                }
-                current = current[token];
-            }
-            delete current[last];
-        }
-        get(...keys) {
-            if (keys.length === 1) {
-                return this.#get(keys[0]);
-            }
-            const result = {};
-            keys.forEach(key => {
-                result[key] = this.#get(key);
-            });
-            return result;
-        }
-        object(searchKey = null, condition = null) {
-            if (!searchKey || !(condition instanceof Function)) {
-                return this.obj;
-            }
-            const result = {};
-            for (let [key, value] of Object.entries(this.obj)) {
-                const compVal = this.#get(`${key}.${searchKey}`);
-                if (condition(compVal)) {
-                    result[key] = value;
-                }
-            }
-            return result;
-        }
-        entries(searchKey = null, condition = null) {
-            return Object.entries(this.object(searchKey, condition));
-        }
-        values(searchKey = null, condition = null) {
-            return Object.values(this.object(searchKey, condition));
-        }
-        keys(searchKey = null, condition = null) {
-            return Object.keys(this.object(searchKey, condition));
-        }
-        remove(...keys) {
-            keys.forEach(key => {
-                delete this.obj[key];
-            });
-        }
-        toJson(pretty = false) {
-            return JSON.stringify(this.obj, null, (pretty ? '\t' : null));
-        }
-        constructor(obj = {}) {
-            this.obj = obj;
-        }
-    }
-
-    class TabTree extends Tree {
-        set(key, value) {
-            super.set(key, value);
-            this.write();
-        }
-        toTid(tidData) {
-            const tid = tidData.tid || tidData;
-            if (isNaN(tid)) {
-                throw `${tid} is not a valid tab identifier`;
-            }
-            return parseInt(tid, 10);
-        }
-        blank() {
-            const tid = this.nextIncrement();
-            return {
-                tid,
-                title: convertToRoman(tid),
-                styles: {}
-            }
-        }
-        write() {
-            return localStorage.setItem(this.lsKey, JSON.stringify(this.object()));
-        }
-        nextIncrement() {
-            let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
-            return Math.max(...keys) + 1;
-        }
-        constructor(lsKey) {
-            super(JSON.parse(localStorage.getItem(lsKey)) || {
-                1: this.blank()
-            });
-            this.lsKey = lsKey;
-        }
-    }
-
-    var tabStore = new TabTree(settings$1.get('storageKeys.tabs'));
-
     let app$1;
     let navi;
     let contentArea;
@@ -1347,9 +1304,8 @@
         tab.container = navi;
         for (let [key, value] of Object.entries(tabEntry)) {
             tab[key] = value;
+            tab.panel[key] = value;
         }
-        tab.panel.active = tab.active;
-        tab.panel.tid = tab.tid;
         contentArea.append(tab.panel);
         if (previousTab) {
             previousTab.after(tab);
@@ -1568,7 +1524,7 @@
         owner.addEventListener('contextmenu', onContextMenu);
         return menu;
     };
-    var contextMenu = {
+    var contextMenu$1 = {
         register: register$f,
         unregister
     };
@@ -1587,7 +1543,7 @@
             this.label.contentEditable = true;
             range.selectNodeContents(this.label);
             selection.addRange(range);
-            this.focus();
+            this.label.focus();
         }
         get title() {
             return this.getAttribute('title');
@@ -1603,10 +1559,10 @@
         }
         disconnectedCallback() {
             this.panel.remove();
-            contextMenu.unregister(this);
+            contextMenu$1.unregister(this);
         }
         connectedCallback() {
-            contextMenu.register(this, document.createElement('tab-menu'));
+            contextMenu$1.register(this, document.createElement('tab-menu'));
             this.closer = src.span({
                 content: '✖',
                 classNames: ['closer']
@@ -1624,7 +1580,12 @@
                     },
                     paste: e => {
                         e.preventDefault();
-                        this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
+                        if (this.label.contentEditable === true) {
+                            this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
+                            return true;
+                        }                    if(copyStore.length){
+                            this.panel.trigger('paste');
+                        }
                     },
                     keydown: e => {
                         if (e.key === 'Enter') {
@@ -1673,70 +1634,11 @@
         register: register$e
     };
 
-    const deepClone = obj => {
-        return !(structuredClone instanceof Function) ? JSON.parse(JSON.stringify(obj)) : structuredClone(obj);
-    };
-
-    const origin$1 = 'user';
-    const target = 'clone';
-    const set = (element, mode) => {
-        clear(element);
-        element.classList.add(mode);
-        const original = characterStorage.get(origin$1, element);
-        const character = deepClone(original);
-        if (mode === 'cut') {
-            characterStorage.update(origin$1, element, mode, mode);
-        }
-        character.oldCid = character.cid;
-        character.cid = characterStorage.nextIncrement(origin$1);
-        character.tid = tabStore.toTid(element);
-        characterStorage.set(target, cid, character);
-    };
-    const cut = element => {
-        set(element, 'cut');
-    };
-    const copy = element => {
-        set(element, 'copy');
-    };
-    const paste = element => {
-        const character = deepClone(characterStorage.get(origin$1, element.app.pastableCard));
-        character.cid = characterStorage.nextIncrement(origin$1);
-        character.tid = tabStore.toTid(element);
-        element.app.trigger('characterSelection', character);
-        if (element.app.pastableCard.mode === 'cut') {
-            characterStorage.remove(origin$1, element.app.pastableCard);
-        }
-        clear();
-    };
-    const clear = element => {
-        const lastCopied = src.$('card-base.cut, card-base.copy', element.app);
-        if (lastCopied) {
-            lastCopied.classList.remove('cut', 'copy');
-        }
-        delete element.app.pastableCard;
-    };
-    var cardCopy = {
-        copy,
-        cut,
-        paste,
-        clear
-    };
-
     class TabContent extends HTMLElement {
-        get tid() {
-            return this.getAttribute('tid');
-        }
-        set tid(value) {
-            this.setAttribute('tid', value);
-        }
         disconnectedCallback() {
             contextMenu.unregister(this);
         }
         connectedCallback() {
-            contextMenu.register(this, document.createElement('tab-menu'));
-            this.on('paste', e => {
-                cardCopy.paste(this);
-            });
         }
         constructor(self) {
             self = super(self);
@@ -1753,6 +1655,177 @@
         register: register$d
     };
 
+    const deepClone = obj => {
+        return !(structuredClone instanceof Function) ? JSON.parse(JSON.stringify(obj)) : structuredClone(obj);
+    };
+
+    let toast;
+    const initiate = (element, label) => {
+        if (!toast) {
+            toast = src.div({
+                data: {
+                    undoDialogs: true
+                }
+            });
+            document.body.append(toast);
+        }
+        properties.set('softDeleted', true, element);
+        const dialog = document.createElement('undo-dialog');
+        dialog.element = element;
+        if (label) {
+            dialog.label = label;
+        }
+        toast.append(dialog);
+        return new Promise(resolve => {
+            dialog.on('restore', e => {
+                properties.unset('softDeleted', element);
+                resolve({
+                    action: 'restore',
+                    element: e.detail.element
+                });
+            });
+            dialog.on('remove', e => {
+                resolve({
+                    action: 'remove',
+                    element: e.detail.element
+                });
+            });
+        })
+    };
+    const cancel = () => {
+        if (toast) {
+            toast = src.empty(toast);
+        }
+    };
+    var softDelete = {
+        initiate,
+        cancel
+    };
+
+    let app;
+    const add = character => {
+        let cid;
+        let tid;
+        let tab;
+        if (character.tid) {
+            cid = cardStore.toCid(character);
+            tab = tabManager.getTab(character.tid);
+            tid = tabStore.toTid(tab);
+        } else {
+            cid = cardStore.nextIncrement();
+            character = deepClone(character);
+            tab = tabManager.getTab('active');
+            tid = tabStore.toTid(tab);
+        }
+        character = {
+            ...cardStore.blank(),
+            ...character,
+            ...{
+                tid,
+                cid
+            }
+        };
+        cardStore.set(cid, character);
+        const card = document.createElement('card-base');
+        card.cid = cid;
+        card.tid = tid;
+        card.character = character;
+        tab.panel.append(card);
+    };
+    const restoreLastSession = () => {
+        for (let character of cardStore.values()) {
+            add(character);
+        }
+    };
+    const bulkDelete = (tidData) => {
+        src.$$('card-base', tabManager.getTab(tidData)).forEach(card => {
+            cardStore.remove(card);
+            handleRemoval(card, 'remove');
+        });
+    };
+    const handleRemoval = (element, action) => {
+        switch (action) {
+            case 'soft':
+                softDelete.initiate(element, cardStore.get(`${cardStore.toCid(element)}.props.name`))
+                    .then(data => {
+                        handleRemoval(element, data.action);
+                    });
+                cardStore.set(`${cardStore.toCid(element)}.softDeleted`, true);
+                break;
+            case 'restore':
+                cardStore.unset(`${cardStore.toCid(element)}.softDeleted`);
+                break;
+            case 'remove':
+                cardStore.remove(cardStore.toCid(element));
+                element.remove();
+                break;
+            case 'all':
+                bulkDelete(element);
+                break;
+        }
+    };
+    const init = _app => {
+        app = _app;
+        app.on('tabDelete', e => {
+            handleRemoval(e.detail.tab, 'all');
+        });
+        app.on('characterSelection', e => {
+            add(e.detail);
+        });
+        restoreLastSession();
+    };
+    var cardManager = {
+        init,
+        handleRemoval
+    };
+
+    const set = (card, mode) => {
+        clear(card.app);
+        card.classList.add(mode);
+        const original = cardStore.get(cardStore.toCid(card));
+        const copy = {
+            ...deepClone(original),
+            ...{
+                mode
+            }
+        };
+        copy.originalCard = original;
+        copy.cid = copyStore.nextIncrement();
+        copyStore.set(copy.cid, copy);
+    };
+    const cut = element => {
+        set(element, 'cut');
+    };
+    const copy = element => {
+        set(element, 'copy');
+    };
+    const paste = tab => {
+        copyStore.values().forEach(copy => {
+            copy.tid = tabStore.toTid(tab);
+            if (copy.mode === 'cut') {
+                console.log(copy.originalCard);
+                cardManager.handleRemoval(copy.originalCard, 'remove');
+            }
+            delete copy.originalCard;
+            copy.cid = cardStore.nextIncrement();
+            tab.app.trigger('characterSelection', copy);
+        });
+        clear(tab.app);
+        copyStore.flush();
+    };
+    const clear = app => {
+        const lastCopied = src.$('card-base.cut, card-base.copy', app);
+        if (lastCopied) {
+            lastCopied.classList.remove('cut', 'copy');
+        }
+    };
+    var cardCopy = {
+        copy,
+        cut,
+        paste,
+        clear
+    };
+
     class TabPanel extends HTMLElement {
         get tid() {
             return this.getAttribute('tid');
@@ -1761,9 +1834,15 @@
             this.setAttribute('tid', value);
         }
         connectedCallback() {
+            contextMenu$1.register(this, document.createElement('tab-menu'));
+            this.on('paste', e => {
+                cardCopy.paste(this);
+            });
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
@@ -2704,134 +2783,6 @@
         register: register$6
     };
 
-    let toast;
-    const initiate = (element, label) => {
-        if (!toast) {
-            toast = src.div({
-                data: {
-                    undoDialogs: true
-                }
-            });
-            document.body.append(toast);
-        }
-        properties.set('softDeleted', true, element);
-        const dialog = document.createElement('undo-dialog');
-        dialog.element = element;
-        if (label) {
-            dialog.label = label;
-        }
-        toast.append(dialog);
-        return new Promise(resolve => {
-            dialog.on('restore', e => {
-                properties.unset('softDeleted', element);
-                resolve({
-                    action: 'restore',
-                    element: e.detail.element
-                });
-            });
-            dialog.on('remove', e => {
-                resolve({
-                    action: 'remove',
-                    element: e.detail.element
-                });
-            });
-        })
-    };
-    const cancel = () => {
-        if (toast) {
-            toast = src.empty(toast);
-        }
-    };
-    var softDelete = {
-        initiate,
-        cancel
-    };
-
-    let app;
-    const origin = 'user';
-    const getLabels = () => {
-        const characterLabels = {};
-        for (let [key, value] of Object.entries(labels$1)) {
-            if (key.startsWith('__')) {
-                continue;
-            }
-            characterLabels[key] = value.short;
-        }
-        return characterLabels;
-    };
-    const add = character => {
-        let cid;
-        let tid;
-        let tab;
-        if (character.tid) {
-            cid = characterStorage.parseCid(character);
-            tab = tabManager.getTab(character.tid);
-            tid = tabStore.toTid(tab);
-        } else {
-            cid = characterStorage.nextIncrement(origin);
-            character = deepClone(character);
-            tab = tabManager.getTab('active');
-            tid = tabStore.toTid(tab);
-        }
-        character = {...character,
-            ...{
-                visibility,
-                tid,
-                cid,
-                origin
-            }
-        };
-        if (!character.labels) {
-            character.labels = getLabels();
-        }
-        characterStorage.set(origin, cid, character);
-        const card = document.createElement('card-base');
-        card.cid = cid;
-        card.tid = tid;
-        card.character = character;
-        tab.panel.append(card);
-    };
-    const bulkDelete = (type, tidData) => {
-        src.$$('card-base', tabManager.getTab(tidData)).forEach(card => {
-            characterStorage.remove(type, card);
-            handleRemoval(card, 'remove');
-        });
-    };
-    const handleRemoval = (element, action) => {
-        switch (action) {
-            case 'soft':
-                softDelete.initiate(element, characterStorage.get(origin, element).props.name)
-                    .then(data => {
-                        handleRemoval(element, data.action);
-                    });
-                characterStorage.update(origin, element, 'softDeleted', true);
-                break;
-            case 'restore':
-                characterStorage.update(origin, element, 'softDeleted', null);
-                break;
-            case 'remove':
-                characterStorage.remove(origin, element);
-                element.remove();
-                break;
-            case 'all':
-                bulkDelete(origin, element);
-                break;
-        }
-    };
-    const init = _app => {
-        app = _app;
-        app.on('tabDelete', e => {
-            handleRemoval(e.detail.tab, 'all');
-        });
-        app.on('characterSelection', e => {
-            add(e.detail);
-        });
-    };
-    var cardManager = {
-        init,
-        handleRemoval
-    };
-
     class CardBase extends HTMLElement {
         get cid() {
             return this.getAttribute('cid');
@@ -2874,11 +2825,11 @@
             this.on('contentChange', function (e) {
                 const section = e.detail.field === 'text' ? 'props' : 'labels';
                 this.character[section][e.detail.key] = e.detail.value;
-                characterStorage.set('user', this.character.cid, this.character);
+                cardStore.set(this.character.cid, this.character);
             });
             this.on('visibilityChange', function (e) {
                 this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
-                characterStorage.set('user', this.character.cid, this.character);
+                cardStore.set(this.character.cid, this.character);
                 this.trigger('afterVisibilityChange');
             });
             this.on('orderChange', function (e) {
@@ -2886,8 +2837,7 @@
                 e.detail.order.forEach(key => {
                     props[key] = this.character.props[key];
                 });
-                this.character.props = props;
-                characterStorage.set('user', this.character.cid, this.character);
+                cardStore.set(`${this.character.cid}.props`, props);
                 this.trigger('afterOrderChange');
             });
             this.on('characterCut', function (e) {
@@ -2913,6 +2863,9 @@
                 }
                 if (e.key === 'Escape') {
                     cardCopy.clear(this);
+                }
+                if (e.key === 'Delete') {
+                    cardManager.handleRemoval(this, 'soft');
                 }
             });
         }
@@ -3528,8 +3481,21 @@
 
     class App extends HTMLElement {
         connectedCallback() {
-            characterStorage.init()
-                .then(() => {
+            const launchData = {
+                tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs'))) || {},
+                system: {},
+                stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards'))) || {}
+            };
+            fetch('js/characters.json')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach((props, cid) => {
+                        launchData.system[cid] = {
+                            cid,
+                            props
+                        };
+                    });
+                    initStorage(launchData);
                     [
                         TabContent$1,
                         TabHandle$1,
@@ -3559,7 +3525,7 @@
                         component.register(this);
                     });
                 });
-        }
+       }
         constructor(self) {
             self = super(self);
             self.on = on;

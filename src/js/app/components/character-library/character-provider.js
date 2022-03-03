@@ -1,6 +1,9 @@
 import sorter from '../../../modules/sorter/sorter.js';
 import labels from '../../../../data/labels.json';
-import characterStorage from './character-storage.js';
+import {
+    systemStore,
+    cardStore
+} from '../../storage/storage.js'
 
 
 /**
@@ -10,8 +13,8 @@ import characterStorage from './character-storage.js';
  * @returns {Object} modified entry
  */
 const prepareGroupSort = (entry, groupBy) => {
-    if (entry.props[groupBy] === '' || typeof entry.props[groupBy] === 'undefined') {
-        entry.props[groupBy] = 'n/a';
+    if (typeof entry.props[groupBy] === 'undefined') {
+        entry.props[groupBy] = '';
     }
     switch (groupBy) {
         case '__user':
@@ -45,7 +48,8 @@ const getSortedCharacters = (type, {
     sortDir = 'name'
 } = {}) => {
     let grouped = {};
-    for (let entry of characterStorage.values(type)) {
+    const store = type === 'user' ? cardStore : systemStore;
+    for (let entry of store.values()) {
         entry = prepareGroupSort(entry, groupBy);
         grouped[entry._groupValue] = grouped[entry._groupValue] || [];
         grouped[entry._groupValue].push(entry)

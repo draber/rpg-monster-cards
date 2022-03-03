@@ -4,16 +4,6 @@ import Tree from '../../modules/tree/Tree.js';
 class TabTree extends Tree {
 
     /**
-     * Add/overwrite an entry in the tabList and commit it to local storage
-     * @param {String|Number} key 
-     * @param {Object} value  
-     */
-    set(key, value) {
-        super.set(key, value);
-        this.write();
-    }
-
-    /**
      * Retrieve the TID from either a DOM tab or a {String|Number} TID 
      * @param {HTMLElement|Entry|String|Number} tidData 
      * @returns 
@@ -40,13 +30,6 @@ class TabTree extends Tree {
     }
 
     /**
-     * Storage handling: write
-     */
-    write() {
-        return localStorage.setItem(this.lsKey, JSON.stringify(this.object()));
-    }
-
-    /**
      * Auto increment tab id (TID)
      * @returns {Number}
      */
@@ -55,11 +38,16 @@ class TabTree extends Tree {
         return Math.max(...keys) + 1;
     }
 
-    constructor(lsKey) {
-        super(JSON.parse(localStorage.getItem(lsKey)) || {
-            1: this.blank()
+    constructor({
+        data = {},
+        lsKey
+    } = {}) {
+        super({
+            data: Object.keys(data).length ? data : {
+                1: this.blank()
+            },
+            lsKey
         });
-        this.lsKey = lsKey;
     }
 }
 

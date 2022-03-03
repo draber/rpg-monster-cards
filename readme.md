@@ -2,7 +2,7 @@
 Printable RPG character cards
 
 ## Configuration
-The main system configuration file is `src/config/config.json`. Most items here relate to data generation. `js` is used to configure the JavaScript Bundler, `storageKeys` define the keys used in `localStorage`. `userCharacters.inLibrary` is meant to be used by the character library; this is for now experimental and not in use.
+The main system configuration file is `src/config/config.json`. Most items here relate to data generation. `js` is used to configure the JavaScript Bundler, `storageKeys` define the keys used in `localStorage`. `userCharacters.inLibrary` is meant to be used by the character library; it is for now experimental and not in use.
 
 ## System data
 _Ghastly Creatures_ uses various data sources; all files in the root of `src/data/` are generated, the files in `src/config` and `src/data/raw` serve as sources. The actual character list needs to be available via HTTP and thus lives at `public/js/characters.json`.
@@ -99,9 +99,9 @@ Most of the UI elements are built as Web Components. Usually, all related files 
 | HTML element | `<card-recto>`   |
 | CSS file     | card-recto.css   |
 
-More complex scenarios, such as cards or tabs, where multiple components act alongside, are usually controlled or supported by a `*-manager.js` module. If storage is involved this is handled by a `*-storage.js` module. 
+More complex scenarios, such as cards or tabs, where multiple components act alongside, are usually controlled or supported by a `*-manager.js` module. Storage is handled handled by `src/js/app/storage/storage.js`. 
 
-Notably, these components don't use the `Shadow DOM`. They act within a clearly defined scope where `<style>` or `<script>` encapsulations don't matter. 
+Notably, the components don't use the `Shadow DOM`. They act within a clearly defined scope where `<style>` or `<script>` encapsulations don't matter. 
 
 ## Character library
 The library lists all characters and is built from `public/js/characters.json`. It can be grouped by using the order symbol above the library. Whether or not grouping by a specific criterion is possible depends on `src/config/field-config.yml#<field>.visibility.group`.
@@ -116,18 +116,18 @@ The workbench is organized into tabs; all cards live inside these tabs. Launchin
 
 Tabs have a context menu that can be accessed by right-clicking. There will always be at least one tab open, even after closing all. Closing a tab will also destroy all its cards. Some tasks can be undone within a 10-second window. By default, tabs are named with Roman numerals, but they can be renamed.
 
-| Task             | Access                                         | Undo | Note                           |
-|:-----------------|:-----------------------------------------------|:----:|:-------------------------------|
-| Add tab          | + icon / double-click on the tab bar           | n/a  |                                |
-| Rename tab       | context menu / double-click on the tab heading | n/a  |                                |
-| Close tab        | × icon / context menu                          | ✓    | destroys all cards on this tab |
-| Close empty tabs | context menu                                   | ✗    | invalids pending undo timeouts |
-| Close other tabs | context menu                                   | ✗    | invalids pending undo timeouts |
-| Close all tabs   | context menu                                   | ✗    | invalids pending undo timeouts |
-| Paste card       | context menu                                   | ✗    |                                |
-| Copy style       | context menu                                   | n/a  |                                |
-| Paste style      | context menu                                   | ✗    |                                |
-| Reset style      | context menu                                   | ✗    |                                |
+| Task             | Access                                 | Undo | Note                           |
+|:-----------------|:---------------------------------------|:----:|:-------------------------------|
+| Add tab          | + icon / double-click on the tab bar   | n/a  |                                |
+| Rename tab       | context menu / double-click on the tab | n/a  |                                |
+| Close tab        | × icon / context menu                  | ✓    | destroys all cards on this tab |
+| Close empty tabs | context menu                           | ✗    | invalids pending undo timeouts |
+| Close other tabs | context menu                           | ✗    | invalids pending undo timeouts |
+| Close all tabs   | context menu                           | ✗    | invalids pending undo timeouts |
+| Paste card       | context menu                           | ✗    |                                |
+| Copy style       | context menu                           | n/a  |                                |
+| Paste style      | context menu                           | ✗    |                                |
+| Reset style      | context menu                           | ✗    |                                |
 
 ### Cards
 

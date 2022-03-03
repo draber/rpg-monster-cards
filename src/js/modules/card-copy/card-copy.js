@@ -1,28 +1,31 @@
 import fn from 'fancy-node';
-import characterStorage from '../../app/components/character-library/character-storage.js';
-import tabStore from '../../app/storage/tab-storage.js';
+import {
+    tabStore,
+    cardStore,
+    copyStore
+} from '../../app/storage/storage.js';
 import {
     deepClone
 } from '../deep-clone/deep-clone.js';
+import cardManager from '../../app/components/character-cards/card-manager.js'
 
-const origin = 'user';
-const target = 'clone';
 
-const set = (element, mode) => {
-    clear(element);
-    element.classList.add(mode);
+const set = (card, mode) => {
+    clear(card.app);
+    card.classList.add(mode);
 
-    const original = characterStorage.get(origin, element);
-    const character = deepClone(original);
-    if (mode === 'cut') {
-        characterStorage.update(origin, element, mode, mode);
+    const original = cardStore.get(cardStore.toCid(card));
+    const copy = {
+        ...deepClone(original),
+        ...{
+            mode
+        }
     }
 
-    character.oldCid = character.cid;
+    copy.originalCard = original;
+    copy.cid = copyStore.nextIncrement();
 
-    character.cid = characterStorage.nextIncrement(origin);
-    character.tid = tabStore.toTid(element);
-    characterStorage.set(target, cid, character);
+    copyStore.set(copy.cid, copy);
 }
 
 const cut = element => {
@@ -33,28 +36,32 @@ const copy = element => {
     set(element, 'copy');
 }
 
-const paste = element => {
+const paste = tab => {
+    copyStore.values().forEach(copy => {
+        // assign the new tab
+        copy.tid = tabStore.toTid(tab);
+        if (copy.mode === 'cut') {
+            console.log(copy.originalCard)
+            cardManager.handleRemoval(copy.originalCard, 'remove');
+        }
+        delete copy.originalCard;
+        // assign regular card cid
+        copy.cid = cardStore.nextIncrement();
+        tab.app.trigger('characterSelection', copy);
+    });
 
-    const character = deepClone(characterStorage.get(origin, element.app.pastableCard));
+    // remove class names
+    clear(tab.app);
 
-    character.cid = characterStorage.nextIncrement(origin);
-    character.tid = tabStore.toTid(element);
-
-    element.app.trigger('characterSelection', character);
-
-    if (element.app.pastableCard.mode === 'cut') {
-        characterStorage.remove(origin, element.app.pastableCard);
-    }
-
-    clear();
+    // forget copies
+    copyStore.flush();
 }
 
-const clear = element => {
-    const lastCopied = fn.$('card-base.cut, card-base.copy', element.app);
+const clear = app => {
+    const lastCopied = fn.$('card-base.cut, card-base.copy', app);
     if (lastCopied) {
         lastCopied.classList.remove('cut', 'copy');
     }
-    delete element.app.pastableCard;
 }
 
 export default {

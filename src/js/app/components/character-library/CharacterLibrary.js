@@ -1,7 +1,10 @@
 import fn from 'fancy-node';
 import characterProvider from './character-provider.js';
 import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import characterStorage from './character-storage.js';
+import  {
+    systemStore,
+    cardStore
+} from '../../storage/storage.js';
 import settings from '../../../modules/settings/settings.js';
 import {
     on,
@@ -184,8 +187,8 @@ class CharacterLibrary extends HTMLElement {
                 return false;
             }
             this.app.trigger('characterSelection', (() => {
-                const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
-                const character = characterStorage.get(type, li.dataset.cid);
+                const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
+                const character = store.get(li.dataset.cid);
                 character._groupLabel && delete character._groupLabel;
                 character._groupValue && delete character._groupValue;
                 return character;
