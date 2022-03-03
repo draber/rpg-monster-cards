@@ -1,18 +1,28 @@
 import fn from 'fancy-node';
 import characterStorage from '../../app/components/character-library/character-storage.js';
-import tabStorage from '../../app/components/tabs/tab-storage.js';
-import { deepClone } from '../deep-clone/deep-clone.js';
+import tabStore from '../../app/storage/tab-storage.js';
+import {
+    deepClone
+} from '../deep-clone/deep-clone.js';
 
 const origin = 'user';
+const target = 'clone';
 
 const set = (element, mode) => {
     clear(element);
-    element.app.pastableCard = {
-        cid: characterStorage.parseCid(element),
-        tid: tabStorage.parseTid(element),
-        mode
+    element.classList.add(mode);
+
+    const original = characterStorage.get(origin, element);
+    const character = deepClone(original);
+    if (mode === 'cut') {
+        characterStorage.update(origin, element, mode, mode);
     }
-    element.classList.add(element.app.pastableCard.mode);
+
+    character.oldCid = character.cid;
+
+    character.cid = characterStorage.nextIncrement(origin);
+    character.tid = tabStore.toTid(element);
+    characterStorage.set(target, cid, character);
 }
 
 const cut = element => {
@@ -28,11 +38,11 @@ const paste = element => {
     const character = deepClone(characterStorage.get(origin, element.app.pastableCard));
 
     character.cid = characterStorage.nextIncrement(origin);
-    character.tid = tabStorage.parseTid(element);
+    character.tid = tabStore.toTid(element);
 
     element.app.trigger('characterSelection', character);
 
-    if(element.app.pastableCard.mode === 'cut'){
+    if (element.app.pastableCard.mode === 'cut') {
         characterStorage.remove(origin, element.app.pastableCard);
     }
 

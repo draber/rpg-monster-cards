@@ -2,7 +2,7 @@ import characterStorage from '../character-library/character-storage.js';
 import visibility from '../../../../data/visibility.json';
 import labels from '../../../../data/labels.json';
 import tabManager from '../tabs/tab-manager.js';
-import tabStorage from '../tabs/tab-storage.js';
+import tabStore from '../../storage/tab-storage.js';
 import softDelete from '../../../modules/softDelete/softDelete.js';
 import fn from 'fancy-node';
 import { deepClone } from '../../../modules/deep-clone/deep-clone.js'
@@ -34,12 +34,12 @@ const add = character => {
     if (character.tid) {
         cid = characterStorage.parseCid(character);
         tab = tabManager.getTab(character.tid);
-        tid = tabStorage.parseTid(tab);
+        tid = tabStore.toTid(tab);
     } else {
         cid = characterStorage.nextIncrement(origin);
         character = deepClone(character);
         tab = tabManager.getTab('active');
-        tid = tabStorage.parseTid(tab);
+        tid = tabStore.toTid(tab);
     }
     character = {...character,
         ...{

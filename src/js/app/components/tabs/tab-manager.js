@@ -1,6 +1,6 @@
 import fn from 'fancy-node';
 import softDelete from '../../../modules/softDelete/softdelete.js';
-import tabStorage from './tab-storage.js';
+import tabStore from '../../storage/tab-storage.js';
 
 let app;
 let navi;
@@ -17,14 +17,14 @@ const setActiveTab = tab => {
     fn.$$('tab-handle', navi).forEach(tab => {
         tab.classList.remove('active');
         tab.panel.classList.remove('active');
-        tabStorage.update(tab, 'active', null);
+        tabStore.unset(`${tabStore.toTid(tab)}.active`);
         tab.removeAttribute('style');
     });
     // DOM Tab
     activeTab.classList.add('active');
     app.trigger('tabStyleChange', {
         tab: activeTab,
-        styles: tabStorage.get(activeTab).styles
+        styles: tabStore.get(tabStore.toTid(activeTab)).styles
     });
 
     const naviRect = navi.getBoundingClientRect();
@@ -48,7 +48,7 @@ const setActiveTab = tab => {
     // DOM Panel
     activeTab.panel.classList.add('active');
     // model
-    tabStorage.update(activeTab, 'active', true);
+    tabStore.set(`${tabStore.toTid(activeTab)}.active`, true);
     return activeTab;
 }
 
@@ -59,7 +59,7 @@ const getTab = tabData => {
     if (tabData instanceof HTMLElement) {
         return tabData
     }
-    return fn.$(`tab-handle[tid="${tabStorage.parseTid(tabData)}"]`, navi);
+    return fn.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
 }
 
 /**
@@ -94,7 +94,7 @@ const createTab = ({
     previousTab,
     activate = false
 } = {}) => {
-    tabEntry = tabEntry || tabStorage.get();
+    tabEntry = tabEntry || tabStore.blank();
 
     // build DOM elements
     const tab = document.createElement('tab-handle');
@@ -116,7 +116,7 @@ const createTab = ({
     }
 
     // inform model
-    tabStorage.set(tabEntry, tabEntry);
+    tabStore.set(tabStore.toTid(tabEntry), tabEntry);
 
     if (activate) {
         setActiveTab(tab);
@@ -171,19 +171,19 @@ const handleRemoval = (tab, action) => {
                     handleRemoval(tab, data.action);
                 })
             // local model
-            tabStorage.update(tab, 'softDeleted', true);
+            tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
             break;
         case 'restore':
-            tabStorage.update(tab, 'softDeleted', null);
+            tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
             break;
         case 'remove':
             // inform app to delete cards
             app.trigger('tabDelete', {
                 tab
             })
-            tabStorage.remove(tab);
+            tabStore.remove(tab);
             tab.remove();
-            if (Object.keys(tabStorage.get('all')).length === 0) {
+            if (!tabStore.length) {
                 createTab({
                     activate: true
                 });
@@ -210,10 +210,10 @@ const restore = () => {
 
     // find out which tab has been active in the last session, 
     // fall back to the first one
-    const entries = Object.values(tabStorage.get('all'));
+    const entries = tabStore.values();
     const activeSet = entries.filter(e => !!e.active);
-    const activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabStorage.get('all'))[0];
-
+    const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
+    
     for (let tabEntry of entries) {
         createTab({
             tabEntry
@@ -235,17 +235,19 @@ const init = _app => {
     // events
     app.on('singleStyleChange', e => {
         const tab = e.detail.tab || activeTab;
-        const entry = tabStorage.get(tab);
+        const tid = tabStore.toTid(tab);
+        const entry = tabStore.get(tid);
         entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
         entry.styles[e.detail.area][e.detail.name] = e.detail.value;
-        tabStorage.set(tab, entry);
+        tabStore.set(tid, entry);
         if (tab.isSameNode(activeTab)) {
             tab.panel.style.setProperty(e.detail.name, e.detail.value);
         }
     });
 
     app.on('styleReset', e => {
-        tabStorage.update(e.detail.tab, 'styles', {});
+        const tid = tabStore.toTid(e.detail.tab);
+        tabStore.set(`${tid}.styles`, {});
         app.trigger('tabStyleChange', {
             tab: e.detail.tab,
             styles: {}

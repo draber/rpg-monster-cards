@@ -4,7 +4,7 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js';
-import tabStorage from './tab-storage.js';
+import tabStore from '../../storage/tab-storage.js';
 import contextMenu from '../../../modules/context-menu/context-menu.js';
 
 /**
@@ -86,7 +86,8 @@ class TabHandle extends HTMLElement {
                     this.label.contentEditable = false;
                     this.label.textContent = this.sanitize(this.label.textContent);
                     this.title = this.label.textContent.trim();
-                    tabStorage.update(this, 'title', this.title);
+                    tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                    e.detail.tab
                 },
                 paste: e => {
                     e.preventDefault();

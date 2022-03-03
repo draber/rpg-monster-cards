@@ -1,0 +1,6 @@
+{
+    "name": "tree",
+    "version": "1.0.0",
+    "main": "Tree.js",
+    "type": "module"
+}

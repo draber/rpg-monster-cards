@@ -467,7 +467,7 @@
     let settings = {
         ...config
     };
-    const get$5 = key => {
+    const get$4 = key => {
         let current = Object.create(settings);
         for (let token of key.split('.')) {
             if (typeof current[token] === 'undefined') {
@@ -477,7 +477,7 @@
         }
         return current;
     };
-    const set$5 = (key, value) => {
+    const set$4 = (key, value) => {
         const keys = key.split('.');
         const last = keys.pop();
         let current = settings;
@@ -494,75 +494,75 @@
         current[last] = value;
     };
     var settings$1 = {
-        get: get$5,
-        set: set$5
+        get: get$4,
+        set: set$4
     };
 
-    const lsKey$2 = settings$1.get('storageKeys.cards');
+    const lsKey$1 = settings$1.get('storageKeys.cards');
     const data = {
         system: {},
         user: {}
     };
     const storage = {
         read: () => {
-            return JSON.parse(localStorage.getItem(lsKey$2) || '{}')
+            return JSON.parse(localStorage.getItem(lsKey$1) || '{}')
         },
         update: () => {
-            return localStorage.setItem(lsKey$2, JSON.stringify(data.user || {}))
+            return localStorage.setItem(lsKey$1, JSON.stringify(data.user || {}))
         }
     };
     const values = type => {
         return Object.values(data[type]);
     };
-    const set$4 = (type, cid, character) => {
+    const set$3 = (type, cid, character) => {
         cid = parseCid(cid);
         data[type][cid] = character;
         if (type === 'user') {
             storage.update();
         }
     };
-    const get$4 = (type, cidData) => {
+    const get$3 = (type, cidData) => {
         const cid = parseCid(cidData);
         return data[type][cid];
     };
-    const parseCid = data => {
-        const cid = data.cid ? data.cid : data;
+    const parseCid = cidData => {
+        const cid = cidData.cid || cidData;
         if(isNaN(cid)){
             throw `${cid} is not a valid character identifier`;
         }
         return parseInt(cid, 10);
     };
-     const update$2 = (type, cidData, key, value) => {
+     const update$1 = (type, cidData, key, value) => {
         const cid = parseCid(cidData);
-        const character = get$4(type, cidData);
+        const character = get$3(type, cidData);
         if (value === null) {
             delete character[key];
         } else {
             character[key] = value;
         }
-        set$4(type, cid, character);
+        set$3(type, cid, character);
     };
     const getAllByType = type => {
         return data[type];
     };
-    const remove$1 = (type, cidData) => {
+    const remove = (type, cidData) => {
         const cid = parseCid(cidData);
         delete data[type][cid];
         if (type === 'user') {
             storage.update();
         }
     };
-    const nextIncrement$1 = type => {
+    const nextIncrement = type => {
         const lowest = type === 'system' ? 0 : 5000;
         return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
     };
-    const init$4 = () => {
+    const init$3 = () => {
         data.user = storage.read();
         return (fetch('js/characters.json')
             .then(response => response.json())
             .then(data => {
                 data.forEach((props, cid) => {
-                    set$4('system', cid, {
+                    set$3('system', cid, {
                         cid,
                         origin: 'system',
                         props
@@ -571,14 +571,14 @@
             }));
     };
     var characterStorage = {
-        init: init$4,
-        get: get$4,
-        set: set$4,
-        update: update$2,
-        remove: remove$1,
+        init: init$3,
+        get: get$3,
+        set: set$3,
+        update: update$1,
+        remove,
         parseCid,
         values,
-        nextIncrement: nextIncrement$1,
+        nextIncrement,
         getAllByType
     };
 
@@ -625,23 +625,23 @@
         getSortedCharacters
     };
 
-    const lsKey$1 = settings$1.get('storageKeys.user');
-    settings$1.set('userPrefs', JSON.parse(localStorage.getItem(lsKey$1) || '{}'));
+    const lsKey = settings$1.get('storageKeys.user');
+    settings$1.set('userPrefs', JSON.parse(localStorage.getItem(lsKey) || '{}'));
     const getAll = () => {
         return settings$1.get(`userPrefs`);
     };
-    const get$3 = key => {
+    const get$2 = key => {
         return settings$1.get(`userPrefs.${key}`);
     };
-    const set$3 = (key, value) => {
+    const set$2 = (key, value) => {
         settings$1.set(`userPrefs.${key}`, value);
-        localStorage.setItem(lsKey$1, JSON.stringify(getAll()));
+        localStorage.setItem(lsKey, JSON.stringify(getAll()));
         return true;
     };
     var userPrefs = {
         getAll,
-        get: get$3,
-        set: set$3
+        get: get$2,
+        set: set$2
     };
 
     const on = function(types, action)  {
@@ -1060,11 +1060,11 @@
         register: register$h
     };
 
-    const set$2 = (key, value, target) => {
+    const set$1 = (key, value, target) => {
         target = target || document.body;
         target.dataset[key] = value;
     };
-    const get$2 = (key, target) => {
+    const get$1 = (key, target) => {
         target = target || document.body;
         if (typeof target.dataset[key] === 'undefined') {
             return false;
@@ -1072,7 +1072,7 @@
         return JSON.parse(target.dataset[key]);
     };
     const toggle$1 = (key, target) => {
-        set$2(key, !get$2(key, target), target);
+        set$1(key, !get$1(key, target), target);
     };
     const unset = (key, target) => {
         target = target || document.body;
@@ -1080,8 +1080,8 @@
     };
     var properties = {
         unset,
-        get: get$2,
-        set: set$2,
+        get: get$1,
+        set: set$1,
         toggle: toggle$1
     };
 
@@ -1153,79 +1153,132 @@
       return str;
     };
 
-    let tabList;
-    const lsKey = settings$1.get('storageKeys.tabs');
-    const init$3 = () => {
-        tabList = tabList || read();
-    };
-    const read = () => {
-        const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
-        return Object.keys(stored).length ?
-            stored :
-            {
-                1: blank()
-            };
-    };
-    const write = () => {
-        init$3();
-        return localStorage.setItem(lsKey, JSON.stringify(tabList));
-    };
-    const nextIncrement = () => {
-        let keys = tabList ? Object.keys(tabList).map(e => parseInt(e)) : [];
-        if(!keys.length){
-            keys = [0];
+    class Tree {
+        get length() {
+            return this.keys().length;
         }
-        return Math.max(...keys) + 1;
-    };
-    const blank = () => {
-        const tid = nextIncrement();
-        return {
-            tid,
-            title: convertToRoman(tid),
-            styles: {}
+        #get(key) {
+            const keys = key.toString().split('.');
+            let current = Object.create(this.obj);
+            for (let token of keys) {
+                if (typeof current[token] === 'undefined') {
+                    return undefined;
+                }
+                current = current[token];
+            }
+            return current;
         }
-    };
-    const parseTid = data => {
-        return parseInt((data.tid ? data.tid : data), 10);
-    };
-    const get$1 = data => {
-        init$3();
-        if (data === 'all') {
-            return tabList;
+        set(key, value) {
+            const keys = key.toString().split('.');
+            const last = keys.pop();
+            let current = this.obj;
+            for (let token of keys) {
+                if (!current[token]) {
+                    current[token] = {};
+                }
+                if (Object.getPrototypeOf(current) !== Object.prototype) {
+                    throw (`${token} is not of the type Object`);
+                }
+                current = current[token];
+            }
+            current[last] = value;
         }
-        if (!data) {
-            return blank();
+        unset(key) {
+            const keys = key.toString().split('.');
+            const last = keys.pop();
+            let current = this.obj;
+            for (let token of keys) {
+                if (!current[token]) {
+                    current[token] = {};
+                }
+                if (Object.getPrototypeOf(current) !== Object.prototype) {
+                    throw (`${token} is not of the type Object`);
+                }
+                current = current[token];
+            }
+            delete current[last];
         }
-        const tid = parseTid(data);
-        return tabList[tid] ? tabList[tid] : blank();
-    };
-    const set$1 = (tidData, data) => {
-        init$3();
-        tabList[parseTid(tidData)] = data;
-        write();
-    };
-    const update$1 = (tidData, key, value) => {
-        const tid = parseTid(tidData);
-        const entry = get$1(tid);
-        if (value === null) {
-            delete entry[key];
-        } else {
-            entry[key] = value;
+        get(...keys) {
+            if (keys.length === 1) {
+                return this.#get(keys[0]);
+            }
+            const result = {};
+            keys.forEach(key => {
+                result[key] = this.#get(key);
+            });
+            return result;
         }
-        set$1(tid, entry);
-    };
-    const remove = tidData => {
-        init$3();
-        delete tabList[parseTid(tidData)];
-        write();
-    };
-    var tabStorage = {
-        get: get$1,
-        set: set$1,
-        update: update$1,
-        remove,
-        parseTid
-    };
+        object(searchKey = null, condition = null) {
+            if (!searchKey || !(condition instanceof Function)) {
+                return this.obj;
+            }
+            const result = {};
+            for (let [key, value] of Object.entries(this.obj)) {
+                const compVal = this.#get(`${key}.${searchKey}`);
+                if (condition(compVal)) {
+                    result[key] = value;
+                }
+            }
+            return result;
+        }
+        entries(searchKey = null, condition = null) {
+            return Object.entries(this.object(searchKey, condition));
+        }
+        values(searchKey = null, condition = null) {
+            return Object.values(this.object(searchKey, condition));
+        }
+        keys(searchKey = null, condition = null) {
+            return Object.keys(this.object(searchKey, condition));
+        }
+        remove(...keys) {
+            keys.forEach(key => {
+                delete this.obj[key];
+            });
+        }
+        toJson(pretty = false) {
+            return JSON.stringify(this.obj, null, (pretty ? '\t' : null));
+        }
+        constructor(obj = {}) {
+            this.obj = obj;
+        }
+    }
+
+    class TabTree extends Tree {
+        set(key, value) {
+            super.set(key, value);
+            this.write();
+        }
+        toTid(tidData) {
+            const tid = tidData.tid || tidData;
+            if (isNaN(tid)) {
+                throw `${tid} is not a valid tab identifier`;
+            }
+            return parseInt(tid, 10);
+        }
+        blank() {
+            const tid = this.nextIncrement();
+            return {
+                tid,
+                title: convertToRoman(tid),
+                styles: {}
+            }
+        }
+        write() {
+            return localStorage.setItem(this.lsKey, JSON.stringify(this.object()));
+        }
+        nextIncrement() {
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
+            return Math.max(...keys) + 1;
+        }
+        constructor(lsKey) {
+            super(JSON.parse(localStorage.getItem(lsKey)) || {
+                1: this.blank()
+            });
+            this.lsKey = lsKey;
+        }
+    }
+
+    var tabStore = new TabTree(settings$1.get('storageKeys.tabs'));
 
     let app$1;
     let navi;
@@ -1236,13 +1289,13 @@
         src.$$('tab-handle', navi).forEach(tab => {
             tab.classList.remove('active');
             tab.panel.classList.remove('active');
-            tabStorage.update(tab, 'active', null);
+            tabStore.unset(`${tabStore.toTid(tab)}.active`);
             tab.removeAttribute('style');
         });
         activeTab.classList.add('active');
         app$1.trigger('tabStyleChange', {
             tab: activeTab,
-            styles: tabStorage.get(activeTab).styles
+            styles: tabStore.get(tabStore.toTid(activeTab)).styles
         });
         const naviRect = navi.getBoundingClientRect();
         const atRect = activeTab.getBoundingClientRect();
@@ -1260,7 +1313,7 @@
             });
         }
         activeTab.panel.classList.add('active');
-        tabStorage.update(activeTab, 'active', true);
+        tabStore.set(`${tabStore.toTid(activeTab)}.active`, true);
         return activeTab;
     };
     const getTab = tabData => {
@@ -1270,7 +1323,7 @@
         if (tabData instanceof HTMLElement) {
             return tabData
         }
-        return src.$(`tab-handle[tid="${tabStorage.parseTid(tabData)}"]`, navi);
+        return src.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
     };
     const getTabs = exclude => {
         let tabs = Array.from(src.$$(`tab-handle`, navi));
@@ -1288,7 +1341,7 @@
         previousTab,
         activate = false
     } = {}) => {
-        tabEntry = tabEntry || tabStorage.get();
+        tabEntry = tabEntry || tabStore.blank();
         const tab = document.createElement('tab-handle');
         tab.panel = document.createElement('tab-panel');
         tab.container = navi;
@@ -1303,7 +1356,7 @@
         } else {
             src.$('.adder', navi).before(tab);
         }
-        tabStorage.set(tabEntry, tabEntry);
+        tabStore.set(tabStore.toTid(tabEntry), tabEntry);
         if (activate) {
             setActiveTab(tab);
         }
@@ -1339,18 +1392,18 @@
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
-                tabStorage.update(tab, 'softDeleted', true);
+                tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
                 break;
             case 'restore':
-                tabStorage.update(tab, 'softDeleted', null);
+                tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
                 break;
             case 'remove':
                 app$1.trigger('tabDelete', {
                     tab
                 });
-                tabStorage.remove(tab);
+                tabStore.remove(tab);
                 tab.remove();
-                if (Object.keys(tabStorage.get('all')).length === 0) {
+                if (!tabStore.length) {
                     createTab({
                         activate: true
                     });
@@ -1370,9 +1423,9 @@
         }
     };
     const restore = () => {
-        const entries = Object.values(tabStorage.get('all'));
+        const entries = tabStore.values();
         const activeSet = entries.filter(e => !!e.active);
-        const activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabStorage.get('all'))[0];
+        const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
         for (let tabEntry of entries) {
             createTab({
                 tabEntry
@@ -1387,16 +1440,18 @@
         restore();
         app$1.on('singleStyleChange', e => {
             const tab = e.detail.tab || activeTab;
-            const entry = tabStorage.get(tab);
+            const tid = tabStore.toTid(tab);
+            const entry = tabStore.get(tid);
             entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
             entry.styles[e.detail.area][e.detail.name] = e.detail.value;
-            tabStorage.set(tab, entry);
+            tabStore.set(tid, entry);
             if (tab.isSameNode(activeTab)) {
                 tab.panel.style.setProperty(e.detail.name, e.detail.value);
             }
         });
         app$1.on('styleReset', e => {
-            tabStorage.update(e.detail.tab, 'styles', {});
+            const tid = tabStore.toTid(e.detail.tab);
+            tabStore.set(`${tid}.styles`, {});
             app$1.trigger('tabStyleChange', {
                 tab: e.detail.tab,
                 styles: {}
@@ -1564,7 +1619,8 @@
                         this.label.contentEditable = false;
                         this.label.textContent = this.sanitize(this.label.textContent);
                         this.title = this.label.textContent.trim();
-                        tabStorage.update(this, 'title', this.title);
+                        tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                        e.detail.tab;
                     },
                     paste: e => {
                         e.preventDefault();
@@ -1622,14 +1678,19 @@
     };
 
     const origin$1 = 'user';
+    const target = 'clone';
     const set = (element, mode) => {
         clear(element);
-        element.app.pastableCard = {
-            cid: characterStorage.parseCid(element),
-            tid: tabStorage.parseTid(element),
-            mode
-        };
-        element.classList.add(element.app.pastableCard.mode);
+        element.classList.add(mode);
+        const original = characterStorage.get(origin$1, element);
+        const character = deepClone(original);
+        if (mode === 'cut') {
+            characterStorage.update(origin$1, element, mode, mode);
+        }
+        character.oldCid = character.cid;
+        character.cid = characterStorage.nextIncrement(origin$1);
+        character.tid = tabStore.toTid(element);
+        characterStorage.set(target, cid, character);
     };
     const cut = element => {
         set(element, 'cut');
@@ -1640,9 +1701,9 @@
     const paste = element => {
         const character = deepClone(characterStorage.get(origin$1, element.app.pastableCard));
         character.cid = characterStorage.nextIncrement(origin$1);
-        character.tid = tabStorage.parseTid(element);
+        character.tid = tabStore.toTid(element);
         element.app.trigger('characterSelection', character);
-        if(element.app.pastableCard.mode === 'cut'){
+        if (element.app.pastableCard.mode === 'cut') {
             characterStorage.remove(origin$1, element.app.pastableCard);
         }
         clear();
@@ -2705,12 +2766,12 @@
         if (character.tid) {
             cid = characterStorage.parseCid(character);
             tab = tabManager.getTab(character.tid);
-            tid = tabStorage.parseTid(tab);
+            tid = tabStore.toTid(tab);
         } else {
             cid = characterStorage.nextIncrement(origin);
             character = deepClone(character);
             tab = tabManager.getTab('active');
-            tid = tabStorage.parseTid(tab);
+            tid = tabStore.toTid(tab);
         }
         character = {...character,
             ...{
