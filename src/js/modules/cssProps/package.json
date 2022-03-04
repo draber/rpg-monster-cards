@@ -1,6 +1,0 @@
-{
-    "name": "css-props",
-    "version": "1.0.0",
-    "main": "cssProps.js",
-    "type": "module"
-}

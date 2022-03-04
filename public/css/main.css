@@ -363,13 +363,16 @@ header{
   border-bottom:.1rem solid  hsl(44, 81%, 38%);
   border-bottom:.1rem solid  var(--hd-color);
   background-image:url(../media/patterns/system/light-subtle-rocky-wall.png);
+  justify-content:space-between;
+  padding-left:1rem;
+  padding-right:1rem;
 }
 
 #logo-area{
   display:flex;
   align-items:center;
   justify-content:left;
-  padding:1rem;
+  padding:1rem 1rem 1rem 0;
   margin:0;
   width:25rem
 }
@@ -381,6 +384,58 @@ header{
     filter:drop-shadow(.2rem 0 .2rem hsla(252, 10%, 0%, .5));
     filter:drop-shadow(.2rem 0 .2rem var(--text-shadow-color));
   }
+
+import-export{
+  display:flex;
+  align-items:center;
+  list-style:none;
+  padding:0;
+  position:relative;
+  color:hsl(44, 81%, 38%);
+  color:var(--hd-color);
+  cursor:pointer;
+  z-index:5
+}
+
+import-export h3{
+    font-weight:normal;
+    font-size:1.6rem;
+  }
+
+import-export div{
+    font-size:1.4rem;
+    position:absolute;
+    top:5rem;
+    right:-1000rem;
+    border:.1rem solid hsla(46, 85%, 39%, .3);
+    border:var(--border);
+    overflow-y:auto;
+    min-width:calc(100% - 2rem);
+    background:hsl(15, 50%, 24%);
+    background:var(--bg-3-color);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 hsla(0, 0%, 0%, 0.4);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color)
+  }
+
+import-export div a{
+      display:block;
+      white-space:nowrap;
+      padding-left:1rem;
+      padding-right:1rem;
+      line-height:1.8;
+      border-bottom:1px solid rgba(255, 255, 255, 0.08);
+      color:hsla(0, 0%, 95%, .90);
+      color:var(--text-color)
+    }
+
+import-export div a:hover{
+        background:hsl(15, 50%, 24%);
+        background:var(--bg-3-color);
+      }
+
+import-export:hover div{
+      right:0;
+    }
 
 main{
   flex:2;
@@ -493,7 +548,7 @@ library-organizer:hover svg{
     }
 
 [data-type="context-menu"]{
-  z-index:3;
+  z-index:5;
   position:absolute;
   border:.1rem solid hsla(46, 85%, 39%, .3);
   border:var(--border);
@@ -552,27 +607,40 @@ library-organizer:hover svg{
       background:var(--bg-4-color);
     }
 
-[data-style-storage] [data-type="context-menu"] li.storage-dependent{
+[data-style-storage="true"] li.storage-dependent[data-storage="style"]{
         pointer-events:all;
         opacity:1;
         cursor:pointer;
       }
 
+[data-card-storage="true"] li.storage-dependent[data-storage="card"]{
+        pointer-events:all;
+        opacity:1;
+        cursor:pointer;
+      }
+
+[data-card-state="edit"] card-base:not(.editable){
+      display:none;
+    }
+
+tab-content{
+    display:flex;
+    flex-direction:column;
+    min-height:100%;
+}
+
 tab-panel{
     display:none;
     gap:2.5rem;
-    flex-wrap:wrap
+    flex-wrap:wrap;
+    flex:2;
+    padding:3.5rem 2.5rem;
+    align-items:flex-start
 }
 
 tab-panel.active{
         display:flex
     }
-
-tab-content{
-    display:block;
-    min-height:100%;
-    padding:3.5rem 2.5rem;
-}
 
 tab-navi{
   display:flex;
@@ -857,17 +925,17 @@ card-base.editable .card-view{
 
 card-base.editable article{
       height:100%;
-      gap:1rem
+      gap:1rem;
     }
 
-card-base.cut{
-    opacity:.6
+card-base:focus{
+    outline:0.4rem hsl(44, 81%, 38%) solid;
+    outline:0.4rem var(--hd-color) solid;
   }
 
-card-base:focus{
-    outline:.4rem hsl(44, 81%, 38%) solid;
-    outline:.4rem var(--hd-color) solid
-  }
+card-base.cut .card-view{
+      opacity:0.6;
+    }
 
 [data-card-state="edit"] card-base:not(.editable){
       display:none;
@@ -886,7 +954,7 @@ card-recto img{
     margin:auto;
   }
 
-card-recto .frame{    
+card-recto .frame{
     justify-content:flex-end;
   }
 

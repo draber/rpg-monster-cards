@@ -1,6 +1,6 @@
 import fn from 'fancy-node';
 import fonts from '../../../../../data/fonts.json';
-import cssProps from '../../../../modules/cssProps/cssProps.js';
+import { styleStore } from '../../../storage/storage.js';
 import {
     on,
     trigger
@@ -39,7 +39,7 @@ class FontSelector extends HTMLElement {
         this.styleArea = 'fonts';
 
         // currently selected font
-        this.currentFont = cssProps.get(this.name);
+        this.currentFont = styleStore.get(this.name);
 
         // <select>
         const selector = fn.select({
@@ -82,7 +82,7 @@ class FontSelector extends HTMLElement {
         this.app.on('tabStyleChange', e => {  
             const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                 e.detail.styles[this.styleArea][this.name] :
-                cssProps.get(this.name);
+                styleStore.get(this.name);
                 // quotes need to be neutralized because they can be either ' or " due to the different transformations
             selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
 

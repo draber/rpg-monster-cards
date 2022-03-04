@@ -204,206 +204,6 @@
         sort
     };
 
-    var name$1 = {
-    	group: "First Letter",
-    	long: "Name",
-    	short: "Name"
-    };
-    var __user$1 = {
-    	long: "Your Creatures",
-    	group: "Your Creatures"
-    };
-    var img$1 = {
-    	long: "Image URL",
-    	short: "Img",
-    	group: "Image URL"
-    };
-    var cr$1 = {
-    	long: "Challenge Rating",
-    	short: "CR",
-    	group: "Challenge Rating"
-    };
-    var base$1 = {
-    	long: "Base",
-    	short: "Base",
-    	group: "Base"
-    };
-    var type$1 = {
-    	long: "Type",
-    	short: "Type",
-    	group: "Type"
-    };
-    var hp$1 = {
-    	long: "Hit Points",
-    	short: "HP",
-    	group: "Hit Points"
-    };
-    var speed$1 = {
-    	long: "Speed",
-    	short: "Spd",
-    	group: "Speed"
-    };
-    var bag$1 = {
-    	long: "Base Attack/Grapple",
-    	short: "BA/G",
-    	group: "Base Attack/Grapple"
-    };
-    var atk$1 = {
-    	long: "Attack",
-    	short: "Atk",
-    	group: "Attack"
-    };
-    var atk_f$1 = {
-    	long: "Full Attack",
-    	short: "Full Atk",
-    	group: "Full Attack"
-    };
-    var atk_p$1 = {
-    	long: "Attack Parameters",
-    	short: "Atk Params",
-    	group: "Attack Parameters"
-    };
-    var sp_r$1 = {
-    	long: "Space/Reach",
-    	short: "Sp/Re",
-    	group: "Space/Reach"
-    };
-    var atk_s$1 = {
-    	long: "Special Attacks",
-    	short: "Sp Atk",
-    	group: "Special Attacks"
-    };
-    var rfx$1 = {
-    	long: "Reflex",
-    	short: "Rfx",
-    	group: "Reflex"
-    };
-    var will$1 = {
-    	long: "Will",
-    	short: "Wil",
-    	group: "Will"
-    };
-    var str$1 = {
-    	long: "Strength",
-    	short: "Str",
-    	group: "Strength"
-    };
-    var dex$1 = {
-    	long: "Dexterity",
-    	short: "Dex",
-    	group: "Dexterity"
-    };
-    var con$1 = {
-    	long: "Constitution",
-    	short: "Con",
-    	group: "Constitution"
-    };
-    var int$1 = {
-    	long: "Intelligence",
-    	short: "Int",
-    	group: "Intelligence"
-    };
-    var wis$1 = {
-    	long: "Wisdom",
-    	short: "Wis",
-    	group: "Wisdom"
-    };
-    var cha$1 = {
-    	long: "Charisma",
-    	short: "Cha",
-    	group: "Charisma"
-    };
-    var skills$1 = {
-    	long: "Skills",
-    	short: "Skills",
-    	group: "Skills"
-    };
-    var feats$1 = {
-    	long: "Feats",
-    	short: "Feats",
-    	group: "Feats"
-    };
-    var env$1 = {
-    	long: "Environment",
-    	short: "Env",
-    	group: "Environment"
-    };
-    var org$1 = {
-    	long: "Organization",
-    	short: "Org",
-    	group: "Organization"
-    };
-    var tre$1 = {
-    	long: "Treasure",
-    	short: "Treas",
-    	group: "Treasure"
-    };
-    var algn$1 = {
-    	long: "Alignment",
-    	short: "Algn",
-    	group: "Alignment"
-    };
-    var l_adj$1 = {
-    	long: "Level Adjustment",
-    	short: "L Adj",
-    	group: "Level Adjustment"
-    };
-    var notes$1 = {
-    	long: "Notes",
-    	short: "Notes",
-    	group: "Notes"
-    };
-    var fort$1 = {
-    	long: "Fortitude",
-    	short: "Fort",
-    	group: "Fortitude"
-    };
-    var ac$1 = {
-    	long: "Armor Class",
-    	short: "AC",
-    	group: "Armor Class"
-    };
-    var ini$1 = {
-    	long: "Initiative",
-    	short: "Ini",
-    	group: "Initiative"
-    };
-    var labels$1 = {
-    	name: name$1,
-    	__user: __user$1,
-    	img: img$1,
-    	cr: cr$1,
-    	base: base$1,
-    	type: type$1,
-    	hp: hp$1,
-    	speed: speed$1,
-    	bag: bag$1,
-    	atk: atk$1,
-    	atk_f: atk_f$1,
-    	atk_p: atk_p$1,
-    	sp_r: sp_r$1,
-    	atk_s: atk_s$1,
-    	rfx: rfx$1,
-    	will: will$1,
-    	str: str$1,
-    	dex: dex$1,
-    	con: con$1,
-    	int: int$1,
-    	wis: wis$1,
-    	cha: cha$1,
-    	skills: skills$1,
-    	feats: feats$1,
-    	env: env$1,
-    	org: org$1,
-    	tre: tre$1,
-    	algn: algn$1,
-    	l_adj: l_adj$1,
-    	notes: notes$1,
-    	fort: fort$1,
-    	ac: ac$1,
-    	ini: ini$1
-    };
-
     const convertToRoman = num => {
       const roman = {
         M: 1000,
@@ -432,6 +232,15 @@
     class Tree {
         get length() {
             return this.keys().length;
+        }
+        #getCmpFn(fnName) {
+            if (this.cmpFns[fnName]) {
+                return this.cmpFns[fnName];
+            }
+            if (this.cmpMap[fnName]) {
+                return this.cmpMap[fnName];
+            }
+            throw (`Unknown function ${fnName}`);
         }
         #get(key) {
             const keys = key.toString().split('.');
@@ -492,32 +301,33 @@
             });
             return result;
         }
-        object(searchKey = null, condition = null) {
-            if (!searchKey || !(condition instanceof Function)) {
+        object(searchKey = null, cmpFn = null, expectVal = null) {
+            if (!searchKey || !cmpFn) {
                 return this.obj;
+            }
+            if (cmpFn && !(cmpFn instanceof Function)) {
+                cmpFn = this.#getCmpFn(cmpFn);
             }
             const result = {};
             for (let [key, value] of Object.entries(this.obj)) {
                 const compVal = this.#get(`${key}.${searchKey}`);
-                if (condition(compVal)) {
+                if (cmpFn(compVal, expectVal)) {
                     result[key] = value;
                 }
             }
             return result;
         }
-        entries(searchKey = null, condition = null) {
-            return Object.entries(this.object(searchKey, condition));
+        entries(searchKey = null, cmpFn = null, expectVal = null) {
+            return Object.entries(this.object(searchKey, cmpFn, expectVal));
         }
-        values(searchKey = null, condition = null) {
-            return Object.values(this.object(searchKey, condition));
+        values(searchKey = null, cmpFn = null, expectVal = null) {
+            return Object.values(this.object(searchKey, cmpFn, expectVal));
         }
-        keys(searchKey = null, condition = null) {
-            return Object.keys(this.object(searchKey, condition));
+        keys(searchKey = null, cmpFn = null, expectVal = null) {
+            return Object.keys(this.object(searchKey, cmpFn, expectVal));
         }
         remove(...keys) {
-            console.log(keys, this.lsKey);
             keys.forEach(key => {
-                console.log(this.obj[key]);
                 delete this.obj[key];
             });
             this.save();
@@ -528,9 +338,43 @@
         constructor({
             data = {},
             lsKey
-        }={}) {
+        } = {}) {
             this.obj = data;
             this.lsKey = lsKey;
+            this.cmpFns = {
+                equal: (a, b) => {
+                    return a === b;
+                },
+                notEqual: (a, b) => {
+                    return a !== b;
+                },
+                greater: (a, b) => {
+                    return a > b;
+                },
+                greaterEqual: (a, b) => {
+                    return a >= b;
+                },
+                lesser: (a, b) => {
+                    return a < b;
+                },
+                lesserEqual: (a, b) => {
+                    return a <= b;
+                },
+                instanceof: (a, b) => {
+                    return a instanceof b;
+                },
+                typeof: (a, b) => {
+                    return typeof a === b;
+                }
+            };
+            this.cmpMap = {
+                ['===']: this.cmpFns.equal,
+                ['!==']: this.cmpFns.notEqual,
+                ['>']: this.cmpFns.greater,
+                ['>=']: this.cmpFns.greaterEqual,
+                ['<']: this.cmpFns.lesser,
+                ['<=']: this.cmpFns.lesserEqual
+            };
         }
     }
 
@@ -567,172 +411,372 @@
         }
     }
 
-    var name = {
+    var name$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var __user = {
+    var __user$1 = {
     	card: true,
     	group: false,
     	label: true
     };
-    var img = {
+    var img$1 = {
     	card: true,
     	group: false,
     	label: false
     };
-    var cr = {
+    var cr$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var base = {
+    var base$1 = {
     	card: false,
     	group: true,
     	label: true
     };
-    var type = {
+    var type$1 = {
     	card: true,
     	group: false,
     	label: true
     };
-    var hp = {
+    var hp$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var speed = {
+    var speed$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var bag = {
+    var bag$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var atk = {
+    var atk$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var atk_f = {
+    var atk_f$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var atk_p = {
+    var atk_p$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var sp_r = {
+    var sp_r$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var atk_s = {
+    var atk_s$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var rfx = {
+    var rfx$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var will = {
+    var will$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var str = {
+    var str$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var dex = {
+    var dex$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var con = {
+    var con$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var int = {
+    var int$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var wis = {
+    var wis$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var cha = {
+    var cha$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var skills = {
+    var skills$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var feats = {
+    var feats$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var env = {
+    var env$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var org = {
+    var org$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var tre = {
+    var tre$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var algn = {
+    var algn$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var l_adj = {
+    var l_adj$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var notes = {
+    var notes$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var fort = {
+    var fort$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var ac = {
+    var ac$1 = {
     	card: true,
     	group: true,
     	label: true
     };
-    var ini = {
+    var ini$1 = {
     	card: true,
     	group: true,
     	label: true
     };
     var visibility$1 = {
+    	name: name$1,
+    	__user: __user$1,
+    	img: img$1,
+    	cr: cr$1,
+    	base: base$1,
+    	type: type$1,
+    	hp: hp$1,
+    	speed: speed$1,
+    	bag: bag$1,
+    	atk: atk$1,
+    	atk_f: atk_f$1,
+    	atk_p: atk_p$1,
+    	sp_r: sp_r$1,
+    	atk_s: atk_s$1,
+    	rfx: rfx$1,
+    	will: will$1,
+    	str: str$1,
+    	dex: dex$1,
+    	con: con$1,
+    	int: int$1,
+    	wis: wis$1,
+    	cha: cha$1,
+    	skills: skills$1,
+    	feats: feats$1,
+    	env: env$1,
+    	org: org$1,
+    	tre: tre$1,
+    	algn: algn$1,
+    	l_adj: l_adj$1,
+    	notes: notes$1,
+    	fort: fort$1,
+    	ac: ac$1,
+    	ini: ini$1
+    };
+
+    var name = {
+    	group: "First Letter",
+    	long: "Name",
+    	short: "Name"
+    };
+    var __user = {
+    	long: "Your Creatures",
+    	group: "Your Creatures"
+    };
+    var img = {
+    	long: "Image URL",
+    	short: "Img",
+    	group: "Image URL"
+    };
+    var cr = {
+    	long: "Challenge Rating",
+    	short: "CR",
+    	group: "Challenge Rating"
+    };
+    var base = {
+    	long: "Base",
+    	short: "Base",
+    	group: "Base"
+    };
+    var type = {
+    	long: "Type",
+    	short: "Type",
+    	group: "Type"
+    };
+    var hp = {
+    	long: "Hit Points",
+    	short: "HP",
+    	group: "Hit Points"
+    };
+    var speed = {
+    	long: "Speed",
+    	short: "Spd",
+    	group: "Speed"
+    };
+    var bag = {
+    	long: "Base Attack/Grapple",
+    	short: "BA/G",
+    	group: "Base Attack/Grapple"
+    };
+    var atk = {
+    	long: "Attack",
+    	short: "Atk",
+    	group: "Attack"
+    };
+    var atk_f = {
+    	long: "Full Attack",
+    	short: "Full Atk",
+    	group: "Full Attack"
+    };
+    var atk_p = {
+    	long: "Attack Parameters",
+    	short: "Atk Params",
+    	group: "Attack Parameters"
+    };
+    var sp_r = {
+    	long: "Space/Reach",
+    	short: "Sp/Re",
+    	group: "Space/Reach"
+    };
+    var atk_s = {
+    	long: "Special Attacks",
+    	short: "Sp Atk",
+    	group: "Special Attacks"
+    };
+    var rfx = {
+    	long: "Reflex",
+    	short: "Rfx",
+    	group: "Reflex"
+    };
+    var will = {
+    	long: "Will",
+    	short: "Wil",
+    	group: "Will"
+    };
+    var str = {
+    	long: "Strength",
+    	short: "Str",
+    	group: "Strength"
+    };
+    var dex = {
+    	long: "Dexterity",
+    	short: "Dex",
+    	group: "Dexterity"
+    };
+    var con = {
+    	long: "Constitution",
+    	short: "Con",
+    	group: "Constitution"
+    };
+    var int = {
+    	long: "Intelligence",
+    	short: "Int",
+    	group: "Intelligence"
+    };
+    var wis = {
+    	long: "Wisdom",
+    	short: "Wis",
+    	group: "Wisdom"
+    };
+    var cha = {
+    	long: "Charisma",
+    	short: "Cha",
+    	group: "Charisma"
+    };
+    var skills = {
+    	long: "Skills",
+    	short: "Skills",
+    	group: "Skills"
+    };
+    var feats = {
+    	long: "Feats",
+    	short: "Feats",
+    	group: "Feats"
+    };
+    var env = {
+    	long: "Environment",
+    	short: "Env",
+    	group: "Environment"
+    };
+    var org = {
+    	long: "Organization",
+    	short: "Org",
+    	group: "Organization"
+    };
+    var tre = {
+    	long: "Treasure",
+    	short: "Treas",
+    	group: "Treasure"
+    };
+    var algn = {
+    	long: "Alignment",
+    	short: "Algn",
+    	group: "Alignment"
+    };
+    var l_adj = {
+    	long: "Level Adjustment",
+    	short: "L Adj",
+    	group: "Level Adjustment"
+    };
+    var notes = {
+    	long: "Notes",
+    	short: "Notes",
+    	group: "Notes"
+    };
+    var fort = {
+    	long: "Fortitude",
+    	short: "Fort",
+    	group: "Fortitude"
+    };
+    var ac = {
+    	long: "Armor Class",
+    	short: "AC",
+    	group: "Armor Class"
+    };
+    var ini = {
+    	long: "Initiative",
+    	short: "Ini",
+    	group: "Initiative"
+    };
+    var labels$1 = {
     	name: name,
     	__user: __user,
     	img: img,
@@ -815,75 +859,41 @@
         }
     }
 
-    var css = {
-    	entryPoint: "src/css/main.css",
-    	"public": "public/css/main.css"
+    var cssProps$1 = {
+    	":root": {
+    	"--c-color": "hsl(0, 0%, 0%)",
+    	"--c-card-font": "\"Della Respira\", serif",
+    	"--c-bg-h": "45",
+    	"--c-bg-s": "93%",
+    	"--c-bg-l": "89%",
+    	"--c-bg-pattern": "url(../media/patterns/backgrounds/light-rocky-wall.png)",
+    	"--c-border-h": "201",
+    	"--c-border-s": "39%",
+    	"--c-border-l": "24%",
+    	"--c-border-pattern": "url(../media/patterns/borders/crosshatch-2.png)",
+    	"--c-box-shadow-color": "hsl(0, 0%, 0%, 0.4)",
+    	"--c-badge-font": "\"Della Respira\", serif",
+    	"--c-badge-h": "168",
+    	"--c-badge-s": "22%",
+    	"--c-badge-l": "63%",
+    	"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
+    	"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
+    	"--c-button-color": "var(--text-color)",
+    	"--c-card-font-size": "1.1rem",
+    	"--c-badge-font-size": "1.5rem"
+    }
     };
-    var cssProps$2 = {
-    	src: "src/css/inc/card-defs.css",
-    	target: "src/data/css-props.json"
-    };
-    var fonts$1 = {
-    	src: "src/data/raw/fonts.txt",
-    	target: "src/data/fonts.json"
-    };
-    var backgrounds$1 = {
-    	src: "public/media/patterns/backgrounds",
-    	target: "src/data/backgrounds.json"
-    };
-    var borders$1 = {
-    	src: "public/media/patterns/borders",
-    	target: "src/data/borders.json"
-    };
-    var characters = {
-    	src: "src/data/raw/monsters.json",
-    	target: "public/js/characters.json"
-    };
-    var fields = {
-    	src: "src/config/field-config.yml"
-    };
-    var labels = {
-    	target: "src/data/labels.json"
-    };
-    var visibility = {
-    	target: "src/data/visibility.json"
-    };
-    var js = {
-    	entryPoint: "src/js/app/main.js",
-    	"public": "public/js/main.js"
-    };
-    var storageKeys = {
-    	user: "gc-user-prefs",
-    	cards: "gc-cards",
-    	tabs: "gc-tabs"
-    };
-    var userCharacters = {
-    	inLibrary: true
-    };
-    var config = {
-    	css: css,
-    	cssProps: cssProps$2,
-    	fonts: fonts$1,
-    	backgrounds: backgrounds$1,
-    	borders: borders$1,
-    	characters: characters,
-    	fields: fields,
-    	labels: labels,
-    	visibility: visibility,
-    	js: js,
-    	storageKeys: storageKeys,
-    	userCharacters: userCharacters
-    };
-
-    const settings = new Tree({
-        data: config
-    });
 
     let tabStore;
     let systemStore;
     let cardStore;
     let copyStore;
+    let prefStore;
+    let styleStore;
+    let settings;
+    let labelStore;
     const initStorage = launchData => {
+        settings = launchData.settings;
         tabStore = new TabTree({
             data: launchData.tabs,
             lsKey: settings.get('storageKeys.tabs')
@@ -899,8 +909,15 @@
         copyStore = new CharTree({
             minIncrement: 6000
         });
-        new CharTree({
-            minIncrement: 9000
+        prefStore = new Tree({
+            data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user')) || {}),
+            lsKey: settings.get('storageKeys.user')
+        });
+        styleStore = new Tree({
+            data: cssProps$1[':root']
+        });
+        labelStore = new Tree({
+            data: labels$1
         });
     };
 
@@ -910,16 +927,16 @@
         }
         switch (groupBy) {
             case '__user':
-                entry._groupValue = labels$1.__user.group;
-                entry._groupLabel = labels$1.__user.group;
+                entry._groupValue = labelStore.get('__user.group');
+                entry._groupLabel = labelStore.get('__user.group');
                 break;
             case 'name':
                 entry._groupValue = entry.props.name.charAt(0).toUpperCase();
-                entry._groupLabel = `${labels$1[groupBy].group}: ${entry._groupValue}`;
+                entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry._groupValue;
                 break
             default:
                 entry._groupValue = entry.props[groupBy];
-                entry._groupLabel = `${labels$1[groupBy].group}: ${entry.props[groupBy]}`;
+                entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry.props[groupBy];
         }
         return entry;
     };
@@ -947,12 +964,6 @@
     var characterProvider = {
         getSortedCharacters
     };
-
-    const lsKey = settings.get('storageKeys.user');
-    const userPrefs = new Tree({
-        data: JSON.parse(localStorage.getItem(lsKey) || {}),
-        lsKey
-    });
 
     const on = function(types, action)  {
         if (typeof types === 'string') {
@@ -1071,10 +1082,10 @@
                     return character;
                 })());
             });
-            this.sortBy = userPrefs.get('characters.sortBy') || this.sortBy || 'name';
-            this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
-            this.sortDir = userPrefs.get('characters.sortDir') || this.sortDir || 'asc';
-            this.groupDir = userPrefs.get('characters.groupDir') || this.groupDir || 'asc';
+            this.sortBy = prefStore.get('characters.sortBy') || this.sortBy || 'name';
+            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
+            this.sortDir = prefStore.get('characters.sortDir') || this.sortDir || 'asc';
+            this.groupDir = prefStore.get('characters.groupDir') || this.groupDir || 'asc';
             this.populate();
         }
         constructor(self) {
@@ -1092,12 +1103,12 @@
             return self;
         }
     }
-    const register$i = app => {
+    const register$j = app => {
         CharacterLibrary.prototype.app = app;
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$i
+        register: register$j
     };
 
     class LibraryOrganizer extends HTMLElement {
@@ -1109,19 +1120,19 @@
         }
         connectedCallback() {
             this.on('pointerdown', e => {
-                if(e.button !== 0){
+                if (e.button !== 0) {
                     return true;
                 }
                 const li = e.target.closest('li');
                 if (!li) {
                     return false;
                 }
-                userPrefs.set('characters.groupBy', li.dataset.groupBy);
+                prefStore.set('characters.groupBy', li.dataset.groupBy);
                 this.app.trigger('characterOrderChange', {
                     groupBy: li.dataset.groupBy
                 });
             });
-            this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
+            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
             const icon = src.svg({
                 isSvg: true,
                 content: src.use({
@@ -1139,8 +1150,8 @@
             });
             const list = src.ul();
             box.append(title, list);
-            for (let [key, value] of Object.entries(labels$1)) {
-                if(!visibility$1[key].group){
+            for (let [key, value] of labelStore.entries()) {
+                if (!visibility$1[key].group) {
                     continue;
                 }
                 let classNames = key === this.groupBy ? ['active'] : [];
@@ -1161,19 +1172,19 @@
             return self;
         }
     }
-    const register$h = app => {
+    const register$i = app => {
         LibraryOrganizer.prototype.app = app;
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
-        register: register$h
+        register: register$i
     };
 
     const set$1 = (key, value, target) => {
         target = target || document.body;
         target.dataset[key] = value;
     };
-    const get$1 = (key, target) => {
+    const get = (key, target) => {
         target = target || document.body;
         if (typeof target.dataset[key] === 'undefined') {
             return false;
@@ -1181,7 +1192,7 @@
         return JSON.parse(target.dataset[key]);
     };
     const toggle$1 = (key, target) => {
-        set$1(key, !get$1(key, target), target);
+        set$1(key, !get(key, target), target);
     };
     const unset = (key, target) => {
         target = target || document.body;
@@ -1189,7 +1200,7 @@
     };
     var properties = {
         unset,
-        get: get$1,
+        get,
         set: set$1,
         toggle: toggle$1
     };
@@ -1277,7 +1288,7 @@
         if (tabData === 'active') {
             return activeTab;
         }
-        if (tabData instanceof HTMLElement) {
+        if (tabData instanceof customElements.get('tab-handle')) {
             return tabData
         }
         return src.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
@@ -1306,6 +1317,7 @@
             tab[key] = value;
             tab.panel[key] = value;
         }
+        tab.panel.removeAttribute('title');
         contentArea.append(tab.panel);
         if (previousTab) {
             previousTab.after(tab);
@@ -1455,12 +1467,12 @@
             return self;
         }
     }
-    const register$g = app => {
+    const register$h = app => {
         TabNavi.prototype.app = app;
         customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
     };
     var TabNavi$1 = {
-        register: register$g
+        register: register$h
     };
 
     let firstRegistration = true;
@@ -1505,7 +1517,7 @@
     const unregister = owner => {
         owner.contextMenu.remove();
     };
-    const register$f = (owner, menu) => {
+    const register$g = (owner, menu) => {
         init$1();
         menu.setAttribute('aria-role', 'menu');
         menu.dataset.type = 'context-menu';
@@ -1525,17 +1537,113 @@
         return menu;
     };
     var contextMenu$1 = {
-        register: register$f,
+        register: register$g,
         unregister
     };
 
-    class TabHandle extends HTMLElement {
-        sanitize(text) {
-            return new DOMParser()
-                .parseFromString(text, 'text/html').body.textContent
-                .replace(/\s+/g, ' ')
-                .substring(0, 30);
+    const defaultDiacriticsRemovalMap = [
+        { 'base': 'A', 'letters': '\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F' },
+        { 'base': 'AA', 'letters': '\uA732' },
+        { 'base': 'AE', 'letters': '\u00C6\u01FC\u01E2' },
+        { 'base': 'AO', 'letters': '\uA734' },
+        { 'base': 'AU', 'letters': '\uA736' },
+        { 'base': 'AV', 'letters': '\uA738\uA73A' },
+        { 'base': 'AY', 'letters': '\uA73C' },
+        { 'base': 'B', 'letters': '\u0042\u24B7\uFF22\u1E02\u1E04\u1E06\u0243\u0182\u0181' },
+        { 'base': 'C', 'letters': '\u0043\u24B8\uFF23\u0106\u0108\u010A\u010C\u00C7\u1E08\u0187\u023B\uA73E' },
+        { 'base': 'D', 'letters': '\u0044\u24B9\uFF24\u1E0A\u010E\u1E0C\u1E10\u1E12\u1E0E\u0110\u018B\u018A\u0189\uA779\u00D0' },
+        { 'base': 'DZ', 'letters': '\u01F1\u01C4' },
+        { 'base': 'Dz', 'letters': '\u01F2\u01C5' },
+        { 'base': 'E', 'letters': '\u0045\u24BA\uFF25\u00C8\u00C9\u00CA\u1EC0\u1EBE\u1EC4\u1EC2\u1EBC\u0112\u1E14\u1E16\u0114\u0116\u00CB\u1EBA\u011A\u0204\u0206\u1EB8\u1EC6\u0228\u1E1C\u0118\u1E18\u1E1A\u0190\u018E' },
+        { 'base': 'F', 'letters': '\u0046\u24BB\uFF26\u1E1E\u0191\uA77B' },
+        { 'base': 'G', 'letters': '\u0047\u24BC\uFF27\u01F4\u011C\u1E20\u011E\u0120\u01E6\u0122\u01E4\u0193\uA7A0\uA77D\uA77E' },
+        { 'base': 'H', 'letters': '\u0048\u24BD\uFF28\u0124\u1E22\u1E26\u021E\u1E24\u1E28\u1E2A\u0126\u2C67\u2C75\uA78D' },
+        { 'base': 'I', 'letters': '\u0049\u24BE\uFF29\u00CC\u00CD\u00CE\u0128\u012A\u012C\u0130\u00CF\u1E2E\u1EC8\u01CF\u0208\u020A\u1ECA\u012E\u1E2C\u0197' },
+        { 'base': 'J', 'letters': '\u004A\u24BF\uFF2A\u0134\u0248' },
+        { 'base': 'K', 'letters': '\u004B\u24C0\uFF2B\u1E30\u01E8\u1E32\u0136\u1E34\u0198\u2C69\uA740\uA742\uA744\uA7A2' },
+        { 'base': 'L', 'letters': '\u004C\u24C1\uFF2C\u013F\u0139\u013D\u1E36\u1E38\u013B\u1E3C\u1E3A\u0141\u023D\u2C62\u2C60\uA748\uA746\uA780' },
+        { 'base': 'LJ', 'letters': '\u01C7' },
+        { 'base': 'Lj', 'letters': '\u01C8' },
+        { 'base': 'M', 'letters': '\u004D\u24C2\uFF2D\u1E3E\u1E40\u1E42\u2C6E\u019C' },
+        { 'base': 'N', 'letters': '\u004E\u24C3\uFF2E\u01F8\u0143\u00D1\u1E44\u0147\u1E46\u0145\u1E4A\u1E48\u0220\u019D\uA790\uA7A4' },
+        { 'base': 'NJ', 'letters': '\u01CA' },
+        { 'base': 'Nj', 'letters': '\u01CB' },
+        { 'base': 'O', 'letters': '\u004F\u24C4\uFF2F\u00D2\u00D3\u00D4\u1ED2\u1ED0\u1ED6\u1ED4\u00D5\u1E4C\u022C\u1E4E\u014C\u1E50\u1E52\u014E\u022E\u0230\u00D6\u022A\u1ECE\u0150\u01D1\u020C\u020E\u01A0\u1EDC\u1EDA\u1EE0\u1EDE\u1EE2\u1ECC\u1ED8\u01EA\u01EC\u00D8\u01FE\u0186\u019F\uA74A\uA74C' },
+        { 'base': 'OI', 'letters': '\u01A2' },
+        { 'base': 'OO', 'letters': '\uA74E' },
+        { 'base': 'OU', 'letters': '\u0222' },
+        { 'base': 'OE', 'letters': '\u008C\u0152' },
+        { 'base': 'oe', 'letters': '\u009C\u0153' },
+        { 'base': 'P', 'letters': '\u0050\u24C5\uFF30\u1E54\u1E56\u01A4\u2C63\uA750\uA752\uA754' },
+        { 'base': 'Q', 'letters': '\u0051\u24C6\uFF31\uA756\uA758\u024A' },
+        { 'base': 'R', 'letters': '\u0052\u24C7\uFF32\u0154\u1E58\u0158\u0210\u0212\u1E5A\u1E5C\u0156\u1E5E\u024C\u2C64\uA75A\uA7A6\uA782' },
+        { 'base': 'S', 'letters': '\u0053\u24C8\uFF33\u1E9E\u015A\u1E64\u015C\u1E60\u0160\u1E66\u1E62\u1E68\u0218\u015E\u2C7E\uA7A8\uA784' },
+        { 'base': 'T', 'letters': '\u0054\u24C9\uFF34\u1E6A\u0164\u1E6C\u021A\u0162\u1E70\u1E6E\u0166\u01AC\u01AE\u023E\uA786' },
+        { 'base': 'TZ', 'letters': '\uA728' },
+        { 'base': 'U', 'letters': '\u0055\u24CA\uFF35\u00D9\u00DA\u00DB\u0168\u1E78\u016A\u1E7A\u016C\u00DC\u01DB\u01D7\u01D5\u01D9\u1EE6\u016E\u0170\u01D3\u0214\u0216\u01AF\u1EEA\u1EE8\u1EEE\u1EEC\u1EF0\u1EE4\u1E72\u0172\u1E76\u1E74\u0244' },
+        { 'base': 'V', 'letters': '\u0056\u24CB\uFF36\u1E7C\u1E7E\u01B2\uA75E\u0245' },
+        { 'base': 'VY', 'letters': '\uA760' },
+        { 'base': 'W', 'letters': '\u0057\u24CC\uFF37\u1E80\u1E82\u0174\u1E86\u1E84\u1E88\u2C72' },
+        { 'base': 'X', 'letters': '\u0058\u24CD\uFF38\u1E8A\u1E8C' },
+        { 'base': 'Y', 'letters': '\u0059\u24CE\uFF39\u1EF2\u00DD\u0176\u1EF8\u0232\u1E8E\u0178\u1EF6\u1EF4\u01B3\u024E\u1EFE' },
+        { 'base': 'Z', 'letters': '\u005A\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762' },
+        { 'base': 'a', 'letters': '\u0061\u24D0\uFF41\u1E9A\u00E0\u00E1\u00E2\u1EA7\u1EA5\u1EAB\u1EA9\u00E3\u0101\u0103\u1EB1\u1EAF\u1EB5\u1EB3\u0227\u01E1\u00E4\u01DF\u1EA3\u00E5\u01FB\u01CE\u0201\u0203\u1EA1\u1EAD\u1EB7\u1E01\u0105\u2C65\u0250' },
+        { 'base': 'aa', 'letters': '\uA733' },
+        { 'base': 'ae', 'letters': '\u00E6\u01FD\u01E3' },
+        { 'base': 'ao', 'letters': '\uA735' },
+        { 'base': 'au', 'letters': '\uA737' },
+        { 'base': 'av', 'letters': '\uA739\uA73B' },
+        { 'base': 'ay', 'letters': '\uA73D' },
+        { 'base': 'b', 'letters': '\u0062\u24D1\uFF42\u1E03\u1E05\u1E07\u0180\u0183\u0253' },
+        { 'base': 'c', 'letters': '\u0063\u24D2\uFF43\u0107\u0109\u010B\u010D\u00E7\u1E09\u0188\u023C\uA73F\u2184' },
+        { 'base': 'd', 'letters': '\u0064\u24D3\uFF44\u1E0B\u010F\u1E0D\u1E11\u1E13\u1E0F\u0111\u018C\u0256\u0257\uA77A' },
+        { 'base': 'dz', 'letters': '\u01F3\u01C6' },
+        { 'base': 'e', 'letters': '\u0065\u24D4\uFF45\u00E8\u00E9\u00EA\u1EC1\u1EBF\u1EC5\u1EC3\u1EBD\u0113\u1E15\u1E17\u0115\u0117\u00EB\u1EBB\u011B\u0205\u0207\u1EB9\u1EC7\u0229\u1E1D\u0119\u1E19\u1E1B\u0247\u025B\u01DD' },
+        { 'base': 'f', 'letters': '\u0066\u24D5\uFF46\u1E1F\u0192\uA77C' },
+        { 'base': 'g', 'letters': '\u0067\u24D6\uFF47\u01F5\u011D\u1E21\u011F\u0121\u01E7\u0123\u01E5\u0260\uA7A1\u1D79\uA77F' },
+        { 'base': 'h', 'letters': '\u0068\u24D7\uFF48\u0125\u1E23\u1E27\u021F\u1E25\u1E29\u1E2B\u1E96\u0127\u2C68\u2C76\u0265' },
+        { 'base': 'hv', 'letters': '\u0195' },
+        { 'base': 'i', 'letters': '\u0069\u24D8\uFF49\u00EC\u00ED\u00EE\u0129\u012B\u012D\u00EF\u1E2F\u1EC9\u01D0\u0209\u020B\u1ECB\u012F\u1E2D\u0268\u0131' },
+        { 'base': 'j', 'letters': '\u006A\u24D9\uFF4A\u0135\u01F0\u0249' },
+        { 'base': 'k', 'letters': '\u006B\u24DA\uFF4B\u1E31\u01E9\u1E33\u0137\u1E35\u0199\u2C6A\uA741\uA743\uA745\uA7A3' },
+        { 'base': 'l', 'letters': '\u006C\u24DB\uFF4C\u0140\u013A\u013E\u1E37\u1E39\u013C\u1E3D\u1E3B\u017F\u0142\u019A\u026B\u2C61\uA749\uA781\uA747' },
+        { 'base': 'lj', 'letters': '\u01C9' },
+        { 'base': 'm', 'letters': '\u006D\u24DC\uFF4D\u1E3F\u1E41\u1E43\u0271\u026F' },
+        { 'base': 'n', 'letters': '\u006E\u24DD\uFF4E\u01F9\u0144\u00F1\u1E45\u0148\u1E47\u0146\u1E4B\u1E49\u019E\u0272\u0149\uA791\uA7A5' },
+        { 'base': 'nj', 'letters': '\u01CC' },
+        { 'base': 'o', 'letters': '\u006F\u24DE\uFF4F\u00F2\u00F3\u00F4\u1ED3\u1ED1\u1ED7\u1ED5\u00F5\u1E4D\u022D\u1E4F\u014D\u1E51\u1E53\u014F\u022F\u0231\u00F6\u022B\u1ECF\u0151\u01D2\u020D\u020F\u01A1\u1EDD\u1EDB\u1EE1\u1EDF\u1EE3\u1ECD\u1ED9\u01EB\u01ED\u00F8\u01FF\u0254\uA74B\uA74D\u0275' },
+        { 'base': 'oi', 'letters': '\u01A3' },
+        { 'base': 'ou', 'letters': '\u0223' },
+        { 'base': 'oo', 'letters': '\uA74F' },
+        { 'base': 'p', 'letters': '\u0070\u24DF\uFF50\u1E55\u1E57\u01A5\u1D7D\uA751\uA753\uA755' },
+        { 'base': 'q', 'letters': '\u0071\u24E0\uFF51\u024B\uA757\uA759' },
+        { 'base': 'r', 'letters': '\u0072\u24E1\uFF52\u0155\u1E59\u0159\u0211\u0213\u1E5B\u1E5D\u0157\u1E5F\u024D\u027D\uA75B\uA7A7\uA783' },
+        { 'base': 's', 'letters': '\u0073\u24E2\uFF53\u00DF\u015B\u1E65\u015D\u1E61\u0161\u1E67\u1E63\u1E69\u0219\u015F\u023F\uA7A9\uA785\u1E9B' },
+        { 'base': 't', 'letters': '\u0074\u24E3\uFF54\u1E6B\u1E97\u0165\u1E6D\u021B\u0163\u1E71\u1E6F\u0167\u01AD\u0288\u2C66\uA787' },
+        { 'base': 'tz', 'letters': '\uA729' },
+        { 'base': 'u', 'letters': '\u0075\u24E4\uFF55\u00F9\u00FA\u00FB\u0169\u1E79\u016B\u1E7B\u016D\u00FC\u01DC\u01D8\u01D6\u01DA\u1EE7\u016F\u0171\u01D4\u0215\u0217\u01B0\u1EEB\u1EE9\u1EEF\u1EED\u1EF1\u1EE5\u1E73\u0173\u1E77\u1E75\u0289' },
+        { 'base': 'v', 'letters': '\u0076\u24E5\uFF56\u1E7D\u1E7F\u028B\uA75F\u028C' },
+        { 'base': 'vy', 'letters': '\uA761' },
+        { 'base': 'w', 'letters': '\u0077\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73' },
+        { 'base': 'x', 'letters': '\u0078\u24E7\uFF58\u1E8B\u1E8D' },
+        { 'base': 'y', 'letters': '\u0079\u24E8\uFF59\u1EF3\u00FD\u0177\u1EF9\u0233\u1E8F\u00FF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF' },
+        { 'base': 'z', 'letters': '\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763' }
+    ];
+    let diacriticsMap = {};
+    for (var i = 0; i < defaultDiacriticsRemovalMap.length; i++) {
+        var letters = defaultDiacriticsRemovalMap[i].letters;
+        for (var j = 0; j < letters.length; j++) {
+            diacriticsMap[letters[j]] = defaultDiacriticsRemovalMap[i].base;
         }
+    }
+
+    const sanitizeText = text => {
+        return new DOMParser()
+            .parseFromString(text, 'text/html').body.textContent
+            .replace(/\s+/g, ' ');
+    };
+
+    class TabHandle extends HTMLElement {
         makeEditable() {
             let selection = window.getSelection();
             selection.removeAllRanges();
@@ -1573,7 +1681,7 @@
                 events: {
                     blur: e => {
                         this.label.contentEditable = false;
-                        this.label.textContent = this.sanitize(this.label.textContent);
+                        this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
                         this.title = this.label.textContent.trim();
                         tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
                         e.detail.tab;
@@ -1581,9 +1689,9 @@
                     paste: e => {
                         e.preventDefault();
                         if (this.label.contentEditable === true) {
-                            this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
+                            this.label.textContent = sanitizeText(e.clipboardData.getData('text')).substring(0, 30);
                             return true;
-                        }                    if(copyStore.length){
+                        }                    if (copyStore.length) {
                             this.panel.trigger('paste');
                         }
                     },
@@ -1626,12 +1734,12 @@
             return self;
         }
     }
-    const register$e = app => {
+    const register$f = app => {
         TabHandle.prototype.app = app;
         customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
     };
     var TabHandle$1 = {
-        register: register$e
+        register: register$f
     };
 
     class TabContent extends HTMLElement {
@@ -1647,12 +1755,12 @@
             return self;
         }
     }
-    const register$d = app => {
+    const register$e = app => {
         TabContent.prototype.app = app;
         customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
     };
     var TabContent$1 = {
-        register: register$d
+        register: register$e
     };
 
     const deepClone = obj => {
@@ -1792,6 +1900,7 @@
         copy.originalCard = original;
         copy.cid = copyStore.nextIncrement();
         copyStore.set(copy.cid, copy);
+        properties.set('cardStorage', true);
     };
     const cut = element => {
         set(element, 'cut');
@@ -1812,6 +1921,7 @@
         });
         clear(tab.app);
         copyStore.flush();
+        properties.unset('cardStorage');
     };
     const clear = app => {
         const lastCopied = src.$('card-base.cut, card-base.copy', app);
@@ -1846,16 +1956,17 @@
             return self;
         }
     }
-    const register$c = app => {
+    const register$d = app => {
         TabPanel.prototype.app = app;
         customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel);
     };
     var TabPanel$1 = {
-        register: register$c
+        register: register$d
     };
 
     class TabMenu extends HTMLElement {
         connectedCallback() {
+            const tab = tabManager.getTab(this.owner);
             const menu = src.ul({
                 content: [
                     src.li({
@@ -1865,13 +1976,16 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.app.styleStorage = this.owner.styles;
+                                this.app.styleStorage = tab.styles;
                                 properties.set('styleStorage', true);
                             }
                         },
                     }),
                     src.li({
                         classNames: ['storage-dependent'],
+                        data: {
+                            storage: 'style'
+                        },
                         content: 'Paste card style',
                         events: {
                             pointerup: e => {
@@ -1879,7 +1993,7 @@
                                     return true;
                                 }
                                 this.app.trigger('tabStyleChange', {
-                                    tab: this.owner,
+                                    tab,
                                     styles: this.app.styleStorage
                                 });
                             }
@@ -1893,7 +2007,7 @@
                                     return true;
                                 }
                                 this.app.trigger('styleReset', {
-                                    tab: this.owner
+                                    tab
                                 });
                             }
                         },
@@ -1901,13 +2015,16 @@
                     src.li({
                         classNames: ['context-separator','storage-dependent'],
                         content: 'Paste card',
+                        data: {
+                            storage: 'card'
+                        },
                         events: {
                             pointerup: e => {
                                 if (e.button !== 0) {
                                     return true;
                                 }
                                 this.app.trigger('cardPaste', {
-                                    tab: this.owner,
+                                    tab,
                                     styles: this.app.cardCopy
                                 });                        }
                         },
@@ -1920,7 +2037,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.owner.makeEditable();
+                                tab.makeEditable();
                             }
                         },
                     }),
@@ -1931,7 +2048,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'soft');
+                                tabManager.handleRemoval(tab, 'soft');
                             }
                         },
                     }),
@@ -1943,7 +2060,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'empty');
+                                tabManager.handleRemoval(tab, 'empty');
                             }
                         },
                     }),
@@ -1955,7 +2072,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'others');
+                                tabManager.handleRemoval(tab, 'others');
                             }
                         },
                     }),
@@ -1967,7 +2084,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'all');
+                                tabManager.handleRemoval(tab, 'all');
                             }
                         },
                     })
@@ -1980,12 +2097,12 @@
             return self;
         }
     }
-    const register$b = app => {
+    const register$c = app => {
         TabMenu.prototype.app = app;
         customElements.get('tab-menu') || customElements['define']('tab-menu', TabMenu);
     };
     var TabMenu$1 = {
-        register: register$b
+        register: register$c
     };
 
     class StyleEditor extends HTMLElement {
@@ -2005,15 +2122,15 @@
             return self;
         }
     }
-    const register$a = app => {
+    const register$b = app => {
         StyleEditor.prototype.app = app;
         customElements.get('style-editor') || customElements['define']('style-editor', StyleEditor);
     };
     var StyleEditor$1 = {
-        register: register$a
+        register: register$b
     };
 
-    var fonts = [
+    var fonts$1 = [
     	{
     		label: "Almendra",
     		id: "almendra",
@@ -2106,45 +2223,6 @@
     	}
     ];
 
-    var cssProps$1 = {
-    	":root": {
-    	"--c-color": "hsl(0, 0%, 0%)",
-    	"--c-card-font": "\"Della Respira\", serif",
-    	"--c-bg-h": "45",
-    	"--c-bg-s": "93%",
-    	"--c-bg-l": "89%",
-    	"--c-bg-pattern": "url(../media/patterns/backgrounds/light-rocky-wall.png)",
-    	"--c-border-h": "201",
-    	"--c-border-s": "39%",
-    	"--c-border-l": "24%",
-    	"--c-border-pattern": "url(../media/patterns/borders/crosshatch-2.png)",
-    	"--c-box-shadow-color": "hsl(0, 0%, 0%, 0.4)",
-    	"--c-badge-font": "\"Della Respira\", serif",
-    	"--c-badge-h": "168",
-    	"--c-badge-s": "22%",
-    	"--c-badge-l": "63%",
-    	"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
-    	"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
-    	"--c-button-color": "var(--text-color)",
-    	"--c-card-font-size": "1.1rem",
-    	"--c-badge-font-size": "1.5rem"
-    }
-    };
-
-    let props = {};
-    for (let values of Object.values(cssProps$1)) {
-        props = {
-            ...props,
-            ...values
-        };
-    }
-    const get = key => {
-        return props[key];
-    };
-    var cssProps = {
-        get
-    };
-
     class FontSelector extends HTMLElement {
         get name() {
             return this.getAttribute('name');
@@ -2157,12 +2235,12 @@
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
             this.styleArea = 'fonts';
-            this.currentFont = cssProps.get(this.name);
+            this.currentFont = styleStore.get(this.name);
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
                 },
-                content: fonts.map(entry => {
+                content: fonts$1.map(entry => {
                     return src.option({
                         attributes: {
                             value: entry.family,
@@ -2193,8 +2271,8 @@
             this.app.on('tabStyleChange', e => {
                 const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
-                    cssProps.get(this.name);
-                selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
+                    styleStore.get(this.name);
+                selector.selectedIndex = fonts$1.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
                 this.selected = value;
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
@@ -2211,12 +2289,12 @@
             return self;
         }
     }
-    const register$9 = app => {
+    const register$a = app => {
         FontSelector.prototype.app = app;
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$9
+        register: register$a
     };
 
     class FontSize extends HTMLElement {
@@ -2248,7 +2326,7 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-size> element`);
             }
-            this.value = parseFloat(cssProps.get(this.name) || 1.4, 10);
+            this.value = parseFloat(styleStore.get(this.name) || 1.4, 10);
             this.styleArea = 'fonts';
             const attributes = {
                 value: this.value,
@@ -2279,7 +2357,7 @@
             this.app.on('tabStyleChange', e => {
                 this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
-                    cssProps.get(this.name);
+                    styleStore.get(this.name);
                 input.value = parseFloat(this.value, 10);
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
@@ -2296,15 +2374,15 @@
             return self;
         }
     }
-    const register$8 = app => {
+    const register$9 = app => {
         FontSize.prototype.app = app;
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$8
+        register: register$9
     };
 
-    var backgrounds = [
+    var backgrounds$1 = [
     	{
     		label: "Dark Ice Age",
     		id: "dark-ice-age",
@@ -2337,7 +2415,7 @@
     	}
     ];
 
-    var borders = [
+    var borders$1 = [
     	{
     		label: "Cloud",
     		id: "cloud",
@@ -2371,8 +2449,8 @@
     ];
 
     const patternPool = {
-        backgrounds,
-        borders
+        backgrounds: backgrounds$1,
+        borders: borders$1
     };
     class PatternSelector extends HTMLElement {
         get value() {
@@ -2403,7 +2481,7 @@
                     return input.value;
                 }
             }
-            return cssProps.get(this.name) || '';
+            return styleStore.get(this.name) || '';
         }
         connectedCallback() {
             if (!this.name) {
@@ -2462,7 +2540,7 @@
             this.app.on('tabStyleChange', e => {
                 this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
-                    cssProps.get(this.name);
+                    styleStore.get(this.name);
                 inputs.find(e => e.value === this.value).checked = true;
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
@@ -2479,12 +2557,12 @@
             return self;
         }
     }
-    const register$7 = app => {
+    const register$8 = app => {
         PatternSelector.prototype.app = app;
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
-        register: register$7
+        register: register$8
     };
 
     const tracksToValueObj = tracks => {
@@ -2683,7 +2761,7 @@
             const pattern = this.name.replace('-color', '-');
             const channels = [];
             ['h', 's', 'l'].forEach(channel => {
-                channels.push(cssProps.get(pattern + channel));
+                channels.push(styleStore.get(pattern + channel));
             });
             return `hsl(${channels.join(' ')})`;
         }
@@ -2757,7 +2835,7 @@
                 ranges.forEach(input => {
                     const formatted = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][input.name] ?
                         e.detail.styles[this.styleArea][input.name] :
-                        cssProps.get(input.name);
+                        styleStore.get(input.name);
                     input.value = parseFloat(formatted, 10);
                     this.app.trigger(`singleStyleChange`, {
                         name: input.name,
@@ -2775,12 +2853,12 @@
             return self;
         }
     }
-    const register$6 = app => {
+    const register$7 = app => {
         ColorSelector.prototype.app = app;
         customElements.get('color-selector') || customElements['define']('color-selector', ColorSelector);
     };
     var ColorSelector$1 = {
-        register: register$6
+        register: register$7
     };
 
     class CardBase extends HTMLElement {
@@ -2876,12 +2954,12 @@
             return self;
         }
     }
-    const register$5 = app => {
+    const register$6 = app => {
         CardBase.prototype.app = app;
         customElements.get('card-base') || customElements['define']('card-base', CardBase);
     };
     var CardBase$1 = {
-        register: register$5
+        register: register$6
     };
 
     let dragSrcEl = null;
@@ -3001,7 +3079,7 @@
                             .map(entry => entry.dataset.key)
                     })()
                 });
-                });
+            });
             return row;
         }
         buildCells(key) {
@@ -3012,6 +3090,12 @@
                 }
                 draggable[action](row);
             }
+            const fieldEvents = {
+                focus: e => handleDraggability(e, 'disable'),
+                blur: e => handleDraggability(e, 'enable'),
+                keyup: e => e.target.textContent = sanitizeText(e.target.textContent),
+                paste: e => e.target.textContent = sanitizeText(e.target.textContent),
+            };
             const entries = {
                 label: src.th({
                     data: {
@@ -3021,10 +3105,7 @@
                         contentEditable: true
                     },
                     content: this.card.character.labels[key],
-                    events: {
-                        focus: e => handleDraggability(e, 'disable'),
-                        blur: e => handleDraggability(e, 'enable')
-                    }
+                    events: fieldEvents
                 }),
                 element: src.td({
                     data: {
@@ -3034,10 +3115,7 @@
                         contentEditable: true
                     },
                     content: this.card.character.props[key],
-                    events: {
-                        focus: e => handleDraggability(e, 'disable'),
-                        blur: e => handleDraggability(e, 'enable')
-                    }
+                    events: fieldEvents
                 }),
                 labelIcon: src.td({
                     data: {
@@ -3089,7 +3167,7 @@
                                 },
                                 content: [
                                     src.th({
-                                        content: labels$1.img.long
+                                        content: labelStore.get('img.long')
                                     }),
                                     src.td({
                                         attributes: {
@@ -3143,12 +3221,12 @@
             return self;
         }
     }
-    const register$4 = app => {
+    const register$5 = app => {
         CardForm.prototype.app = app;
         customElements.get('card-form') || customElements['define']('card-form', CardForm);
     };
     var CardForm$1 = {
-        register: register$4
+        register: register$5
     };
 
     class CardRecto extends HTMLElement {
@@ -3191,12 +3269,12 @@
             return self;
         }
     }
-    const register$3 = app => {
+    const register$4 = app => {
         CardRecto.prototype.app = app;
         customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
     };
     var CardRecto$1 = {
-        register: register$3
+        register: register$4
     };
 
     class CardToolbar extends HTMLElement {
@@ -3321,12 +3399,12 @@
             return self;
         }
     }
-    const register$2 = app => {
+    const register$3 = app => {
         CardToolbar.prototype.app = app;
         customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar);
     };
     var CardToolbar$1 = {
-        register: register$2
+        register: register$3
     };
 
     class CardVerso extends HTMLElement {
@@ -3405,12 +3483,12 @@
             return self;
         }
     }
-    const register$1 = app => {
+    const register$2 = app => {
         CardVerso.prototype.app = app;
         customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
     };
     var CardVerso$1 = {
-        register: register$1
+        register: register$2
     };
 
     class UndoDialog extends HTMLElement {
@@ -3472,21 +3550,185 @@
             return self;
         }
     }
-    const register = () => {
+    const register$1 = () => {
         customElements.get('undo-dialog') || customElements['define']('undo-dialog', UndoDialog);
     };
     var UndoDialog$1 = {
+        register: register$1
+    };
+
+    const getFileName = () => {
+        return `ghastly-creatures-${new Date().toISOString().substring(0,19).replace(/[T\:]/g, '-')}.json`;
+    };
+    const getData = ({
+        cidData,
+        tidData
+    }) => {
+        if (cidData) {
+            let card = cardStore.get(cidData);
+            let tab = tabStore.get(card);
+            return {
+                tabs: {
+                    [tabStore.toTid(tab)]: tab
+                },
+                cards: {
+                    [cardStore.toCid(card)]: card
+                }
+            }
+        }
+        if (tidData) {
+            return {
+                cards: cardStore.object('tid', '===', tabStore.toTid(tidData)),
+            }
+        }
+        return {
+            cards: cardStore.object(),
+            tabs: tabStore.object()
+        }
+    };
+    const getUrl = (fileName, {
+        cidData,
+        tidData
+    } = {}) => {
+        const data = [JSON.stringify(getData({
+            cidData,
+            tidData
+        }))];
+        return URL.createObjectURL(new File(
+            data,
+            fileName, {
+                type: 'application/json',
+            }
+        ))
+    };
+    var exporter = {
+        getFileName,
+        getUrl
+    };
+
+    class ImportExport extends HTMLElement {
+        connectedCallback() {
+            const listing = src.div({
+                content: [
+                    src.a({
+                        attributes: {
+                            download: '',
+                        },
+                        content: 'Export cards',
+                        events: {
+                            click: e => {
+                                const fileName = exporter.getFileName();
+                                e.target.download = fileName;
+                                e.target.href = exporter.getUrl(fileName);
+                                setTimeout(() => {
+                                    e.target.download = '';
+                                    URL.revokeObjectURL(e.target.href);
+                                }, 200);
+                            }
+                        }
+                    }),
+                    src.a({
+                        attributes: {
+                            download: true
+                        },
+                        content: 'Import cards',
+                        events: {
+                            click: e => {
+                                console.log('upload');
+                            }
+                        }
+                    })
+                ]
+            });
+            this.append(listing);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register = () => {
+        customElements.get('import-export') || customElements['define']('import-export', ImportExport);
+    };
+    var ImportExport$1 = {
         register
+    };
+
+    var css = {
+    	entryPoint: "src/css/main.css",
+    	"public": "public/css/main.css"
+    };
+    var cssProps = {
+    	src: "src/css/inc/card-defs.css",
+    	target: "src/data/css-props.json"
+    };
+    var fonts = {
+    	src: "src/data/raw/fonts.txt",
+    	target: "src/data/fonts.json"
+    };
+    var backgrounds = {
+    	src: "public/media/patterns/backgrounds",
+    	target: "src/data/backgrounds.json"
+    };
+    var borders = {
+    	src: "public/media/patterns/borders",
+    	target: "src/data/borders.json"
+    };
+    var characters = {
+    	src: "src/data/raw/monsters.json",
+    	target: "public/js/characters.json",
+    	url: "js/characters.json"
+    };
+    var fields = {
+    	src: "src/config/field-config.yml"
+    };
+    var labels = {
+    	target: "src/data/labels.json"
+    };
+    var visibility = {
+    	target: "src/data/visibility.json"
+    };
+    var js = {
+    	entryPoint: "src/js/app/main.js",
+    	"public": "public/js/main.js"
+    };
+    var storageKeys = {
+    	user: "gc-user-prefs",
+    	cards: "gc-cards",
+    	tabs: "gc-tabs"
+    };
+    var userCharacters = {
+    	inLibrary: true
+    };
+    var config = {
+    	css: css,
+    	cssProps: cssProps,
+    	fonts: fonts,
+    	backgrounds: backgrounds,
+    	borders: borders,
+    	characters: characters,
+    	fields: fields,
+    	labels: labels,
+    	visibility: visibility,
+    	js: js,
+    	storageKeys: storageKeys,
+    	userCharacters: userCharacters
     };
 
     class App extends HTMLElement {
         connectedCallback() {
+            const settings = new Tree({
+                data: config
+            });
             const launchData = {
                 tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs'))) || {},
                 system: {},
-                stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards'))) || {}
+                stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards'))) || {},
+                settings
             };
-            fetch('js/characters.json')
+            fetch(settings.get('characters.url'))
                 .then(response => response.json())
                 .then(data => {
                     data.forEach((props, cid) => {
@@ -3508,6 +3750,7 @@
                     tabManager.init(this);
                     cardManager.init(this);
                     [
+                        ImportExport$1,
                         CharacterLibrary$1,
                         LibraryOrganizer$1,
                         StyleEditor$1,
@@ -3525,7 +3768,7 @@
                         component.register(this);
                     });
                 });
-       }
+        }
         constructor(self) {
             self = super(self);
             self.on = on;

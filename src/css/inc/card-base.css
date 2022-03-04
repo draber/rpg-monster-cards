@@ -26,8 +26,8 @@
 
 card-base {
   display: block;
-  
-  &:not(.editable){
+
+  &:not(.editable) {
     cursor: pointer;
   }
 
@@ -129,25 +129,25 @@ card-base {
     }
     & article {
       height: 100%;
-      gap: 1rem
+      gap: 1rem;
     }
   }
 
-  &.cut {
-    opacity: .6
+  &:focus {
+    outline: 0.4rem var(--hd-color) solid;
   }
 
-  &:focus {
-    outline: .4rem var(--hd-color) solid
+  &.cut {
+    & .card-view {
+      opacity: 0.6;
+    }
   }
 }
 
-
-
 [data-card-state="edit"] {
   & card-base {
-    &:not(.editable){
-      display:none;
+    &:not(.editable) {
+      display: none;
     }
   }
 }

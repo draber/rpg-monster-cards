@@ -7,6 +7,16 @@ class Tree {
         return this.keys().length;
     }
 
+    #getCmpFn(fnName) {
+        if (this.cmpFns[fnName]) {
+            return this.cmpFns[fnName];
+        }
+        if (this.cmpMap[fnName]) {
+            return this.cmpMap[fnName];
+        }
+        throw (`Unknown function ${fnName}`);
+    }
+
     /**
      * Returns a value based on a key, can also be `foo.bar`
      * @param {String} key
@@ -98,17 +108,21 @@ class Tree {
     /**
      * Retrieve all or some data 
      * @param {String} [searchKey] 
-     * @param {Function} [condition] callback function that receives the found value as an argument
+     * @param {String|Function} [cmpFn] Either the name or symbol of one of the built-in callbacks or a function. Arguments are the found value and `expectVal`.
+     * @param {Any} [expectVal] The value to compare to.
      * @returns {Object}
      */
-    object(searchKey = null, condition = null) {
-        if (!searchKey || !(condition instanceof Function)) {
+    object(searchKey = null, cmpFn = null, expectVal = null) { 
+        if (!searchKey || !cmpFn) {
             return this.obj;
+        }
+        if (cmpFn && !(cmpFn instanceof Function)) {
+            cmpFn = this.#getCmpFn(cmpFn);
         }
         const result = {};
         for (let [key, value] of Object.entries(this.obj)) {
             const compVal = this.#get(`${key}.${searchKey}`);
-            if (condition(compVal)) {
+            if (cmpFn(compVal, expectVal)) {
                 result[key] = value;
             }
         }
@@ -118,31 +132,34 @@ class Tree {
     /**
      * Retrieve all or some entries 
      * @param {String} [searchKey] 
-     * @param {Function} [condition] callback function that receives the found value as an argument
+     * @param {String|Function} [cmpFn] Either the name or symbol of one of the built-in callbacks or a function. Arguments are the found value and `expectVal`.
+     * @param {Any} [expectVal] The value to compare to.
      * @returns {Iterator}
      */
-    entries(searchKey = null, condition = null) {
-        return Object.entries(this.object(searchKey, condition));
+    entries(searchKey = null, cmpFn = null, expectVal = null) {
+        return Object.entries(this.object(searchKey, cmpFn, expectVal));
     }
 
     /**
      * Retrieve all or some entries 
      * @param {String} [searchKey] 
-     * @param {Function} [condition] callback function that receives the found value as an argument
+     * @param {String|Function} [cmpFn] Either the name or symbol of one of the built-in callbacks or a function. Arguments are the found value and `expectVal`.
+     * @param {Any} [expectVal] The value to compare to.
      * @returns {Array}
      */
-    values(searchKey = null, condition = null) {
-        return Object.values(this.object(searchKey, condition));
+    values(searchKey = null, cmpFn = null, expectVal = null) {
+        return Object.values(this.object(searchKey, cmpFn, expectVal));
     }
 
     /**
      * Get all or some keys
      * @param {String} [searchKey] 
-     * @param {Function} [condition] callback function that receives the found value as an argument
+     * @param {String|Function} [cmpFn] Either the name or symbol of one of the built-in callbacks or a function. Arguments are the found value and `expectVal`.
+     * @param {Any} [expectVal] The value to compare to.
      * @returns {Array}
      */
-    keys(searchKey = null, condition = null) {
-        return Object.keys(this.object(searchKey, condition));
+    keys(searchKey = null, cmpFn = null, expectVal = null) {
+        return Object.keys(this.object(searchKey, cmpFn, expectVal));
     }
 
     /**
@@ -168,9 +185,45 @@ class Tree {
     constructor({
         data = {},
         lsKey
-    }={}) {
+    } = {}) {
         this.obj = data;
-        this.lsKey = lsKey
+        this.lsKey = lsKey;
+
+        this.cmpFns = {
+            equal: (a, b) => {
+                return a === b;
+            },
+            notEqual: (a, b) => {
+                return a !== b;
+            },
+            greater: (a, b) => {
+                return a > b;
+            },
+            greaterEqual: (a, b) => {
+                return a >= b;
+            },
+            lesser: (a, b) => {
+                return a < b;
+            },
+            lesserEqual: (a, b) => {
+                return a <= b;
+            },
+            instanceof: (a, b) => {
+                return a instanceof b;
+            },
+            typeof: (a, b) => {
+                return typeof a === b;
+            }
+        }
+
+        this.cmpMap = {
+            ['===']: this.cmpFns.equal,
+            ['!==']: this.cmpFns.notEqual,
+            ['>']: this.cmpFns.greater,
+            ['>=']: this.cmpFns.greaterEqual,
+            ['<']: this.cmpFns.lesser,
+            ['<=']: this.cmpFns.lesserEqual
+        }
     }
 }
 

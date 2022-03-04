@@ -1,11 +1,11 @@
 import fn from 'fancy-node';
 import characterProvider from './character-provider.js';
-import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import  {
+import {
+    prefStore,
+    settings,
     systemStore,
     cardStore
 } from '../../storage/storage.js';
-import settings from '../../../modules/settings/settings.js';
 import {
     on,
     trigger
@@ -198,10 +198,10 @@ class CharacterLibrary extends HTMLElement {
         /**
          * Set some healthy defaults
          */
-        this.sortBy = userPrefs.get('characters.sortBy') || this.sortBy || 'name';
-        this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
-        this.sortDir = userPrefs.get('characters.sortDir') || this.sortDir || 'asc';
-        this.groupDir = userPrefs.get('characters.groupDir') || this.groupDir || 'asc';
+        this.sortBy = prefStore.get('characters.sortBy') || this.sortBy || 'name';
+        this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
+        this.sortDir = prefStore.get('characters.sortDir') || this.sortDir || 'asc';
+        this.groupDir = prefStore.get('characters.groupDir') || this.groupDir || 'asc';
 
         this.populate();
     }

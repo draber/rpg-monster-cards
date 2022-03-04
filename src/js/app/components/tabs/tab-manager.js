@@ -56,7 +56,7 @@ const getTab = tabData => {
     if (tabData === 'active') {
         return activeTab;
     }
-    if (tabData instanceof HTMLElement) {
+    if (tabData instanceof customElements.get('tab-handle')) {
         return tabData
     }
     return fn.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
@@ -106,6 +106,7 @@ const createTab = ({
         tab[key] = value;
         tab.panel[key] = value;
     }
+    tab.panel.removeAttribute('title');
     contentArea.append(tab.panel);
 
     if (previousTab) {

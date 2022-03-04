@@ -8,6 +8,7 @@ import {
     deepClone
 } from '../deep-clone/deep-clone.js';
 import cardManager from '../../app/components/character-cards/card-manager.js'
+import properties from '../properties/properties.js';
 
 
 const set = (card, mode) => {
@@ -26,6 +27,7 @@ const set = (card, mode) => {
     copy.cid = copyStore.nextIncrement();
 
     copyStore.set(copy.cid, copy);
+    properties.set('cardStorage', true);
 }
 
 const cut = element => {
@@ -55,6 +57,8 @@ const paste = tab => {
 
     // forget copies
     copyStore.flush();
+
+    properties.unset('cardStorage');
 }
 
 const clear = app => {

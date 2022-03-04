@@ -9,18 +9,14 @@ import {
     tabStore
 } from '../../storage/storage.js';
 import contextMenu from '../../../modules/context-menu/context-menu.js';
+import {
+    sanitizeText
+} from '../../../modules/string/string.js';
 
 /**
  * Custom element containing the list of fonts
  */
 class TabHandle extends HTMLElement {
-
-    sanitize(text) {
-        return new DOMParser()
-            .parseFromString(text, 'text/html').body.textContent
-            .replace(/\s+/g, ' ')
-            .substring(0, 30);
-    }
 
     makeEditable() {
         let selection = window.getSelection();
@@ -87,7 +83,7 @@ class TabHandle extends HTMLElement {
             events: {
                 blur: e => {
                     this.label.contentEditable = false;
-                    this.label.textContent = this.sanitize(this.label.textContent);
+                    this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
                     this.title = this.label.textContent.trim();
                     tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
                     e.detail.tab
@@ -95,11 +91,11 @@ class TabHandle extends HTMLElement {
                 paste: e => {
                     e.preventDefault();
                     if (this.label.contentEditable === true) {
-                        this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
+                        this.label.textContent = sanitizeText(e.clipboardData.getData('text')).substring(0, 30);
                         return true;
                     };
-                    // if it's a card paste it on the panel
-                    if(copyStore.length){
+                    // if it's a card, paste it into the panel
+                    if (copyStore.length) {
                         this.panel.trigger('paste');
                     }
                 },

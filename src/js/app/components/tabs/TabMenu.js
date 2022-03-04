@@ -13,6 +13,9 @@ class TabMenu extends HTMLElement {
      */
     connectedCallback() {
 
+        const tab = tabManager.getTab(this.owner);
+       // const panel = tab.panel;
+
         const menu = fn.ul({
             content: [
                 fn.li({
@@ -22,13 +25,16 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.app.styleStorage = this.owner.styles;
+                            this.app.styleStorage = tab.styles;
                             properties.set('styleStorage', true);
                         }
                     },
                 }),
                 fn.li({
                     classNames: ['storage-dependent'],
+                    data: {
+                        storage: 'style'
+                    },
                     content: 'Paste card style',
                     events: {
                         pointerup: e => {
@@ -36,7 +42,7 @@ class TabMenu extends HTMLElement {
                                 return true;
                             }
                             this.app.trigger('tabStyleChange', {
-                                tab: this.owner,
+                                tab,
                                 styles: this.app.styleStorage
                             });
                         }
@@ -50,7 +56,7 @@ class TabMenu extends HTMLElement {
                                 return true;
                             }
                             this.app.trigger('styleReset', {
-                                tab: this.owner
+                                tab
                             });
                         }
                     },
@@ -58,13 +64,16 @@ class TabMenu extends HTMLElement {
                 fn.li({
                     classNames: ['context-separator','storage-dependent'],
                     content: 'Paste card',
+                    data: {
+                        storage: 'card'
+                    },
                     events: {
                         pointerup: e => {
                             if (e.button !== 0) {
                                 return true;
                             }
                             this.app.trigger('cardPaste', {
-                                tab: this.owner,
+                                tab,
                                 styles: this.app.cardCopy
                             });;
                         }
@@ -78,7 +87,7 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.owner.makeEditable();
+                            tab.makeEditable();
                         }
                     },
                 }),
@@ -89,7 +98,7 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'soft');
+                            tabManager.handleRemoval(tab, 'soft');
                         }
                     },
                 }),
@@ -101,7 +110,7 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'empty');
+                            tabManager.handleRemoval(tab, 'empty');
                         }
                     },
                 }),
@@ -113,7 +122,7 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'others');
+                            tabManager.handleRemoval(tab, 'others');
                         }
                     },
                 }),
@@ -125,7 +134,7 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'all');
+                            tabManager.handleRemoval(tab, 'all');
                         }
                     },
                 })

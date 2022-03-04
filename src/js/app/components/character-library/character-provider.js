@@ -1,8 +1,8 @@
 import sorter from '../../../modules/sorter/sorter.js';
-import labels from '../../../../data/labels.json';
 import {
     systemStore,
-    cardStore
+    cardStore,
+    labelStore
 } from '../../storage/storage.js'
 
 
@@ -18,16 +18,16 @@ const prepareGroupSort = (entry, groupBy) => {
     }
     switch (groupBy) {
         case '__user':
-            entry._groupValue = labels.__user.group;
-            entry._groupLabel = labels.__user.group;
+            entry._groupValue = labelStore.get('__user.group');
+            entry._groupLabel = labelStore.get('__user.group');
             break;
         case 'name':
             entry._groupValue = entry.props.name.charAt(0).toUpperCase();
-            entry._groupLabel = `${labels[groupBy].group}: ${entry._groupValue}`;
+            entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry._groupValue;
             break
         default:
             entry._groupValue = entry.props[groupBy];
-            entry._groupLabel = `${labels[groupBy].group}: ${entry.props[groupBy]}`
+            entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry.props[groupBy]
     }
 
     return entry;

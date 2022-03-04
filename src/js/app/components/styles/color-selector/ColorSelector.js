@@ -1,7 +1,7 @@
 import buildConfig from './configurator.js';
 import format from './format.js';
 import background from './background.js';
-import cssProps from '../../../../modules/cssProps/cssProps.js';
+import { styleStore } from '../../../storage/storage.js';
 import {
     on,
     trigger
@@ -41,7 +41,7 @@ class ColorSelector extends HTMLElement {
         const pattern = this.name.replace('-color', '-');
         const channels = [];
         ['h', 's', 'l'].forEach(channel => {
-            channels.push(cssProps.get(pattern + channel));
+            channels.push(styleStore.get(pattern + channel));
         })
         return `hsl(${channels.join(' ')})`;
     }
@@ -126,7 +126,7 @@ class ColorSelector extends HTMLElement {
             ranges.forEach(input => {
                 const formatted = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][input.name] ?
                     e.detail.styles[this.styleArea][input.name] :
-                    cssProps.get(input.name);
+                    styleStore.get(input.name);
 
                 input.value = parseFloat(formatted, 10);
                 this.app.trigger(`singleStyleChange`, {

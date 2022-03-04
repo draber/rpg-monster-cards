@@ -1,5 +1,7 @@
 import Tree from '../../modules/tree/Tree.js';
 import visibility from '../../../data/visibility.json';
+
+// can't use labelStore (circular dependency)
 import labels from '../../../data/labels.json';
 
 class CharTree extends Tree {

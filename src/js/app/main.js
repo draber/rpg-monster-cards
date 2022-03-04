@@ -16,29 +16,34 @@ import CardRecto from './components/character-cards/CardRecto.js';
 import CardToolbar from './components/character-cards/CardToolbar.js';
 import CardVerso from './components/character-cards/CardVerso.js';
 import UndoDialog from './components/undo-dialog/UndoDialog.js';
+import ImportExport from './components/import-export/ImportExport.js';
 import cardManager from './components/character-cards/card-manager.js';
 import tabManager from './components/tabs/tab-manager.js';
 import {
     on,
     trigger
 } from '../modules/events/eventHandler.js';
+import config from '../../config/config.json';
 import initStorage from './storage/storage.js';
-import settings from '../modules/settings/settings.js';
-
-
+import Tree from '../modules/tree/Tree.js';
 
 class App extends HTMLElement {
 
     connectedCallback() {
 
+        const settings = new Tree({
+            data: config
+        })
+
         const launchData = {
             tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs'))) || {},
             system: {},
-            stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards'))) || {}
+            stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards'))) || {},
+            settings
         }
 
         // load system cards
-        fetch('js/characters.json')
+        fetch(settings.get('characters.url'))
             .then(response => response.json())
             .then(data => {
 
@@ -51,7 +56,7 @@ class App extends HTMLElement {
                 });
 
                 initStorage(launchData);
-                
+
                 // load and initialize components
                 [
                     TabContent,
@@ -69,6 +74,7 @@ class App extends HTMLElement {
                 cardManager.init(this);
 
                 [
+                    ImportExport,
                     CharacterLibrary,
                     LibraryOrganizer,
                     StyleEditor,
@@ -87,7 +93,7 @@ class App extends HTMLElement {
                 })
             });
 
-   }
+    }
     constructor(self) {
         self = super(self);
         self.on = on;
