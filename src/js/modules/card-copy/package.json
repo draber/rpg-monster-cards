@@ -1,0 +1,6 @@
+{
+    "name": "card-copy",
+    "version": "1.0.0",
+    "main": "card-copy.js",
+    "type": "module"
+}

@@ -52,3 +52,9 @@ export const dash = term => {
 export const ucFirst = term => {
     return term.charAt(0).toUpperCase() + term.slice(1);
 }
+
+export const sanitizeText = text => {
+    return new DOMParser()
+        .parseFromString(text, 'text/html').body.textContent
+        .replace(/\s+/g, ' ');
+}

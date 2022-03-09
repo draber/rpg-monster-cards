@@ -16,21 +16,49 @@ import CardRecto from './components/character-cards/CardRecto.js';
 import CardToolbar from './components/character-cards/CardToolbar.js';
 import CardVerso from './components/character-cards/CardVerso.js';
 import UndoDialog from './components/undo-dialog/UndoDialog.js';
+import ImportExport from './components/import-export/ImportExport.js';
+import FileUpload from './components/import-export/FileUpload.js';
 import cardManager from './components/character-cards/card-manager.js';
-import characterStorage from './components/character-library/character-storage.js';
 import tabManager from './components/tabs/tab-manager.js';
 import {
     on,
     trigger
 } from '../modules/events/eventHandler.js';
-
+import config from '../../config/config.json';
+import initStorage from './storage/storage.js';
+import Tree from '../modules/tree/Tree.js';
 
 class App extends HTMLElement {
 
     connectedCallback() {
-        // load characters
-        characterStorage.init()
-            .then(() => {
+
+        const settings = new Tree({
+            data: config
+        })
+
+        const launchData = {
+            tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs')) || '{}'),
+            system: {},
+            stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards')) || '{}'),
+            settings
+        }
+
+        // load system cards
+        fetch(settings.get('characters.url'))
+            .then(response => response.json())
+            .then(data => {
+
+                // add system cards to store
+                data.forEach((props, cid) => {
+                    launchData.system[cid] = {
+                        cid,
+                        props
+                    }
+                });
+
+                initStorage(launchData);
+
+                // load and initialize components
                 [
                     TabContent,
                     TabHandle,
@@ -47,6 +75,8 @@ class App extends HTMLElement {
                 cardManager.init(this);
 
                 [
+                    ImportExport, 
+                    FileUpload,
                     CharacterLibrary,
                     LibraryOrganizer,
                     StyleEditor,
@@ -63,7 +93,7 @@ class App extends HTMLElement {
                 ].forEach(component => {
                     component.register(this);
                 })
-            })
+            });
 
     }
     constructor(self) {

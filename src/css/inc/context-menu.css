@@ -1,5 +1,5 @@
 [data-type="context-menu"] {
-  z-index: 3;
+  z-index: 5;
   position: absolute;
   border: var(--border);
   min-width: 20rem;
@@ -52,14 +52,34 @@
   }
 }
 
-[data-style-storage] {
-  & [data-type="context-menu"] {
-    & li {
-      &.storage-dependent {
+[data-style-storage="true"] {
+  & li {
+    &.storage-dependent {
+      &[data-storage="style"] {
         pointer-events: all;
         opacity: 1;
         cursor: pointer;
       }
+    }
+  }
+}
+
+[data-card-storage="true"] {
+  & li {
+    &.storage-dependent {
+      &[data-storage="card"] {
+        pointer-events: all;
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+[data-card-state="edit"] {
+  & card-base {
+    &:not(.editable) {
+      display: none;
     }
   }
 }

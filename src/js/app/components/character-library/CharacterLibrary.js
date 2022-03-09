@@ -1,8 +1,11 @@
 import fn from 'fancy-node';
 import characterProvider from './character-provider.js';
-import userPrefs from '../../../modules/user-prefs/userPrefs.js';
-import characterStorage from './character-storage.js';
-import settings from '../../../modules/settings/settings.js';
+import {
+    prefStore,
+    settings,
+    systemStore,
+    cardStore
+} from '../../storage/storage.js';
 import {
     on,
     trigger
@@ -123,9 +126,9 @@ class CharacterLibrary extends HTMLElement {
                 },
                 content: [
                     fn.summary({
-                        content: values[0].meta._groupLabel,
+                        content: values[0]._groupLabel,
                         attributes: {
-                            title: values[0].meta._groupLabel
+                            title: values[0]._groupLabel
                         }
                     }),
                     list
@@ -157,7 +160,7 @@ class CharacterLibrary extends HTMLElement {
                         title: value.props.name
                     },
                     data: {
-                        cid: value.meta.cid
+                        cid: value.cid
                     }
                 }))
             })
@@ -184,21 +187,21 @@ class CharacterLibrary extends HTMLElement {
                 return false;
             }
             this.app.trigger('characterSelection', (() => {
-                const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
-                const entry = characterStorage.get(type, parseInt(li.dataset.cid, 10));
-                entry.meta._groupLabel && delete entry.meta._groupLabel;
-                entry.meta._groupValue && delete entry.meta._groupValue;
-                return entry;
+                const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
+                const character = store.getClone(li.dataset.cid);
+                character._groupLabel && delete character._groupLabel;
+                character._groupValue && delete character._groupValue;
+                return character;
             })());
         })
 
         /**
          * Set some healthy defaults
          */
-        this.sortBy = userPrefs.get('characters.sortBy') || this.sortBy || 'name';
-        this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
-        this.sortDir = userPrefs.get('characters.sortDir') || this.sortDir || 'asc';
-        this.groupDir = userPrefs.get('characters.groupDir') || this.groupDir || 'asc';
+        this.sortBy = prefStore.get('characters.sortBy') || this.sortBy || 'name';
+        this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
+        this.sortDir = prefStore.get('characters.sortDir') || this.sortDir || 'asc';
+        this.groupDir = prefStore.get('characters.groupDir') || this.groupDir || 'asc';
 
         this.populate();
     }

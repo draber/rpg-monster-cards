@@ -1,10 +1,12 @@
-import fn from 'fancy-node';
+import exporter from '../../../modules/import-export/exporter.js'
 import tabManager from './tab-manager.js';
 import properties from '../../../modules/properties/properties.js';
+import fn from 'fancy-node';
+import cardCopy from '../../../modules/card-copy/card-copy.js';
 
 
 /**
- * Custom element containing the list of fonts
+ * Custom element, context menu for tabs (handles and panels)
  */
 class TabMenu extends HTMLElement {
     
@@ -13,8 +15,13 @@ class TabMenu extends HTMLElement {
      */
     connectedCallback() {
 
+        // handle for this tab
+        const tab = tabManager.getTab(this.owner);
+
+        // context menu
         const menu = fn.ul({
             content: [
+                // copy card style
                 fn.li({
                     content: 'Copy card style',
                     events: {
@@ -22,13 +29,18 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.app.styleStorage = this.owner.styles;
+                            this.app.styleStorage = tab.styles;
                             properties.set('styleStorage', true);
                         }
                     },
                 }),
+                // paste card style
+                // `storage-dependent` and `data-storage` are use to handle the visibility of the element
                 fn.li({
                     classNames: ['storage-dependent'],
+                    data: {
+                        storage: 'style'
+                    },
                     content: 'Paste card style',
                     events: {
                         pointerup: e => {
@@ -36,12 +48,13 @@ class TabMenu extends HTMLElement {
                                 return true;
                             }
                             this.app.trigger('tabStyleChange', {
-                                tab: this.owner,
+                                tab,
                                 styles: this.app.styleStorage
                             });
                         }
                     },
                 }),
+                // reset card style
                 fn.li({
                     content: 'Reset card style',
                     events: {
@@ -50,26 +63,52 @@ class TabMenu extends HTMLElement {
                                 return true;
                             }
                             this.app.trigger('styleReset', {
-                                tab: this.owner
+                                tab
                             });
                         }
                     },
                 }),
+                // paste a card, `context-separator` adds a border to group the list elements
                 fn.li({
                     classNames: ['context-separator','storage-dependent'],
                     content: 'Paste card',
+                    data: {
+                        storage: 'card'
+                    },
                     events: {
                         pointerup: e => {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.app.trigger('cardPaste', {
-                                tab: this.owner,
-                                styles: this.app.cardCopy
-                            });;
+                            cardCopy.paste(tab);
                         }
                     },
                 }),
+                // export the cards in this tab
+                fn.li({
+                    content: fn.a({
+                        content: 'Export cards from this tab',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                const fileName = exporter.getFileName();
+                                e.target.download = fileName;
+                                console.log(fileName)
+                                e.target.href = exporter.getUrl(fileName, {
+                                    tidData: tab
+                                });
+    
+                                setTimeout(() => {
+                                    e.target.download = '';
+                                    URL.revokeObjectURL(e.target.href);
+                                }, 200)
+                            }
+                        }
+                    })                    
+                }),
+                // rename the tab
                 fn.li({
                     classNames: ['context-separator'],
                     content: 'Rename tab',
@@ -78,10 +117,11 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.owner.makeEditable();
+                            tab.makeEditable();
                         }
                     },
                 }),
+                // close the tab
                 fn.li({
                     content: 'Close tab',
                     events: {
@@ -89,10 +129,11 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'soft');
+                            tabManager.handleRemoval(tab, 'soft');
                         }
                     },
                 }),
+                // close empty tabs
                 fn.li({
                     classNames: ['context-separator'],
                     content: 'Close empty tabs',
@@ -101,10 +142,11 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'empty');
+                            tabManager.handleRemoval(tab, 'empty');
                         }
                     },
                 }),
+                // close other tabs for good
                 fn.li({
                     classNames: ['context-danger'],
                     content: 'Close others permanently',
@@ -113,10 +155,11 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'others');
+                            tabManager.handleRemoval(tab, 'others');
                         }
                     },
                 }),
+                // close all tabs for good
                 fn.li({
                     classNames: ['context-danger'],
                     content: 'Close all permanently',
@@ -125,7 +168,7 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            tabManager.handleRemoval(this.owner, 'all');
+                            tabManager.handleRemoval(tab, 'all');
                         }
                     },
                 })

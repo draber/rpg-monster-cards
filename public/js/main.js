@@ -204,171 +204,402 @@
         sort
     };
 
+    const convertToRoman = num => {
+      const roman = {
+        M: 1000,
+        CM: 900,
+        D: 500,
+        CD: 400,
+        C: 100,
+        XC: 90,
+        L: 50,
+        XL: 40,
+        X: 10,
+        IX: 9,
+        V: 5,
+        IV: 4,
+        I: 1
+      };
+      let str = '';
+      for (let i of Object.keys(roman)) {
+        const q = Math.floor(num / roman[i]);
+        num -= q * roman[i];
+        str += i.repeat(q);
+      }
+      return str;
+    };
+
+    const cmpFns = {
+        equal: (a, b) => {
+            return a === b;
+        },
+        notEqual: (a, b) => {
+            return a !== b;
+        },
+        greater: (a, b) => {
+            return a > b;
+        },
+        greaterEqual: (a, b) => {
+            return a >= b;
+        },
+        lesser: (a, b) => {
+            return a < b;
+        },
+        lesserEqual: (a, b) => {
+            return a <= b;
+        },
+        instanceof: (a, b) => {
+            return a instanceof b;
+        },
+        typeof: (a, b) => {
+            return typeof a === b;
+        },
+        match: (a, b) => {
+            return b.test(a)
+        }
+    };
+    const cmpMap = {
+        ['===']: cmpFns.equal,
+        ['!==']: cmpFns.notEqual,
+        ['>']: cmpFns.greater,
+        ['>=']: cmpFns.greaterEqual,
+        ['<']: cmpFns.lesser,
+        ['<=']: cmpFns.lesserEqual
+    };
+    const getCmpFn = fn => {
+        if(fn instanceof Function){
+            return fn;
+        }
+        if (cmpFns[fn]) {
+            return cmpFns[fn];
+        }
+        if (cmpMap[fn]) {
+            return cmpMap[fn];
+        }
+        throw (`Unknown function ${fn}`);
+    };
+
+    const deepClone = obj => {
+        return !(structuredClone instanceof Function) ? JSON.parse(JSON.stringify(obj)) : structuredClone(obj);
+    };
+
+    const _get = (key, obj) => {
+        const keys = key.toString().split('.');
+        let current = Object.create(obj);
+        for (let token of keys) {
+            if (typeof current[token] === 'undefined') {
+                return undefined;
+            }
+            current = current[token];
+        }
+        return current;
+    };
+    const _entrySatisfies = conditions => {
+        for (let condition of conditions) {
+            if (!condition.fn(condition.value, condition.expected)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    const _expandCondition = (key, condition, obj) => {
+        return {
+            value: _get(`${key}.${condition[0]}`, obj),
+            fn: getCmpFn(condition[1]),
+            expected: condition[2] || null
+        }
+    };
+    class Tree {
+        get length() {
+            return this.keys().length;
+        }
+        flush() {
+            this.obj = {};
+            this.save();
+        }
+        save() {
+            return this.lsKey ? localStorage.setItem(this.lsKey, JSON.stringify(this.object())) : null;
+        }
+        set(key, value) {
+            const keys = key.toString().split('.');
+            const last = keys.pop();
+            let current = this.obj;
+            for (let token of keys) {
+                if (!current[token]) {
+                    current[token] = {};
+                }
+                if (Object.getPrototypeOf(current) !== Object.prototype) {
+                    throw (`${token} is not of the type Object`);
+                }
+                current = current[token];
+            }
+            current[last] = value;
+            this.save();
+            return this;
+        }
+        unset(key) {
+            const keys = key.toString().split('.');
+            const last = keys.pop();
+            let current = this.obj;
+            for (let token of keys) {
+                if (!current[token]) {
+                    current[token] = {};
+                }
+                if (Object.getPrototypeOf(current) !== Object.prototype) {
+                    throw (`${token} is not of the type Object`);
+                }
+                current = current[token];
+            }
+            delete current[last];
+        }
+        get(key) {
+            return _get(key, this.obj);
+        }
+        getClone(key){
+            return deepClone(this.get(key))
+        }
+        where(searchKey, cmpFn, expected = null){
+            return [searchKey, cmpFn, expected];
+        }
+         object(...conditions) {
+            if (!conditions.length || !conditions[0].length) {
+                return this.obj;
+            }
+            const result = {};
+            for (let [key, entry] of Object.entries(this.obj)) {
+                if(_entrySatisfies(conditions.map(cond => _expandCondition(key, cond, this.obj)))){
+                    result[key] = entry;
+                }
+            }
+            return result;
+        }
+        entries(...conditions) {
+            return Object.entries(this.object(conditions));
+        }
+        values(...conditions) {
+            return Object.values(this.object(conditions));
+        }
+        keys(...conditions) {
+            return Object.keys(this.object(conditions));
+        }
+        remove(...keys) {
+            keys.forEach(key => {
+                delete this.obj[key];
+            });
+            this.save();
+        }
+        toJson(pretty = false) {
+            return JSON.stringify(this.obj, null, (pretty ? '\t' : null));
+        }
+        constructor({
+            data = {},
+            lsKey
+        } = {}) {
+            this.obj = data;
+            this.lsKey = lsKey;
+        }
+    }
+
+    class TabTree extends Tree {
+        toTid(tidData) {
+            const tid = tidData.tid || tidData;
+            if (isNaN(tid)) {
+                throw `${tid} is not a valid tab identifier`;
+            }
+            return parseInt(tid, 10);
+        }
+        getBlank() {
+            const tid = this.nextIncrement();
+            return {
+                tid,
+                title: convertToRoman(tid),
+                styles: {}
+            }
+        }
+        remove(...tidData) {
+            super.remove(...tidData.map(e => this.toTid(e)));
+        }
+        nextIncrement() {
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
+            return Math.max(...keys) + 1;
+        }
+        constructor({
+            data = {},
+            lsKey
+        } = {}) {
+            super({
+                data,
+                lsKey
+            });
+        }
+    }
+
     var name$1 = {
-    	group: "First Letter",
-    	long: "Name",
-    	short: "Name"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var __user$1 = {
-    	long: "Your Creatures",
-    	group: "Your Creatures"
+    	card: true,
+    	group: false,
+    	label: true
     };
     var img$1 = {
-    	long: "Image URL",
-    	short: "Img",
-    	group: "Image URL"
+    	card: true,
+    	group: false,
+    	label: false
     };
     var cr$1 = {
-    	long: "Challenge Rating",
-    	short: "CR",
-    	group: "Challenge Rating"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var base$1 = {
-    	long: "Base",
-    	short: "Base",
-    	group: "Base"
+    	card: false,
+    	group: true,
+    	label: true
     };
     var type$1 = {
-    	long: "Type",
-    	short: "Type",
-    	group: "Type"
+    	card: true,
+    	group: false,
+    	label: true
     };
     var hp$1 = {
-    	long: "Hit Points",
-    	short: "HP",
-    	group: "Hit Points"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var speed$1 = {
-    	long: "Speed",
-    	short: "Spd",
-    	group: "Speed"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var bag$1 = {
-    	long: "Base Attack/Grapple",
-    	short: "BA/G",
-    	group: "Base Attack/Grapple"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var atk$1 = {
-    	long: "Attack",
-    	short: "Atk",
-    	group: "Attack"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var atk_f$1 = {
-    	long: "Full Attack",
-    	short: "Full Atk",
-    	group: "Full Attack"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var atk_p$1 = {
-    	long: "Attack Parameters",
-    	short: "Atk Params",
-    	group: "Attack Parameters"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var sp_r$1 = {
-    	long: "Space/Reach",
-    	short: "Sp/Re",
-    	group: "Space/Reach"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var atk_s$1 = {
-    	long: "Special Attacks",
-    	short: "Sp Atk",
-    	group: "Special Attacks"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var rfx$1 = {
-    	long: "Reflex",
-    	short: "Rfx",
-    	group: "Reflex"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var will$1 = {
-    	long: "Will",
-    	short: "Wil",
-    	group: "Will"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var str$1 = {
-    	long: "Strength",
-    	short: "Str",
-    	group: "Strength"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var dex$1 = {
-    	long: "Dexterity",
-    	short: "Dex",
-    	group: "Dexterity"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var con$1 = {
-    	long: "Constitution",
-    	short: "Con",
-    	group: "Constitution"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var int$1 = {
-    	long: "Intelligence",
-    	short: "Int",
-    	group: "Intelligence"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var wis$1 = {
-    	long: "Wisdom",
-    	short: "Wis",
-    	group: "Wisdom"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var cha$1 = {
-    	long: "Charisma",
-    	short: "Cha",
-    	group: "Charisma"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var skills$1 = {
-    	long: "Skills",
-    	short: "Skills",
-    	group: "Skills"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var feats$1 = {
-    	long: "Feats",
-    	short: "Feats",
-    	group: "Feats"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var env$1 = {
-    	long: "Environment",
-    	short: "Env",
-    	group: "Environment"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var org$1 = {
-    	long: "Organization",
-    	short: "Org",
-    	group: "Organization"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var tre$1 = {
-    	long: "Treasure",
-    	short: "Treas",
-    	group: "Treasure"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var algn$1 = {
-    	long: "Alignment",
-    	short: "Algn",
-    	group: "Alignment"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var l_adj$1 = {
-    	long: "Level Adjustment",
-    	short: "L Adj",
-    	group: "Level Adjustment"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var notes$1 = {
-    	long: "Notes",
-    	short: "Notes",
-    	group: "Notes"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var fort$1 = {
-    	long: "Fortitude",
-    	short: "Fort",
-    	group: "Fortitude"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var ac$1 = {
-    	long: "Armor Class",
-    	short: "AC",
-    	group: "Armor Class"
+    	card: true,
+    	group: true,
+    	label: true
     };
     var ini$1 = {
-    	long: "Initiative",
-    	short: "Ini",
-    	group: "Initiative"
+    	card: true,
+    	group: true,
+    	label: true
     };
-    var labels$1 = {
+    var visibility$1 = {
     	name: name$1,
     	__user: __user$1,
     	img: img$1,
@@ -404,212 +635,345 @@
     	ini: ini$1
     };
 
-    var css = {
-    	entryPoint: "src/css/main.css",
-    	"public": "public/css/main.css"
+    var name = {
+    	group: "First Letter",
+    	long: "Name",
+    	short: "Name"
     };
-    var cssProps$2 = {
-    	src: "src/css/inc/card-defs.css",
-    	target: "src/data/css-props.json"
+    var __user = {
+    	long: "Your Creatures",
+    	group: "Your Creatures"
     };
-    var fonts$1 = {
-    	src: "src/data/raw/fonts.txt",
-    	target: "src/data/fonts.json"
+    var img = {
+    	long: "Image URL",
+    	short: "Img",
+    	group: "Image URL"
     };
-    var backgrounds$1 = {
-    	src: "public/media/patterns/backgrounds",
-    	target: "src/data/backgrounds.json"
+    var cr = {
+    	long: "Challenge Rating",
+    	short: "CR",
+    	group: "Challenge Rating"
     };
-    var borders$1 = {
-    	src: "public/media/patterns/borders",
-    	target: "src/data/borders.json"
+    var base = {
+    	long: "Base",
+    	short: "Base",
+    	group: "Base"
     };
-    var characters = {
-    	src: "src/data/raw/monsters.json",
-    	target: "public/js/characters.json"
+    var type = {
+    	long: "Type",
+    	short: "Type",
+    	group: "Type"
     };
-    var fields = {
-    	src: "src/data/raw/field-config.yml"
+    var hp = {
+    	long: "Hit Points",
+    	short: "HP",
+    	group: "Hit Points"
     };
-    var labels = {
-    	target: "src/data/labels.json"
+    var speed = {
+    	long: "Speed",
+    	short: "Spd",
+    	group: "Speed"
     };
-    var visibility$1 = {
-    	target: "src/data/visibility.json"
+    var bag = {
+    	long: "Base Attack/Grapple",
+    	short: "BA/G",
+    	group: "Base Attack/Grapple"
     };
-    var js = {
-    	entryPoint: "src/js/app/main.js",
-    	"public": "public/js/main.js"
+    var atk = {
+    	long: "Attack",
+    	short: "Atk",
+    	group: "Attack"
     };
-    var storageKeys = {
-    	user: "gc-user-prefs",
-    	cards: "gc-cards",
-    	tabs: "gc-tabs"
+    var atk_f = {
+    	long: "Full Attack",
+    	short: "Full Atk",
+    	group: "Full Attack"
     };
-    var userCharacters = {
-    	inLibrary: true
+    var atk_p = {
+    	long: "Attack Parameters",
+    	short: "Atk Params",
+    	group: "Attack Parameters"
     };
-    var config = {
-    	css: css,
-    	cssProps: cssProps$2,
-    	fonts: fonts$1,
-    	backgrounds: backgrounds$1,
-    	borders: borders$1,
-    	characters: characters,
-    	fields: fields,
-    	labels: labels,
-    	visibility: visibility$1,
-    	js: js,
-    	storageKeys: storageKeys,
-    	userCharacters: userCharacters
+    var sp_r = {
+    	long: "Space/Reach",
+    	short: "Sp/Re",
+    	group: "Space/Reach"
+    };
+    var atk_s = {
+    	long: "Special Attacks",
+    	short: "Sp Atk",
+    	group: "Special Attacks"
+    };
+    var rfx = {
+    	long: "Reflex",
+    	short: "Rfx",
+    	group: "Reflex"
+    };
+    var will = {
+    	long: "Will",
+    	short: "Wil",
+    	group: "Will"
+    };
+    var str = {
+    	long: "Strength",
+    	short: "Str",
+    	group: "Strength"
+    };
+    var dex = {
+    	long: "Dexterity",
+    	short: "Dex",
+    	group: "Dexterity"
+    };
+    var con = {
+    	long: "Constitution",
+    	short: "Con",
+    	group: "Constitution"
+    };
+    var int = {
+    	long: "Intelligence",
+    	short: "Int",
+    	group: "Intelligence"
+    };
+    var wis = {
+    	long: "Wisdom",
+    	short: "Wis",
+    	group: "Wisdom"
+    };
+    var cha = {
+    	long: "Charisma",
+    	short: "Cha",
+    	group: "Charisma"
+    };
+    var skills = {
+    	long: "Skills",
+    	short: "Skills",
+    	group: "Skills"
+    };
+    var feats = {
+    	long: "Feats",
+    	short: "Feats",
+    	group: "Feats"
+    };
+    var env = {
+    	long: "Environment",
+    	short: "Env",
+    	group: "Environment"
+    };
+    var org = {
+    	long: "Organization",
+    	short: "Org",
+    	group: "Organization"
+    };
+    var tre = {
+    	long: "Treasure",
+    	short: "Treas",
+    	group: "Treasure"
+    };
+    var algn = {
+    	long: "Alignment",
+    	short: "Algn",
+    	group: "Alignment"
+    };
+    var l_adj = {
+    	long: "Level Adjustment",
+    	short: "L Adj",
+    	group: "Level Adjustment"
+    };
+    var notes = {
+    	long: "Notes",
+    	short: "Notes",
+    	group: "Notes"
+    };
+    var fort = {
+    	long: "Fortitude",
+    	short: "Fort",
+    	group: "Fortitude"
+    };
+    var ac = {
+    	long: "Armor Class",
+    	short: "AC",
+    	group: "Armor Class"
+    };
+    var ini = {
+    	long: "Initiative",
+    	short: "Ini",
+    	group: "Initiative"
+    };
+    var labels$1 = {
+    	name: name,
+    	__user: __user,
+    	img: img,
+    	cr: cr,
+    	base: base,
+    	type: type,
+    	hp: hp,
+    	speed: speed,
+    	bag: bag,
+    	atk: atk,
+    	atk_f: atk_f,
+    	atk_p: atk_p,
+    	sp_r: sp_r,
+    	atk_s: atk_s,
+    	rfx: rfx,
+    	will: will,
+    	str: str,
+    	dex: dex,
+    	con: con,
+    	int: int,
+    	wis: wis,
+    	cha: cha,
+    	skills: skills,
+    	feats: feats,
+    	env: env,
+    	org: org,
+    	tre: tre,
+    	algn: algn,
+    	l_adj: l_adj,
+    	notes: notes,
+    	fort: fort,
+    	ac: ac,
+    	ini: ini
     };
 
-    let settings = {
-        ...config
-    };
-    const get$5 = key => {
-        let current = Object.create(settings);
-        for (let token of key.split('.')) {
-            if (typeof current[token] === 'undefined') {
-                return undefined;
+    const getLabels = () => {
+        const _labels = {};
+        for (let [key, value] of Object.entries(labels$1)) {
+            if (key.startsWith('__')) {
+                continue;
             }
-            current = current[token];
+            _labels[key] = value.short;
         }
-        return current;
+        return _labels;
     };
-    const set$4 = (key, value) => {
-        const keys = key.split('.');
-        const last = keys.pop();
-        let current = settings;
-        for (let part of keys) {
-            if (!current[part]) {
-                current[part] = {};
+    class CharTree extends Tree {
+        toCid(cidData) {
+            const cid = cidData.cid || cidData;
+            if (isNaN(cid)) {
+                throw `${cid} is not a valid character identifier`;
             }
-            if (Object.prototype.toString.call(current) !== '[object Object]') {
-                console.error(`${part} is not of the type Object`);
-                return false;
-            }
-            current = current[part];
+            return parseInt(cid, 10);
         }
-        current[last] = value;
-    };
-    var settings$1 = {
-        get: get$5,
-        set: set$4
+        toTid(tidData) {
+            const tid = tidData.tid || tidData;
+            if (isNaN(tid)) {
+                throw `${tid} is not a valid tab identifier`;
+            }
+            return parseInt(tid, 10);
+        }
+        getBlank() {
+            const props = {};
+            Object.keys(labels$1).forEach(key => {
+                props[key] = '';
+            });
+            return {
+                cid: this.nextIncrement(),
+                props,
+                visibility: visibility$1,
+                labels: getLabels()
+            }
+        }
+        nextIncrement() {
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
+            return Math.max(...keys) + 1;
+        }
+        remove(...cidData) {
+            super.remove(...cidData.map(e => this.toCid(e)));
+        }
+        constructor({
+            data = {},
+            minIncrement = 0,
+            lsKey
+        } = {}) {
+            super({
+                data,
+                lsKey
+            });
+            this.minIncrement = minIncrement;
+        }
+    }
+
+    var cssProps$1 = {
+    	":root": {
+    	"--c-color": "hsl(0, 0%, 0%)",
+    	"--c-card-font": "\"Della Respira\", serif",
+    	"--c-bg-h": "45",
+    	"--c-bg-s": "93%",
+    	"--c-bg-l": "89%",
+    	"--c-bg-pattern": "url(../media/patterns/backgrounds/light-rocky-wall.png)",
+    	"--c-border-h": "201",
+    	"--c-border-s": "39%",
+    	"--c-border-l": "24%",
+    	"--c-border-pattern": "url(../media/patterns/borders/crosshatch-2.png)",
+    	"--c-box-shadow-color": "hsl(0, 0%, 0%, 0.4)",
+    	"--c-badge-font": "\"Della Respira\", serif",
+    	"--c-badge-h": "168",
+    	"--c-badge-s": "22%",
+    	"--c-badge-l": "63%",
+    	"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
+    	"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
+    	"--c-button-color": "var(--text-color)",
+    	"--c-card-font-size": "1.1rem",
+    	"--c-badge-font-size": "1.5rem"
+    }
     };
 
-    const lsKey$2 = settings$1.get('storageKeys.cards');
-    const data = {
-        system: {},
-        user: {}
-    };
-    const storage = {
-        read: () => {
-            return JSON.parse(localStorage.getItem(lsKey$2) || '{}')
-        },
-        update: () => {
-            return localStorage.setItem(lsKey$2, JSON.stringify(data.user || {}))
+    let tabStore;
+    let systemStore;
+    let cardStore;
+    let copyStore;
+    let prefStore;
+    let styleStore;
+    let settings;
+    let labelStore;
+    const initStorage = launchData => {
+        settings = launchData.settings;
+        tabStore = new TabTree({
+            data: launchData.tabs,
+            lsKey: settings.get('storageKeys.tabs')
+        });
+        if(tabStore.length === 0){
+            const blank = tabStore.getBlank();
+            tabStore.set(blank.tid, blank);
         }
-    };
-    const values = type => {
-        return Object.values(data[type]);
-    };
-    const set$3 = (type, cid, character) => {
-        cid = parseCid(cid);
-        data[type][cid] = character;
-        if (type === 'user') {
-            storage.update();
-        }
-    };
-    const get$4 = (type, cidData) => {
-        const cid = parseCid(cidData);
-        return data[type][cid];
-    };
-    const parseCid = data => {
-        let cid;
-        switch (true) {
-            case !!data.cid:
-                cid = data.cid;
-                break;
-            case !!(data.meta && data.meta.cid):
-                cid = data.meta.cid;
-                break;
-            default:
-                cid = data;
-        }
-        if(isNaN(cid)){
-            throw `${cid} is not a valid character identifier`;
-        }
-        return parseInt(cid, 10);
-    };
-     const update$2 = (type, cidData, key, value) => {
-        const cid = parseCid(cidData);
-        const character = get$4(type, cidData);
-        if (value === null) {
-            delete character[key];
-        } else {
-            character[key] = value;
-        }
-        set$3(type, cid, character);
-    };
-    const getAllByType = type => {
-        return data[type];
-    };
-    const remove$1 = (type, cidData) => {
-        const cid = parseCid(cidData);
-        delete data[type][cid];
-        if (type === 'user') {
-            storage.update();
-        }
-    };
-    const nextIncrement$1 = type => {
-        const lowest = type === 'system' ? 0 : 5000;
-        return Math.max(...[lowest].concat(Object.keys(data[type]))) + 1;
-    };
-    const init$4 = () => {
-        data.user = storage.read();
-        return (fetch('js/characters.json')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach((props, cid) => {
-                    set$3('system', cid, {
-                        meta: {
-                            cid,
-                            origin: 'system'
-                        },
-                        props
-                    });
-                });
-            }));
-    };
-    var characterStorage = {
-        init: init$4,
-        get: get$4,
-        set: set$3,
-        update: update$2,
-        remove: remove$1,
-        parseCid,
-        values,
-        nextIncrement: nextIncrement$1,
-        getAllByType
+        systemStore = new CharTree({
+            data: launchData.system
+        });
+        cardStore = new CharTree({
+            data: launchData.stored,
+            lsKey: settings.get('storageKeys.cards'),
+            minIncrement: 3000
+        });
+        copyStore = new CharTree({
+            minIncrement: 6000
+        });
+        prefStore = new Tree({
+            data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
+            lsKey: settings.get('storageKeys.user')
+        });
+        styleStore = new Tree({
+            data: cssProps$1[':root']
+        });
+        labelStore = new Tree({
+            data: labels$1
+        });
     };
 
     const prepareGroupSort = (entry, groupBy) => {
-        if (entry.props[groupBy] === '' || typeof entry.props[groupBy] === 'undefined') {
-            entry.props[groupBy] = 'n/a';
+        if (typeof entry.props[groupBy] === 'undefined') {
+            entry.props[groupBy] = '';
         }
         switch (groupBy) {
             case '__user':
-                entry.meta._groupValue = labels$1.__user.group;
-                entry.meta._groupLabel = labels$1.__user.group;
+                entry._groupValue = labelStore.get('__user.group');
+                entry._groupLabel = labelStore.get('__user.group');
                 break;
             case 'name':
-                entry.meta._groupValue = entry.props.name.charAt(0).toUpperCase();
-                entry.meta._groupLabel = `${labels$1[groupBy].group}: ${entry.meta._groupValue}`;
+                entry._groupValue = entry.props.name.charAt(0).toUpperCase();
+                entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry._groupValue;
                 break
             default:
-                entry.meta._groupValue = entry.props[groupBy];
-                entry.meta._groupLabel = `${labels$1[groupBy].group}: ${entry.props[groupBy]}`;
+                entry._groupValue = entry.props[groupBy];
+                entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry.props[groupBy];
         }
         return entry;
     };
@@ -620,10 +984,11 @@
         sortDir = 'name'
     } = {}) => {
         let grouped = {};
-        for (let entry of characterStorage.values(type)) {
+        const store = type === 'user' ? cardStore : systemStore;
+        for (let entry of store.values()) {
             entry = prepareGroupSort(entry, groupBy);
-            grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
-            grouped[entry.meta._groupValue].push(entry);
+            grouped[entry._groupValue] = grouped[entry._groupValue] || [];
+            grouped[entry._groupValue].push(entry);
         }
         if (type === 'system') {
             grouped = sorter.group(grouped, groupDir);
@@ -635,25 +1000,6 @@
     };
     var characterProvider = {
         getSortedCharacters
-    };
-
-    const lsKey$1 = settings$1.get('storageKeys.user');
-    settings$1.set('userPrefs', JSON.parse(localStorage.getItem(lsKey$1) || '{}'));
-    const getAll = () => {
-        return settings$1.get(`userPrefs`);
-    };
-    const get$3 = key => {
-        return settings$1.get(`userPrefs.${key}`);
-    };
-    const set$2 = (key, value) => {
-        settings$1.set(`userPrefs.${key}`, value);
-        localStorage.setItem(lsKey$1, JSON.stringify(getAll()));
-        return true;
-    };
-    var userPrefs = {
-        getAll,
-        get: get$3,
-        set: set$2
     };
 
     const on = function(types, action)  {
@@ -710,7 +1056,7 @@
                 sortBy: 'name'
             }));
             let collection = systemCollection;
-            if (settings$1.get('userCharacters.inLibrary') && userCollection.length) ;
+            if (settings.get('userCharacters.inLibrary') && userCollection.length) ;
             collection.forEach((values, index) => {
                 let list = src.ul();
                 let groupContainer = src.details({
@@ -720,9 +1066,9 @@
                     },
                     content: [
                         src.summary({
-                            content: values[0].meta._groupLabel,
+                            content: values[0]._groupLabel,
                             attributes: {
-                                title: values[0].meta._groupLabel
+                                title: values[0]._groupLabel
                             }
                         }),
                         list
@@ -749,7 +1095,7 @@
                             title: value.props.name
                         },
                         data: {
-                            cid: value.meta.cid
+                            cid: value.cid
                         }
                     }));
                 });
@@ -766,17 +1112,17 @@
                     return false;
                 }
                 this.app.trigger('characterSelection', (() => {
-                    const type = li.closest('details').classList.contains('user-generated') ? 'user' : 'system';
-                    const entry = characterStorage.get(type, parseInt(li.dataset.cid, 10));
-                    entry.meta._groupLabel && delete entry.meta._groupLabel;
-                    entry.meta._groupValue && delete entry.meta._groupValue;
-                    return entry;
+                    const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
+                    const character = store.getClone(li.dataset.cid);
+                    character._groupLabel && delete character._groupLabel;
+                    character._groupValue && delete character._groupValue;
+                    return character;
                 })());
             });
-            this.sortBy = userPrefs.get('characters.sortBy') || this.sortBy || 'name';
-            this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
-            this.sortDir = userPrefs.get('characters.sortDir') || this.sortDir || 'asc';
-            this.groupDir = userPrefs.get('characters.groupDir') || this.groupDir || 'asc';
+            this.sortBy = prefStore.get('characters.sortBy') || this.sortBy || 'name';
+            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
+            this.sortDir = prefStore.get('characters.sortDir') || this.sortDir || 'asc';
+            this.groupDir = prefStore.get('characters.groupDir') || this.groupDir || 'asc';
             this.populate();
         }
         constructor(self) {
@@ -794,213 +1140,12 @@
             return self;
         }
     }
-    const register$i = app => {
+    const register$k = app => {
         CharacterLibrary.prototype.app = app;
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$i
-    };
-
-    var name = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var __user = {
-    	card: true,
-    	group: false,
-    	label: true
-    };
-    var img = {
-    	card: true,
-    	group: false,
-    	label: false
-    };
-    var cr = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var base = {
-    	card: false,
-    	group: true,
-    	label: true
-    };
-    var type = {
-    	card: true,
-    	group: false,
-    	label: true
-    };
-    var hp = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var speed = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var bag = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk_f = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk_p = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var sp_r = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk_s = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var rfx = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var will = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var str = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var dex = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var con = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var int = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var wis = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var cha = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var skills = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var feats = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var env = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var org = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var tre = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var algn = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var l_adj = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var notes = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var fort = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var ac = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var ini = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var visibility = {
-    	name: name,
-    	__user: __user,
-    	img: img,
-    	cr: cr,
-    	base: base,
-    	type: type,
-    	hp: hp,
-    	speed: speed,
-    	bag: bag,
-    	atk: atk,
-    	atk_f: atk_f,
-    	atk_p: atk_p,
-    	sp_r: sp_r,
-    	atk_s: atk_s,
-    	rfx: rfx,
-    	will: will,
-    	str: str,
-    	dex: dex,
-    	con: con,
-    	int: int,
-    	wis: wis,
-    	cha: cha,
-    	skills: skills,
-    	feats: feats,
-    	env: env,
-    	org: org,
-    	tre: tre,
-    	algn: algn,
-    	l_adj: l_adj,
-    	notes: notes,
-    	fort: fort,
-    	ac: ac,
-    	ini: ini
+        register: register$k
     };
 
     class LibraryOrganizer extends HTMLElement {
@@ -1012,19 +1157,19 @@
         }
         connectedCallback() {
             this.on('pointerdown', e => {
-                if(e.button !== 0){
+                if (e.button !== 0) {
                     return true;
                 }
                 const li = e.target.closest('li');
                 if (!li) {
                     return false;
                 }
-                userPrefs.set('characters.groupBy', li.dataset.groupBy);
+                prefStore.set('characters.groupBy', li.dataset.groupBy);
                 this.app.trigger('characterOrderChange', {
                     groupBy: li.dataset.groupBy
                 });
             });
-            this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
+            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
             const icon = src.svg({
                 isSvg: true,
                 content: src.use({
@@ -1042,8 +1187,8 @@
             });
             const list = src.ul();
             box.append(title, list);
-            for (let [key, value] of Object.entries(labels$1)) {
-                if(!visibility[key].group){
+            for (let [key, value] of labelStore.entries()) {
+                if (!visibility$1[key].group) {
                     continue;
                 }
                 let classNames = key === this.groupBy ? ['active'] : [];
@@ -1064,27 +1209,34 @@
             return self;
         }
     }
-    const register$h = app => {
+    const register$j = app => {
         LibraryOrganizer.prototype.app = app;
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
-        register: register$h
+        register: register$j
     };
 
     const set$1 = (key, value, target) => {
         target = target || document.body;
         target.dataset[key] = value;
     };
-    const get$2 = (key, target) => {
+    const get = (key, target) => {
         target = target || document.body;
-        if (typeof target.dataset[key] === 'undefined') {
-            return false;
+        const value = target.dataset[key];
+        switch (true) {
+            case typeof value === 'undefined' || value === 'undefined':
+                return undefined;
+            case ['null', 'true', 'false'].includes(value):
+                return JSON.parse(value);
+            case !isNaN(value):
+                return parseFloat(value, 10);
+            default:
+                return value
         }
-        return JSON.parse(target.dataset[key]);
     };
     const toggle$1 = (key, target) => {
-        set$1(key, !get$2(key, target), target);
+        set$1(key, !get(key, target), target);
     };
     const unset = (key, target) => {
         target = target || document.body;
@@ -1092,7 +1244,7 @@
     };
     var properties = {
         unset,
-        get: get$2,
+        get,
         set: set$1,
         toggle: toggle$1
     };
@@ -1140,105 +1292,6 @@
         cancel: cancel$1
     };
 
-    const convertToRoman = num => {
-      const roman = {
-        M: 1000,
-        CM: 900,
-        D: 500,
-        CD: 400,
-        C: 100,
-        XC: 90,
-        L: 50,
-        XL: 40,
-        X: 10,
-        IX: 9,
-        V: 5,
-        IV: 4,
-        I: 1
-      };
-      let str = '';
-      for (let i of Object.keys(roman)) {
-        const q = Math.floor(num / roman[i]);
-        num -= q * roman[i];
-        str += i.repeat(q);
-      }
-      return str;
-    };
-
-    let tabList;
-    const lsKey = settings$1.get('storageKeys.tabs');
-    const init$3 = () => {
-        tabList = tabList || read();
-    };
-    const read = () => {
-        const stored = JSON.parse(localStorage.getItem(lsKey) || '{}');
-        return Object.keys(stored).length ?
-            stored :
-            {
-                1: blank()
-            };
-    };
-    const write = () => {
-        init$3();
-        return localStorage.setItem(lsKey, JSON.stringify(tabList));
-    };
-    const nextIncrement = () => {
-        let keys = tabList ? Object.keys(tabList).map(e => parseInt(e)) : [];
-        if(!keys.length){
-            keys = [0];
-        }
-        return Math.max(...keys) + 1;
-    };
-    const blank = () => {
-        const tid = nextIncrement();
-        return {
-            tid,
-            title: convertToRoman(tid),
-            styles: {}
-        }
-    };
-    const parseTid = data => {
-        return parseInt((data.tid ? data.tid : data), 10);
-    };
-    const get$1 = data => {
-        init$3();
-        if (data === 'all') {
-            return tabList;
-        }
-        if (!data) {
-            return blank();
-        }
-        const tid = parseTid(data);
-        return tabList[tid] ? tabList[tid] : blank();
-    };
-    const set = (tidData, data) => {
-        init$3();
-        tabList[parseTid(tidData)] = data;
-        write();
-    };
-    const update$1 = (tidData, key, value) => {
-        const tid = parseTid(tidData);
-        const entry = get$1(tid);
-        if (value === null) {
-            delete entry[key];
-        } else {
-            entry[key] = value;
-        }
-        set(tid, entry);
-    };
-    const remove = tidData => {
-        init$3();
-        delete tabList[parseTid(tidData)];
-        write();
-    };
-    var tabStorage = {
-        get: get$1,
-        set,
-        update: update$1,
-        remove,
-        parseTid
-    };
-
     let app$1;
     let navi;
     let contentArea;
@@ -1248,13 +1301,16 @@
         src.$$('tab-handle', navi).forEach(tab => {
             tab.classList.remove('active');
             tab.panel.classList.remove('active');
-            tabStorage.update(tab, 'active', null);
+            tabStore.unset(`${tabStore.toTid(tab)}.active`);
             tab.removeAttribute('style');
         });
+        const tid = tabStore.toTid(activeTab);
         activeTab.classList.add('active');
+        activeTab.panel.classList.add('active');
+        tabStore.set(`${tid}.active`, true);
         app$1.trigger('tabStyleChange', {
             tab: activeTab,
-            styles: tabStorage.get(activeTab).styles
+            styles: tabStore.get(tid).styles
         });
         const naviRect = navi.getBoundingClientRect();
         const atRect = activeTab.getBoundingClientRect();
@@ -1271,18 +1327,16 @@
                 tab.style.maxWidth = tabMaxWidth + 'px';
             });
         }
-        activeTab.panel.classList.add('active');
-        tabStorage.update(activeTab, 'active', true);
         return activeTab;
     };
     const getTab = tabData => {
         if (tabData === 'active') {
             return activeTab;
         }
-        if (tabData instanceof HTMLElement) {
+        if (tabData instanceof customElements.get('tab-handle')) {
             return tabData
         }
-        return src.$(`tab-handle[tid="${tabStorage.parseTid(tabData)}"]`, navi);
+        return src.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
     };
     const getTabs = exclude => {
         let tabs = Array.from(src.$$(`tab-handle`, navi));
@@ -1295,27 +1349,28 @@
                 return tabs;
         }
     };
-    const createTab = ({
+    const add$1 = ({
         tabEntry,
         previousTab,
         activate = false
     } = {}) => {
-        tabEntry = tabEntry || tabStorage.get();
+        tabEntry = tabEntry || tabStore.getBlank();
         const tab = document.createElement('tab-handle');
         tab.panel = document.createElement('tab-panel');
         tab.container = navi;
         for (let [key, value] of Object.entries(tabEntry)) {
             tab[key] = value;
+            tab.panel[key] = value;
         }
-        tab.panel.active = tab.active;
-        tab.panel.tid = tab.tid;
+        tab.panel.removeAttribute('title');
         contentArea.append(tab.panel);
         if (previousTab) {
             previousTab.after(tab);
-        } else {
+        }
+        else {
             src.$('.adder', navi).before(tab);
         }
-        tabStorage.set(tabEntry, tabEntry);
+        tabStore.set(tabStore.toTid(tabEntry), tabEntry);
         if (activate) {
             setActiveTab(tab);
         }
@@ -1324,7 +1379,7 @@
     const getUpcomingActiveTab = () => {
         let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
         if (!tabs.length) {
-            return createTab();
+            return add$1();
         }
         let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
         if (tabs[activeIdx + 1]) {
@@ -1333,13 +1388,18 @@
         if (tabs[activeIdx - 1]) {
             return tabs[activeIdx - 1];
         }
-        return createTab();
+        return add$1();
     };
-    const bulkDelete$1 = exclude => {
+    const bulkDelete = exclude => {
         softDelete$1.cancel();
         getTabs(exclude).forEach(tab => {
             handleRemoval$1(tab, 'remove');
         });
+        if (!tabStore.length) {
+            add$1({
+                activate: true
+            });
+        }
     };
     const handleRemoval$1 = (tab, action) => {
         switch (action) {
@@ -1351,64 +1411,66 @@
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
-                tabStorage.update(tab, 'softDeleted', true);
+                tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
                 break;
             case 'restore':
-                tabStorage.update(tab, 'softDeleted', null);
+                tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
                 break;
             case 'remove':
                 app$1.trigger('tabDelete', {
                     tab
                 });
-                tabStorage.remove(tab);
+                tabStore.remove(tab);
                 tab.remove();
-                if (Object.keys(tabStorage.get('all')).length === 0) {
-                    createTab({
+                if (!tabStore.length) {
+                    add$1({
                         activate: true
                     });
                 }
                 break;
             case 'empty':
-                bulkDelete$1('empty');
+                bulkDelete('empty');
                 setActiveTab();
                 break;
             case 'others':
-                bulkDelete$1(tab);
+                bulkDelete(tab);
                 setActiveTab(tab);
                 break;
             case 'all':
-                bulkDelete$1();
+                bulkDelete();
                 break;
         }
     };
     const restore = () => {
-        const entries = Object.values(tabStorage.get('all'));
+        const entries = tabStore.values();
         const activeSet = entries.filter(e => !!e.active);
-        const activeTid = activeSet.length ? activeSet[0].tid : Object.keys(tabStorage.get('all'))[0];
+        const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
         for (let tabEntry of entries) {
-            createTab({
+            add$1({
                 tabEntry
             });
         }
         setActiveTab(getTab(activeTid));
     };
-    const init$2 = _app => {
+    const init$3 = _app => {
         app$1 = _app;
         navi = src.$('tab-navi', app$1);
         contentArea = src.$('tab-content', app$1);
         restore();
         app$1.on('singleStyleChange', e => {
             const tab = e.detail.tab || activeTab;
-            const entry = tabStorage.get(tab);
+            const tid = tabStore.toTid(tab);
+            const entry = tabStore.get(tid);
             entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
             entry.styles[e.detail.area][e.detail.name] = e.detail.value;
-            tabStorage.set(tab, entry);
+            tabStore.set(tid, entry);
             if (tab.isSameNode(activeTab)) {
                 tab.panel.style.setProperty(e.detail.name, e.detail.value);
             }
         });
         app$1.on('styleReset', e => {
-            tabStorage.update(e.detail.tab, 'styles', {});
+            const tid = tabStore.toTid(e.detail.tab);
+            tabStore.set(`${tid}.styles`, {});
             app$1.trigger('tabStyleChange', {
                 tab: e.detail.tab,
                 styles: {}
@@ -1416,8 +1478,8 @@
         });
     };
     var tabManager = {
-        init: init$2,
-        createTab,
+        init: init$3,
+        add: add$1,
         handleRemoval: handleRemoval$1,
         setActiveTab,
         getTab,
@@ -1434,7 +1496,7 @@
                         if (e.button !== 0) {
                             return true;
                         }
-                        tabManager.createTab({
+                        tabManager.add({
                             activate: true
                         });
                     }
@@ -1442,7 +1504,7 @@
             });
             this.addEventListener('dblclick', e => {
                 if (e.target.isSameNode(this)) {
-                    tabManager.createTab({
+                    tabManager.add({
                         activate: true
                     });
                 }
@@ -1456,12 +1518,12 @@
             return self;
         }
     }
-    const register$g = app => {
+    const register$i = app => {
         TabNavi.prototype.app = app;
         customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
     };
     var TabNavi$1 = {
-        register: register$g
+        register: register$i
     };
 
     let firstRegistration = true;
@@ -1497,7 +1559,7 @@
             menu.hide();
         }
     }
-    const init$1 = () => {
+    const init$2 = () => {
         if(firstRegistration) {
             document.addEventListener('pointerup', offContextMenu);
             firstRegistration = false;
@@ -1506,8 +1568,8 @@
     const unregister = owner => {
         owner.contextMenu.remove();
     };
-    const register$f = (owner, menu) => {
-        init$1();
+    const register$h = (owner, menu) => {
+        init$2();
         menu.setAttribute('aria-role', 'menu');
         menu.dataset.type = 'context-menu';
         owner.contextMenu = menu;
@@ -1526,17 +1588,282 @@
         return menu;
     };
     var contextMenu = {
-        register: register$f,
+        register: register$h,
         unregister
     };
 
-    class TabHandle extends HTMLElement {
-        sanitize(text) {
-            return new DOMParser()
-                .parseFromString(text, 'text/html').body.textContent
-                .replace(/\s+/g, ' ')
-                .substring(0, 30);
+    const defaultDiacriticsRemovalMap = [
+        { 'base': 'A', 'letters': '\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F' },
+        { 'base': 'AA', 'letters': '\uA732' },
+        { 'base': 'AE', 'letters': '\u00C6\u01FC\u01E2' },
+        { 'base': 'AO', 'letters': '\uA734' },
+        { 'base': 'AU', 'letters': '\uA736' },
+        { 'base': 'AV', 'letters': '\uA738\uA73A' },
+        { 'base': 'AY', 'letters': '\uA73C' },
+        { 'base': 'B', 'letters': '\u0042\u24B7\uFF22\u1E02\u1E04\u1E06\u0243\u0182\u0181' },
+        { 'base': 'C', 'letters': '\u0043\u24B8\uFF23\u0106\u0108\u010A\u010C\u00C7\u1E08\u0187\u023B\uA73E' },
+        { 'base': 'D', 'letters': '\u0044\u24B9\uFF24\u1E0A\u010E\u1E0C\u1E10\u1E12\u1E0E\u0110\u018B\u018A\u0189\uA779\u00D0' },
+        { 'base': 'DZ', 'letters': '\u01F1\u01C4' },
+        { 'base': 'Dz', 'letters': '\u01F2\u01C5' },
+        { 'base': 'E', 'letters': '\u0045\u24BA\uFF25\u00C8\u00C9\u00CA\u1EC0\u1EBE\u1EC4\u1EC2\u1EBC\u0112\u1E14\u1E16\u0114\u0116\u00CB\u1EBA\u011A\u0204\u0206\u1EB8\u1EC6\u0228\u1E1C\u0118\u1E18\u1E1A\u0190\u018E' },
+        { 'base': 'F', 'letters': '\u0046\u24BB\uFF26\u1E1E\u0191\uA77B' },
+        { 'base': 'G', 'letters': '\u0047\u24BC\uFF27\u01F4\u011C\u1E20\u011E\u0120\u01E6\u0122\u01E4\u0193\uA7A0\uA77D\uA77E' },
+        { 'base': 'H', 'letters': '\u0048\u24BD\uFF28\u0124\u1E22\u1E26\u021E\u1E24\u1E28\u1E2A\u0126\u2C67\u2C75\uA78D' },
+        { 'base': 'I', 'letters': '\u0049\u24BE\uFF29\u00CC\u00CD\u00CE\u0128\u012A\u012C\u0130\u00CF\u1E2E\u1EC8\u01CF\u0208\u020A\u1ECA\u012E\u1E2C\u0197' },
+        { 'base': 'J', 'letters': '\u004A\u24BF\uFF2A\u0134\u0248' },
+        { 'base': 'K', 'letters': '\u004B\u24C0\uFF2B\u1E30\u01E8\u1E32\u0136\u1E34\u0198\u2C69\uA740\uA742\uA744\uA7A2' },
+        { 'base': 'L', 'letters': '\u004C\u24C1\uFF2C\u013F\u0139\u013D\u1E36\u1E38\u013B\u1E3C\u1E3A\u0141\u023D\u2C62\u2C60\uA748\uA746\uA780' },
+        { 'base': 'LJ', 'letters': '\u01C7' },
+        { 'base': 'Lj', 'letters': '\u01C8' },
+        { 'base': 'M', 'letters': '\u004D\u24C2\uFF2D\u1E3E\u1E40\u1E42\u2C6E\u019C' },
+        { 'base': 'N', 'letters': '\u004E\u24C3\uFF2E\u01F8\u0143\u00D1\u1E44\u0147\u1E46\u0145\u1E4A\u1E48\u0220\u019D\uA790\uA7A4' },
+        { 'base': 'NJ', 'letters': '\u01CA' },
+        { 'base': 'Nj', 'letters': '\u01CB' },
+        { 'base': 'O', 'letters': '\u004F\u24C4\uFF2F\u00D2\u00D3\u00D4\u1ED2\u1ED0\u1ED6\u1ED4\u00D5\u1E4C\u022C\u1E4E\u014C\u1E50\u1E52\u014E\u022E\u0230\u00D6\u022A\u1ECE\u0150\u01D1\u020C\u020E\u01A0\u1EDC\u1EDA\u1EE0\u1EDE\u1EE2\u1ECC\u1ED8\u01EA\u01EC\u00D8\u01FE\u0186\u019F\uA74A\uA74C' },
+        { 'base': 'OI', 'letters': '\u01A2' },
+        { 'base': 'OO', 'letters': '\uA74E' },
+        { 'base': 'OU', 'letters': '\u0222' },
+        { 'base': 'OE', 'letters': '\u008C\u0152' },
+        { 'base': 'oe', 'letters': '\u009C\u0153' },
+        { 'base': 'P', 'letters': '\u0050\u24C5\uFF30\u1E54\u1E56\u01A4\u2C63\uA750\uA752\uA754' },
+        { 'base': 'Q', 'letters': '\u0051\u24C6\uFF31\uA756\uA758\u024A' },
+        { 'base': 'R', 'letters': '\u0052\u24C7\uFF32\u0154\u1E58\u0158\u0210\u0212\u1E5A\u1E5C\u0156\u1E5E\u024C\u2C64\uA75A\uA7A6\uA782' },
+        { 'base': 'S', 'letters': '\u0053\u24C8\uFF33\u1E9E\u015A\u1E64\u015C\u1E60\u0160\u1E66\u1E62\u1E68\u0218\u015E\u2C7E\uA7A8\uA784' },
+        { 'base': 'T', 'letters': '\u0054\u24C9\uFF34\u1E6A\u0164\u1E6C\u021A\u0162\u1E70\u1E6E\u0166\u01AC\u01AE\u023E\uA786' },
+        { 'base': 'TZ', 'letters': '\uA728' },
+        { 'base': 'U', 'letters': '\u0055\u24CA\uFF35\u00D9\u00DA\u00DB\u0168\u1E78\u016A\u1E7A\u016C\u00DC\u01DB\u01D7\u01D5\u01D9\u1EE6\u016E\u0170\u01D3\u0214\u0216\u01AF\u1EEA\u1EE8\u1EEE\u1EEC\u1EF0\u1EE4\u1E72\u0172\u1E76\u1E74\u0244' },
+        { 'base': 'V', 'letters': '\u0056\u24CB\uFF36\u1E7C\u1E7E\u01B2\uA75E\u0245' },
+        { 'base': 'VY', 'letters': '\uA760' },
+        { 'base': 'W', 'letters': '\u0057\u24CC\uFF37\u1E80\u1E82\u0174\u1E86\u1E84\u1E88\u2C72' },
+        { 'base': 'X', 'letters': '\u0058\u24CD\uFF38\u1E8A\u1E8C' },
+        { 'base': 'Y', 'letters': '\u0059\u24CE\uFF39\u1EF2\u00DD\u0176\u1EF8\u0232\u1E8E\u0178\u1EF6\u1EF4\u01B3\u024E\u1EFE' },
+        { 'base': 'Z', 'letters': '\u005A\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762' },
+        { 'base': 'a', 'letters': '\u0061\u24D0\uFF41\u1E9A\u00E0\u00E1\u00E2\u1EA7\u1EA5\u1EAB\u1EA9\u00E3\u0101\u0103\u1EB1\u1EAF\u1EB5\u1EB3\u0227\u01E1\u00E4\u01DF\u1EA3\u00E5\u01FB\u01CE\u0201\u0203\u1EA1\u1EAD\u1EB7\u1E01\u0105\u2C65\u0250' },
+        { 'base': 'aa', 'letters': '\uA733' },
+        { 'base': 'ae', 'letters': '\u00E6\u01FD\u01E3' },
+        { 'base': 'ao', 'letters': '\uA735' },
+        { 'base': 'au', 'letters': '\uA737' },
+        { 'base': 'av', 'letters': '\uA739\uA73B' },
+        { 'base': 'ay', 'letters': '\uA73D' },
+        { 'base': 'b', 'letters': '\u0062\u24D1\uFF42\u1E03\u1E05\u1E07\u0180\u0183\u0253' },
+        { 'base': 'c', 'letters': '\u0063\u24D2\uFF43\u0107\u0109\u010B\u010D\u00E7\u1E09\u0188\u023C\uA73F\u2184' },
+        { 'base': 'd', 'letters': '\u0064\u24D3\uFF44\u1E0B\u010F\u1E0D\u1E11\u1E13\u1E0F\u0111\u018C\u0256\u0257\uA77A' },
+        { 'base': 'dz', 'letters': '\u01F3\u01C6' },
+        { 'base': 'e', 'letters': '\u0065\u24D4\uFF45\u00E8\u00E9\u00EA\u1EC1\u1EBF\u1EC5\u1EC3\u1EBD\u0113\u1E15\u1E17\u0115\u0117\u00EB\u1EBB\u011B\u0205\u0207\u1EB9\u1EC7\u0229\u1E1D\u0119\u1E19\u1E1B\u0247\u025B\u01DD' },
+        { 'base': 'f', 'letters': '\u0066\u24D5\uFF46\u1E1F\u0192\uA77C' },
+        { 'base': 'g', 'letters': '\u0067\u24D6\uFF47\u01F5\u011D\u1E21\u011F\u0121\u01E7\u0123\u01E5\u0260\uA7A1\u1D79\uA77F' },
+        { 'base': 'h', 'letters': '\u0068\u24D7\uFF48\u0125\u1E23\u1E27\u021F\u1E25\u1E29\u1E2B\u1E96\u0127\u2C68\u2C76\u0265' },
+        { 'base': 'hv', 'letters': '\u0195' },
+        { 'base': 'i', 'letters': '\u0069\u24D8\uFF49\u00EC\u00ED\u00EE\u0129\u012B\u012D\u00EF\u1E2F\u1EC9\u01D0\u0209\u020B\u1ECB\u012F\u1E2D\u0268\u0131' },
+        { 'base': 'j', 'letters': '\u006A\u24D9\uFF4A\u0135\u01F0\u0249' },
+        { 'base': 'k', 'letters': '\u006B\u24DA\uFF4B\u1E31\u01E9\u1E33\u0137\u1E35\u0199\u2C6A\uA741\uA743\uA745\uA7A3' },
+        { 'base': 'l', 'letters': '\u006C\u24DB\uFF4C\u0140\u013A\u013E\u1E37\u1E39\u013C\u1E3D\u1E3B\u017F\u0142\u019A\u026B\u2C61\uA749\uA781\uA747' },
+        { 'base': 'lj', 'letters': '\u01C9' },
+        { 'base': 'm', 'letters': '\u006D\u24DC\uFF4D\u1E3F\u1E41\u1E43\u0271\u026F' },
+        { 'base': 'n', 'letters': '\u006E\u24DD\uFF4E\u01F9\u0144\u00F1\u1E45\u0148\u1E47\u0146\u1E4B\u1E49\u019E\u0272\u0149\uA791\uA7A5' },
+        { 'base': 'nj', 'letters': '\u01CC' },
+        { 'base': 'o', 'letters': '\u006F\u24DE\uFF4F\u00F2\u00F3\u00F4\u1ED3\u1ED1\u1ED7\u1ED5\u00F5\u1E4D\u022D\u1E4F\u014D\u1E51\u1E53\u014F\u022F\u0231\u00F6\u022B\u1ECF\u0151\u01D2\u020D\u020F\u01A1\u1EDD\u1EDB\u1EE1\u1EDF\u1EE3\u1ECD\u1ED9\u01EB\u01ED\u00F8\u01FF\u0254\uA74B\uA74D\u0275' },
+        { 'base': 'oi', 'letters': '\u01A3' },
+        { 'base': 'ou', 'letters': '\u0223' },
+        { 'base': 'oo', 'letters': '\uA74F' },
+        { 'base': 'p', 'letters': '\u0070\u24DF\uFF50\u1E55\u1E57\u01A5\u1D7D\uA751\uA753\uA755' },
+        { 'base': 'q', 'letters': '\u0071\u24E0\uFF51\u024B\uA757\uA759' },
+        { 'base': 'r', 'letters': '\u0072\u24E1\uFF52\u0155\u1E59\u0159\u0211\u0213\u1E5B\u1E5D\u0157\u1E5F\u024D\u027D\uA75B\uA7A7\uA783' },
+        { 'base': 's', 'letters': '\u0073\u24E2\uFF53\u00DF\u015B\u1E65\u015D\u1E61\u0161\u1E67\u1E63\u1E69\u0219\u015F\u023F\uA7A9\uA785\u1E9B' },
+        { 'base': 't', 'letters': '\u0074\u24E3\uFF54\u1E6B\u1E97\u0165\u1E6D\u021B\u0163\u1E71\u1E6F\u0167\u01AD\u0288\u2C66\uA787' },
+        { 'base': 'tz', 'letters': '\uA729' },
+        { 'base': 'u', 'letters': '\u0075\u24E4\uFF55\u00F9\u00FA\u00FB\u0169\u1E79\u016B\u1E7B\u016D\u00FC\u01DC\u01D8\u01D6\u01DA\u1EE7\u016F\u0171\u01D4\u0215\u0217\u01B0\u1EEB\u1EE9\u1EEF\u1EED\u1EF1\u1EE5\u1E73\u0173\u1E77\u1E75\u0289' },
+        { 'base': 'v', 'letters': '\u0076\u24E5\uFF56\u1E7D\u1E7F\u028B\uA75F\u028C' },
+        { 'base': 'vy', 'letters': '\uA761' },
+        { 'base': 'w', 'letters': '\u0077\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73' },
+        { 'base': 'x', 'letters': '\u0078\u24E7\uFF58\u1E8B\u1E8D' },
+        { 'base': 'y', 'letters': '\u0079\u24E8\uFF59\u1EF3\u00FD\u0177\u1EF9\u0233\u1E8F\u00FF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF' },
+        { 'base': 'z', 'letters': '\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763' }
+    ];
+    let diacriticsMap = {};
+    for (var i = 0; i < defaultDiacriticsRemovalMap.length; i++) {
+        var letters = defaultDiacriticsRemovalMap[i].letters;
+        for (var j = 0; j < letters.length; j++) {
+            diacriticsMap[letters[j]] = defaultDiacriticsRemovalMap[i].base;
         }
+    }
+
+    const sanitizeText = text => {
+        return new DOMParser()
+            .parseFromString(text, 'text/html').body.textContent
+            .replace(/\s+/g, ' ');
+    };
+
+    let toast;
+    const initiate = (element, label) => {
+        if (!toast) {
+            toast = src.div({
+                data: {
+                    undoDialogs: true
+                }
+            });
+            document.body.append(toast);
+        }
+        properties.set('softDeleted', true, element);
+        const dialog = document.createElement('undo-dialog');
+        dialog.element = element;
+        if (label) {
+            dialog.label = label;
+        }
+        toast.append(dialog);
+        return new Promise(resolve => {
+            dialog.on('restore', e => {
+                properties.unset('softDeleted', element);
+                resolve({
+                    action: 'restore',
+                    element: e.detail.element
+                });
+            });
+            dialog.on('remove', e => {
+                resolve({
+                    action: 'remove',
+                    element: e.detail.element
+                });
+            });
+        })
+    };
+    const cancel = () => {
+        if (toast) {
+            toast = src.empty(toast);
+        }
+    };
+    var softDelete = {
+        initiate,
+        cancel
+    };
+
+    let app;
+    const add = character => {
+        let cid;
+        let tid;
+        let tab;
+        if (character.tid) {
+            cid = cardStore.toCid(character);
+            tab = tabManager.getTab(character.tid);
+            tid = tabStore.toTid(tab);
+        }
+        else {
+            cid = cardStore.nextIncrement();
+            tab = tabManager.getTab('active');
+            tid = tabStore.toTid(tab);
+        }
+        character = {
+            ...cardStore.getBlank(),
+            ...character,
+            ...{
+                tid,
+                cid
+            }
+        };
+        cardStore.set(cid, character);
+        const card = document.createElement('card-base');
+        card.setAttribute('cid', cid);
+        card.setAttribute('tid', tid);
+        card.character = character;
+        tab.panel.append(card);
+    };
+    const getCard = cidData =>{
+        return src.$(`[cid="${cardStore.toCid(cidData)}"]`);
+    };
+    const restoreLastSession = () => {
+        for (let character of cardStore.values()) {
+            add(character);
+        }
+    };
+    const handleRemoval = (card, action) => {
+        const cid = cardStore.toCid(card);
+        switch (action) {
+            case 'soft':
+                softDelete.initiate(card, cardStore.get(`${cid}.props.name`))
+                    .then(data => {
+                        handleRemoval(card, data.action);
+                    });
+                cardStore.set(`${cid}.softDeleted`, true);
+                break;
+            case 'restore':
+                cardStore.unset(`${cid}.softDeleted`);
+                break;
+            case 'remove':
+                cardStore.remove(card);
+                card.remove();
+                break;
+        }
+    };
+    const init$1 = _app => {
+        app = _app;
+        app.on('tabDelete', e => {
+            src.$$('card-base', e.detail.tab).forEach(card => {
+                handleRemoval(card, 'remove');
+            });
+        });
+        app.on('characterSelection', e => {
+            add(e.detail);
+        });
+        restoreLastSession();
+    };
+    var cardManager = {
+        init: init$1,
+        handleRemoval,
+        add,
+        getCard
+    };
+
+    const set = (card, mode) => {
+        clear(card.app);
+        card.classList.add(mode);
+        const original = cardStore.get(cardStore.toCid(card));
+        const copy = {
+            ...deepClone(original),
+            ...{
+                mode
+            }
+        };
+        copy.originalCid = cardStore.toCid(original);
+        copy.cid = copyStore.nextIncrement();
+        copyStore.set(copy.cid, copy);
+        properties.set('cardStorage', true);
+    };
+    const cut = card => {
+        set(card, 'cut');
+    };
+    const copy = card => {
+        set(card, 'copy');
+    };
+    const paste = tab => {
+        console.log(tab);
+        copyStore.values().forEach(copy => {
+            copy.tid = tabStore.toTid(tab);
+            if (copy.mode === 'cut') {
+                cardManager.handleRemoval(cardManager.getCard(copy.originalCid), 'remove');
+            }
+            delete copy.originalCid;
+            copy.cid = cardStore.nextIncrement();
+            console.log(copy.cid);
+            tab.app.trigger('characterSelection', copy);
+        });
+        clear(tab.app);
+        copyStore.flush();
+        properties.unset('cardStorage');
+    };
+    const clear = app => {
+        const lastCopied = src.$('card-base.cut, card-base.copy', app);
+        if (lastCopied) {
+            lastCopied.classList.remove('cut', 'copy');
+        }
+    };
+    var cardCopy = {
+        copy,
+        cut,
+        paste,
+        clear
+    };
+
+    class TabHandle extends HTMLElement {
         makeEditable() {
             let selection = window.getSelection();
             selection.removeAllRanges();
@@ -1544,7 +1871,7 @@
             this.label.contentEditable = true;
             range.selectNodeContents(this.label);
             selection.addRange(range);
-            this.focus();
+            this.label.focus();
         }
         get title() {
             return this.getAttribute('title');
@@ -1563,6 +1890,7 @@
             contextMenu.unregister(this);
         }
         connectedCallback() {
+            const tab = tabManager.getTab(this);
             contextMenu.register(this, document.createElement('tab-menu'));
             this.closer = src.span({
                 content: '✖',
@@ -1574,13 +1902,19 @@
                 events: {
                     blur: e => {
                         this.label.contentEditable = false;
-                        this.label.textContent = this.sanitize(this.label.textContent);
+                        this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
                         this.title = this.label.textContent.trim();
-                        tabStorage.update(this, 'title', this.title);
+                        tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                        e.detail.tab;
                     },
                     paste: e => {
                         e.preventDefault();
-                        this.label.textContent = this.sanitize(e.clipboardData.getData('text'));
+                        if (this.label.contentEditable === true) {
+                            this.label.textContent = sanitizeText(e.clipboardData.getData('text')).substring(0, 30);
+                            return true;
+                        }                    if (copyStore.length) {
+                            cardCopy.paste(tab);
+                        }
                     },
                     keydown: e => {
                         if (e.key === 'Enter') {
@@ -1605,7 +1939,8 @@
                     e.preventDefault();
                     e.stopPropagation();
                     tabManager.handleRemoval(this, 'soft');
-                } else {
+                }
+                else {
                     tabManager.setActiveTab(this);
                 }
             });
@@ -1621,28 +1956,28 @@
             return self;
         }
     }
-    const register$e = app => {
+    const register$g = app => {
         TabHandle.prototype.app = app;
         customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
     };
     var TabHandle$1 = {
-        register: register$e
+        register: register$g
     };
 
     class TabContent extends HTMLElement {
-        connectedCallback() {
-        }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$d = app => {
+    const register$f = app => {
         TabContent.prototype.app = app;
         customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
     };
     var TabContent$1 = {
-        register: register$d
+        register: register$f
     };
 
     class TabPanel extends HTMLElement {
@@ -1652,23 +1987,87 @@
         set tid(value) {
             this.setAttribute('tid', value);
         }
+        disconnectedCallback() {
+            contextMenu.unregister(this);
+        }
         connectedCallback() {
+            contextMenu.register(this, document.createElement('tab-menu'));
+            this.on('paste', e => {
+                cardCopy.paste(this);
+            });
         }
         constructor(self) {
             self = super(self);
+            self.on = on;
+            self.trigger = trigger;
             return self;
         }
     }
-    const register$c = app => {
+    const register$e = app => {
         TabPanel.prototype.app = app;
         customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel);
     };
     var TabPanel$1 = {
-        register: register$c
+        register: register$e
+    };
+
+    const getFileName = () => {
+        return `ghastly-creatures-${new Date().toISOString().substring(0,19).replace(/[T\:]/g, '-')}.json`;
+    };
+    const removeActiveKey = entry => {
+        delete entry.active;
+        return entry;
+    };
+    const getData = ({
+        cidData,
+        tidData
+    } = {}) => {
+        if (cidData) {
+            let card = cardStore.get(cidData);
+            let tab = tabStore.get(card);
+            return {
+                tabs: {
+                    [tabStore.toTid(tab)]: [tab].map(removeActiveKey)
+                },
+                cards: {
+                    [cardStore.toCid(card)]: [card]
+                }
+            }
+        }
+        if (tidData) {
+            return {
+                cards: cardStore.values(['tid', '===', cardStore.toTid(tidData)]),
+                tabs: tabStore.values(['tid', '===', tabStore.toTid(tidData)]).map(removeActiveKey)
+            }
+        }
+        return {
+            cards: cardStore.values(),
+            tabs: tabStore.values().map(removeActiveKey)
+        }
+    };
+    const getUrl = (fileName, {
+        cidData,
+        tidData
+    } = {}) => {
+        const data = [JSON.stringify(getData({
+            cidData,
+            tidData
+        }))];
+        return URL.createObjectURL(new File(
+            data,
+            fileName, {
+                type: 'application/json',
+            }
+        ))
+    };
+    var exporter = {
+        getFileName,
+        getUrl
     };
 
     class TabMenu extends HTMLElement {
         connectedCallback() {
+            const tab = tabManager.getTab(this.owner);
             const menu = src.ul({
                 content: [
                     src.li({
@@ -1678,13 +2077,16 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.app.styleStorage = this.owner.styles;
+                                this.app.styleStorage = tab.styles;
                                 properties.set('styleStorage', true);
                             }
                         },
                     }),
                     src.li({
                         classNames: ['storage-dependent'],
+                        data: {
+                            storage: 'style'
+                        },
                         content: 'Paste card style',
                         events: {
                             pointerup: e => {
@@ -1692,7 +2094,7 @@
                                     return true;
                                 }
                                 this.app.trigger('tabStyleChange', {
-                                    tab: this.owner,
+                                    tab,
                                     styles: this.app.styleStorage
                                 });
                             }
@@ -1706,7 +2108,7 @@
                                     return true;
                                 }
                                 this.app.trigger('styleReset', {
-                                    tab: this.owner
+                                    tab
                                 });
                             }
                         },
@@ -1714,16 +2116,39 @@
                     src.li({
                         classNames: ['context-separator','storage-dependent'],
                         content: 'Paste card',
+                        data: {
+                            storage: 'card'
+                        },
                         events: {
                             pointerup: e => {
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.app.trigger('cardPaste', {
-                                    tab: this.owner,
-                                    styles: this.app.cardCopy
-                                });                        }
+                                cardCopy.paste(tab);
+                            }
                         },
+                    }),
+                    src.li({
+                        content: src.a({
+                            content: 'Export cards from this tab',
+                            events: {
+                                pointerup: e => {
+                                    if (e.button !== 0) {
+                                        return true;
+                                    }
+                                    const fileName = exporter.getFileName();
+                                    e.target.download = fileName;
+                                    console.log(fileName);
+                                    e.target.href = exporter.getUrl(fileName, {
+                                        tidData: tab
+                                    });
+                                    setTimeout(() => {
+                                        e.target.download = '';
+                                        URL.revokeObjectURL(e.target.href);
+                                    }, 200);
+                                }
+                            }
+                        })
                     }),
                     src.li({
                         classNames: ['context-separator'],
@@ -1733,7 +2158,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.owner.makeEditable();
+                                tab.makeEditable();
                             }
                         },
                     }),
@@ -1744,7 +2169,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'soft');
+                                tabManager.handleRemoval(tab, 'soft');
                             }
                         },
                     }),
@@ -1756,7 +2181,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'empty');
+                                tabManager.handleRemoval(tab, 'empty');
                             }
                         },
                     }),
@@ -1768,7 +2193,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'others');
+                                tabManager.handleRemoval(tab, 'others');
                             }
                         },
                     }),
@@ -1780,7 +2205,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                tabManager.handleRemoval(this.owner, 'all');
+                                tabManager.handleRemoval(tab, 'all');
                             }
                         },
                     })
@@ -1793,12 +2218,12 @@
             return self;
         }
     }
-    const register$b = app => {
+    const register$d = app => {
         TabMenu.prototype.app = app;
         customElements.get('tab-menu') || customElements['define']('tab-menu', TabMenu);
     };
     var TabMenu$1 = {
-        register: register$b
+        register: register$d
     };
 
     class StyleEditor extends HTMLElement {
@@ -1818,15 +2243,15 @@
             return self;
         }
     }
-    const register$a = app => {
+    const register$c = app => {
         StyleEditor.prototype.app = app;
         customElements.get('style-editor') || customElements['define']('style-editor', StyleEditor);
     };
     var StyleEditor$1 = {
-        register: register$a
+        register: register$c
     };
 
-    var fonts = [
+    var fonts$1 = [
     	{
     		label: "Almendra",
     		id: "almendra",
@@ -1919,45 +2344,6 @@
     	}
     ];
 
-    var cssProps$1 = {
-    	":root": {
-    	"--c-color": "hsl(0, 0%, 0%)",
-    	"--c-card-font": "\"Della Respira\", serif",
-    	"--c-bg-h": "45",
-    	"--c-bg-s": "93%",
-    	"--c-bg-l": "89%",
-    	"--c-bg-pattern": "url(../media/patterns/backgrounds/light-rocky-wall.png)",
-    	"--c-border-h": "201",
-    	"--c-border-s": "39%",
-    	"--c-border-l": "24%",
-    	"--c-border-pattern": "url(../media/patterns/borders/crosshatch-2.png)",
-    	"--c-box-shadow-color": "hsl(0, 0%, 0%, 0.4)",
-    	"--c-badge-font": "\"Della Respira\", serif",
-    	"--c-badge-h": "168",
-    	"--c-badge-s": "22%",
-    	"--c-badge-l": "63%",
-    	"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
-    	"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
-    	"--c-button-color": "var(--text-color)",
-    	"--c-card-font-size": "1.1rem",
-    	"--c-badge-font-size": "1.5rem"
-    }
-    };
-
-    let props = {};
-    for (let values of Object.values(cssProps$1)) {
-        props = {
-            ...props,
-            ...values
-        };
-    }
-    const get = key => {
-        return props[key];
-    };
-    var cssProps = {
-        get
-    };
-
     class FontSelector extends HTMLElement {
         get name() {
             return this.getAttribute('name');
@@ -1970,12 +2356,12 @@
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
             this.styleArea = 'fonts';
-            this.currentFont = cssProps.get(this.name);
+            this.currentFont = styleStore.get(this.name);
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
                 },
-                content: fonts.map(entry => {
+                content: fonts$1.map(entry => {
                     return src.option({
                         attributes: {
                             value: entry.family,
@@ -2006,8 +2392,8 @@
             this.app.on('tabStyleChange', e => {
                 const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
-                    cssProps.get(this.name);
-                selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
+                    styleStore.get(this.name);
+                selector.selectedIndex = fonts$1.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
                 this.selected = value;
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
@@ -2024,12 +2410,12 @@
             return self;
         }
     }
-    const register$9 = app => {
+    const register$b = app => {
         FontSelector.prototype.app = app;
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$9
+        register: register$b
     };
 
     class FontSize extends HTMLElement {
@@ -2061,7 +2447,7 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-size> element`);
             }
-            this.value = parseFloat(cssProps.get(this.name) || 1.4, 10);
+            this.value = parseFloat(styleStore.get(this.name) || 1.4, 10);
             this.styleArea = 'fonts';
             const attributes = {
                 value: this.value,
@@ -2092,7 +2478,7 @@
             this.app.on('tabStyleChange', e => {
                 this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
-                    cssProps.get(this.name);
+                    styleStore.get(this.name);
                 input.value = parseFloat(this.value, 10);
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
@@ -2109,15 +2495,15 @@
             return self;
         }
     }
-    const register$8 = app => {
+    const register$a = app => {
         FontSize.prototype.app = app;
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$8
+        register: register$a
     };
 
-    var backgrounds = [
+    var backgrounds$1 = [
     	{
     		label: "Dark Ice Age",
     		id: "dark-ice-age",
@@ -2150,7 +2536,7 @@
     	}
     ];
 
-    var borders = [
+    var borders$1 = [
     	{
     		label: "Cloud",
     		id: "cloud",
@@ -2184,8 +2570,8 @@
     ];
 
     const patternPool = {
-        backgrounds,
-        borders
+        backgrounds: backgrounds$1,
+        borders: borders$1
     };
     class PatternSelector extends HTMLElement {
         get value() {
@@ -2216,7 +2602,7 @@
                     return input.value;
                 }
             }
-            return cssProps.get(this.name) || '';
+            return styleStore.get(this.name) || '';
         }
         connectedCallback() {
             if (!this.name) {
@@ -2275,7 +2661,7 @@
             this.app.on('tabStyleChange', e => {
                 this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
-                    cssProps.get(this.name);
+                    styleStore.get(this.name);
                 inputs.find(e => e.value === this.value).checked = true;
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
@@ -2292,12 +2678,12 @@
             return self;
         }
     }
-    const register$7 = app => {
+    const register$9 = app => {
         PatternSelector.prototype.app = app;
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
-        register: register$7
+        register: register$9
     };
 
     const tracksToValueObj = tracks => {
@@ -2496,7 +2882,7 @@
             const pattern = this.name.replace('-color', '-');
             const channels = [];
             ['h', 's', 'l'].forEach(channel => {
-                channels.push(cssProps.get(pattern + channel));
+                channels.push(styleStore.get(pattern + channel));
             });
             return `hsl(${channels.join(' ')})`;
         }
@@ -2570,7 +2956,7 @@
                 ranges.forEach(input => {
                     const formatted = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][input.name] ?
                         e.detail.styles[this.styleArea][input.name] :
-                        cssProps.get(input.name);
+                        styleStore.get(input.name);
                     input.value = parseFloat(formatted, 10);
                     this.app.trigger(`singleStyleChange`, {
                         name: input.name,
@@ -2588,141 +2974,12 @@
             return self;
         }
     }
-    const register$6 = app => {
+    const register$8 = app => {
         ColorSelector.prototype.app = app;
         customElements.get('color-selector') || customElements['define']('color-selector', ColorSelector);
     };
     var ColorSelector$1 = {
-        register: register$6
-    };
-
-    let toast;
-    const initiate = (element, label) => {
-        if (!toast) {
-            toast = src.div({
-                data: {
-                    undoDialogs: true
-                }
-            });
-            document.body.append(toast);
-        }
-        properties.set('softDeleted', true, element);
-        const dialog = document.createElement('undo-dialog');
-        dialog.element = element;
-        if (label) {
-            dialog.label = label;
-        }
-        toast.append(dialog);
-        return new Promise(resolve => {
-            dialog.on('restore', e => {
-                properties.unset('softDeleted', element);
-                resolve({
-                    action: 'restore',
-                    element: e.detail.element
-                });
-            });
-            dialog.on('remove', e => {
-                resolve({
-                    action: 'remove',
-                    element: e.detail.element
-                });
-            });
-        })
-    };
-    const cancel = () => {
-        if (toast) {
-            toast = src.empty(toast);
-        }
-    };
-    var softDelete = {
-        initiate,
-        cancel
-    };
-
-    let app;
-    const origin = 'user';
-    const getLabels = () => {
-        const characterLabels = {};
-        for (let [key, value] of Object.entries(labels$1)) {
-            if (key.startsWith('__')) {
-                continue;
-            }
-            characterLabels[key] = value.short;
-        }
-        return characterLabels;
-    };
-    const add = character => {
-        let cid;
-        let tid;
-        let tab;
-        if (character.meta && character.meta.tid) {
-            cid = characterStorage.parseCid(character);
-            tab = tabManager.getTab(character.meta.tid);
-            tid = tabStorage.parseTid(tab);
-        } else {
-            cid = characterStorage.nextIncrement(origin);
-            character = structuredClone(character);
-            tab = tabManager.getTab('active');
-            tid = tabStorage.parseTid(tab);
-        }
-        character.meta = {
-            ...character.meta,
-            ...{
-                visibility,
-                tid,
-                cid,
-                origin
-            }
-        };
-        if (!character.labels) {
-            character.labels = getLabels();
-        }
-        characterStorage.set(origin, cid, character);
-        const card = document.createElement('card-base');
-        card.cid = cid;
-        card.tid = tid;
-        card.character = character;
-        tab.panel.append(card);
-    };
-    const bulkDelete = (type, tidData) => {
-        src.$$('card-base', tabManager.getTab(tidData)).forEach(card => {
-            characterStorage.remove(type, card);
-            handleRemoval(card, 'remove');
-        });
-    };
-    const handleRemoval = (element, action) => {
-        switch (action) {
-            case 'soft':
-                softDelete.initiate(element, characterStorage.get(origin, element).props.name)
-                    .then(data => {
-                        handleRemoval(element, data.action);
-                    });
-                characterStorage.update(origin, element, 'softDeleted', true);
-                break;
-            case 'restore':
-                characterStorage.update(origin, element, 'softDeleted', null);
-                break;
-            case 'remove':
-                characterStorage.remove(origin, element);
-                element.remove();
-                break;
-            case 'all':
-                bulkDelete(origin, element);
-                break;
-        }
-    };
-    const init = _app => {
-        app = _app;
-        app.on('tabDelete', e => {
-            handleRemoval(e.detail.tab, 'all');
-        });
-        app.on('characterSelection', e => {
-            add(e.detail);
-        });
-    };
-    var cardManager = {
-        init,
-        handleRemoval
+        register: register$8
     };
 
     class CardBase extends HTMLElement {
@@ -2737,6 +2994,12 @@
         }
         set tid(value) {
             this.setAttribute('tid', value);
+        }
+        get tabindex() {
+            return this.getAttribute('tabindex');
+        }
+        set tabindex(value) {
+            this.setAttribute('tabindex', value);
         }
         connectedCallback() {
             ['recto', 'verso', 'form', 'toolbar'].forEach(view => {
@@ -2757,14 +3020,15 @@
                 ]
             });
             this.append(cardInner);
+            this.tabIndex = 0;
             this.on('contentChange', function (e) {
                 const section = e.detail.field === 'text' ? 'props' : 'labels';
                 this.character[section][e.detail.key] = e.detail.value;
-                characterStorage.set('user', this.character.meta.cid, this.character);
+                cardStore.set(this.character.cid, this.character);
             });
             this.on('visibilityChange', function (e) {
-                this.character.meta.visibility[e.detail.key][e.detail.field] = e.detail.value;
-                characterStorage.set('user', this.character.meta.cid, this.character);
+                this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
+                cardStore.set(this.character.cid, this.character);
                 this.trigger('afterVisibilityChange');
             });
             this.on('orderChange', function (e) {
@@ -2772,13 +3036,14 @@
                 e.detail.order.forEach(key => {
                     props[key] = this.character.props[key];
                 });
-                this.character.props = props;
-                characterStorage.set('user', this.character.meta.cid, this.character);
+                cardStore.set(`${this.character.cid}.props`, props);
                 this.trigger('afterOrderChange');
             });
             this.on('characterCut', function (e) {
+                cardCopy.cut(this);
             });
             this.on('characterCopy', function (e) {
+                cardCopy.copy(this);
             });
             this.on('characterRemove', function (e) {
                 cardManager.handleRemoval(this, 'soft');
@@ -2791,6 +3056,17 @@
                 properties.unset('cardState');
                 this.classList.remove('editable');
             });
+            this.on('keyup', e => {
+                if (e.ctrlKey && ['x', 'c'].includes(e.key)) {
+                    cardCopy[e.key === 'x' ? 'cut' : 'copy'](this);
+                }
+                if (e.key === 'Escape') {
+                    cardCopy.clear(this);
+                }
+                if (e.key === 'Delete') {
+                    cardManager.handleRemoval(this, 'soft');
+                }
+            });
         }
         constructor(self) {
             self = super(self);
@@ -2799,11 +3075,12 @@
             return self;
         }
     }
-    const register$5 = () => {
+    const register$7 = app => {
+        CardBase.prototype.app = app;
         customElements.get('card-base') || customElements['define']('card-base', CardBase);
     };
     var CardBase$1 = {
-        register: register$5
+        register: register$7
     };
 
     let dragSrcEl = null;
@@ -2825,7 +3102,7 @@
     function handleDragLeave(e) {
         this.classList.remove('dragover');
     }
-    function handleDrop(e) {
+    function handleDrop$1(e) {
         e.stopPropagation();
         if (!dragSrcEl.isSameNode(this)) {
             this.after(dragSrcEl);
@@ -2842,7 +3119,7 @@
         dragenter: handleDragEnter,
         dragover: handleDragOver,
         dragleave: handleDragLeave,
-        drop: handleDrop,
+        drop: handleDrop$1,
         dragend: handleDragEnd,
     };
     function toggle(elem, state) {
@@ -2867,9 +3144,9 @@
     class CardForm extends HTMLElement {
         isVisible(key, type) {
             if (type === 'text') {
-                return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+                return this.card.character.visibility[key][type] && !!this.card.character.props[key];
             }
-            return this.card.character.meta.visibility[key][type];
+            return this.card.character.visibility[key][type];
         }
         icon(type) {
             let title;
@@ -2923,7 +3200,7 @@
                             .map(entry => entry.dataset.key)
                     })()
                 });
-                });
+            });
             return row;
         }
         buildCells(key) {
@@ -2934,6 +3211,12 @@
                 }
                 draggable[action](row);
             }
+            const fieldEvents = {
+                focus: e => handleDraggability(e, 'disable'),
+                blur: e => handleDraggability(e, 'enable'),
+                keyup: e => e.target.textContent = sanitizeText(e.target.textContent),
+                paste: e => e.target.textContent = sanitizeText(e.target.textContent),
+            };
             const entries = {
                 label: src.th({
                     data: {
@@ -2943,10 +3226,7 @@
                         contentEditable: true
                     },
                     content: this.card.character.labels[key],
-                    events: {
-                        focus: e => handleDraggability(e, 'disable'),
-                        blur: e => handleDraggability(e, 'enable')
-                    }
+                    events: fieldEvents
                 }),
                 element: src.td({
                     data: {
@@ -2956,10 +3236,7 @@
                         contentEditable: true
                     },
                     content: this.card.character.props[key],
-                    events: {
-                        focus: e => handleDraggability(e, 'disable'),
-                        blur: e => handleDraggability(e, 'enable')
-                    }
+                    events: fieldEvents
                 }),
                 labelIcon: src.td({
                     data: {
@@ -3011,7 +3288,7 @@
                                 },
                                 content: [
                                     src.th({
-                                        content: labels$1.img.long
+                                        content: labelStore.get('img.long')
                                     }),
                                     src.td({
                                         attributes: {
@@ -3065,12 +3342,12 @@
             return self;
         }
     }
-    const register$4 = app => {
+    const register$6 = app => {
         CardForm.prototype.app = app;
         customElements.get('card-form') || customElements['define']('card-form', CardForm);
     };
     var CardForm$1 = {
-        register: register$4
+        register: register$6
     };
 
     class CardRecto extends HTMLElement {
@@ -3113,12 +3390,12 @@
             return self;
         }
     }
-    const register$3 = app => {
+    const register$5 = app => {
         CardRecto.prototype.app = app;
         customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
     };
     var CardRecto$1 = {
-        register: register$3
+        register: register$5
     };
 
     class CardToolbar extends HTMLElement {
@@ -3243,17 +3520,17 @@
             return self;
         }
     }
-    const register$2 = app => {
+    const register$4 = app => {
         CardToolbar.prototype.app = app;
         customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar);
     };
     var CardToolbar$1 = {
-        register: register$2
+        register: register$4
     };
 
     class CardVerso extends HTMLElement {
         isVisible(key, type) {
-            return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+            return this.card.character.visibility[key][type] && !!this.card.character.props[key];
         }
         populateTbody(tbody) {
             tbody = src.empty(tbody);
@@ -3327,12 +3604,12 @@
             return self;
         }
     }
-    const register$1 = app => {
+    const register$3 = app => {
         CardVerso.prototype.app = app;
         customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
     };
     var CardVerso$1 = {
-        register: register$1
+        register: register$3
     };
 
     class UndoDialog extends HTMLElement {
@@ -3394,17 +3671,371 @@
             return self;
         }
     }
-    const register = () => {
+    const register$2 = () => {
         customElements.get('undo-dialog') || customElements['define']('undo-dialog', UndoDialog);
     };
     var UndoDialog$1 = {
+        register: register$2
+    };
+
+    class ImportExport extends HTMLElement {
+        connectedCallback() {
+            const listing = src.div({
+                classNames: ['import-export-menu'],
+                content: [
+                    src.a({
+                        attributes: {
+                            download: '',
+                        },
+                        content: 'Export cards',
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                const fileName = exporter.getFileName();
+                                e.target.download = fileName;
+                                e.target.href = exporter.getUrl(fileName);
+                                setTimeout(() => {
+                                    e.target.download = '';
+                                    URL.revokeObjectURL(e.target.href);
+                                }, 200);
+                            }
+                        }
+                    }),
+                    src.a({
+                        attributes: {
+                            download: true
+                        },
+                        content: 'Import cards',
+                        events: {
+                            click: e => {
+                                let currentState = properties.get('importState');
+                                if (!currentState) {
+                                    properties.set('importState', 'pristine');
+                                } else if (currentState === 'pristine') {
+                                    properties.unset('importState');
+                                }
+                            }
+                        }
+                    })
+                ]
+            });
+            document.addEventListener('keyup', e => {
+                if (e.key === 'Escape' && properties.get('importState') === 'pristine') {
+                    properties.unset('importState');
+                }
+            });
+            this.append(listing);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$1 = () => {
+        customElements.get('import-export') || customElements['define']('import-export', ImportExport);
+    };
+    var ImportExport$1 = {
+        register: register$1
+    };
+
+    let cardQuarantine;
+    let tabQuarantine;
+    const sanitizeObject = (base, uploaded) => {
+        const sanitized = {};
+        Object.keys(base).forEach(key => {
+            sanitized[key] = sanitizeText(uploaded[key]);
+        });
+        return sanitized;
+    };
+    const quarantineCards = cards => {
+        cards.forEach(card => {
+            const model = cardQuarantine.getBlank();
+            ['props', 'labels', 'visibility'].forEach(key => {
+                if (!card[key]) {
+                    delete model[key];
+                } else {
+                    model[key] = sanitizeObject(model[key], card[key]);
+                }
+            });
+            model.cid = cardQuarantine.nextIncrement();
+            tabQuarantine.set(model.cid, model);
+        });
+    };
+    const quarantineTabs = tabs => {
+        tabs.forEach(tab => {
+            const model = tabQuarantine.getBlank();
+            if (!tab.styles) {
+                delete model.styles;
+            } else {
+                model.styles = sanitizeObject(model.styles, tab.styles);
+            }
+            if (!(/^[CDILMVX]+$/.test(tab.title))) {
+                model.title = tab.title;
+            }
+            for (let [cid, card] of cardQuarantine.entries()) {
+                if (cardQuarantine.toTid(card) === tabQuarantine.toTid(tab)) {
+                    cardQuarantine.set(`${cid}.tid`, model.tid);
+                }
+            }
+            cardQuarantine.set(model.tid, model);
+        });
+    };
+    const structureIsValid = data => {
+        const keys = Object.keys(data);
+        return keys.includes('tabs') &&
+            keys.includes('cards') &&
+            Array.isArray(data.tabs) &&
+            Array.isArray(data.cards)
+    };
+    const process = dataArr => {
+        if (!tabQuarantine) {
+            tabQuarantine = new TabTree({
+                data: {},
+                minIncrement: tabStore.nextIncrement()
+            });
+        }
+        if (!cardQuarantine) {
+            cardQuarantine = new CharTree({
+                data: {},
+                minIncrement: cardStore.nextIncrement()
+            });
+        }
+        dataArr = dataArr.map(e => JSON.parse(e));
+        dataArr.forEach(data => {
+            if (!structureIsValid(data)) {
+                console.error(`Invalid import data`);
+            }
+            quarantineCards(data.cards);
+            quarantineTabs(data.tabs);
+            tabQuarantine.values().forEach(tab => {
+                tabManager.add(tab);
+            });
+            cardQuarantine.values().forEach(card => {
+                cardManager.add(card);
+            });
+            cardQuarantine.flush();
+            tabQuarantine.flush();
+            properties.unset('importState');
+        });
+    };
+    var importer = {
+        process
+    };
+
+    let dropArea;
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    function handleUploads(files) {
+        processFiles([...files]);
+    }
+    function handleDrop(e) {
+        processFiles(e.dataTransfer.files);
+    }
+    function processFiles(files) {
+        properties.set('importState', 'working');
+        files = Array.from(files).filter(file => !!file);
+        const finished = [];
+        for (let file of files) {
+            finished.push(new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            }));
+        }
+        Promise.all(finished).then(data => {
+            dropArea.dispatchEvent(
+                new CustomEvent(
+                    'uploadComplete', {
+                        detail: data
+                    }
+                )
+            );
+        }).catch(error => {
+            console.error(error.message);
+        });
+    }
+    function highlight(e) {
+        e.target.classList.add('active');
+    }
+    function unhighlight(e) {
+        e.target.classList.remove('active');
+    }
+    const assignEvents = () => {
+        const evt1 = ['dragenter', 'dragover'];
+        const evt2 = ['dragleave', 'drop'];
+        evt1.concat(evt2).forEach(evt => {
+            dropArea.addEventListener(evt, preventDefaults, false);
+            document.body.addEventListener(evt, preventDefaults, false);
+        });
+        evt1.forEach(evt => {
+            dropArea.addEventListener(evt, highlight, false);
+        });
+        evt2.forEach(evt => {
+            dropArea.addEventListener(evt, unhighlight, false);
+        });
+        dropArea.addEventListener('drop', handleDrop, false);
+    };
+    const init = _dropArea => {
+        dropArea = _dropArea;
+        assignEvents();
+    };
+    var uploader = {
+        init,
+        handleUploads
+    };
+
+    class FileUpload extends HTMLElement {
+        connectedCallback() {
+            const spinner = src.div({
+                classNames: ['spinner'],
+                content: src.svg({
+                    isSvg: true,
+                    content: src.use({
+                        isSvg: true,
+                        attributes: {
+                            href: 'media/icons.svg#icon-axe'
+                        }
+                    })
+                })
+            });
+            const label = src.label({
+                content: [
+                    src.span({
+                        classNames: ['button'],
+                        content: 'select'
+                    }),
+                    src.input({
+                        attributes: {
+                            type: 'file',
+                            multiple: true,
+                            accept: 'application/json'
+                        },
+                        events: {
+                            change: e => {
+                                uploader.handleUploads(e.target.files);
+                            }
+                        }
+                    })
+                ]
+            });
+            const uploadForm = src.form({
+                content: [
+                    src.p({
+                        content: ['Drop or ', label, ' your Ghastly Creatures files']
+                    })
+                ],
+                events: {
+                    uploadComplete: e => {
+                        importer.process(e.detail);
+                    }
+                }
+            });
+            uploader.init(uploadForm);
+            this.append(uploadForm, spinner);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register = () => {
+        customElements.get('file-upload') || customElements['define']('file-upload', FileUpload);
+    };
+    var FileUpload$1 = {
         register
+    };
+
+    var css = {
+    	entryPoint: "src/css/main.css",
+    	"public": "public/css/main.css"
+    };
+    var cssProps = {
+    	src: "src/css/inc/card-defs.css",
+    	target: "src/data/css-props.json"
+    };
+    var fonts = {
+    	src: "src/data/raw/fonts.txt",
+    	target: "src/data/fonts.json"
+    };
+    var backgrounds = {
+    	src: "public/media/patterns/backgrounds",
+    	target: "src/data/backgrounds.json"
+    };
+    var borders = {
+    	src: "public/media/patterns/borders",
+    	target: "src/data/borders.json"
+    };
+    var characters = {
+    	src: "src/data/raw/monsters.json",
+    	target: "public/js/characters.json",
+    	url: "js/characters.json"
+    };
+    var fields = {
+    	src: "src/config/field-config.yml"
+    };
+    var labels = {
+    	target: "src/data/labels.json"
+    };
+    var visibility = {
+    	target: "src/data/visibility.json"
+    };
+    var js = {
+    	entryPoint: "src/js/app/main.js",
+    	"public": "public/js/main.js"
+    };
+    var storageKeys = {
+    	user: "gc-user-prefs",
+    	cards: "gc-cards",
+    	tabs: "gc-tabs"
+    };
+    var userCharacters = {
+    	inLibrary: true
+    };
+    var config = {
+    	css: css,
+    	cssProps: cssProps,
+    	fonts: fonts,
+    	backgrounds: backgrounds,
+    	borders: borders,
+    	characters: characters,
+    	fields: fields,
+    	labels: labels,
+    	visibility: visibility,
+    	js: js,
+    	storageKeys: storageKeys,
+    	userCharacters: userCharacters
     };
 
     class App extends HTMLElement {
         connectedCallback() {
-            characterStorage.init()
-                .then(() => {
+            const settings = new Tree({
+                data: config
+            });
+            const launchData = {
+                tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs')) || '{}'),
+                system: {},
+                stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards')) || '{}'),
+                settings
+            };
+            fetch(settings.get('characters.url'))
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach((props, cid) => {
+                        launchData.system[cid] = {
+                            cid,
+                            props
+                        };
+                    });
+                    initStorage(launchData);
                     [
                         TabContent$1,
                         TabHandle$1,
@@ -3417,6 +4048,8 @@
                     tabManager.init(this);
                     cardManager.init(this);
                     [
+                        ImportExport$1,
+                        FileUpload$1,
                         CharacterLibrary$1,
                         LibraryOrganizer$1,
                         StyleEditor$1,

@@ -10,7 +10,7 @@ card-recto {
     margin: auto;
   }
 
-  & .frame {    
+  & .frame {
     justify-content: flex-end;
   }
 

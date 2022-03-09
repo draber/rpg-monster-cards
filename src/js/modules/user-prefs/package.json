@@ -1,6 +1,0 @@
-{
-    "name": "user-prefs",
-    "version": "1.0.0",
-    "main": "userPrefs.js",
-    "type": "module"
-}

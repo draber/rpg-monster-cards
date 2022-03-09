@@ -9,7 +9,7 @@
   } */
 
   & .column-content {
-    padding: 3.5rem 2.5rem;
+    padding: 0;
     display: block;
     background: var(--bg-light)
       url(../media/patterns/system/light-rocky-wall.png);

@@ -1,5 +1,5 @@
 import fn from 'fancy-node';
-import cssProps from '../../../../modules/cssProps/cssProps.js';
+import { styleStore } from '../../../storage/storage.js';
 import {
     on,
     trigger
@@ -83,7 +83,7 @@ class FontSize extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-size> element`);
         }
 
-        this.value = parseFloat(cssProps.get(this.name) || 1.4, 10);
+        this.value = parseFloat(styleStore.get(this.name) || 1.4, 10);
         this.styleArea = 'fonts';
 
         const attributes = {
@@ -121,7 +121,7 @@ class FontSize extends HTMLElement {
         this.app.on('tabStyleChange', e => {   
             this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                 e.detail.styles[this.styleArea][this.name] :
-                cssProps.get(this.name);
+                styleStore.get(this.name);
             input.value = parseFloat(this.value, 10);
             this.app.trigger(`singleStyleChange`, {
                 name: this.name,

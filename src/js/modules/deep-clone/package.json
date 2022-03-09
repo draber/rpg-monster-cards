@@ -1,0 +1,6 @@
+{
+    "name": "deep-clone",
+    "version": "1.0.0",
+    "main": "deep-clone.js",
+    "type": "module"
+}

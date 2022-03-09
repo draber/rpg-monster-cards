@@ -1,19 +1,18 @@
-import fn from 'fancy-node';
+import {
+    on,
+    trigger
+} from '../../../modules/events/eventHandler.js';
 
 /**
- * Custom element containing the list of fonts
+ * Custom element containing the tab panels
+ * Not much going on here
  */
-class TabContent extends HTMLElement {
-
-    /**
-     * Called on element launch
-     */
-    connectedCallback() {
-
-    }
+class TabContent extends HTMLElement { 
 
     constructor(self) {
         self = super(self);
+        self.on = on;
+        self.trigger = trigger;
         return self;
     }
 }

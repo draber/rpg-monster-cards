@@ -5,7 +5,7 @@ import {
 } from '../../../modules/events/eventHandler.js';
 
 /**
- * Custom element containing the list of fonts
+ * Custom element annoiuncing that an element has been deleted and can be either restored or hard deleted
  */
 class UndoDialog extends HTMLElement {
 
@@ -15,6 +15,7 @@ class UndoDialog extends HTMLElement {
      */
     connectedCallback() {
 
+        // closing the dialog hard deletes the element
         const closeBtn = fn.span({
             content: '×',
             classNames: ['closer', 'btn'],
@@ -31,7 +32,7 @@ class UndoDialog extends HTMLElement {
             }
         })
 
-
+        // cancel the deletion process
         const undoBtn = fn.button({
             attributes: {
                 type: 'text'
@@ -50,10 +51,12 @@ class UndoDialog extends HTMLElement {
             content: 'Undo'
         });
 
+        // text portion of the dialog
         const undoTitle = fn.h2({
             content: `${(this.label || 'An element')} has been deleted`
         })
 
+        // the complete dialog
         const dialog = fn.aside({
             content: [
                 closeBtn,
@@ -64,6 +67,7 @@ class UndoDialog extends HTMLElement {
 
         this.append(dialog);
 
+        // hard delete after 10 seconds
         setTimeout(() => {            
             this.trigger('remove', {
                 element: this.element

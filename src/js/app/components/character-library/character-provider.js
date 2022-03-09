@@ -1,6 +1,9 @@
 import sorter from '../../../modules/sorter/sorter.js';
-import labels from '../../../../data/labels.json';
-import characterStorage from './character-storage.js';
+import {
+    systemStore,
+    cardStore,
+    labelStore
+} from '../../storage/storage.js'
 
 
 /**
@@ -10,21 +13,21 @@ import characterStorage from './character-storage.js';
  * @returns {Object} modified entry
  */
 const prepareGroupSort = (entry, groupBy) => {
-    if (entry.props[groupBy] === '' || typeof entry.props[groupBy] === 'undefined') {
-        entry.props[groupBy] = 'n/a';
+    if (typeof entry.props[groupBy] === 'undefined') {
+        entry.props[groupBy] = '';
     }
     switch (groupBy) {
         case '__user':
-            entry.meta._groupValue = labels.__user.group;
-            entry.meta._groupLabel = labels.__user.group;
+            entry._groupValue = labelStore.get('__user.group');
+            entry._groupLabel = labelStore.get('__user.group');
             break;
         case 'name':
-            entry.meta._groupValue = entry.props.name.charAt(0).toUpperCase();
-            entry.meta._groupLabel = `${labels[groupBy].group}: ${entry.meta._groupValue}`;
+            entry._groupValue = entry.props.name.charAt(0).toUpperCase();
+            entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry._groupValue;
             break
         default:
-            entry.meta._groupValue = entry.props[groupBy];
-            entry.meta._groupLabel = `${labels[groupBy].group}: ${entry.props[groupBy]}`
+            entry._groupValue = entry.props[groupBy];
+            entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry.props[groupBy]
     }
 
     return entry;
@@ -45,10 +48,11 @@ const getSortedCharacters = (type, {
     sortDir = 'name'
 } = {}) => {
     let grouped = {};
-    for (let entry of characterStorage.values(type)) {
+    const store = type === 'user' ? cardStore : systemStore;
+    for (let entry of store.values()) {
         entry = prepareGroupSort(entry, groupBy);
-        grouped[entry.meta._groupValue] = grouped[entry.meta._groupValue] || [];
-        grouped[entry.meta._groupValue].push(entry)
+        grouped[entry._groupValue] = grouped[entry._groupValue] || [];
+        grouped[entry._groupValue].push(entry)
     }
     if (type === 'system') {
         grouped = sorter.group(grouped, groupDir);

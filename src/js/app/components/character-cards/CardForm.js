@@ -5,15 +5,20 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js';
-import labels from '../../../../data/labels.json';
+import {
+    sanitizeText
+} from '../../../modules/string/string.js';
+import {
+    labelStore
+} from '../../storage/storage.js';
 
 class CardForm extends HTMLElement {
 
     isVisible(key, type) {
         if (type === 'text') {
-            return this.card.character.meta.visibility[key][type] && !!this.card.character.props[key];
+            return this.card.character.visibility[key][type] && !!this.card.character.props[key];
         }
-        return this.card.character.meta.visibility[key][type];
+        return this.card.character.visibility[key][type];
     }
 
     icon(type) {
@@ -72,7 +77,7 @@ class CardForm extends HTMLElement {
                         .map(entry => entry.dataset.key)
                 })()
             })
-            })
+        })
         return row;
     }
 
@@ -88,6 +93,13 @@ class CardForm extends HTMLElement {
             draggable[action](row);
         }
 
+        const fieldEvents = {
+            focus: e => handleDraggability(e, 'disable'),
+            blur: e => handleDraggability(e, 'enable'),
+            keyup: e => e.target.textContent = sanitizeText(e.target.textContent),
+            paste: e => e.target.textContent = sanitizeText(e.target.textContent),
+        }
+
         const entries = {
             label: fn.th({
                 data: {
@@ -97,10 +109,7 @@ class CardForm extends HTMLElement {
                     contentEditable: true
                 },
                 content: this.card.character.labels[key],
-                events: {
-                    focus: e => handleDraggability(e, 'disable'),
-                    blur: e => handleDraggability(e, 'enable')
-                }
+                events: fieldEvents
             }),
             element: fn.td({
                 data: {
@@ -110,10 +119,7 @@ class CardForm extends HTMLElement {
                     contentEditable: true
                 },
                 content: this.card.character.props[key],
-                events: {
-                    focus: e => handleDraggability(e, 'disable'),
-                    blur: e => handleDraggability(e, 'enable')
-                }
+                events: fieldEvents
             }),
             labelIcon: fn.td({
                 data: {
@@ -173,7 +179,7 @@ class CardForm extends HTMLElement {
                             },
                             content: [
                                 fn.th({
-                                    content: labels.img.long
+                                    content: labelStore.get('img.long')
                                 }),
                                 fn.td({
                                     attributes: {

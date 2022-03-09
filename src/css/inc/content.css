@@ -4,6 +4,12 @@ main {
   display: flex;
 }
 
+[data-import-state]{
+  & main {
+      display: none;
+  }
+}
+
 section, style-editor {
   &.column {
     display: flex;

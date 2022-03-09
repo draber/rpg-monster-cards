@@ -1,13 +1,6 @@
-tab-panel {
-    display: none;
-    gap: 2.5rem;
-    flex-wrap: wrap;
-    &.active {
-        display: flex
-    }
-}
-
+// tab container
 tab-content {
-    display: block
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
 }
-

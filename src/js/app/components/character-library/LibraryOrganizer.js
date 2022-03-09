@@ -1,7 +1,9 @@
 import fn from 'fancy-node';
 import visibility from '../../../../data/visibility.json';
-import labels from '../../../../data/labels.json';
-import userPrefs from '../../../modules/user-prefs/userPrefs.js';
+import {
+    prefStore,
+    labelStore
+} from '../../storage/storage';
 import {
     on,
     trigger
@@ -38,20 +40,20 @@ class LibraryOrganizer extends HTMLElement {
          * On click provide a the new criteria to group by
          */
         this.on('pointerdown', e => {
-            if(e.button !== 0){
+            if (e.button !== 0) {
                 return true;
             }
             const li = e.target.closest('li');
             if (!li) {
                 return false;
             }
-            userPrefs.set('characters.groupBy', li.dataset.groupBy);
+            prefStore.set('characters.groupBy', li.dataset.groupBy);
             this.app.trigger('characterOrderChange', {
                 groupBy: li.dataset.groupBy
             })
         })
 
-        this.groupBy = userPrefs.get('characters.groupBy') || this.groupBy || 'name';
+        this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
 
         const icon = fn.svg({
             isSvg: true,
@@ -72,8 +74,8 @@ class LibraryOrganizer extends HTMLElement {
         const list = fn.ul();
         box.append(title, list);
 
-        for (let [key, value] of Object.entries(labels)) {
-            if(!visibility[key].group){
+        for (let [key, value] of labelStore.entries()) {
+            if (!visibility[key].group) {
                 continue;
             }
             let classNames = key === this.groupBy ? ['active'] : [];

@@ -1,7 +1,7 @@
 import fn from 'fancy-node';
 import backgrounds from '../../../../../data/backgrounds.json';
 import borders from '../../../../../data/borders.json';
-import cssProps from '../../../../modules/cssProps/cssProps.js';
+import { styleStore } from '../../../storage/storage.js';
 import {
     on,
     trigger
@@ -87,7 +87,7 @@ class PatternSelector extends HTMLElement {
                 return input.value;
             }
         }
-        return cssProps.get(this.name) || '';
+        return styleStore.get(this.name) || '';
     }
 
     /**
@@ -168,7 +168,7 @@ class PatternSelector extends HTMLElement {
         this.app.on('tabStyleChange', e => {
             this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                 e.detail.styles[this.styleArea][this.name] :
-                cssProps.get(this.name);
+                styleStore.get(this.name);
             inputs.find(e => e.value === this.value).checked = true;
 
             this.app.trigger(`singleStyleChange`, {

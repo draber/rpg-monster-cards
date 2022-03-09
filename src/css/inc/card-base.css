@@ -27,6 +27,10 @@
 card-base {
   display: block;
 
+  &:not(.editable) {
+    cursor: pointer;
+  }
+
   & article {
     position: relative;
     font-family: "Della Respira";
@@ -105,7 +109,7 @@ card-base {
     max-width: calc(100% - 0.8rem);
   }
 
-  &.summon {
+  /* &.summon {
     & .𝔘𝔫𝔥𝔬𝔩𝔡 {
       animation: summon 1s ease-in;
     }
@@ -115,7 +119,7 @@ card-base {
     & .𝔘𝔫𝔥𝔬𝔩𝔡 {
       animation: banish 1s ease-out;
     }
-  }
+  } */
 
   &.editable {
     width: 100%;
@@ -125,17 +129,25 @@ card-base {
     }
     & article {
       height: 100%;
-      gap: 1rem
+      gap: 1rem;
+    }
+  }
+
+  &:focus {
+    outline: 0.4rem var(--hd-color) solid;
+  }
+
+  &.cut {
+    & .card-view {
+      opacity: 0.6;
     }
   }
 }
 
-
-
 [data-card-state="edit"] {
   & card-base {
-    &:not(.editable){
-      display:none;
+    &:not(.editable) {
+      display: none;
     }
   }
 }
