@@ -24,6 +24,12 @@ const initStorage = launchData => {
         lsKey: settings.get('storageKeys.tabs')
     });
 
+    // ensure there is always at least one tab available
+    if(tabStore.length === 0){
+        const blank = tabStore.getBlank();
+        tabStore.set(blank.tid, blank);
+    }
+
     // characters provided by the system
     systemStore = new CharTree({
         data: launchData.system
@@ -41,14 +47,9 @@ const initStorage = launchData => {
         minIncrement: 6000
     });
 
-    // imported characters (not implemented)
-    // importStore = new CharTree({
-    //     minIncrement: 9000
-    // });
-
     // user preferences
     prefStore = new Tree({
-        data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user')) || {}),
+        data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
         lsKey: settings.get('storageKeys.user')
     })
 

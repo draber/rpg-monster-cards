@@ -17,6 +17,7 @@ import CardToolbar from './components/character-cards/CardToolbar.js';
 import CardVerso from './components/character-cards/CardVerso.js';
 import UndoDialog from './components/undo-dialog/UndoDialog.js';
 import ImportExport from './components/import-export/ImportExport.js';
+import FileUpload from './components/import-export/FileUpload.js';
 import cardManager from './components/character-cards/card-manager.js';
 import tabManager from './components/tabs/tab-manager.js';
 import {
@@ -36,9 +37,9 @@ class App extends HTMLElement {
         })
 
         const launchData = {
-            tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs'))) || {},
+            tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs')) || '{}'),
             system: {},
-            stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards'))) || {},
+            stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards')) || '{}'),
             settings
         }
 
@@ -74,7 +75,8 @@ class App extends HTMLElement {
                 cardManager.init(this);
 
                 [
-                    ImportExport,
+                    ImportExport, 
+                    FileUpload,
                     CharacterLibrary,
                     LibraryOrganizer,
                     StyleEditor,

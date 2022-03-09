@@ -4,20 +4,10 @@ import {
 } from '../../../modules/events/eventHandler.js';
 
 /**
- * Custom element containing the list of fonts
+ * Custom element containing the tab panels
+ * Not much going on here
  */
-class TabContent extends HTMLElement {    
-
-    disconnectedCallback() {
-        contextMenu.unregister(this);
-    }
-
-    /**
-     * Called on element launch
-     */
-    connectedCallback() {
-
-    }
+class TabContent extends HTMLElement { 
 
     constructor(self) {
         self = super(self);

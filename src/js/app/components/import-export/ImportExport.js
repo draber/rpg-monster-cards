@@ -4,6 +4,7 @@ import {
     trigger
 } from '../../../modules/events/eventHandler.js';
 import exporter from '../../../modules/import-export/exporter.js';
+import properties from '../../../modules/properties/properties.js';
 
 
 /**
@@ -17,6 +18,7 @@ class ImportExport extends HTMLElement {
     connectedCallback() {
 
         const listing = fn.div({
+            classNames: ['import-export-menu'],
             content: [
                 fn.a({
                     attributes: {
@@ -24,7 +26,10 @@ class ImportExport extends HTMLElement {
                     },
                     content: 'Export cards',
                     events: {
-                        click: e => {
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
+                            }
                             const fileName = exporter.getFileName();
                             e.target.download = fileName;
                             e.target.href = exporter.getUrl(fileName);
@@ -44,11 +49,23 @@ class ImportExport extends HTMLElement {
                     content: 'Import cards',
                     events: {
                         click: e => {
-                            console.log('upload')
+                            let currentState = properties.get('importState');
+                            if (!currentState) {
+                                properties.set('importState', 'pristine');
+                            } else if (currentState === 'pristine') {
+                                properties.unset('importState');
+                            }
+                            // else do nothing because the process has already started
                         }
                     }
                 })
             ]
+        })
+
+        document.addEventListener('keyup', e => {
+            if (e.key === 'Escape' && properties.get('importState') === 'pristine') {
+                properties.unset('importState');
+            }
         })
 
         this.append(listing);

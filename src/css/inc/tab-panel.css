@@ -1,0 +1,13 @@
+// individual panel
+tab-panel {
+    display: none;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    flex: 2;
+    padding: 3.5rem 2.5rem;
+    align-items: flex-start;
+    &.active {
+        display: flex
+    }
+}
+

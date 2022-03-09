@@ -11,7 +11,7 @@ import {
 } from '../../storage/storage.js';
 
 /**
- * Custom element containing the list of patterns
+ * Card container
  */
 class CardBase extends HTMLElement {
 
@@ -67,13 +67,14 @@ class CardBase extends HTMLElement {
      */
     connectedCallback() {
 
-
-
+        // create the different components
+        // and reference them in the card
         ['recto', 'verso', 'form', 'toolbar'].forEach(view => {
             this[view] = document.createElement(`card-${view}`);
             this[view].card = this;
         })
 
+        // Build card DOM
         const cardInner = fn.article({
             content: [
                 fn.div({
@@ -90,23 +91,25 @@ class CardBase extends HTMLElement {
 
         this.append(cardInner);
 
+        // make the card focusable
         this.tabIndex = 0;
 
         /**
-         * Update model and local storage
+         * Handle the different actions from the card form
          */
+        // text/image change
         this.on('contentChange', function (e) {
             const section = e.detail.field === 'text' ? 'props' : 'labels';
             this.character[section][e.detail.key] = e.detail.value;
             cardStore.set(this.character.cid, this.character);
         })
-
+        // change of field visibility
         this.on('visibilityChange', function (e) {
             this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
             cardStore.set(this.character.cid, this.character);
             this.trigger('afterVisibilityChange');
         });
-
+        // change of order of fields
         this.on('orderChange', function (e) {
             let props = {};
             e.detail.order.forEach(key => {
@@ -116,28 +119,34 @@ class CardBase extends HTMLElement {
             this.trigger('afterOrderChange');
         });
 
+        // card has been cut out
         this.on('characterCut', function (e) {
             cardCopy.cut(this);
         })
 
+        // card has been copied
         this.on('characterCopy', function (e) {
             cardCopy.copy(this);
         })
 
+        // card has been removed
         this.on('characterRemove', function (e) {
             cardManager.handleRemoval(this, 'soft');
         })
 
+        // open card editor
         this.on('characterEdit', function (e) {
             properties.set('cardState', 'edit');
             this.classList.add('editable');
         })
 
+        // close card editor
         this.on('characterDone', function (e) {
             properties.unset('cardState');
             this.classList.remove('editable');
         })
 
+        // handle keyboard shortcuts
         this.on('keyup', e => {
 
             if (e.ctrlKey && ['x', 'c'].includes(e.key)) {

@@ -10,23 +10,35 @@ let activeTab;
 
 /**
  * Set current ab to active
- * @param {HTMLElement} tab
+ * @param {HTMLElement} [tab]
  */
 const setActiveTab = tab => {
+    // active tab | any tab | first tab
     activeTab = tab || activeTab || fn.$(`tab-handle`, navi);
+
+    // deactivate all tabs
     fn.$$('tab-handle', navi).forEach(tab => {
         tab.classList.remove('active');
         tab.panel.classList.remove('active');
         tabStore.unset(`${tabStore.toTid(tab)}.active`);
         tab.removeAttribute('style');
     });
+
+    // set the selected tab active
+    const tid = tabStore.toTid(activeTab);
     // DOM Tab
     activeTab.classList.add('active');
+    // DOM Panel
+    activeTab.panel.classList.add('active');
+    // model
+    tabStore.set(`${tid}.active`, true);
     app.trigger('tabStyleChange', {
         tab: activeTab,
-        styles: tabStore.get(tabStore.toTid(activeTab)).styles
+        styles: tabStore.get(tid).styles
     });
 
+    // avoid scrollbars in the tab bar
+    // 1: figure out how much room we have
     const naviRect = navi.getBoundingClientRect();
     const atRect = activeTab.getBoundingClientRect();
     const addRect = navi.lastChild.getBoundingClientRect();
@@ -35,7 +47,8 @@ const setActiveTab = tab => {
         atRect.width;
 
     navi.classList.remove('overflown');
-
+    
+    // 2: set the non-active tabs to as tiny as needed
     if (navi.scrollWidth > navi.clientWidth) {
         navi.classList.add('overflown');
         const nonActiveTabs = getTabs(activeTab);
@@ -45,26 +58,30 @@ const setActiveTab = tab => {
         })
     }
 
-    // DOM Panel
-    activeTab.panel.classList.add('active');
-    // model
-    tabStore.set(`${tabStore.toTid(activeTab)}.active`, true);
     return activeTab;
 }
 
+/**
+ * 
+ * @param {HTMLElement|Object|String|Number} tabData 
+ * @returns 
+ */
 const getTab = tabData => {
+    // return the active tab
     if (tabData === 'active') {
         return activeTab;
     }
+    // return the element as long as it's a tab
     if (tabData instanceof customElements.get('tab-handle')) {
         return tabData
     }
+    // parse tabData for a TID and return the matching tab
     return fn.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
 }
 
 /**
  * Retrieve tabs as array
- * @param {HTMLElement|String} exclude 
+ * @param {HTMLElement|String|Number} [exclude] tabs to exclude 
  * @returns 
  */
 const getTabs = exclude => {
@@ -85,16 +102,19 @@ const getTabs = exclude => {
 }
 
 /**
- * Create a new tab, either from existing or freshly create data
- * @param {Object} [tabEntry]
- * @returns {HTMLElement}
+ * Add a new tab, either from existing or freshly created data
+ * @param {Object} [tabEntry] tab model
+ * @param {HTMLElement} [previousTab] the tab left to the insertion point
+ * @param {Boolean} [activate] wheteher or not to activate the tab
+ * @returns 
  */
-const createTab = ({
+const add = ({
     tabEntry,
     previousTab,
     activate = false
 } = {}) => {
-    tabEntry = tabEntry || tabStore.blank();
+    // existing or fresh model
+    tabEntry = tabEntry || tabStore.getBlank();
 
     // build DOM elements
     const tab = document.createElement('tab-handle');
@@ -102,16 +122,23 @@ const createTab = ({
     
     tab.container = navi;
 
+    // copy properties to both parts
     for (let [key, value] of Object.entries(tabEntry)) {
         tab[key] = value;
         tab.panel[key] = value;
     }
+    // remove the title agin from the panel to avoid unwanted 'tooltips'
     tab.panel.removeAttribute('title');
+
+    // let the tab know its panel
     contentArea.append(tab.panel);
 
+    // insert a predfine insertion point
     if (previousTab) {
         previousTab.after(tab)
-    } else {
+    } 
+    // add it at the very end but before the '+'
+    else {
         fn.$('.adder', navi).before(tab);
     }
 
@@ -130,36 +157,53 @@ const createTab = ({
  * @returns {HTMLElement}
  */
 const getUpcomingActiveTab = () => {
+    // get all currently accessible tabs
     let tabs = Array.from(fn.$$(`tab-handle:not([data-soft-deleted])`, navi));
     if (!tabs.length) {
-        return createTab();
+        return add();
     }
+    // find the index of the currently active tab
     let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
+    // is there a tab to the right of the active one?
     if (tabs[activeIdx + 1]) {
         return tabs[activeIdx + 1];
     }
+    // is there a tab to the left of the active one?
     if (tabs[activeIdx - 1]) {
         return tabs[activeIdx - 1];
     }
-    return createTab();
-}
-
-const bulkDelete = exclude => {
-    softDelete.cancel();
-    getTabs(exclude).forEach(tab => {
-        handleRemoval(tab, 'remove');
-    })
+    // add a fresh tab
+    return add();
 }
 
 /**
- * Tabs are first soft deleted and expire after 10 secs
+ * Hard delete multiple tab, optionally some can be excluded
+ * @param {HTMLElement|String|Number} [exclude] tabs to exclude 
+ */
+const bulkDelete = exclude => {
+    // cancel all ongoing soft deletions
+    // not absolutely necessary, but otherwise the result could chaotic
+    softDelete.cancel();
+    // hard delete all candidates
+    getTabs(exclude).forEach(tab => {
+        handleRemoval(tab, 'remove');
+    })
+    if (!tabStore.length) {
+        add({
+            activate: true
+        });
+    }
+}
+
+/**
+ * Tabs are usually first soft deleted and expire after 10 secs
  * All display functionality is handled by `softDelete`
- *
- * @param {HTMLElement} tab
+ * @param {HTMLElement|Object} tab
  * @param {String} action
  */
 const handleRemoval = (tab, action) => {
     switch (action) {
+        // trigger soft deletion process
         case 'soft':
             // when deleting the active tab
             if (tab.isSameNode(activeTab)) {
@@ -173,10 +217,15 @@ const handleRemoval = (tab, action) => {
             // local model
             tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
             break;
+
+        // restore a previously soft deleted tab
         case 'restore':
             tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
             break;
+
+        // delete a tab for good
         case 'remove':
+            
             // inform app to delete cards
             app.trigger('tabDelete', {
                 tab
@@ -184,19 +233,25 @@ const handleRemoval = (tab, action) => {
             tabStore.remove(tab);
             tab.remove();
             if (!tabStore.length) {
-                createTab({
+                add({
                     activate: true
                 });
             }
             break;
+
+        // bulk delete all empty tabs (hard)
         case 'empty':
             bulkDelete('empty');
             setActiveTab();
             break;
+
+        // bulk delete all empty tabs but the one in the argument (hard)
         case 'others':
             bulkDelete(tab);
             setActiveTab(tab);
             break;
+
+        // bulk delete all tabs (hard)
         case 'all':
             bulkDelete();
             break;
@@ -215,7 +270,7 @@ const restore = () => {
     const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
     
     for (let tabEntry of entries) {
-        createTab({
+        add({
             tabEntry
         });
     }
@@ -224,15 +279,22 @@ const restore = () => {
 }
 
 
-
-
+/**
+ * Innitialize the manager
+ * @param {HTMLElement} _app The outer container of the interactive area
+ */
 const init = _app => {
+
+    // relevant conatiners
     app = _app;
     navi = fn.$('tab-navi', app);
     contentArea = fn.$('tab-content', app);
+
+    // restore tabs and cards from earlier sessions
     restore();
 
     // events
+    // add a style property to the tab and store it
     app.on('singleStyleChange', e => {
         const tab = e.detail.tab || activeTab;
         const tid = tabStore.toTid(tab);
@@ -245,6 +307,7 @@ const init = _app => {
         }
     });
 
+    // remove all styles from a tab, flaling back to the default setup
     app.on('styleReset', e => {
         const tid = tabStore.toTid(e.detail.tab);
         tabStore.set(`${tid}.styles`, {});
@@ -257,7 +320,7 @@ const init = _app => {
 
 export default {
     init,
-    createTab,
+    add,
     handleRemoval,
     setActiveTab,
     getTab,

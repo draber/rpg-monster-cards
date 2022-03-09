@@ -12,12 +12,16 @@ import contextMenu from '../../../modules/context-menu/context-menu.js';
 import {
     sanitizeText
 } from '../../../modules/string/string.js';
+import cardCopy from '../../../modules/card-copy/card-copy.js';
 
 /**
  * Custom element containing the list of fonts
  */
 class TabHandle extends HTMLElement {
 
+    /**
+     * Make the tab label editable
+     */
     makeEditable() {
         let selection = window.getSelection();
         selection.removeAllRanges();
@@ -61,6 +65,7 @@ class TabHandle extends HTMLElement {
     }
 
     disconnectedCallback() {
+        // remove the panel and the context menu when removing the tab
         this.panel.remove();
         contextMenu.unregister(this);
     }
@@ -70,17 +75,24 @@ class TabHandle extends HTMLElement {
      */
     connectedCallback() {
 
+        // this tab
+        const tab = tabManager.getTab(this);
+
+        // add a context menu
         contextMenu.register(this, document.createElement('tab-menu'));
 
+        // remove the tab
         this.closer = fn.span({
             content: '✖',
             classNames: ['closer']
         })
 
+        // renameable tab label (can't be a `<label>` because no form element is involved)
         this.label = fn.span({
             content: this.title,
             classNames: ['label'],
             events: {
+                // renaming finished
                 blur: e => {
                     this.label.contentEditable = false;
                     this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
@@ -88,23 +100,27 @@ class TabHandle extends HTMLElement {
                     tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
                     e.detail.tab
                 },
+                // renaming via paste
                 paste: e => {
                     e.preventDefault();
                     if (this.label.contentEditable === true) {
                         this.label.textContent = sanitizeText(e.clipboardData.getData('text')).substring(0, 30);
                         return true;
                     };
-                    // if it's a card, paste it into the panel
+                    // if the content of the paste action is a card, paste it into the panel
                     if (copyStore.length) {
-                        this.panel.trigger('paste');
+                        cardCopy.paste(tab);
                     }
                 },
+                // keyboard events
                 keydown: e => {
+                    // enter ends renaming
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         this.label.blur();
                         return false;
                     }
+                    // escape rests to the old name
                     if (e.key === 'Escape') {
                         e.preventDefault();
                         this.label.textContent = this.title;
@@ -115,23 +131,32 @@ class TabHandle extends HTMLElement {
             }
         })
 
+        /**
+         * Mouse / touch actions
+         */
         this.on('pointerup', e => {
+            // do nothing on right click
             if (e.button > 1) {
                 return true;
             }
+            // trigger soft delete on middle click and by clicking on the close button
             if (e.button === 1 || e.target.isSameNode(this.closer)) {
                 e.preventDefault();
                 e.stopPropagation();
                 tabManager.handleRemoval(this, 'soft');
-            } else {
+            } 
+            // set tab active on left click
+            else {
                 tabManager.setActiveTab(this);
             }
         })
 
+        // trigger renaming on double click
         this.on('dblclick', () => {
             this.makeEditable();
         })
 
+        // add element to `tab-handle`
         this.append(this.label, this.closer);
 
     }

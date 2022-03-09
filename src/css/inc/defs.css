@@ -23,4 +23,8 @@
   --resizer-color: hsl(204, 100%, 40%);
   --header-height: 6.4rem;
   --footer-height: 3rem;
+
+  --drop-zone-bg: hsl(0 100% 100% / .50); 
+  --drop-zone-border: .3rem dashed var(--bg-light); 
+  --drop-zone-active-border: .3rem dashed hsl(90, 100%, 22%); 
 }

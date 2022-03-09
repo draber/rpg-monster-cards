@@ -6,7 +6,7 @@ import cardCopy from '../../../modules/card-copy/card-copy.js';
 import contextMenu from '../../../modules/context-menu/context-menu.js';
 
 /**
- * Custom element containing the list of fonts
+ * Custom element, single tab panel
  */
 class TabPanel extends HTMLElement {
 
@@ -24,14 +24,24 @@ class TabPanel extends HTMLElement {
      */
     set tid(value) {
         this.setAttribute('tid', value);
+    }   
+
+    /**
+     * delete the context menu on destruction
+     */
+    disconnectedCallback() {
+        contextMenu.unregister(this);
     }
+
     /**
      * Called on element launch
      */
     connectedCallback() {
 
+        // add a context menu on creation
         contextMenu.register(this, document.createElement('tab-menu'));
 
+        // add a card on paste
         this.on('paste', e => {
             cardCopy.paste(this)
         })

@@ -25,7 +25,7 @@ class TabNavi extends HTMLElement {
                     if (e.button !== 0) {
                         return true;
                     }
-                    tabManager.createTab({
+                    tabManager.add({
                         activate: true
                     })
                 }
@@ -34,7 +34,7 @@ class TabNavi extends HTMLElement {
 
         this.addEventListener('dblclick', e => {
             if (e.target.isSameNode(this)) {
-                tabManager.createTab({
+                tabManager.add({
                     activate: true
                 })
             }

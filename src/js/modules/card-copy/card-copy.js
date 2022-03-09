@@ -10,45 +10,73 @@ import {
 import cardManager from '../../app/components/character-cards/card-manager.js'
 import properties from '../properties/properties.js';
 
-
+/**
+ * Prepare a card for copying|cutting
+ * @param {HTMLElement} card 
+ * @param {String} mode cut|copy
+ */
 const set = (card, mode) => {
+    // remove class names
     clear(card.app);
+
+    // add cut|copy class to the slected card
     card.classList.add(mode);
 
+    // get the model of the card
     const original = cardStore.get(cardStore.toCid(card));
+
+    // create a tmp copy and add the original
     const copy = {
         ...deepClone(original),
         ...{
             mode
         }
     }
-
-    copy.originalCard = original;
+    copy.originalCid = cardStore.toCid(original);
     copy.cid = copyStore.nextIncrement();
 
+    // save the card in the store for pasting
     copyStore.set(copy.cid, copy);
+
+    // set body[card-storage] to enable pasting in the context menu
     properties.set('cardStorage', true);
 }
 
-const cut = element => {
-    set(element, 'cut');
+/**
+ * Prepare a card for cutting
+ * @param {HTMLElement} card 
+ */
+const cut = card => {
+    set(card, 'cut');
 }
 
-const copy = element => {
-    set(element, 'copy');
+/**
+ * Prepare a card for copying
+ * @param {HTMLElement} card 
+ */
+const copy = card => {
+    set(card, 'copy');
 }
 
+/**
+ * Paste a card
+ * @param {HTMLElement} tab the tab to paste to
+ */
 const paste = tab => {
+    console.log(tab)
     copyStore.values().forEach(copy => {
         // assign the new tab
         copy.tid = tabStore.toTid(tab);
-        if (copy.mode === 'cut') {
-            console.log(copy.originalCard)
-            cardManager.handleRemoval(copy.originalCard, 'remove');
+
+        // delete the cut-out card if any
+        if (copy.mode === 'cut') {            
+            cardManager.handleRemoval(cardManager.getCard(copy.originalCid), 'remove');
         }
-        delete copy.originalCard;
+        delete copy.originalCid;
+
         // assign regular card cid
         copy.cid = cardStore.nextIncrement();
+        console.log(copy.cid)
         tab.app.trigger('characterSelection', copy);
     });
 
@@ -61,6 +89,10 @@ const paste = tab => {
     properties.unset('cardStorage');
 }
 
+/**
+ * Remove cut|copy classes from all cards
+ * @param {HTMLElement} app 
+ */
 const clear = app => {
     const lastCopied = fn.$('card-base.cut, card-base.copy', app);
     if (lastCopied) {

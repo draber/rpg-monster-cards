@@ -20,13 +20,21 @@ class TabTree extends Tree {
      * Create data for a new tab (tid as in Tab ID)
      * @returns {{title, tid: {Integer}}}
      */
-    blank() {
+    getBlank() {
         const tid = this.nextIncrement();
         return {
             tid,
             title: convertToRoman(tid),
             styles: {}
         }
+    }
+
+    /**
+     * Remove one or multiple entries
+     * @param {...String|Number} tidData 
+     */
+    remove(...tidData) {
+        super.remove(...tidData.map(e => this.toTid(e)))
     }
 
     /**
@@ -43,9 +51,7 @@ class TabTree extends Tree {
         lsKey
     } = {}) {
         super({
-            data: Object.keys(data).length ? data : {
-                1: this.blank()
-            },
+            data,
             lsKey
         });
     }

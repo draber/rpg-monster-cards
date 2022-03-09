@@ -5,10 +5,13 @@ import {
 } from '../../storage/storage.js';
 import softDelete from '../../../modules/softDelete/softDelete.js';
 import fn from 'fancy-node';
-import { deepClone } from '../../../modules/deep-clone/deep-clone.js'
 
 let app;
 
+/**
+ * Add a new card to a tab
+ * @param {Object} character 
+ */
 const add = character => {
 
     let cid; // character ID
@@ -19,79 +22,102 @@ const add = character => {
         cid = cardStore.toCid(character);
         tab = tabManager.getTab(character.tid);
         tid = tabStore.toTid(tab);
-    } else {
+    } 
+    else {
         cid = cardStore.nextIncrement();
-        character = deepClone(character);
         tab = tabManager.getTab('active');
         tid = tabStore.toTid(tab);
     }
+    // setup everything
     character = {
-        ...cardStore.blank(),
+        ...cardStore.getBlank(),
         ...character,
         ...{
             tid,
             cid
         }
     }
+    // build the card, both as a model and a DOM element
     cardStore.set(cid, character);
     const card = document.createElement('card-base');
-    card.cid = cid;
-    card.tid = tid;
+    card.setAttribute('cid', cid);
+    card.setAttribute('tid', tid);
     card.character = character;
     tab.panel.append(card);
 }
 
+/**
+ * Retrieve a card from the DOM based on its CID
+ * @param {HTMLElement|Object|String|Number} cidData 
+ * @returns 
+ */
+const getCard = cidData =>{
+    return fn.$(`[cid="${cardStore.toCid(cidData)}"]`);
+}
+
+/**
+ * Restore all cards from previous session
+ * Tabs already exist at this point
+ */
 const restoreLastSession = () => {
     for (let character of cardStore.values()) {
         add(character);
     }
 }
 
-const bulkDelete = (tidData) => {
-    fn.$$('card-base', tabManager.getTab(tidData)).forEach(card => {
-        cardStore.remove(card);
-        handleRemoval(card, 'remove');
-    })
-}
+/**
+ * Cards are usually first soft deleted and expire after 10 secs
+ * All display functionality is handled by `softDelete`
+ * @param {HTMLElement|Object} card 
+ * @param {String} action 
+ */
+const handleRemoval = (card, action) => {
 
-const handleRemoval = (element, action) => {
-
+    const cid = cardStore.toCid(card);
     switch (action) {
         case 'soft':
             // DOM
-            softDelete.initiate(element, cardStore.get(`${cardStore.toCid(element)}.props.name`))
+            softDelete.initiate(card, cardStore.get(`${cid}.props.name`))
                 .then(data => {
-                    handleRemoval(element, data.action);
+                    handleRemoval(card, data.action);
                 })
             // local model
-            cardStore.set(`${cardStore.toCid(element)}.softDeleted`, true);
+            cardStore.set(`${cid}.softDeleted`, true);
             break;
         case 'restore':
-            cardStore.unset(`${cardStore.toCid(element)}.softDeleted`);
+            cardStore.unset(`${cid}.softDeleted`);
             break;
         case 'remove':
-            cardStore.remove(cardStore.toCid(element));
-            element.remove();
-            break;
-        case 'all':
-            bulkDelete(element);
+            cardStore.remove(card);
+            card.remove();
             break;
     }
 }
 
-
+/**
+ * Initialize the card manager and its events
+ * @param {HTMLElement} _app 
+ */
 const init = _app => {
+    // app container
     app = _app;
+    // hard delete all cards from a specific tab 
     app.on('tabDelete', e => {
-        handleRemoval(e.detail.tab, 'all');
+        fn.$$('card-base', e.detail.tab).forEach(card => {
+            handleRemoval(card, 'remove');
+        })
     })
+    // character has been selected in library
     app.on('characterSelection', e => {
         add(e.detail)
     })
+    // restore cards from a previous session
     restoreLastSession()
 }
 
 export default {
     init,
-    handleRemoval
+    handleRemoval,
+    add,
+    getCard
 }

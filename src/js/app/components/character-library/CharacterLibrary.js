@@ -188,7 +188,7 @@ class CharacterLibrary extends HTMLElement {
             }
             this.app.trigger('characterSelection', (() => {
                 const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
-                const character = store.get(li.dataset.cid);
+                const character = store.getClone(li.dataset.cid);
                 character._groupLabel && delete character._groupLabel;
                 character._groupValue && delete character._groupValue;
                 return character;

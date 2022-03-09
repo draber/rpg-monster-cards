@@ -19,19 +19,6 @@ card-toolbar {
   }
 
   & button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: var(--border-radius);
-    gap: 1rem;
-    font-size: 1.5rem;
-    font-family: var(--font-family);
-    cursor: pointer;
-    padding: 0.6rem 1rem 0.6rem 1.6rem;
-    background: var(--c-button-bg);
-    color: var(--c-button-color);
-    box-shadow: 0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
     &[name="done"] {
       display: none;
     }

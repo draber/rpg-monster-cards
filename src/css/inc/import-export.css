@@ -12,16 +12,17 @@ import-export {
     font-size: 1.6rem;
   }
   & div {
-    font-size: 1.4rem;
-    position: absolute;
-    top: 5rem;
-    right: -1000rem;
-    border: var(--border);
-    overflow-y: auto;
-    min-width: calc(100% - 2rem);
-    background: var(--bg-3-color);
-    box-shadow: 0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
-
+    &.import-export-menu {
+      font-size: 1.4rem;
+      position: absolute;
+      top: 5rem;
+      right: -1000rem;
+      border: var(--border);
+      overflow-y: auto;
+      min-width: calc(100% - 2rem);
+      background: var(--bg-3-color);
+      box-shadow: 0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
+    }
     & a {
       display: block;
       white-space: nowrap;

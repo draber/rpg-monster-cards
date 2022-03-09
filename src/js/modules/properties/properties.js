@@ -16,10 +16,18 @@ const set = (key, value, target) => {
  */
 const get = (key, target) => {
     target = target || document.body;
-    if (typeof target.dataset[key] === 'undefined') {
-        return false;
+    const value = target.dataset[key];
+    // type casting
+    switch (true) {
+        case typeof value === 'undefined' || value === 'undefined':
+            return undefined;
+        case ['null', 'true', 'false'].includes(value):
+            return JSON.parse(value);
+        case !isNaN(value):
+            return parseFloat(value, 10);
+        default:
+            return value
     }
-    return JSON.parse(target.dataset[key]);
 }
 
 /**

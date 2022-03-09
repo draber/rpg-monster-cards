@@ -229,29 +229,89 @@
       return str;
     };
 
+    const cmpFns = {
+        equal: (a, b) => {
+            return a === b;
+        },
+        notEqual: (a, b) => {
+            return a !== b;
+        },
+        greater: (a, b) => {
+            return a > b;
+        },
+        greaterEqual: (a, b) => {
+            return a >= b;
+        },
+        lesser: (a, b) => {
+            return a < b;
+        },
+        lesserEqual: (a, b) => {
+            return a <= b;
+        },
+        instanceof: (a, b) => {
+            return a instanceof b;
+        },
+        typeof: (a, b) => {
+            return typeof a === b;
+        },
+        match: (a, b) => {
+            return b.test(a)
+        }
+    };
+    const cmpMap = {
+        ['===']: cmpFns.equal,
+        ['!==']: cmpFns.notEqual,
+        ['>']: cmpFns.greater,
+        ['>=']: cmpFns.greaterEqual,
+        ['<']: cmpFns.lesser,
+        ['<=']: cmpFns.lesserEqual
+    };
+    const getCmpFn = fn => {
+        if(fn instanceof Function){
+            return fn;
+        }
+        if (cmpFns[fn]) {
+            return cmpFns[fn];
+        }
+        if (cmpMap[fn]) {
+            return cmpMap[fn];
+        }
+        throw (`Unknown function ${fn}`);
+    };
+
+    const deepClone = obj => {
+        return !(structuredClone instanceof Function) ? JSON.parse(JSON.stringify(obj)) : structuredClone(obj);
+    };
+
+    const _get = (key, obj) => {
+        const keys = key.toString().split('.');
+        let current = Object.create(obj);
+        for (let token of keys) {
+            if (typeof current[token] === 'undefined') {
+                return undefined;
+            }
+            current = current[token];
+        }
+        return current;
+    };
+    const _entrySatisfies = conditions => {
+        for (let condition of conditions) {
+            if (!condition.fn(condition.value, condition.expected)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    const _expandCondition = (key, condition, obj) => {
+        return {
+            value: _get(`${key}.${condition[0]}`, obj),
+            fn: getCmpFn(condition[1]),
+            expected: condition[2] || null
+        }
+    };
     class Tree {
         get length() {
             return this.keys().length;
-        }
-        #getCmpFn(fnName) {
-            if (this.cmpFns[fnName]) {
-                return this.cmpFns[fnName];
-            }
-            if (this.cmpMap[fnName]) {
-                return this.cmpMap[fnName];
-            }
-            throw (`Unknown function ${fnName}`);
-        }
-        #get(key) {
-            const keys = key.toString().split('.');
-            let current = Object.create(this.obj);
-            for (let token of keys) {
-                if (typeof current[token] === 'undefined') {
-                    return undefined;
-                }
-                current = current[token];
-            }
-            return current;
         }
         flush() {
             this.obj = {};
@@ -275,6 +335,7 @@
             }
             current[last] = value;
             this.save();
+            return this;
         }
         unset(key) {
             const keys = key.toString().split('.');
@@ -291,40 +352,35 @@
             }
             delete current[last];
         }
-        get(...keys) {
-            if (keys.length === 1) {
-                return this.#get(keys[0]);
-            }
-            const result = {};
-            keys.forEach(key => {
-                result[key] = this.#get(key);
-            });
-            return result;
+        get(key) {
+            return _get(key, this.obj);
         }
-        object(searchKey = null, cmpFn = null, expectVal = null) {
-            if (!searchKey || !cmpFn) {
+        getClone(key){
+            return deepClone(this.get(key))
+        }
+        where(searchKey, cmpFn, expected = null){
+            return [searchKey, cmpFn, expected];
+        }
+         object(...conditions) {
+            if (!conditions.length || !conditions[0].length) {
                 return this.obj;
             }
-            if (cmpFn && !(cmpFn instanceof Function)) {
-                cmpFn = this.#getCmpFn(cmpFn);
-            }
             const result = {};
-            for (let [key, value] of Object.entries(this.obj)) {
-                const compVal = this.#get(`${key}.${searchKey}`);
-                if (cmpFn(compVal, expectVal)) {
-                    result[key] = value;
+            for (let [key, entry] of Object.entries(this.obj)) {
+                if(_entrySatisfies(conditions.map(cond => _expandCondition(key, cond, this.obj)))){
+                    result[key] = entry;
                 }
             }
             return result;
         }
-        entries(searchKey = null, cmpFn = null, expectVal = null) {
-            return Object.entries(this.object(searchKey, cmpFn, expectVal));
+        entries(...conditions) {
+            return Object.entries(this.object(conditions));
         }
-        values(searchKey = null, cmpFn = null, expectVal = null) {
-            return Object.values(this.object(searchKey, cmpFn, expectVal));
+        values(...conditions) {
+            return Object.values(this.object(conditions));
         }
-        keys(searchKey = null, cmpFn = null, expectVal = null) {
-            return Object.keys(this.object(searchKey, cmpFn, expectVal));
+        keys(...conditions) {
+            return Object.keys(this.object(conditions));
         }
         remove(...keys) {
             keys.forEach(key => {
@@ -341,40 +397,6 @@
         } = {}) {
             this.obj = data;
             this.lsKey = lsKey;
-            this.cmpFns = {
-                equal: (a, b) => {
-                    return a === b;
-                },
-                notEqual: (a, b) => {
-                    return a !== b;
-                },
-                greater: (a, b) => {
-                    return a > b;
-                },
-                greaterEqual: (a, b) => {
-                    return a >= b;
-                },
-                lesser: (a, b) => {
-                    return a < b;
-                },
-                lesserEqual: (a, b) => {
-                    return a <= b;
-                },
-                instanceof: (a, b) => {
-                    return a instanceof b;
-                },
-                typeof: (a, b) => {
-                    return typeof a === b;
-                }
-            };
-            this.cmpMap = {
-                ['===']: this.cmpFns.equal,
-                ['!==']: this.cmpFns.notEqual,
-                ['>']: this.cmpFns.greater,
-                ['>=']: this.cmpFns.greaterEqual,
-                ['<']: this.cmpFns.lesser,
-                ['<=']: this.cmpFns.lesserEqual
-            };
         }
     }
 
@@ -386,13 +408,16 @@
             }
             return parseInt(tid, 10);
         }
-        blank() {
+        getBlank() {
             const tid = this.nextIncrement();
             return {
                 tid,
                 title: convertToRoman(tid),
                 styles: {}
             }
+        }
+        remove(...tidData) {
+            super.remove(...tidData.map(e => this.toTid(e)));
         }
         nextIncrement() {
             let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
@@ -403,9 +428,7 @@
             lsKey
         } = {}) {
             super({
-                data: Object.keys(data).length ? data : {
-                    1: this.blank()
-                },
+                data,
                 lsKey
             });
         }
@@ -812,17 +835,17 @@
     	ini: ini
     };
 
-    class CharTree extends Tree {
-        #getLabels() {
-            const _labels = {};
-            for (let [key, value] of Object.entries(labels$1)) {
-                if (key.startsWith('__')) {
-                    continue;
-                }
-                _labels[key] = value.short;
+    const getLabels = () => {
+        const _labels = {};
+        for (let [key, value] of Object.entries(labels$1)) {
+            if (key.startsWith('__')) {
+                continue;
             }
-            return _labels;
+            _labels[key] = value.short;
         }
+        return _labels;
+    };
+    class CharTree extends Tree {
         toCid(cidData) {
             const cid = cidData.cid || cidData;
             if (isNaN(cid)) {
@@ -830,7 +853,14 @@
             }
             return parseInt(cid, 10);
         }
-        blank() {
+        toTid(tidData) {
+            const tid = tidData.tid || tidData;
+            if (isNaN(tid)) {
+                throw `${tid} is not a valid tab identifier`;
+            }
+            return parseInt(tid, 10);
+        }
+        getBlank() {
             const props = {};
             Object.keys(labels$1).forEach(key => {
                 props[key] = '';
@@ -839,12 +869,15 @@
                 cid: this.nextIncrement(),
                 props,
                 visibility: visibility$1,
-                labels: this.#getLabels()
+                labels: getLabels()
             }
         }
         nextIncrement() {
             let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
             return Math.max(...keys) + 1;
+        }
+        remove(...cidData) {
+            super.remove(...cidData.map(e => this.toCid(e)));
         }
         constructor({
             data = {},
@@ -898,6 +931,10 @@
             data: launchData.tabs,
             lsKey: settings.get('storageKeys.tabs')
         });
+        if(tabStore.length === 0){
+            const blank = tabStore.getBlank();
+            tabStore.set(blank.tid, blank);
+        }
         systemStore = new CharTree({
             data: launchData.system
         });
@@ -910,7 +947,7 @@
             minIncrement: 6000
         });
         prefStore = new Tree({
-            data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user')) || {}),
+            data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
             lsKey: settings.get('storageKeys.user')
         });
         styleStore = new Tree({
@@ -1076,7 +1113,7 @@
                 }
                 this.app.trigger('characterSelection', (() => {
                     const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
-                    const character = store.get(li.dataset.cid);
+                    const character = store.getClone(li.dataset.cid);
                     character._groupLabel && delete character._groupLabel;
                     character._groupValue && delete character._groupValue;
                     return character;
@@ -1103,12 +1140,12 @@
             return self;
         }
     }
-    const register$j = app => {
+    const register$k = app => {
         CharacterLibrary.prototype.app = app;
         customElements.get('character-library') || customElements['define']('character-library', CharacterLibrary);
     };
     var CharacterLibrary$1 = {
-        register: register$j
+        register: register$k
     };
 
     class LibraryOrganizer extends HTMLElement {
@@ -1172,12 +1209,12 @@
             return self;
         }
     }
-    const register$i = app => {
+    const register$j = app => {
         LibraryOrganizer.prototype.app = app;
         customElements.get('library-organizer') || customElements['define']('library-organizer', LibraryOrganizer);
     };
     var LibraryOrganizer$1 = {
-        register: register$i
+        register: register$j
     };
 
     const set$1 = (key, value, target) => {
@@ -1186,10 +1223,17 @@
     };
     const get = (key, target) => {
         target = target || document.body;
-        if (typeof target.dataset[key] === 'undefined') {
-            return false;
+        const value = target.dataset[key];
+        switch (true) {
+            case typeof value === 'undefined' || value === 'undefined':
+                return undefined;
+            case ['null', 'true', 'false'].includes(value):
+                return JSON.parse(value);
+            case !isNaN(value):
+                return parseFloat(value, 10);
+            default:
+                return value
         }
-        return JSON.parse(target.dataset[key]);
     };
     const toggle$1 = (key, target) => {
         set$1(key, !get(key, target), target);
@@ -1260,10 +1304,13 @@
             tabStore.unset(`${tabStore.toTid(tab)}.active`);
             tab.removeAttribute('style');
         });
+        const tid = tabStore.toTid(activeTab);
         activeTab.classList.add('active');
+        activeTab.panel.classList.add('active');
+        tabStore.set(`${tid}.active`, true);
         app$1.trigger('tabStyleChange', {
             tab: activeTab,
-            styles: tabStore.get(tabStore.toTid(activeTab)).styles
+            styles: tabStore.get(tid).styles
         });
         const naviRect = navi.getBoundingClientRect();
         const atRect = activeTab.getBoundingClientRect();
@@ -1280,8 +1327,6 @@
                 tab.style.maxWidth = tabMaxWidth + 'px';
             });
         }
-        activeTab.panel.classList.add('active');
-        tabStore.set(`${tabStore.toTid(activeTab)}.active`, true);
         return activeTab;
     };
     const getTab = tabData => {
@@ -1304,12 +1349,12 @@
                 return tabs;
         }
     };
-    const createTab = ({
+    const add$1 = ({
         tabEntry,
         previousTab,
         activate = false
     } = {}) => {
-        tabEntry = tabEntry || tabStore.blank();
+        tabEntry = tabEntry || tabStore.getBlank();
         const tab = document.createElement('tab-handle');
         tab.panel = document.createElement('tab-panel');
         tab.container = navi;
@@ -1321,7 +1366,8 @@
         contentArea.append(tab.panel);
         if (previousTab) {
             previousTab.after(tab);
-        } else {
+        }
+        else {
             src.$('.adder', navi).before(tab);
         }
         tabStore.set(tabStore.toTid(tabEntry), tabEntry);
@@ -1333,7 +1379,7 @@
     const getUpcomingActiveTab = () => {
         let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
         if (!tabs.length) {
-            return createTab();
+            return add$1();
         }
         let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
         if (tabs[activeIdx + 1]) {
@@ -1342,13 +1388,18 @@
         if (tabs[activeIdx - 1]) {
             return tabs[activeIdx - 1];
         }
-        return createTab();
+        return add$1();
     };
-    const bulkDelete$1 = exclude => {
+    const bulkDelete = exclude => {
         softDelete$1.cancel();
         getTabs(exclude).forEach(tab => {
             handleRemoval$1(tab, 'remove');
         });
+        if (!tabStore.length) {
+            add$1({
+                activate: true
+            });
+        }
     };
     const handleRemoval$1 = (tab, action) => {
         switch (action) {
@@ -1372,21 +1423,21 @@
                 tabStore.remove(tab);
                 tab.remove();
                 if (!tabStore.length) {
-                    createTab({
+                    add$1({
                         activate: true
                     });
                 }
                 break;
             case 'empty':
-                bulkDelete$1('empty');
+                bulkDelete('empty');
                 setActiveTab();
                 break;
             case 'others':
-                bulkDelete$1(tab);
+                bulkDelete(tab);
                 setActiveTab(tab);
                 break;
             case 'all':
-                bulkDelete$1();
+                bulkDelete();
                 break;
         }
     };
@@ -1395,13 +1446,13 @@
         const activeSet = entries.filter(e => !!e.active);
         const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
         for (let tabEntry of entries) {
-            createTab({
+            add$1({
                 tabEntry
             });
         }
         setActiveTab(getTab(activeTid));
     };
-    const init$2 = _app => {
+    const init$3 = _app => {
         app$1 = _app;
         navi = src.$('tab-navi', app$1);
         contentArea = src.$('tab-content', app$1);
@@ -1427,8 +1478,8 @@
         });
     };
     var tabManager = {
-        init: init$2,
-        createTab,
+        init: init$3,
+        add: add$1,
         handleRemoval: handleRemoval$1,
         setActiveTab,
         getTab,
@@ -1445,7 +1496,7 @@
                         if (e.button !== 0) {
                             return true;
                         }
-                        tabManager.createTab({
+                        tabManager.add({
                             activate: true
                         });
                     }
@@ -1453,7 +1504,7 @@
             });
             this.addEventListener('dblclick', e => {
                 if (e.target.isSameNode(this)) {
-                    tabManager.createTab({
+                    tabManager.add({
                         activate: true
                     });
                 }
@@ -1467,12 +1518,12 @@
             return self;
         }
     }
-    const register$h = app => {
+    const register$i = app => {
         TabNavi.prototype.app = app;
         customElements.get('tab-navi') || customElements['define']('tab-navi', TabNavi);
     };
     var TabNavi$1 = {
-        register: register$h
+        register: register$i
     };
 
     let firstRegistration = true;
@@ -1508,7 +1559,7 @@
             menu.hide();
         }
     }
-    const init$1 = () => {
+    const init$2 = () => {
         if(firstRegistration) {
             document.addEventListener('pointerup', offContextMenu);
             firstRegistration = false;
@@ -1517,8 +1568,8 @@
     const unregister = owner => {
         owner.contextMenu.remove();
     };
-    const register$g = (owner, menu) => {
-        init$1();
+    const register$h = (owner, menu) => {
+        init$2();
         menu.setAttribute('aria-role', 'menu');
         menu.dataset.type = 'context-menu';
         owner.contextMenu = menu;
@@ -1536,8 +1587,8 @@
         owner.addEventListener('contextmenu', onContextMenu);
         return menu;
     };
-    var contextMenu$1 = {
-        register: register$g,
+    var contextMenu = {
+        register: register$h,
         unregister
     };
 
@@ -1643,130 +1694,6 @@
             .replace(/\s+/g, ' ');
     };
 
-    class TabHandle extends HTMLElement {
-        makeEditable() {
-            let selection = window.getSelection();
-            selection.removeAllRanges();
-            let range = document.createRange();
-            this.label.contentEditable = true;
-            range.selectNodeContents(this.label);
-            selection.addRange(range);
-            this.label.focus();
-        }
-        get title() {
-            return this.getAttribute('title');
-        }
-        set title(value) {
-            this.setAttribute('title', value);
-        }
-        get tid() {
-            return this.getAttribute('tid');
-        }
-        set tid(value) {
-            this.setAttribute('tid', value);
-        }
-        disconnectedCallback() {
-            this.panel.remove();
-            contextMenu$1.unregister(this);
-        }
-        connectedCallback() {
-            contextMenu$1.register(this, document.createElement('tab-menu'));
-            this.closer = src.span({
-                content: '✖',
-                classNames: ['closer']
-            });
-            this.label = src.span({
-                content: this.title,
-                classNames: ['label'],
-                events: {
-                    blur: e => {
-                        this.label.contentEditable = false;
-                        this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
-                        this.title = this.label.textContent.trim();
-                        tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
-                        e.detail.tab;
-                    },
-                    paste: e => {
-                        e.preventDefault();
-                        if (this.label.contentEditable === true) {
-                            this.label.textContent = sanitizeText(e.clipboardData.getData('text')).substring(0, 30);
-                            return true;
-                        }                    if (copyStore.length) {
-                            this.panel.trigger('paste');
-                        }
-                    },
-                    keydown: e => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            this.label.blur();
-                            return false;
-                        }
-                        if (e.key === 'Escape') {
-                            e.preventDefault();
-                            this.label.textContent = this.title;
-                            this.label.blur();
-                            return false;
-                        }
-                    }
-                }
-            });
-            this.on('pointerup', e => {
-                if (e.button > 1) {
-                    return true;
-                }
-                if (e.button === 1 || e.target.isSameNode(this.closer)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    tabManager.handleRemoval(this, 'soft');
-                } else {
-                    tabManager.setActiveTab(this);
-                }
-            });
-            this.on('dblclick', () => {
-                this.makeEditable();
-            });
-            this.append(this.label, this.closer);
-        }
-        constructor(self) {
-            self = super(self);
-            self.on = on;
-            self.trigger = trigger;
-            return self;
-        }
-    }
-    const register$f = app => {
-        TabHandle.prototype.app = app;
-        customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
-    };
-    var TabHandle$1 = {
-        register: register$f
-    };
-
-    class TabContent extends HTMLElement {
-        disconnectedCallback() {
-            contextMenu.unregister(this);
-        }
-        connectedCallback() {
-        }
-        constructor(self) {
-            self = super(self);
-            self.on = on;
-            self.trigger = trigger;
-            return self;
-        }
-    }
-    const register$e = app => {
-        TabContent.prototype.app = app;
-        customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
-    };
-    var TabContent$1 = {
-        register: register$e
-    };
-
-    const deepClone = obj => {
-        return !(structuredClone instanceof Function) ? JSON.parse(JSON.stringify(obj)) : structuredClone(obj);
-    };
-
     let toast;
     const initiate = (element, label) => {
         if (!toast) {
@@ -1819,14 +1746,14 @@
             cid = cardStore.toCid(character);
             tab = tabManager.getTab(character.tid);
             tid = tabStore.toTid(tab);
-        } else {
+        }
+        else {
             cid = cardStore.nextIncrement();
-            character = deepClone(character);
             tab = tabManager.getTab('active');
             tid = tabStore.toTid(tab);
         }
         character = {
-            ...cardStore.blank(),
+            ...cardStore.getBlank(),
             ...character,
             ...{
                 tid,
@@ -1835,47 +1762,44 @@
         };
         cardStore.set(cid, character);
         const card = document.createElement('card-base');
-        card.cid = cid;
-        card.tid = tid;
+        card.setAttribute('cid', cid);
+        card.setAttribute('tid', tid);
         card.character = character;
         tab.panel.append(card);
+    };
+    const getCard = cidData =>{
+        return src.$(`[cid="${cardStore.toCid(cidData)}"]`);
     };
     const restoreLastSession = () => {
         for (let character of cardStore.values()) {
             add(character);
         }
     };
-    const bulkDelete = (tidData) => {
-        src.$$('card-base', tabManager.getTab(tidData)).forEach(card => {
-            cardStore.remove(card);
-            handleRemoval(card, 'remove');
-        });
-    };
-    const handleRemoval = (element, action) => {
+    const handleRemoval = (card, action) => {
+        const cid = cardStore.toCid(card);
         switch (action) {
             case 'soft':
-                softDelete.initiate(element, cardStore.get(`${cardStore.toCid(element)}.props.name`))
+                softDelete.initiate(card, cardStore.get(`${cid}.props.name`))
                     .then(data => {
-                        handleRemoval(element, data.action);
+                        handleRemoval(card, data.action);
                     });
-                cardStore.set(`${cardStore.toCid(element)}.softDeleted`, true);
+                cardStore.set(`${cid}.softDeleted`, true);
                 break;
             case 'restore':
-                cardStore.unset(`${cardStore.toCid(element)}.softDeleted`);
+                cardStore.unset(`${cid}.softDeleted`);
                 break;
             case 'remove':
-                cardStore.remove(cardStore.toCid(element));
-                element.remove();
-                break;
-            case 'all':
-                bulkDelete(element);
+                cardStore.remove(card);
+                card.remove();
                 break;
         }
     };
-    const init = _app => {
+    const init$1 = _app => {
         app = _app;
         app.on('tabDelete', e => {
-            handleRemoval(e.detail.tab, 'all');
+            src.$$('card-base', e.detail.tab).forEach(card => {
+                handleRemoval(card, 'remove');
+            });
         });
         app.on('characterSelection', e => {
             add(e.detail);
@@ -1883,8 +1807,10 @@
         restoreLastSession();
     };
     var cardManager = {
-        init,
-        handleRemoval
+        init: init$1,
+        handleRemoval,
+        add,
+        getCard
     };
 
     const set = (card, mode) => {
@@ -1897,26 +1823,27 @@
                 mode
             }
         };
-        copy.originalCard = original;
+        copy.originalCid = cardStore.toCid(original);
         copy.cid = copyStore.nextIncrement();
         copyStore.set(copy.cid, copy);
         properties.set('cardStorage', true);
     };
-    const cut = element => {
-        set(element, 'cut');
+    const cut = card => {
+        set(card, 'cut');
     };
-    const copy = element => {
-        set(element, 'copy');
+    const copy = card => {
+        set(card, 'copy');
     };
     const paste = tab => {
+        console.log(tab);
         copyStore.values().forEach(copy => {
             copy.tid = tabStore.toTid(tab);
             if (copy.mode === 'cut') {
-                console.log(copy.originalCard);
-                cardManager.handleRemoval(copy.originalCard, 'remove');
+                cardManager.handleRemoval(cardManager.getCard(copy.originalCid), 'remove');
             }
-            delete copy.originalCard;
+            delete copy.originalCid;
             copy.cid = cardStore.nextIncrement();
+            console.log(copy.cid);
             tab.app.trigger('characterSelection', copy);
         });
         clear(tab.app);
@@ -1936,6 +1863,123 @@
         clear
     };
 
+    class TabHandle extends HTMLElement {
+        makeEditable() {
+            let selection = window.getSelection();
+            selection.removeAllRanges();
+            let range = document.createRange();
+            this.label.contentEditable = true;
+            range.selectNodeContents(this.label);
+            selection.addRange(range);
+            this.label.focus();
+        }
+        get title() {
+            return this.getAttribute('title');
+        }
+        set title(value) {
+            this.setAttribute('title', value);
+        }
+        get tid() {
+            return this.getAttribute('tid');
+        }
+        set tid(value) {
+            this.setAttribute('tid', value);
+        }
+        disconnectedCallback() {
+            this.panel.remove();
+            contextMenu.unregister(this);
+        }
+        connectedCallback() {
+            const tab = tabManager.getTab(this);
+            contextMenu.register(this, document.createElement('tab-menu'));
+            this.closer = src.span({
+                content: '✖',
+                classNames: ['closer']
+            });
+            this.label = src.span({
+                content: this.title,
+                classNames: ['label'],
+                events: {
+                    blur: e => {
+                        this.label.contentEditable = false;
+                        this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
+                        this.title = this.label.textContent.trim();
+                        tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                        e.detail.tab;
+                    },
+                    paste: e => {
+                        e.preventDefault();
+                        if (this.label.contentEditable === true) {
+                            this.label.textContent = sanitizeText(e.clipboardData.getData('text')).substring(0, 30);
+                            return true;
+                        }                    if (copyStore.length) {
+                            cardCopy.paste(tab);
+                        }
+                    },
+                    keydown: e => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            this.label.blur();
+                            return false;
+                        }
+                        if (e.key === 'Escape') {
+                            e.preventDefault();
+                            this.label.textContent = this.title;
+                            this.label.blur();
+                            return false;
+                        }
+                    }
+                }
+            });
+            this.on('pointerup', e => {
+                if (e.button > 1) {
+                    return true;
+                }
+                if (e.button === 1 || e.target.isSameNode(this.closer)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    tabManager.handleRemoval(this, 'soft');
+                }
+                else {
+                    tabManager.setActiveTab(this);
+                }
+            });
+            this.on('dblclick', () => {
+                this.makeEditable();
+            });
+            this.append(this.label, this.closer);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$g = app => {
+        TabHandle.prototype.app = app;
+        customElements.get('tab-handle') || customElements['define']('tab-handle', TabHandle);
+    };
+    var TabHandle$1 = {
+        register: register$g
+    };
+
+    class TabContent extends HTMLElement {
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register$f = app => {
+        TabContent.prototype.app = app;
+        customElements.get('tab-content') || customElements['define']('tab-content', TabContent);
+    };
+    var TabContent$1 = {
+        register: register$f
+    };
+
     class TabPanel extends HTMLElement {
         get tid() {
             return this.getAttribute('tid');
@@ -1943,8 +1987,11 @@
         set tid(value) {
             this.setAttribute('tid', value);
         }
+        disconnectedCallback() {
+            contextMenu.unregister(this);
+        }
         connectedCallback() {
-            contextMenu$1.register(this, document.createElement('tab-menu'));
+            contextMenu.register(this, document.createElement('tab-menu'));
             this.on('paste', e => {
                 cardCopy.paste(this);
             });
@@ -1956,12 +2003,66 @@
             return self;
         }
     }
-    const register$d = app => {
+    const register$e = app => {
         TabPanel.prototype.app = app;
         customElements.get('tab-panel') || customElements['define']('tab-panel', TabPanel);
     };
     var TabPanel$1 = {
-        register: register$d
+        register: register$e
+    };
+
+    const getFileName = () => {
+        return `ghastly-creatures-${new Date().toISOString().substring(0,19).replace(/[T\:]/g, '-')}.json`;
+    };
+    const removeActiveKey = entry => {
+        delete entry.active;
+        return entry;
+    };
+    const getData = ({
+        cidData,
+        tidData
+    } = {}) => {
+        if (cidData) {
+            let card = cardStore.get(cidData);
+            let tab = tabStore.get(card);
+            return {
+                tabs: {
+                    [tabStore.toTid(tab)]: [tab].map(removeActiveKey)
+                },
+                cards: {
+                    [cardStore.toCid(card)]: [card]
+                }
+            }
+        }
+        if (tidData) {
+            return {
+                cards: cardStore.values(['tid', '===', cardStore.toTid(tidData)]),
+                tabs: tabStore.values(['tid', '===', tabStore.toTid(tidData)]).map(removeActiveKey)
+            }
+        }
+        return {
+            cards: cardStore.values(),
+            tabs: tabStore.values().map(removeActiveKey)
+        }
+    };
+    const getUrl = (fileName, {
+        cidData,
+        tidData
+    } = {}) => {
+        const data = [JSON.stringify(getData({
+            cidData,
+            tidData
+        }))];
+        return URL.createObjectURL(new File(
+            data,
+            fileName, {
+                type: 'application/json',
+            }
+        ))
+    };
+    var exporter = {
+        getFileName,
+        getUrl
     };
 
     class TabMenu extends HTMLElement {
@@ -2023,11 +2124,31 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.app.trigger('cardPaste', {
-                                    tab,
-                                    styles: this.app.cardCopy
-                                });                        }
+                                cardCopy.paste(tab);
+                            }
                         },
+                    }),
+                    src.li({
+                        content: src.a({
+                            content: 'Export cards from this tab',
+                            events: {
+                                pointerup: e => {
+                                    if (e.button !== 0) {
+                                        return true;
+                                    }
+                                    const fileName = exporter.getFileName();
+                                    e.target.download = fileName;
+                                    console.log(fileName);
+                                    e.target.href = exporter.getUrl(fileName, {
+                                        tidData: tab
+                                    });
+                                    setTimeout(() => {
+                                        e.target.download = '';
+                                        URL.revokeObjectURL(e.target.href);
+                                    }, 200);
+                                }
+                            }
+                        })
                     }),
                     src.li({
                         classNames: ['context-separator'],
@@ -2097,12 +2218,12 @@
             return self;
         }
     }
-    const register$c = app => {
+    const register$d = app => {
         TabMenu.prototype.app = app;
         customElements.get('tab-menu') || customElements['define']('tab-menu', TabMenu);
     };
     var TabMenu$1 = {
-        register: register$c
+        register: register$d
     };
 
     class StyleEditor extends HTMLElement {
@@ -2122,12 +2243,12 @@
             return self;
         }
     }
-    const register$b = app => {
+    const register$c = app => {
         StyleEditor.prototype.app = app;
         customElements.get('style-editor') || customElements['define']('style-editor', StyleEditor);
     };
     var StyleEditor$1 = {
-        register: register$b
+        register: register$c
     };
 
     var fonts$1 = [
@@ -2289,12 +2410,12 @@
             return self;
         }
     }
-    const register$a = app => {
+    const register$b = app => {
         FontSelector.prototype.app = app;
         customElements.get('font-selector') || customElements['define']('font-selector', FontSelector);
     };
     var FontSelector$1 = {
-        register: register$a
+        register: register$b
     };
 
     class FontSize extends HTMLElement {
@@ -2374,12 +2495,12 @@
             return self;
         }
     }
-    const register$9 = app => {
+    const register$a = app => {
         FontSize.prototype.app = app;
         customElements.get('font-size') || customElements['define']('font-size', FontSize);
     };
     var FontSize$1 = {
-        register: register$9
+        register: register$a
     };
 
     var backgrounds$1 = [
@@ -2557,12 +2678,12 @@
             return self;
         }
     }
-    const register$8 = app => {
+    const register$9 = app => {
         PatternSelector.prototype.app = app;
         customElements.get('pattern-selector') || customElements['define']('pattern-selector', PatternSelector);
     };
     var PatternSelector$1 = {
-        register: register$8
+        register: register$9
     };
 
     const tracksToValueObj = tracks => {
@@ -2853,12 +2974,12 @@
             return self;
         }
     }
-    const register$7 = app => {
+    const register$8 = app => {
         ColorSelector.prototype.app = app;
         customElements.get('color-selector') || customElements['define']('color-selector', ColorSelector);
     };
     var ColorSelector$1 = {
-        register: register$7
+        register: register$8
     };
 
     class CardBase extends HTMLElement {
@@ -2954,12 +3075,12 @@
             return self;
         }
     }
-    const register$6 = app => {
+    const register$7 = app => {
         CardBase.prototype.app = app;
         customElements.get('card-base') || customElements['define']('card-base', CardBase);
     };
     var CardBase$1 = {
-        register: register$6
+        register: register$7
     };
 
     let dragSrcEl = null;
@@ -2981,7 +3102,7 @@
     function handleDragLeave(e) {
         this.classList.remove('dragover');
     }
-    function handleDrop(e) {
+    function handleDrop$1(e) {
         e.stopPropagation();
         if (!dragSrcEl.isSameNode(this)) {
             this.after(dragSrcEl);
@@ -2998,7 +3119,7 @@
         dragenter: handleDragEnter,
         dragover: handleDragOver,
         dragleave: handleDragLeave,
-        drop: handleDrop,
+        drop: handleDrop$1,
         dragend: handleDragEnd,
     };
     function toggle(elem, state) {
@@ -3221,12 +3342,12 @@
             return self;
         }
     }
-    const register$5 = app => {
+    const register$6 = app => {
         CardForm.prototype.app = app;
         customElements.get('card-form') || customElements['define']('card-form', CardForm);
     };
     var CardForm$1 = {
-        register: register$5
+        register: register$6
     };
 
     class CardRecto extends HTMLElement {
@@ -3269,12 +3390,12 @@
             return self;
         }
     }
-    const register$4 = app => {
+    const register$5 = app => {
         CardRecto.prototype.app = app;
         customElements.get('card-recto') || customElements['define']('card-recto', CardRecto);
     };
     var CardRecto$1 = {
-        register: register$4
+        register: register$5
     };
 
     class CardToolbar extends HTMLElement {
@@ -3399,12 +3520,12 @@
             return self;
         }
     }
-    const register$3 = app => {
+    const register$4 = app => {
         CardToolbar.prototype.app = app;
         customElements.get('card-toolbar') || customElements['define']('card-toolbar', CardToolbar);
     };
     var CardToolbar$1 = {
-        register: register$3
+        register: register$4
     };
 
     class CardVerso extends HTMLElement {
@@ -3483,12 +3604,12 @@
             return self;
         }
     }
-    const register$2 = app => {
+    const register$3 = app => {
         CardVerso.prototype.app = app;
         customElements.get('card-verso') || customElements['define']('card-verso', CardVerso);
     };
     var CardVerso$1 = {
-        register: register$2
+        register: register$3
     };
 
     class UndoDialog extends HTMLElement {
@@ -3550,65 +3671,17 @@
             return self;
         }
     }
-    const register$1 = () => {
+    const register$2 = () => {
         customElements.get('undo-dialog') || customElements['define']('undo-dialog', UndoDialog);
     };
     var UndoDialog$1 = {
-        register: register$1
-    };
-
-    const getFileName = () => {
-        return `ghastly-creatures-${new Date().toISOString().substring(0,19).replace(/[T\:]/g, '-')}.json`;
-    };
-    const getData = ({
-        cidData,
-        tidData
-    }) => {
-        if (cidData) {
-            let card = cardStore.get(cidData);
-            let tab = tabStore.get(card);
-            return {
-                tabs: {
-                    [tabStore.toTid(tab)]: tab
-                },
-                cards: {
-                    [cardStore.toCid(card)]: card
-                }
-            }
-        }
-        if (tidData) {
-            return {
-                cards: cardStore.object('tid', '===', tabStore.toTid(tidData)),
-            }
-        }
-        return {
-            cards: cardStore.object(),
-            tabs: tabStore.object()
-        }
-    };
-    const getUrl = (fileName, {
-        cidData,
-        tidData
-    } = {}) => {
-        const data = [JSON.stringify(getData({
-            cidData,
-            tidData
-        }))];
-        return URL.createObjectURL(new File(
-            data,
-            fileName, {
-                type: 'application/json',
-            }
-        ))
-    };
-    var exporter = {
-        getFileName,
-        getUrl
+        register: register$2
     };
 
     class ImportExport extends HTMLElement {
         connectedCallback() {
             const listing = src.div({
+                classNames: ['import-export-menu'],
                 content: [
                     src.a({
                         attributes: {
@@ -3616,7 +3689,10 @@
                         },
                         content: 'Export cards',
                         events: {
-                            click: e => {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
                                 const fileName = exporter.getFileName();
                                 e.target.download = fileName;
                                 e.target.href = exporter.getUrl(fileName);
@@ -3634,11 +3710,21 @@
                         content: 'Import cards',
                         events: {
                             click: e => {
-                                console.log('upload');
+                                let currentState = properties.get('importState');
+                                if (!currentState) {
+                                    properties.set('importState', 'pristine');
+                                } else if (currentState === 'pristine') {
+                                    properties.unset('importState');
+                                }
                             }
                         }
                     })
                 ]
+            });
+            document.addEventListener('keyup', e => {
+                if (e.key === 'Escape' && properties.get('importState') === 'pristine') {
+                    properties.unset('importState');
+                }
             });
             this.append(listing);
         }
@@ -3649,10 +3735,222 @@
             return self;
         }
     }
-    const register = () => {
+    const register$1 = () => {
         customElements.get('import-export') || customElements['define']('import-export', ImportExport);
     };
     var ImportExport$1 = {
+        register: register$1
+    };
+
+    let cardQuarantine;
+    let tabQuarantine;
+    const sanitizeObject = (base, uploaded) => {
+        const sanitized = {};
+        Object.keys(base).forEach(key => {
+            sanitized[key] = sanitizeText(uploaded[key]);
+        });
+        return sanitized;
+    };
+    const quarantineCards = cards => {
+        cards.forEach(card => {
+            const model = cardQuarantine.getBlank();
+            ['props', 'labels', 'visibility'].forEach(key => {
+                if (!card[key]) {
+                    delete model[key];
+                } else {
+                    model[key] = sanitizeObject(model[key], card[key]);
+                }
+            });
+            model.cid = cardQuarantine.nextIncrement();
+            tabQuarantine.set(model.cid, model);
+        });
+    };
+    const quarantineTabs = tabs => {
+        tabs.forEach(tab => {
+            const model = tabQuarantine.getBlank();
+            if (!tab.styles) {
+                delete model.styles;
+            } else {
+                model.styles = sanitizeObject(model.styles, tab.styles);
+            }
+            if (!(/^[CDILMVX]+$/.test(tab.title))) {
+                model.title = tab.title;
+            }
+            for (let [cid, card] of cardQuarantine.entries()) {
+                if (cardQuarantine.toTid(card) === tabQuarantine.toTid(tab)) {
+                    cardQuarantine.set(`${cid}.tid`, model.tid);
+                }
+            }
+            cardQuarantine.set(model.tid, model);
+        });
+    };
+    const structureIsValid = data => {
+        const keys = Object.keys(data);
+        return keys.includes('tabs') &&
+            keys.includes('cards') &&
+            Array.isArray(data.tabs) &&
+            Array.isArray(data.cards)
+    };
+    const process = dataArr => {
+        if (!tabQuarantine) {
+            tabQuarantine = new TabTree({
+                data: {},
+                minIncrement: tabStore.nextIncrement()
+            });
+        }
+        if (!cardQuarantine) {
+            cardQuarantine = new CharTree({
+                data: {},
+                minIncrement: cardStore.nextIncrement()
+            });
+        }
+        dataArr = dataArr.map(e => JSON.parse(e));
+        dataArr.forEach(data => {
+            if (!structureIsValid(data)) {
+                console.error(`Invalid import data`);
+            }
+            quarantineCards(data.cards);
+            quarantineTabs(data.tabs);
+            tabQuarantine.values().forEach(tab => {
+                tabManager.add(tab);
+            });
+            cardQuarantine.values().forEach(card => {
+                cardManager.add(card);
+            });
+            cardQuarantine.flush();
+            tabQuarantine.flush();
+            properties.unset('importState');
+        });
+    };
+    var importer = {
+        process
+    };
+
+    let dropArea;
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    function handleUploads(files) {
+        processFiles([...files]);
+    }
+    function handleDrop(e) {
+        processFiles(e.dataTransfer.files);
+    }
+    function processFiles(files) {
+        properties.set('importState', 'working');
+        files = Array.from(files).filter(file => !!file);
+        const finished = [];
+        for (let file of files) {
+            finished.push(new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            }));
+        }
+        Promise.all(finished).then(data => {
+            dropArea.dispatchEvent(
+                new CustomEvent(
+                    'uploadComplete', {
+                        detail: data
+                    }
+                )
+            );
+        }).catch(error => {
+            console.error(error.message);
+        });
+    }
+    function highlight(e) {
+        e.target.classList.add('active');
+    }
+    function unhighlight(e) {
+        e.target.classList.remove('active');
+    }
+    const assignEvents = () => {
+        const evt1 = ['dragenter', 'dragover'];
+        const evt2 = ['dragleave', 'drop'];
+        evt1.concat(evt2).forEach(evt => {
+            dropArea.addEventListener(evt, preventDefaults, false);
+            document.body.addEventListener(evt, preventDefaults, false);
+        });
+        evt1.forEach(evt => {
+            dropArea.addEventListener(evt, highlight, false);
+        });
+        evt2.forEach(evt => {
+            dropArea.addEventListener(evt, unhighlight, false);
+        });
+        dropArea.addEventListener('drop', handleDrop, false);
+    };
+    const init = _dropArea => {
+        dropArea = _dropArea;
+        assignEvents();
+    };
+    var uploader = {
+        init,
+        handleUploads
+    };
+
+    class FileUpload extends HTMLElement {
+        connectedCallback() {
+            const spinner = src.div({
+                classNames: ['spinner'],
+                content: src.svg({
+                    isSvg: true,
+                    content: src.use({
+                        isSvg: true,
+                        attributes: {
+                            href: 'media/icons.svg#icon-axe'
+                        }
+                    })
+                })
+            });
+            const label = src.label({
+                content: [
+                    src.span({
+                        classNames: ['button'],
+                        content: 'select'
+                    }),
+                    src.input({
+                        attributes: {
+                            type: 'file',
+                            multiple: true,
+                            accept: 'application/json'
+                        },
+                        events: {
+                            change: e => {
+                                uploader.handleUploads(e.target.files);
+                            }
+                        }
+                    })
+                ]
+            });
+            const uploadForm = src.form({
+                content: [
+                    src.p({
+                        content: ['Drop or ', label, ' your Ghastly Creatures files']
+                    })
+                ],
+                events: {
+                    uploadComplete: e => {
+                        importer.process(e.detail);
+                    }
+                }
+            });
+            uploader.init(uploadForm);
+            this.append(uploadForm, spinner);
+        }
+        constructor(self) {
+            self = super(self);
+            self.on = on;
+            self.trigger = trigger;
+            return self;
+        }
+    }
+    const register = () => {
+        customElements.get('file-upload') || customElements['define']('file-upload', FileUpload);
+    };
+    var FileUpload$1 = {
         register
     };
 
@@ -3723,9 +4021,9 @@
                 data: config
             });
             const launchData = {
-                tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs'))) || {},
+                tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs')) || '{}'),
                 system: {},
-                stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards'))) || {},
+                stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards')) || '{}'),
                 settings
             };
             fetch(settings.get('characters.url'))
@@ -3751,6 +4049,7 @@
                     cardManager.init(this);
                     [
                         ImportExport$1,
+                        FileUpload$1,
                         CharacterLibrary$1,
                         LibraryOrganizer$1,
                         StyleEditor$1,
