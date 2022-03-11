@@ -56,15 +56,12 @@ class FileUpload extends HTMLElement {
                 fn.p({
                     content: ['Drop or ', label, ' your Ghastly Creatures files']
                 })                
-            ],
-            events: {
-                uploadComplete: e => {
-                    importer.process(e.detail);
-                }
-            }
+            ]
         })
 
-        uploader.init(uploadForm);
+        this.app.on('uploadComplete', e => {
+            importer.process(e.detail.data, e.detail.tid);
+        })
 
         this.append(uploadForm, spinner);
     }
@@ -79,7 +76,8 @@ class FileUpload extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    FileUpload.prototype.app = app;
     customElements.get('file-upload') || customElements['define']('file-upload', FileUpload)
 }
 

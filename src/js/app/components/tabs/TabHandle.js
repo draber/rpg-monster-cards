@@ -113,7 +113,7 @@ class TabHandle extends HTMLElement {
                     }
                 },
                 // keyboard events
-                keydown: e => {
+                keyup: e => {
                     // enter ends renaming
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -142,12 +142,15 @@ class TabHandle extends HTMLElement {
             // trigger soft delete on middle click and by clicking on the close button
             if (e.button === 1 || e.target.isSameNode(this.closer)) {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 e.stopPropagation();
                 tabManager.handleRemoval(this, 'soft');
+                return false;
             } 
             // set tab active on left click
             else {
                 tabManager.setActiveTab(this);
+                return false;
             }
         })
 

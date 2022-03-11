@@ -1,6 +1,9 @@
 import fn from 'fancy-node';
 import softDelete from '../../../modules/softDelete/softdelete.js';
-import { tabStore } from '../../storage/storage.js';
+import {
+    tabStore,
+    cardStore
+} from '../../storage/storage.js';
 
 let app;
 let navi;
@@ -47,7 +50,7 @@ const setActiveTab = tab => {
         atRect.width;
 
     navi.classList.remove('overflown');
-    
+
     // 2: set the non-active tabs to as tiny as needed
     if (navi.scrollWidth > navi.clientWidth) {
         navi.classList.add('overflown');
@@ -91,11 +94,11 @@ const getTabs = exclude => {
         case exclude instanceof customElements.get('tab-handle'):
             return tabs.filter(tab => !tab.isSameNode(exclude));
 
-        // empty tabs
+            // empty tabs
         case exclude === 'empty':
             return tabs.filter(tab => !fn.$('card-base', tab));
 
-        // all tabs
+            // all tabs
         default:
             return tabs;
     }
@@ -111,15 +114,18 @@ const getTabs = exclude => {
 const add = ({
     tabEntry,
     previousTab,
-    activate = false
+    activate = false,
+    aimForLowest = false
 } = {}) => {
     // existing or fresh model
-    tabEntry = tabEntry || tabStore.getBlank();
+    tabEntry = tabEntry || tabStore.getBlank({
+        aimForLowest
+    });
 
     // build DOM elements
     const tab = document.createElement('tab-handle');
     tab.panel = document.createElement('tab-panel');
-    
+
     tab.container = navi;
 
     // copy properties to both parts
@@ -136,7 +142,7 @@ const add = ({
     // insert a predfine insertion point
     if (previousTab) {
         previousTab.after(tab)
-    } 
+    }
     // add it at the very end but before the '+'
     else {
         fn.$('.adder', navi).before(tab);
@@ -160,7 +166,9 @@ const getUpcomingActiveTab = () => {
     // get all currently accessible tabs
     let tabs = Array.from(fn.$$(`tab-handle:not([data-soft-deleted])`, navi));
     if (!tabs.length) {
-        return add();
+        return add({
+            aimForLowest: true
+        });
     }
     // find the index of the currently active tab
     let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
@@ -182,17 +190,12 @@ const getUpcomingActiveTab = () => {
  */
 const bulkDelete = exclude => {
     // cancel all ongoing soft deletions
-    // not absolutely necessary, but otherwise the result could chaotic
+    // not absolutely necessary, but otherwise the result would be chaotic
     softDelete.cancel();
     // hard delete all candidates
     getTabs(exclude).forEach(tab => {
         handleRemoval(tab, 'remove');
     })
-    if (!tabStore.length) {
-        add({
-            activate: true
-        });
-    }
 }
 
 /**
@@ -202,13 +205,12 @@ const bulkDelete = exclude => {
  * @param {String} action
  */
 const handleRemoval = (tab, action) => {
+    // ensure that tab is an element and not an object
+    tab = getTab(tab);
+
     switch (action) {
         // trigger soft deletion process
         case 'soft':
-            // when deleting the active tab
-            if (tab.isSameNode(activeTab)) {
-                setActiveTab(getUpcomingActiveTab());
-            }
             // DOM
             softDelete.initiate(tab, 'Tab ' + tab.title)
                 .then(data => {
@@ -216,20 +218,25 @@ const handleRemoval = (tab, action) => {
                 })
             // local model
             tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
+            // when deleting the active tab
+            // getUpcomingActiveTab would also create a tab if none is visible
+            if (tab.isSameNode(activeTab)) {
+                setActiveTab(getUpcomingActiveTab());
+            }
             break;
 
-        // restore a previously soft deleted tab
+            // restore a previously soft deleted tab
         case 'restore':
             tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
             break;
 
-        // delete a tab for good
+            // delete a tab for good
         case 'remove':
-            
             // inform app to delete cards
-            app.trigger('tabDelete', {
-                tab
-            })
+            app.trigger(
+                'tabDelete',
+                Array.from(fn.$$('card-base', tab.panel)).map(card => cardStore.toCid(card))
+            )
             tabStore.remove(tab);
             tab.remove();
             if (!tabStore.length) {
@@ -239,19 +246,19 @@ const handleRemoval = (tab, action) => {
             }
             break;
 
-        // bulk delete all empty tabs (hard)
+            // bulk delete all empty tabs (hard)
         case 'empty':
             bulkDelete('empty');
             setActiveTab();
             break;
 
-        // bulk delete all empty tabs but the one in the argument (hard)
+            // bulk delete all empty tabs but the one in the argument (hard)
         case 'others':
             bulkDelete(tab);
             setActiveTab(tab);
             break;
 
-        // bulk delete all tabs (hard)
+            // bulk delete all tabs (hard)
         case 'all':
             bulkDelete();
             break;
@@ -268,7 +275,7 @@ const restore = () => {
     const entries = tabStore.values();
     const activeSet = entries.filter(e => !!e.active);
     const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
-    
+
     for (let tabEntry of entries) {
         add({
             tabEntry

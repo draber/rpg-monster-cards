@@ -294,21 +294,6 @@
         }
         return current;
     };
-    const _entrySatisfies = conditions => {
-        for (let condition of conditions) {
-            if (!condition.fn(condition.value, condition.expected)) {
-                return false;
-            }
-        }
-        return true;
-    };
-    const _expandCondition = (key, condition, obj) => {
-        return {
-            value: _get(`${key}.${condition[0]}`, obj),
-            fn: getCmpFn(condition[1]),
-            expected: condition[2] || null
-        }
-    };
     class Tree {
         get length() {
             return this.keys().length;
@@ -351,36 +336,47 @@
                 current = current[token];
             }
             delete current[last];
+            this.save();
+            return this;
         }
         get(key) {
             return _get(key, this.obj);
         }
-        getClone(key){
+        getClone(key) {
             return deepClone(this.get(key))
         }
-        where(searchKey, cmpFn, expected = null){
+        has(key) {
+            return typeof this.get(key) !== 'undefined';
+        }
+        where(searchKey, cmpFn, expected = null) {
             return [searchKey, cmpFn, expected];
         }
-         object(...conditions) {
-            if (!conditions.length || !conditions[0].length) {
+        object(...conditions) {
+            conditions = conditions.filter(e => Array.isArray(e));
+            if (!conditions.length) {
                 return this.obj;
             }
             const result = {};
             for (let [key, entry] of Object.entries(this.obj)) {
-                if(_entrySatisfies(conditions.map(cond => _expandCondition(key, cond, this.obj)))){
-                    result[key] = entry;
-                }
+                conditions.forEach(condition => {
+                    const comperator = _get(`${key}.${condition[0]}`, this.obj);
+                    const expected = condition[2];
+                    const fn = getCmpFn(condition[1]);
+                    if (fn(comperator, expected)) {
+                        result[key] = entry;
+                    }
+                });
             }
             return result;
         }
         entries(...conditions) {
-            return Object.entries(this.object(conditions));
+            return Object.entries(this.object.apply(this, conditions));
         }
         values(...conditions) {
-            return Object.values(this.object(conditions));
+            return Object.values(this.object.apply(this, conditions));
         }
         keys(...conditions) {
-            return Object.keys(this.object(conditions));
+            return Object.keys(this.object.apply(this, conditions));
         }
         remove(...keys) {
             keys.forEach(key => {
@@ -408,8 +404,10 @@
             }
             return parseInt(tid, 10);
         }
-        getBlank() {
-            const tid = this.nextIncrement();
+        getBlank({
+            aimForLowest = false
+        } = {}) {
+            const tid = aimForLowest ? this.lowestIncrement() : this.nextIncrement();
             return {
                 tid,
                 title: convertToRoman(tid),
@@ -422,6 +420,13 @@
         nextIncrement() {
             let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
             return Math.max(...keys) + 1;
+        }
+        lowestIncrement() {
+            let keys = this.keys();
+            let nextIncrement = this.nextIncrement();
+            let potential = [...Array(10).keys(nextIncrement - 1)].map(e => e + 1);
+            let available = potential.filter(e => !(keys.includes(e)));
+            return available.length ? available[0] : nextIncrement;
         }
         constructor({
             data = {},
@@ -1292,7 +1297,7 @@
         cancel: cancel$1
     };
 
-    let app$1;
+    let app$2;
     let navi;
     let contentArea;
     let activeTab;
@@ -1308,7 +1313,7 @@
         activeTab.classList.add('active');
         activeTab.panel.classList.add('active');
         tabStore.set(`${tid}.active`, true);
-        app$1.trigger('tabStyleChange', {
+        app$2.trigger('tabStyleChange', {
             tab: activeTab,
             styles: tabStore.get(tid).styles
         });
@@ -1352,9 +1357,12 @@
     const add$1 = ({
         tabEntry,
         previousTab,
-        activate = false
+        activate = false,
+        aimForLowest = false
     } = {}) => {
-        tabEntry = tabEntry || tabStore.getBlank();
+        tabEntry = tabEntry || tabStore.getBlank({
+            aimForLowest
+        });
         const tab = document.createElement('tab-handle');
         tab.panel = document.createElement('tab-panel');
         tab.container = navi;
@@ -1379,7 +1387,9 @@
     const getUpcomingActiveTab = () => {
         let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
         if (!tabs.length) {
-            return add$1();
+            return add$1({
+                aimForLowest: true
+            });
         }
         let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
         if (tabs[activeIdx + 1]) {
@@ -1395,31 +1405,28 @@
         getTabs(exclude).forEach(tab => {
             handleRemoval$1(tab, 'remove');
         });
-        if (!tabStore.length) {
-            add$1({
-                activate: true
-            });
-        }
     };
     const handleRemoval$1 = (tab, action) => {
+        tab = getTab(tab);
         switch (action) {
             case 'soft':
-                if (tab.isSameNode(activeTab)) {
-                    setActiveTab(getUpcomingActiveTab());
-                }
                 softDelete$1.initiate(tab, 'Tab ' + tab.title)
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
                 tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
+                if (tab.isSameNode(activeTab)) {
+                    setActiveTab(getUpcomingActiveTab());
+                }
                 break;
             case 'restore':
                 tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
                 break;
             case 'remove':
-                app$1.trigger('tabDelete', {
-                    tab
-                });
+                app$2.trigger(
+                    'tabDelete',
+                    Array.from(src.$$('card-base', tab.panel)).map(card => cardStore.toCid(card))
+                );
                 tabStore.remove(tab);
                 tab.remove();
                 if (!tabStore.length) {
@@ -1453,11 +1460,11 @@
         setActiveTab(getTab(activeTid));
     };
     const init$3 = _app => {
-        app$1 = _app;
-        navi = src.$('tab-navi', app$1);
-        contentArea = src.$('tab-content', app$1);
+        app$2 = _app;
+        navi = src.$('tab-navi', app$2);
+        contentArea = src.$('tab-content', app$2);
         restore();
-        app$1.on('singleStyleChange', e => {
+        app$2.on('singleStyleChange', e => {
             const tab = e.detail.tab || activeTab;
             const tid = tabStore.toTid(tab);
             const entry = tabStore.get(tid);
@@ -1468,10 +1475,10 @@
                 tab.panel.style.setProperty(e.detail.name, e.detail.value);
             }
         });
-        app$1.on('styleReset', e => {
+        app$2.on('styleReset', e => {
             const tid = tabStore.toTid(e.detail.tab);
             tabStore.set(`${tid}.styles`, {});
-            app$1.trigger('tabStyleChange', {
+            app$2.trigger('tabStyleChange', {
                 tab: e.detail.tab,
                 styles: {}
             });
@@ -1737,7 +1744,7 @@
         cancel
     };
 
-    let app;
+    let app$1;
     const add = character => {
         let cid;
         let tid;
@@ -1745,9 +1752,12 @@
         if (character.tid) {
             cid = cardStore.toCid(character);
             tab = tabManager.getTab(character.tid);
+            if (!tab) {
+                handleRemoval(character, 'remove');
+                return;
+            }
             tid = tabStore.toTid(tab);
-        }
-        else {
+        } else {
             cid = cardStore.nextIncrement();
             tab = tabManager.getTab('active');
             tid = tabStore.toTid(tab);
@@ -1767,7 +1777,7 @@
         card.character = character;
         tab.panel.append(card);
     };
-    const getCard = cidData =>{
+    const getCard = cidData => {
         return src.$(`[cid="${cardStore.toCid(cidData)}"]`);
     };
     const restoreLastSession = () => {
@@ -1790,18 +1800,20 @@
                 break;
             case 'remove':
                 cardStore.remove(card);
-                card.remove();
+                if (card instanceof HTMLElement) {
+                    card.remove();
+                }
                 break;
         }
     };
     const init$1 = _app => {
-        app = _app;
-        app.on('tabDelete', e => {
-            src.$$('card-base', e.detail.tab).forEach(card => {
+        app$1 = _app;
+        app$1.on('tabDelete', e => {
+            e.detail.forEach(card => {
                 handleRemoval(card, 'remove');
             });
         });
-        app.on('characterSelection', e => {
+        app$1.on('characterSelection', e => {
             add(e.detail);
         });
         restoreLastSession();
@@ -1835,7 +1847,6 @@
         set(card, 'copy');
     };
     const paste = tab => {
-        console.log(tab);
         copyStore.values().forEach(copy => {
             copy.tid = tabStore.toTid(tab);
             if (copy.mode === 'cut') {
@@ -1843,8 +1854,7 @@
             }
             delete copy.originalCid;
             copy.cid = cardStore.nextIncrement();
-            console.log(copy.cid);
-            tab.app.trigger('characterSelection', copy);
+            cardManager.add(copy);
         });
         clear(tab.app);
         copyStore.flush();
@@ -1916,7 +1926,7 @@
                             cardCopy.paste(tab);
                         }
                     },
-                    keydown: e => {
+                    keyup: e => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             this.label.blur();
@@ -1937,11 +1947,14 @@
                 }
                 if (e.button === 1 || e.target.isSameNode(this.closer)) {
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     e.stopPropagation();
                     tabManager.handleRemoval(this, 'soft');
+                    return false;
                 }
                 else {
                     tabManager.setActiveTab(this);
+                    return false;
                 }
             });
             this.on('dblclick', () => {
@@ -2065,9 +2078,92 @@
         getUrl
     };
 
+    let dropArea;
+    let app;
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    function handleUploads(files) {
+        processFiles([...files]);
+    }
+    function handleDrop$1(e) {
+        processFiles(e.dataTransfer.files);
+    }
+    function processFiles(files) {
+        properties.set('importState', 'working');
+        files = Array.from(files).filter(file => !!file);
+        const finished = [];
+        for (let file of files) {
+            finished.push(new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            }));
+        }
+        Promise.all(finished).then(data => {
+            app.trigger('uploadComplete', {
+                data,
+                tid: dropArea.tid,
+            });
+        }).catch(error => {
+            console.error(error);
+        });
+    }
+    function highlight(e) {
+        e.target.classList.add('active');
+    }
+    function unhighlight(e) {
+        e.target.classList.remove('active');
+    }
+    const assignEvents = () => {
+        const evt1 = ['dragenter', 'dragover'];
+        const evt2 = ['dragleave', 'drop'];
+        evt1.concat(evt2).forEach(evt => {
+            dropArea.addEventListener(evt, preventDefaults, false);
+            document.body.addEventListener(evt, preventDefaults, false);
+        });
+        evt1.forEach(evt => {
+            dropArea.addEventListener(evt, highlight, false);
+        });
+        evt2.forEach(evt => {
+            dropArea.addEventListener(evt, unhighlight, false);
+        });
+        dropArea.addEventListener('drop', handleDrop$1, false);
+    };
+    const getDropArea = app => {
+        let dropArea = src.$('file-upload');
+        if (!dropArea) {
+            dropArea = document.createElement('file-upload');
+            app.after(dropArea);
+        }
+        return dropArea;
+    };
+    const init = (_app, tid) => {
+        app = _app;
+        let currentState = properties.get('importState');
+        if (!currentState) {
+            properties.set('importState', 'pristine');
+        } else if (currentState === 'pristine') {
+            properties.unset('importState');
+        }
+        dropArea = getDropArea(app);
+        delete dropArea.tid;
+        if (tid) {
+            dropArea.tid = tid;
+        }
+        assignEvents();
+    };
+    var uploader = {
+        init,
+        handleUploads
+    };
+
     class TabMenu extends HTMLElement {
         connectedCallback() {
             const tab = tabManager.getTab(this.owner);
+            const tid = tabStore.toTid(tab);
             const menu = src.ul({
                 content: [
                     src.li({
@@ -2138,7 +2234,6 @@
                                     }
                                     const fileName = exporter.getFileName();
                                     e.target.download = fileName;
-                                    console.log(fileName);
                                     e.target.href = exporter.getUrl(fileName, {
                                         tidData: tab
                                     });
@@ -2146,6 +2241,19 @@
                                         e.target.download = '';
                                         URL.revokeObjectURL(e.target.href);
                                     }, 200);
+                                }
+                            }
+                        })
+                    }),
+                    src.li({
+                        content: src.a({
+                            content: 'Import cards into this tab',
+                            events: {
+                                pointerup: e => {
+                                    if (e.button !== 0) {
+                                        return true;
+                                    }
+                                    uploader.init(this.app, tid);
                                 }
                             }
                         })
@@ -3102,7 +3210,7 @@
     function handleDragLeave(e) {
         this.classList.remove('dragover');
     }
-    function handleDrop$1(e) {
+    function handleDrop(e) {
         e.stopPropagation();
         if (!dragSrcEl.isSameNode(this)) {
             this.after(dragSrcEl);
@@ -3119,7 +3227,7 @@
         dragenter: handleDragEnter,
         dragover: handleDragOver,
         dragleave: handleDragLeave,
-        drop: handleDrop$1,
+        drop: handleDrop,
         dragend: handleDragEnd,
     };
     function toggle(elem, state) {
@@ -3709,13 +3817,11 @@
                         },
                         content: 'Import cards',
                         events: {
-                            click: e => {
-                                let currentState = properties.get('importState');
-                                if (!currentState) {
-                                    properties.set('importState', 'pristine');
-                                } else if (currentState === 'pristine') {
-                                    properties.unset('importState');
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
                                 }
+                                uploader.init(this.app);
                             }
                         }
                     })
@@ -3735,7 +3841,8 @@
             return self;
         }
     }
-    const register$1 = () => {
+    const register$1 = app => {
+        ImportExport.prototype.app = app;
         customElements.get('import-export') || customElements['define']('import-export', ImportExport);
     };
     var ImportExport$1 = {
@@ -3744,59 +3851,69 @@
 
     let cardQuarantine;
     let tabQuarantine;
-    const sanitizeObject = (base, uploaded) => {
+    const sanitizeObject = (modelData, uploadedData) => {
         const sanitized = {};
-        Object.keys(base).forEach(key => {
-            sanitized[key] = sanitizeText(uploaded[key]);
+        Object.keys(modelData).forEach(key => {
+            sanitized[key] = uploadedData[key];
         });
         return sanitized;
     };
     const quarantineCards = cards => {
         cards.forEach(card => {
             const model = cardQuarantine.getBlank();
-            ['props', 'labels', 'visibility'].forEach(key => {
-                if (!card[key]) {
-                    delete model[key];
-                } else {
-                    model[key] = sanitizeObject(model[key], card[key]);
-                }
+            ['props', 'labels', 'visibility'].forEach(type => {
+                model[type] = sanitizeObject(model[type], card[type]);
             });
-            model.cid = cardQuarantine.nextIncrement();
-            tabQuarantine.set(model.cid, model);
+            model.originalTid = cardQuarantine.toTid(card.tid);
+            cardQuarantine.set(model.cid, model);
         });
     };
     const quarantineTabs = tabs => {
         tabs.forEach(tab => {
             const model = tabQuarantine.getBlank();
-            if (!tab.styles) {
-                delete model.styles;
-            } else {
-                model.styles = sanitizeObject(model.styles, tab.styles);
-            }
+            model.originalTid = tab.tid;
+            model.styles = sanitizeObject(model.styles, (tab.styles || {}));
             if (!(/^[CDILMVX]+$/.test(tab.title))) {
                 model.title = tab.title;
             }
-            for (let [cid, card] of cardQuarantine.entries()) {
-                if (cardQuarantine.toTid(card) === tabQuarantine.toTid(tab)) {
-                    cardQuarantine.set(`${cid}.tid`, model.tid);
-                }
-            }
-            cardQuarantine.set(model.tid, model);
+            tabQuarantine.set(model.tid, model);
         });
+    };
+    const updateCardTids = (tab, tid) => {
+        const condition = !tid ? ['originalTid', '===', tabQuarantine.toTid(tab.originalTid)] : undefined;
+        cardQuarantine.entries(condition).forEach((card, cid) => {
+            delete card.originalTid;
+            card.tid = tid || tabQuarantine.toTid(tab);
+            cardQuarantine.set(cid, card);
+            if (!tid) {
+                cardQuarantine.unset(`${cid}.originalTid`);
+            }
+        });
+        if (!tid) {
+            tabQuarantine.unset(`${tid}.originalTid`);
+        }
     };
     const structureIsValid = data => {
         const keys = Object.keys(data);
         return keys.includes('tabs') &&
             keys.includes('cards') &&
             Array.isArray(data.tabs) &&
-            Array.isArray(data.cards)
+            Array.isArray(data.cards) &&
+            data.tabs.length &&
+            data.cards.length
     };
-    const process = dataArr => {
-        if (!tabQuarantine) {
-            tabQuarantine = new TabTree({
-                data: {},
-                minIncrement: tabStore.nextIncrement()
-            });
+    const process = (dataArr, tid) => {
+        dataArr = dataArr.map(e => JSON.parse(e));
+        for (let i = 0; i < dataArr.length; i++) {
+            if (!structureIsValid(dataArr[i])) {
+                dataArr.splice(i, 1);
+                console.error(`Invalid import data found`);
+            }
+        }
+        if (!dataArr.length) {
+            console.error(`No valid import data found, aborting`);
+            properties.unset('importState');
+            return false;
         }
         if (!cardQuarantine) {
             cardQuarantine = new CharTree({
@@ -3804,91 +3921,44 @@
                 minIncrement: cardStore.nextIncrement()
             });
         }
-        dataArr = dataArr.map(e => JSON.parse(e));
-        dataArr.forEach(data => {
-            if (!structureIsValid(data)) {
-                console.error(`Invalid import data`);
-            }
-            quarantineCards(data.cards);
-            quarantineTabs(data.tabs);
-            tabQuarantine.values().forEach(tab => {
-                tabManager.add(tab);
+        if (!tid && !tabQuarantine) {
+            tabQuarantine = new TabTree({
+                data: {},
+                minIncrement: tabStore.nextIncrement()
             });
+        }
+        dataArr.forEach(data => {
+            if (tid) {
+                data.cards.map(card => {
+                    card.tid = tid;
+                    return card;
+                });
+                quarantineCards(data.cards);
+                updateCardTids(tabStore.get(tid), tid);
+            }
+            else {
+                quarantineCards(data.cards);
+                quarantineTabs(data.tabs);
+                tabQuarantine.values().forEach(tab => {
+                    updateCardTids(tab);
+                    tabManager.add(tab);
+                });
+            }
             cardQuarantine.values().forEach(card => {
-                cardManager.add(card);
+                console.log({
+                    c: card,
+                    t: card.tid
+                });
             });
             cardQuarantine.flush();
-            tabQuarantine.flush();
+            if (tabQuarantine && !tid) {
+                tabQuarantine.flush();
+            }
             properties.unset('importState');
         });
     };
     var importer = {
         process
-    };
-
-    let dropArea;
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    function handleUploads(files) {
-        processFiles([...files]);
-    }
-    function handleDrop(e) {
-        processFiles(e.dataTransfer.files);
-    }
-    function processFiles(files) {
-        properties.set('importState', 'working');
-        files = Array.from(files).filter(file => !!file);
-        const finished = [];
-        for (let file of files) {
-            finished.push(new Promise((resolve, reject) => {
-                let reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsText(file);
-            }));
-        }
-        Promise.all(finished).then(data => {
-            dropArea.dispatchEvent(
-                new CustomEvent(
-                    'uploadComplete', {
-                        detail: data
-                    }
-                )
-            );
-        }).catch(error => {
-            console.error(error.message);
-        });
-    }
-    function highlight(e) {
-        e.target.classList.add('active');
-    }
-    function unhighlight(e) {
-        e.target.classList.remove('active');
-    }
-    const assignEvents = () => {
-        const evt1 = ['dragenter', 'dragover'];
-        const evt2 = ['dragleave', 'drop'];
-        evt1.concat(evt2).forEach(evt => {
-            dropArea.addEventListener(evt, preventDefaults, false);
-            document.body.addEventListener(evt, preventDefaults, false);
-        });
-        evt1.forEach(evt => {
-            dropArea.addEventListener(evt, highlight, false);
-        });
-        evt2.forEach(evt => {
-            dropArea.addEventListener(evt, unhighlight, false);
-        });
-        dropArea.addEventListener('drop', handleDrop, false);
-    };
-    const init = _dropArea => {
-        dropArea = _dropArea;
-        assignEvents();
-    };
-    var uploader = {
-        init,
-        handleUploads
     };
 
     class FileUpload extends HTMLElement {
@@ -3930,14 +4000,11 @@
                     src.p({
                         content: ['Drop or ', label, ' your Ghastly Creatures files']
                     })
-                ],
-                events: {
-                    uploadComplete: e => {
-                        importer.process(e.detail);
-                    }
-                }
+                ]
             });
-            uploader.init(uploadForm);
+            this.app.on('uploadComplete', e => {
+                importer.process(e.detail.data, e.detail.tid);
+            });
             this.append(uploadForm, spinner);
         }
         constructor(self) {
@@ -3947,7 +4014,8 @@
             return self;
         }
     }
-    const register = () => {
+    const register = app => {
+        FileUpload.prototype.app = app;
         customElements.get('file-upload') || customElements['define']('file-upload', FileUpload);
     };
     var FileUpload$1 = {

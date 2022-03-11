@@ -21,9 +21,15 @@ const add = character => {
     if (character.tid) {
         cid = cardStore.toCid(character);
         tab = tabManager.getTab(character.tid);
+        // This is a 'just in case'. When tabs are deleted and cards for some reasons 
+        // aren't removed from the tree, these 'Ghost Cards' will cause an error
+        // if their original tab isn't available anymore
+        if (!tab) {
+            handleRemoval(character, 'remove');
+            return;
+        }
         tid = tabStore.toTid(tab);
-    } 
-    else {
+    } else {
         cid = cardStore.nextIncrement();
         tab = tabManager.getTab('active');
         tid = tabStore.toTid(tab);
@@ -51,7 +57,7 @@ const add = character => {
  * @param {HTMLElement|Object|String|Number} cidData 
  * @returns 
  */
-const getCard = cidData =>{
+const getCard = cidData => {
     return fn.$(`[cid="${cardStore.toCid(cidData)}"]`);
 }
 
@@ -89,7 +95,10 @@ const handleRemoval = (card, action) => {
             break;
         case 'remove':
             cardStore.remove(card);
-            card.remove();
+            // another 'just in case', see full comment in `add()`
+            if (card instanceof HTMLElement) {
+                card.remove();
+            }
             break;
     }
 }
@@ -103,7 +112,7 @@ const init = _app => {
     app = _app;
     // hard delete all cards from a specific tab 
     app.on('tabDelete', e => {
-        fn.$$('card-base', e.detail.tab).forEach(card => {
+        e.detail.forEach(card => {
             handleRemoval(card, 'remove');
         })
     })

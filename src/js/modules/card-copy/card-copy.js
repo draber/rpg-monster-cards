@@ -63,7 +63,6 @@ const copy = card => {
  * @param {HTMLElement} tab the tab to paste to
  */
 const paste = tab => {
-    console.log(tab)
     copyStore.values().forEach(copy => {
         // assign the new tab
         copy.tid = tabStore.toTid(tab);
@@ -76,8 +75,7 @@ const paste = tab => {
 
         // assign regular card cid
         copy.cid = cardStore.nextIncrement();
-        console.log(copy.cid)
-        tab.app.trigger('characterSelection', copy);
+        cardManager.add(copy);
     });
 
     // remove class names

@@ -4,6 +4,7 @@ import {
     trigger
 } from '../../../modules/events/eventHandler.js';
 import exporter from '../../../modules/import-export/exporter.js';
+import uploader from '../../../modules/import-export/uploader.js';
 import properties from '../../../modules/properties/properties.js';
 
 
@@ -48,20 +49,18 @@ class ImportExport extends HTMLElement {
                     },
                     content: 'Import cards',
                     events: {
-                        click: e => {
-                            let currentState = properties.get('importState');
-                            if (!currentState) {
-                                properties.set('importState', 'pristine');
-                            } else if (currentState === 'pristine') {
-                                properties.unset('importState');
+                        pointerup: e => {
+                            if (e.button !== 0) {
+                                return true;
                             }
-                            // else do nothing because the process has already started
+                            uploader.init(this.app);
                         }
                     }
                 })
             ]
         })
 
+        // remove overlay on ESC but only if the import hasn't started yet
         document.addEventListener('keyup', e => {
             if (e.key === 'Escape' && properties.get('importState') === 'pristine') {
                 properties.unset('importState');
@@ -81,7 +80,8 @@ class ImportExport extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    ImportExport.prototype.app = app;
     customElements.get('import-export') || customElements['define']('import-export', ImportExport)
 }
 

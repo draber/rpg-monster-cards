@@ -18,10 +18,13 @@ class TabTree extends Tree {
 
     /**
      * Create data for a new tab (tid as in Tab ID)
+     * @param {Boolean} [aimForLowest] 
      * @returns {{title, tid: {Integer}}}
      */
-    getBlank() {
-        const tid = this.nextIncrement();
+    getBlank({
+        aimForLowest = false
+    } = {}) {
+        const tid = aimForLowest ? this.lowestIncrement() : this.nextIncrement();
         return {
             tid,
             title: convertToRoman(tid),
@@ -44,6 +47,18 @@ class TabTree extends Tree {
     nextIncrement() {
         let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
         return Math.max(...keys) + 1;
+    }
+
+    /**
+     * Like next increment but it returns the lowest available key instead
+     * @returns {Integer}
+     */
+    lowestIncrement() {
+        let keys = this.keys();
+        let nextIncrement = this.nextIncrement();
+        let potential = [...Array(10).keys(nextIncrement - 1)].map(e => e + 1);
+        let available = potential.filter(e => !(keys.includes(e)));
+        return available.length ? available[0] : nextIncrement;
     }
 
     constructor({
