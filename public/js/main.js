@@ -418,7 +418,7 @@
             super.remove(...tidData.map(e => this.toTid(e)));
         }
         nextIncrement() {
-            let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
             return Math.max(...keys) + 1;
         }
         lowestIncrement() {
@@ -430,12 +430,14 @@
         }
         constructor({
             data = {},
+            minIncrement = 0,
             lsKey
         } = {}) {
             super({
                 data,
                 lsKey
             });
+            this.minIncrement = minIncrement;
         }
     }
 
@@ -878,7 +880,7 @@
             }
         }
         nextIncrement() {
-            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement - 1];
             return Math.max(...keys) + 1;
         }
         remove(...cidData) {
@@ -3858,18 +3860,18 @@
         });
         return sanitized;
     };
-    const quarantineCards = cards => {
-        cards.forEach(card => {
+    const quarantineCards = uploadedCards => {
+        uploadedCards.forEach(card => {
             const model = cardQuarantine.getBlank();
+            model.originalTid = cardQuarantine.toTid(card.tid);
             ['props', 'labels', 'visibility'].forEach(type => {
                 model[type] = sanitizeObject(model[type], card[type]);
             });
-            model.originalTid = cardQuarantine.toTid(card.tid);
             cardQuarantine.set(model.cid, model);
         });
     };
-    const quarantineTabs = tabs => {
-        tabs.forEach(tab => {
+    const quarantineTabs = uploadedTabs => {
+        uploadedTabs.forEach(tab => {
             const model = tabQuarantine.getBlank();
             model.originalTid = tab.tid;
             model.styles = sanitizeObject(model.styles, (tab.styles || {}));
@@ -3881,16 +3883,13 @@
     };
     const updateCardTids = (tab, tid) => {
         const condition = !tid ? ['originalTid', '===', tabQuarantine.toTid(tab.originalTid)] : undefined;
-        cardQuarantine.entries(condition).forEach((card, cid) => {
+        for (let [cid, card] of cardQuarantine.entries(condition)) {
             delete card.originalTid;
             card.tid = tid || tabQuarantine.toTid(tab);
             cardQuarantine.set(cid, card);
-            if (!tid) {
-                cardQuarantine.unset(`${cid}.originalTid`);
-            }
-        });
+        }
         if (!tid) {
-            tabQuarantine.unset(`${tid}.originalTid`);
+            tabQuarantine.unset(`${tab.tid}.originalTid`);
         }
     };
     const structureIsValid = data => {
@@ -3945,10 +3944,7 @@
                 });
             }
             cardQuarantine.values().forEach(card => {
-                console.log({
-                    c: card,
-                    t: card.tid
-                });
+                cardManager.add(card);
             });
             cardQuarantine.flush();
             if (tabQuarantine && !tid) {

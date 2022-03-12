@@ -65,7 +65,7 @@ class CharTree extends Tree {
      * @returns {Number}
      */
     nextIncrement() {
-        let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
+        let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement - 1];
         return Math.max(...keys) + 1;
     }
 

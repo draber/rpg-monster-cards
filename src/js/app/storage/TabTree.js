@@ -45,7 +45,7 @@ class TabTree extends Tree {
      * @returns {Number}
      */
     nextIncrement() {
-        let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
+        let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
         return Math.max(...keys) + 1;
     }
 
@@ -63,12 +63,14 @@ class TabTree extends Tree {
 
     constructor({
         data = {},
+        minIncrement = 0,
         lsKey
     } = {}) {
         super({
             data,
             lsKey
         });
+        this.minIncrement = minIncrement;
     }
 }
 

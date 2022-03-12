@@ -31,32 +31,36 @@ const sanitizeObject = (modelData, uploadedData) => {
 
 /**
  * Put cards into a temporary store
- * @param {Object} cards 
+ * @param {Object} uploadedCards 
  */
-const quarantineCards = cards => {
-    cards.forEach(card => {
+const quarantineCards = uploadedCards => {
+    uploadedCards.forEach(card => {
         // pull an empty card
         const model = cardQuarantine.getBlank();
+
+        // memorize the original tid
+        model.originalTid = cardQuarantine.toTid(card.tid);
+
         // go over the properties that are objects
         ['props', 'labels', 'visibility'].forEach(type => {
             model[type] = sanitizeObject(model[type], card[type]);
         })
-        // memorize the original tid
-        model.originalTid = cardQuarantine.toTid(card.tid);
         cardQuarantine.set(model.cid, model);
     })
 }
 
 /**
  * Put tabs into a temporary store
- * @param {Object} tabs 
+ * @param {Object} uploadedTabs 
  */
-const quarantineTabs = tabs => {
-    tabs.forEach(tab => {
+const quarantineTabs = uploadedTabs => {
+    uploadedTabs.forEach(tab => {
+        // pull an empty tab
         const model = tabQuarantine.getBlank();
 
         // memorize the tab's original tid as it's needed to identify the matching cards later on
         model.originalTid = tab.tid;
+
         model.styles = sanitizeObject(model.styles, (tab.styles || {}));
 
         // preserve custom titles, update Roman number titles
@@ -77,19 +81,18 @@ const updateCardTids = (tab, tid) => {
     // it doesn't matter of which tree's `toTid()` is used, they all return the same value
     // tabQuarantine only exists when no tid is given
     const condition = !tid ? ['originalTid', '===', tabQuarantine.toTid(tab.originalTid)] : undefined;
-    cardQuarantine.entries(condition).forEach((card, cid) => {
+    
+    for (let [cid, card] of cardQuarantine.entries(condition)) {
+        // delete `card.originalTid` if any
         delete card.originalTid;
         card.tid = tid || tabQuarantine.toTid(tab);
         // update card with new tid
         cardQuarantine.set(cid, card);
-        if (!tid) {
-            // delete old TID if applicable
-            cardQuarantine.unset(`${cid}.originalTid`);
-        }
-    })
+    }
+
+    // delete `tab.originialTid` if any
     if (!tid) {
-        // delete `originialTid`
-        tabQuarantine.unset(`${tid}.originalTid`);
+        tabQuarantine.unset(`${tab.tid}.originalTid`);
     }
 }
 
@@ -167,6 +170,7 @@ const process = (dataArr, tid) => {
         else {
             quarantineCards(data.cards);
 
+
             // quarantine new tabs
             quarantineTabs(data.tabs);
 
@@ -176,15 +180,12 @@ const process = (dataArr, tid) => {
                 updateCardTids(tab);
                 tabManager.add(tab);
             })
+
         }
 
         // add the card to either their original tab or a prespecified tab, depending on their TID
         cardQuarantine.values().forEach(card => {
-            console.log({
-                c: card,
-                t: card.tid
-            })
-            // cardManager.add(card);
+            cardManager.add(card);
         })
 
         // delete quarantined data
