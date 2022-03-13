@@ -4,6 +4,7 @@ import {
     tabStore,
     cardStore
 } from '../../storage/storage.js';
+import idHelper from '../../storage/id-helper.js';
 
 let app;
 let navi;
@@ -23,12 +24,12 @@ const setActiveTab = tab => {
     fn.$$('tab-handle', navi).forEach(tab => {
         tab.classList.remove('active');
         tab.panel.classList.remove('active');
-        tabStore.unset(`${tabStore.toTid(tab)}.active`);
+        tabStore.unset(`${idHelper.toTid(tab)}.active`);
         tab.removeAttribute('style');
     });
 
     // set the selected tab active
-    const tid = tabStore.toTid(activeTab);
+    const tid = idHelper.toTid(activeTab);
     // DOM Tab
     activeTab.classList.add('active');
     // DOM Panel
@@ -79,7 +80,7 @@ const getTab = tabData => {
         return tabData
     }
     // parse tabData for a TID and return the matching tab
-    return fn.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
+    return fn.$(`tab-handle[tid="${idHelper.toTid(tabData)}"]`, navi);
 }
 
 /**
@@ -149,7 +150,7 @@ const add = ({
     }
 
     // inform model
-    tabStore.set(tabStore.toTid(tabEntry), tabEntry);
+    tabStore.set(idHelper.toTid(tabEntry), tabEntry);
 
     if (activate) {
         setActiveTab(tab);
@@ -217,7 +218,7 @@ const handleRemoval = (tab, action) => {
                     handleRemoval(tab, data.action);
                 })
             // local model
-            tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
+            tabStore.set(`${idHelper.toTid(tab)}.softDeleted`, true);
             // when deleting the active tab
             // getUpcomingActiveTab would also create a tab if none is visible
             if (tab.isSameNode(activeTab)) {
@@ -227,7 +228,7 @@ const handleRemoval = (tab, action) => {
 
             // restore a previously soft deleted tab
         case 'restore':
-            tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
+            tabStore.unset(`${idHelper.toTid(tab)}.softDeleted`);
             break;
 
             // delete a tab for good
@@ -235,7 +236,7 @@ const handleRemoval = (tab, action) => {
             // inform app to delete cards
             app.trigger(
                 'tabDelete',
-                Array.from(fn.$$('card-base', tab.panel)).map(card => cardStore.toCid(card))
+                Array.from(fn.$$('card-base', tab.panel)).map(card => idHelper.toCid(card))
             )
             tabStore.remove(tab);
             tab.remove();
@@ -274,7 +275,7 @@ const restore = () => {
     // fall back to the first one
     const entries = tabStore.values();
     const activeSet = entries.filter(e => !!e.active);
-    const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
+    const activeTid = activeSet.length ? idHelper.toTid(activeSet[0]) : tabStore.keys()[0];
 
     for (let tabEntry of entries) {
         add({
@@ -304,7 +305,7 @@ const init = _app => {
     // add a style property to the tab and store it
     app.on('singleStyleChange', e => {
         const tab = e.detail.tab || activeTab;
-        const tid = tabStore.toTid(tab);
+        const tid = idHelper.toTid(tab);
         const entry = tabStore.get(tid);
         entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
         entry.styles[e.detail.area][e.detail.name] = e.detail.value;
@@ -316,7 +317,7 @@ const init = _app => {
 
     // remove all styles from a tab, flaling back to the default setup
     app.on('styleReset', e => {
-        const tid = tabStore.toTid(e.detail.tab);
+        const tid = idHelper.toTid(e.detail.tab);
         tabStore.set(`${tid}.styles`, {});
         app.trigger('tabStyleChange', {
             tab: e.detail.tab,

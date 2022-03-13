@@ -1,8 +1,8 @@
 import tabManager from '../tabs/tab-manager.js';
 import {
-    tabStore,
     cardStore
 } from '../../storage/storage.js';
+import idHelper from '../../storage/id-helper.js';
 import softDelete from '../../../modules/softDelete/softDelete.js';
 import fn from 'fancy-node';
 
@@ -19,7 +19,7 @@ const add = character => {
     let tab;
     // if the character comes from a previous session
     if (character.tid) {
-        cid = cardStore.toCid(character);
+        cid = idHelper.toCid(character);
         tab = tabManager.getTab(character.tid);
         // This is a 'just in case'. When tabs are deleted and cards for some reasons 
         // aren't removed from the tree, these 'Ghost Cards' will cause an error
@@ -28,11 +28,11 @@ const add = character => {
             handleRemoval(character, 'remove');
             return;
         }
-        tid = tabStore.toTid(tab);
+        tid = idHelper.toTid(tab);
     } else {
         cid = cardStore.nextIncrement();
         tab = tabManager.getTab('active');
-        tid = tabStore.toTid(tab);
+        tid = idHelper.toTid(tab);
     }
     // setup everything
     character = {
@@ -58,7 +58,7 @@ const add = character => {
  * @returns 
  */
 const getCard = cidData => {
-    return fn.$(`[cid="${cardStore.toCid(cidData)}"]`);
+    return fn.$(`[cid="${idHelper.toCid(cidData)}"]`);
 }
 
 /**
@@ -79,7 +79,7 @@ const restoreLastSession = () => {
  */
 const handleRemoval = (card, action) => {
 
-    const cid = cardStore.toCid(card);
+    const cid = idHelper.toCid(card);
     switch (action) {
         case 'soft':
             // DOM

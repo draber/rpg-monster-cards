@@ -462,78 +462,6 @@ import-export:hover div{
       right:0;
     }
 
-@-webkit-keyframes axe-throw{
-  0%{
-    transform:translate(97.73%, 28.46%) rotate(0deg) scale(1);
-  }
-  10%{
-    transform:translate(90%, 50.77%) scale(1.2);
-  }
-  20%{
-    transform:translate(77.27%, 63.85%) scale(1.4);
-  }
-  30%{
-    transform:translate(62.27%, 73.08%) scale(1.6);
-  }
-  40%{
-    transform:translate(45.45%, 76.92%) scale(1.8);
-  }
-  50%{
-    transform:translate(29.55%, 70.77%) scale(2);
-  }
-  60%{
-    transform:translate(20.91%, 52.31%) scale(2.2);
-  }
-  70%{
-    transform:translate(26.82%, 29.23%) scale(2.4);
-  }
-  80%{
-    transform:translate(38.64%, 18.46%) scale(2.6);
-  }
-  90%{
-    transform:translate(49.55%, 27.69%) scale(2.8);
-  }
-  100%{
-    transform:translate(44.09%, 48.46%) rotate(360deg) scale(3);
-  }
-}
-
-@keyframes axe-throw{
-  0%{
-    transform:translate(97.73%, 28.46%) rotate(0deg) scale(1);
-  }
-  10%{
-    transform:translate(90%, 50.77%) scale(1.2);
-  }
-  20%{
-    transform:translate(77.27%, 63.85%) scale(1.4);
-  }
-  30%{
-    transform:translate(62.27%, 73.08%) scale(1.6);
-  }
-  40%{
-    transform:translate(45.45%, 76.92%) scale(1.8);
-  }
-  50%{
-    transform:translate(29.55%, 70.77%) scale(2);
-  }
-  60%{
-    transform:translate(20.91%, 52.31%) scale(2.2);
-  }
-  70%{
-    transform:translate(26.82%, 29.23%) scale(2.4);
-  }
-  80%{
-    transform:translate(38.64%, 18.46%) scale(2.6);
-  }
-  90%{
-    transform:translate(49.55%, 27.69%) scale(2.8);
-  }
-  100%{
-    transform:translate(44.09%, 48.46%) rotate(360deg) scale(3);
-  }
-}
-
 @-webkit-keyframes spin{
   100%{
     transform:rotate(-360deg);
@@ -596,17 +524,18 @@ file-upload input{
 file-upload .spinner{
     display:none;
     flex-direction:column;
-    border:1px red solid;
+    align-items:center;
     flex:2
   }
 
 file-upload .spinner svg{
-      overflow:visible;
       margin-top:3rem;
+      -webkit-animation:spin 1s infinite linear;
+              animation:spin 1s infinite linear;
       fill:hsl(15, 50%, 24%);
       fill:var(--bg-3-color);
-      width:10rem;
-      height:10rem;
+      width:5rem;
+      height:5rem;
       flex:2;
       display:block;
     }

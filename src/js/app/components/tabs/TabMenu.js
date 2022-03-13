@@ -5,6 +5,7 @@ import fn from 'fancy-node';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
 import uploader from '../../../modules/import-export/uploader.js';
 import { tabStore } from '../../storage/storage.js';
+import idHelper from '../../storage/id-helper.js';
 
 
 /**
@@ -19,7 +20,7 @@ class TabMenu extends HTMLElement {
 
         // handle for this tab
         const tab = tabManager.getTab(this.owner);
-        const tid = tabStore.toTid(tab);
+        const tid = idHelper.toTid(tab);
 
         // context menu
         const menu = fn.ul({

@@ -39,12 +39,12 @@ const initStorage = launchData => {
     cardStore = new CharTree({
         data: launchData.stored,
         lsKey: settings.get('storageKeys.cards'),
-        minIncrement: 3000
+        minIncrement: 3001
     });
 
     // characters ready for pasting
     copyStore = new CharTree({
-        minIncrement: 6000
+        minIncrement: 6001
     });
 
     // user preferences

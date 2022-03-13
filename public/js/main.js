@@ -396,14 +396,44 @@
         }
     }
 
-    class TabTree extends Tree {
-        toTid(tidData) {
-            const tid = tidData.tid || tidData;
-            if (isNaN(tid)) {
-                throw `${tid} is not a valid tab identifier`;
-            }
-            return parseInt(tid, 10);
+    class NumericTree extends Tree {
+        nextIncrement() {
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement - 1];
+            return Math.max(...keys) + 1;
         }
+        constructor({
+            data = {},
+            minIncrement = 1,
+            lsKey
+        } = {}) {
+            super({
+                data,
+                lsKey
+            });
+            this.minIncrement = minIncrement;
+        }
+    }
+
+    const toCid = cidData => {
+        const cid = cidData.cid || cidData;
+        if (isNaN(cid)) {
+            throw `${cid} is not a valid character identifier`;
+        }
+        return parseInt(cid, 10);
+    };
+    const toTid = tidData => {
+        const tid = tidData.tid || tidData;
+        if (isNaN(tid)) {
+            throw `${tid} is not a valid tab identifier`;
+        }
+        return parseInt(tid, 10);
+    };
+    var idHelper = {
+        toCid,
+        toTid
+    };
+
+    class TabTree extends NumericTree {
         getBlank({
             aimForLowest = false
         } = {}) {
@@ -415,11 +445,7 @@
             }
         }
         remove(...tidData) {
-            super.remove(...tidData.map(e => this.toTid(e)));
-        }
-        nextIncrement() {
-            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
-            return Math.max(...keys) + 1;
+            super.remove(...tidData.map(e => idHelper.toTid(e)));
         }
         lowestIncrement() {
             let keys = this.keys();
@@ -430,14 +456,14 @@
         }
         constructor({
             data = {},
-            minIncrement = 0,
+            minIncrement = 1,
             lsKey
         } = {}) {
             super({
                 data,
-                lsKey
+                lsKey,
+                minIncrement
             });
-            this.minIncrement = minIncrement;
         }
     }
 
@@ -852,21 +878,7 @@
         }
         return _labels;
     };
-    class CharTree extends Tree {
-        toCid(cidData) {
-            const cid = cidData.cid || cidData;
-            if (isNaN(cid)) {
-                throw `${cid} is not a valid character identifier`;
-            }
-            return parseInt(cid, 10);
-        }
-        toTid(tidData) {
-            const tid = tidData.tid || tidData;
-            if (isNaN(tid)) {
-                throw `${tid} is not a valid tab identifier`;
-            }
-            return parseInt(tid, 10);
-        }
+    class CharTree extends NumericTree {
         getBlank() {
             const props = {};
             Object.keys(labels$1).forEach(key => {
@@ -879,23 +891,19 @@
                 labels: getLabels()
             }
         }
-        nextIncrement() {
-            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement - 1];
-            return Math.max(...keys) + 1;
-        }
         remove(...cidData) {
-            super.remove(...cidData.map(e => this.toCid(e)));
+            super.remove(...cidData.map(e => idHelper.toCid(e)));
         }
         constructor({
             data = {},
-            minIncrement = 0,
+            minIncrement = 1,
             lsKey
         } = {}) {
             super({
                 data,
-                lsKey
+                lsKey,
+                minIncrement
             });
-            this.minIncrement = minIncrement;
         }
     }
 
@@ -948,10 +956,10 @@
         cardStore = new CharTree({
             data: launchData.stored,
             lsKey: settings.get('storageKeys.cards'),
-            minIncrement: 3000
+            minIncrement: 3001
         });
         copyStore = new CharTree({
-            minIncrement: 6000
+            minIncrement: 6001
         });
         prefStore = new Tree({
             data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
@@ -1308,10 +1316,10 @@
         src.$$('tab-handle', navi).forEach(tab => {
             tab.classList.remove('active');
             tab.panel.classList.remove('active');
-            tabStore.unset(`${tabStore.toTid(tab)}.active`);
+            tabStore.unset(`${idHelper.toTid(tab)}.active`);
             tab.removeAttribute('style');
         });
-        const tid = tabStore.toTid(activeTab);
+        const tid = idHelper.toTid(activeTab);
         activeTab.classList.add('active');
         activeTab.panel.classList.add('active');
         tabStore.set(`${tid}.active`, true);
@@ -1343,7 +1351,7 @@
         if (tabData instanceof customElements.get('tab-handle')) {
             return tabData
         }
-        return src.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
+        return src.$(`tab-handle[tid="${idHelper.toTid(tabData)}"]`, navi);
     };
     const getTabs = exclude => {
         let tabs = Array.from(src.$$(`tab-handle`, navi));
@@ -1380,7 +1388,7 @@
         else {
             src.$('.adder', navi).before(tab);
         }
-        tabStore.set(tabStore.toTid(tabEntry), tabEntry);
+        tabStore.set(idHelper.toTid(tabEntry), tabEntry);
         if (activate) {
             setActiveTab(tab);
         }
@@ -1416,18 +1424,18 @@
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
-                tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
+                tabStore.set(`${idHelper.toTid(tab)}.softDeleted`, true);
                 if (tab.isSameNode(activeTab)) {
                     setActiveTab(getUpcomingActiveTab());
                 }
                 break;
             case 'restore':
-                tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
+                tabStore.unset(`${idHelper.toTid(tab)}.softDeleted`);
                 break;
             case 'remove':
                 app$2.trigger(
                     'tabDelete',
-                    Array.from(src.$$('card-base', tab.panel)).map(card => cardStore.toCid(card))
+                    Array.from(src.$$('card-base', tab.panel)).map(card => idHelper.toCid(card))
                 );
                 tabStore.remove(tab);
                 tab.remove();
@@ -1453,7 +1461,7 @@
     const restore = () => {
         const entries = tabStore.values();
         const activeSet = entries.filter(e => !!e.active);
-        const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
+        const activeTid = activeSet.length ? idHelper.toTid(activeSet[0]) : tabStore.keys()[0];
         for (let tabEntry of entries) {
             add$1({
                 tabEntry
@@ -1468,7 +1476,7 @@
         restore();
         app$2.on('singleStyleChange', e => {
             const tab = e.detail.tab || activeTab;
-            const tid = tabStore.toTid(tab);
+            const tid = idHelper.toTid(tab);
             const entry = tabStore.get(tid);
             entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
             entry.styles[e.detail.area][e.detail.name] = e.detail.value;
@@ -1478,7 +1486,7 @@
             }
         });
         app$2.on('styleReset', e => {
-            const tid = tabStore.toTid(e.detail.tab);
+            const tid = idHelper.toTid(e.detail.tab);
             tabStore.set(`${tid}.styles`, {});
             app$2.trigger('tabStyleChange', {
                 tab: e.detail.tab,
@@ -1752,17 +1760,17 @@
         let tid;
         let tab;
         if (character.tid) {
-            cid = cardStore.toCid(character);
+            cid = idHelper.toCid(character);
             tab = tabManager.getTab(character.tid);
             if (!tab) {
                 handleRemoval(character, 'remove');
                 return;
             }
-            tid = tabStore.toTid(tab);
+            tid = idHelper.toTid(tab);
         } else {
             cid = cardStore.nextIncrement();
             tab = tabManager.getTab('active');
-            tid = tabStore.toTid(tab);
+            tid = idHelper.toTid(tab);
         }
         character = {
             ...cardStore.getBlank(),
@@ -1780,7 +1788,7 @@
         tab.panel.append(card);
     };
     const getCard = cidData => {
-        return src.$(`[cid="${cardStore.toCid(cidData)}"]`);
+        return src.$(`[cid="${idHelper.toCid(cidData)}"]`);
     };
     const restoreLastSession = () => {
         for (let character of cardStore.values()) {
@@ -1788,7 +1796,7 @@
         }
     };
     const handleRemoval = (card, action) => {
-        const cid = cardStore.toCid(card);
+        const cid = idHelper.toCid(card);
         switch (action) {
             case 'soft':
                 softDelete.initiate(card, cardStore.get(`${cid}.props.name`))
@@ -1830,14 +1838,14 @@
     const set = (card, mode) => {
         clear(card.app);
         card.classList.add(mode);
-        const original = cardStore.get(cardStore.toCid(card));
+        const original = cardStore.get(idHelper.toCid(card));
         const copy = {
             ...deepClone(original),
             ...{
                 mode
             }
         };
-        copy.originalCid = cardStore.toCid(original);
+        copy.originalCid = idHelper.toCid(original);
         copy.cid = copyStore.nextIncrement();
         copyStore.set(copy.cid, copy);
         properties.set('cardStorage', true);
@@ -1850,7 +1858,7 @@
     };
     const paste = tab => {
         copyStore.values().forEach(copy => {
-            copy.tid = tabStore.toTid(tab);
+            copy.tid = idHelper.toTid(tab);
             if (copy.mode === 'cut') {
                 cardManager.handleRemoval(cardManager.getCard(copy.originalCid), 'remove');
             }
@@ -1916,7 +1924,7 @@
                         this.label.contentEditable = false;
                         this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
                         this.title = this.label.textContent.trim();
-                        tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                        tabStore.set(`${idHelper.toTid(this)}.title`, this.title);
                         e.detail.tab;
                     },
                     paste: e => {
@@ -2042,17 +2050,17 @@
             let tab = tabStore.get(card);
             return {
                 tabs: {
-                    [tabStore.toTid(tab)]: [tab].map(removeActiveKey)
+                    [idHelper.toTid(tab)]: [tab].map(removeActiveKey)
                 },
                 cards: {
-                    [cardStore.toCid(card)]: [card]
+                    [idHelper.toCid(card)]: [card]
                 }
             }
         }
         if (tidData) {
             return {
-                cards: cardStore.values(['tid', '===', cardStore.toTid(tidData)]),
-                tabs: tabStore.values(['tid', '===', tabStore.toTid(tidData)]).map(removeActiveKey)
+                cards: cardStore.values(['tid', '===', idHelper.toTid(tidData)]),
+                tabs: tabStore.values(['tid', '===', idHelper.toTid(tidData)]).map(removeActiveKey)
             }
         }
         return {
@@ -2165,7 +2173,7 @@
     class TabMenu extends HTMLElement {
         connectedCallback() {
             const tab = tabManager.getTab(this.owner);
-            const tid = tabStore.toTid(tab);
+            const tid = idHelper.toTid(tab);
             const menu = src.ul({
                 content: [
                     src.li({
@@ -3863,7 +3871,7 @@
     const quarantineCards = uploadedCards => {
         uploadedCards.forEach(card => {
             const model = cardQuarantine.getBlank();
-            model.originalTid = cardQuarantine.toTid(card.tid);
+            model.originalTid = idHelper.toTid(card.tid);
             ['props', 'labels', 'visibility'].forEach(type => {
                 model[type] = sanitizeObject(model[type], card[type]);
             });
@@ -3882,10 +3890,10 @@
         });
     };
     const updateCardTids = (tab, tid) => {
-        const condition = !tid ? ['originalTid', '===', tabQuarantine.toTid(tab.originalTid)] : undefined;
+        const condition = !tid ? ['originalTid', '===', idHelper.toTid(tab.originalTid)] : undefined;
         for (let [cid, card] of cardQuarantine.entries(condition)) {
             delete card.originalTid;
-            card.tid = tid || tabQuarantine.toTid(tab);
+            card.tid = tid || idHelper.toTid(tab);
             cardQuarantine.set(cid, card);
         }
         if (!tid) {

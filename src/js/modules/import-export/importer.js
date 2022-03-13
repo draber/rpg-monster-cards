@@ -10,6 +10,7 @@ import {
 import tabManager from "../../app/components/tabs/tab-manager.js";
 import cardManager from "../../app/components/character-cards/card-manager.js";
 import properties from '../properties/properties.js';
+import idHelper from '../../app/storage/id-helper.js';
 
 let cardQuarantine;
 let tabQuarantine;
@@ -24,7 +25,7 @@ const sanitizeObject = (modelData, uploadedData) => {
     const sanitized = {};
     // make sure to use only valid keys
     Object.keys(modelData).forEach(key => {
-        sanitized[key] = uploadedData[key]; //sanitizeText(uploadedData[key] || '');
+        sanitized[key] = uploadedData[key]; //todo: this needs to work on objects, not just strings! sanitizeText(uploadedData[key] || '');
     })
     return sanitized;
 }
@@ -39,7 +40,7 @@ const quarantineCards = uploadedCards => {
         const model = cardQuarantine.getBlank();
 
         // memorize the original tid
-        model.originalTid = cardQuarantine.toTid(card.tid);
+        model.originalTid = idHelper.toTid(card.tid);
 
         // go over the properties that are objects
         ['props', 'labels', 'visibility'].forEach(type => {
@@ -80,12 +81,12 @@ const quarantineTabs = uploadedTabs => {
 const updateCardTids = (tab, tid) => {
     // it doesn't matter of which tree's `toTid()` is used, they all return the same value
     // tabQuarantine only exists when no tid is given
-    const condition = !tid ? ['originalTid', '===', tabQuarantine.toTid(tab.originalTid)] : undefined;
+    const condition = !tid ? ['originalTid', '===', idHelper.toTid(tab.originalTid)] : undefined;
     
     for (let [cid, card] of cardQuarantine.entries(condition)) {
         // delete `card.originalTid` if any
         delete card.originalTid;
-        card.tid = tid || tabQuarantine.toTid(tab);
+        card.tid = tid || idHelper.toTid(tab);
         // update card with new tid
         cardQuarantine.set(cid, card);
     }

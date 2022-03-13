@@ -2,6 +2,7 @@ import {
     cardStore,
     tabStore
 } from "../../app/storage/storage.js";
+import idHelper from "../../app/storage/id-helper.js";
 
 /**
  * Build a file name in the style 'ghastly-creatures-2022-03-07-21-02-22.json'
@@ -38,10 +39,10 @@ const getData = ({
         let tab = tabStore.get(card);
         return {
             tabs: {
-                [tabStore.toTid(tab)]: [tab].map(removeActiveKey)
+                [idHelper.toTid(tab)]: [tab].map(removeActiveKey)
             },
             cards: {
-                [cardStore.toCid(card)]: [card]
+                [idHelper.toCid(card)]: [card]
             }
         }
     }
@@ -49,8 +50,8 @@ const getData = ({
     // data exported from a specific tab
     if (tidData) {
         return {
-            cards: cardStore.values(['tid', '===', cardStore.toTid(tidData)]),
-            tabs: tabStore.values(['tid', '===', tabStore.toTid(tidData)]).map(removeActiveKey)
+            cards: cardStore.values(['tid', '===', idHelper.toTid(tidData)]),
+            tabs: tabStore.values(['tid', '===', idHelper.toTid(tidData)]).map(removeActiveKey)
         }
     }
 

@@ -13,6 +13,7 @@ import {
     sanitizeText
 } from '../../../modules/string/string.js';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
+import idHelper from '../../storage/id-helper.js';
 
 /**
  * Custom element containing the list of fonts
@@ -97,7 +98,7 @@ class TabHandle extends HTMLElement {
                     this.label.contentEditable = false;
                     this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
                     this.title = this.label.textContent.trim();
-                    tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                    tabStore.set(`${idHelper.toTid(this)}.title`, this.title);
                     e.detail.tab
                 },
                 // renaming via paste

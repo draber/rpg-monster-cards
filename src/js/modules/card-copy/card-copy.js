@@ -9,6 +9,7 @@ import {
 } from '../deep-clone/deep-clone.js';
 import cardManager from '../../app/components/character-cards/card-manager.js'
 import properties from '../properties/properties.js';
+import idHelper from '../../app/storage/id-helper.js';
 
 /**
  * Prepare a card for copying|cutting
@@ -23,7 +24,7 @@ const set = (card, mode) => {
     card.classList.add(mode);
 
     // get the model of the card
-    const original = cardStore.get(cardStore.toCid(card));
+    const original = cardStore.get(idHelper.toCid(card));
 
     // create a tmp copy and add the original
     const copy = {
@@ -32,7 +33,7 @@ const set = (card, mode) => {
             mode
         }
     }
-    copy.originalCid = cardStore.toCid(original);
+    copy.originalCid = idHelper.toCid(original);
     copy.cid = copyStore.nextIncrement();
 
     // save the card in the store for pasting
@@ -65,7 +66,7 @@ const copy = card => {
 const paste = tab => {
     copyStore.values().forEach(copy => {
         // assign the new tab
-        copy.tid = tabStore.toTid(tab);
+        copy.tid = idHelper.toTid(tab);
 
         // delete the cut-out card if any
         if (copy.mode === 'cut') {            
