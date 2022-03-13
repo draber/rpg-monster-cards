@@ -24,15 +24,15 @@ const removeActiveKey = entry => {
 
 /**
  * Retrieve data combined from both the card and the tab store
- * @param {HTMLElement|Entry|String|Number|undefined} cidData [cidData] 
- * @param {HTMLElement|Entry|String|Number|undefined} tidData [tidData] 
+ * @param {HTMLElement|Entry|String|Number} [cidData] 
+ * @param {HTMLElement|Entry|String|Number} [tidData] 
  * @returns {Object}
  */
 const getData = ({
     cidData,
     tidData
 } = {}) => {
-    
+
     // data exported from a specific card
     if (cidData) {
         let cid = idHelper.toCid(cidData)
@@ -40,12 +40,8 @@ const getData = ({
         let tid = idHelper.toTid(card);
         let tab = tabStore.get(tid);
         return {
-            tabs: {
-                [tid]: [tab].map(removeActiveKey)
-            },
-            cards: {
-                [cid]: [card]
-            }
+            tabs: [tab].map(removeActiveKey),
+            cards: [card]
         }
     }
 
@@ -57,12 +53,20 @@ const getData = ({
         }
     }
 
+    // export all cards and tabs
     return {
         cards: cardStore.values(),
         tabs: tabStore.values().map(removeActiveKey)
     }
 }
 
+/**
+ * Build a download URL
+ * @param {String} fileName 
+ * @param {HTMLElement|Entry|String|Number} [cidData] 
+ * @param {HTMLElement|Entry|String|Number} [tidData] 
+ * @returns 
+ */
 const getUrl = (fileName, {
     cidData,
     tidData

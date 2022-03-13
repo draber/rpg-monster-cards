@@ -2051,12 +2051,8 @@
             let tid = idHelper.toTid(card);
             let tab = tabStore.get(tid);
             return {
-                tabs: {
-                    [tid]: [tab].map(removeActiveKey)
-                },
-                cards: {
-                    [cid]: [card]
-                }
+                tabs: [tab].map(removeActiveKey),
+                cards: [card]
             }
         }
         if (tidData) {
