@@ -4,7 +4,6 @@ import properties from '../../../modules/properties/properties.js';
 import fn from 'fancy-node';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
 import uploader from '../../../modules/import-export/uploader.js';
-import { tabStore } from '../../storage/storage.js';
 import idHelper from '../../storage/id-helper.js';
 
 

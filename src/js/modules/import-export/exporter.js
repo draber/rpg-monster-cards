@@ -35,14 +35,16 @@ const getData = ({
     
     // data exported from a specific card
     if (cidData) {
-        let card = cardStore.get(cidData);
-        let tab = tabStore.get(card);
+        let cid = idHelper.toCid(cidData)
+        let card = cardStore.get(cid);
+        let tid = idHelper.toTid(card);
+        let tab = tabStore.get(tid);
         return {
             tabs: {
-                [idHelper.toTid(tab)]: [tab].map(removeActiveKey)
+                [tid]: [tab].map(removeActiveKey)
             },
             cards: {
-                [idHelper.toCid(card)]: [card]
+                [cid]: [card]
             }
         }
     }

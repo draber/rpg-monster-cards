@@ -1178,7 +1178,7 @@ card-toolbar{
   width:100%;
   padding:2rem;
   display:flex;
-  justify-content:flex-end;
+  justify-content:space-around;
   gap:1rem;
   opacity:0;
   align-items:center;

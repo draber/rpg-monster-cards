@@ -2046,14 +2046,16 @@
         tidData
     } = {}) => {
         if (cidData) {
-            let card = cardStore.get(cidData);
-            let tab = tabStore.get(card);
+            let cid = idHelper.toCid(cidData);
+            let card = cardStore.get(cid);
+            let tid = idHelper.toTid(card);
+            let tab = tabStore.get(tid);
             return {
                 tabs: {
-                    [idHelper.toTid(tab)]: [tab].map(removeActiveKey)
+                    [tid]: [tab].map(removeActiveKey)
                 },
                 cards: {
-                    [idHelper.toCid(card)]: [card]
+                    [cid]: [card]
                 }
             }
         }
@@ -3524,20 +3526,33 @@
                     name: 'done'
                 },
                 content: [
-                    'Done',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-quill'
-                            }
-                        })
-                    })
+                    'Done'
                 ],
                 events: {
                     pointerup: e => {
                         this.card.trigger('characterDone');
+                    }
+                }
+            });
+            const exportBtn = src.a({
+                classNames: ['button'],
+                content: [
+                    'Export'
+                ],
+                events: {
+                    pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        const fileName = exporter.getFileName();
+                        e.target.download = fileName;
+                        e.target.href = exporter.getUrl(fileName, {
+                            cidData: this.card
+                        });
+                        setTimeout(() => {
+                            e.target.download = '';
+                            URL.revokeObjectURL(e.target.href);
+                        }, 200);
                     }
                 }
             });
@@ -3546,19 +3561,13 @@
                     type: 'button'
                 },
                 content: [
-                    'Cut',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-scissors'
-                            }
-                        })
-                    })
+                    'Cut'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterCut');
                     }
                 }
@@ -3568,19 +3577,13 @@
                     type: 'button'
                 },
                 content: [
-                    'Copy',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-copy'
-                            }
-                        })
-                    })
+                    'Copy'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterCopy');
                     }
                 }
@@ -3590,19 +3593,13 @@
                     type: 'button'
                 },
                 content: [
-                    'Delete',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-axe'
-                            }
-                        })
-                    })
+                    'Delete'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterRemove');
                     }
                 }
@@ -3612,24 +3609,18 @@
                     type: 'button'
                 },
                 content: [
-                    'Edit',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-quill'
-                            }
-                        })
-                    })
+                    'Edit'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterEdit');
                     }
                 }
             });
-            this.append(doneBtn, deleteBtn, cutBtn, copyBtn, editBtn);
+            this.append(doneBtn, deleteBtn, exportBtn, cutBtn, copyBtn, editBtn);
         }
         constructor(self) {
             self = super(self);
