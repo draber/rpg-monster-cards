@@ -1,6 +1,6 @@
 import fn from 'fancy-node';
 import draggable from '../../../modules/draggable/draggable.js';
-import properties from '../../../modules/properties/properties.js';
+import domProps from '../../../modules/dom-props/dom-props.js';
 import {
     on,
     trigger
@@ -214,8 +214,8 @@ class CardForm extends HTMLElement {
                     const row = trigger.closest('[data-key]');
                     const key = row.dataset.key;
                     const field = trigger.dataset.type;
-                    properties.toggle(field, row);
-                    const value = properties.get(field, row);
+                    domProps.toggle(field, row);
+                    const value = domProps.get(field, row);
                     this.card.trigger('visibilityChange', {
                         field,
                         key,

@@ -1,6 +1,6 @@
 import exporter from '../../../modules/import-export/exporter.js'
 import tabManager from './tab-manager.js';
-import properties from '../../../modules/properties/properties.js';
+import domProps from '../../../modules/dom-props/dom-props.js';
 import fn from 'fancy-node';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
 import uploader from '../../../modules/import-export/uploader.js';
@@ -33,7 +33,7 @@ class TabMenu extends HTMLElement {
                                 return true;
                             }
                             this.app.styleStorage = tab.styles;
-                            properties.set('styleStorage', true);
+                            domProps.set('styleStorage', true);
                         }
                     },
                 }),

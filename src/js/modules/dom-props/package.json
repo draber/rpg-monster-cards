@@ -1,0 +1,6 @@
+{
+    "name": "dom-props",
+    "version": "1.0.0",
+    "main": "dom-props.js",
+    "type": "module"
+}

@@ -2,7 +2,7 @@
  * File uploader, heavily based on https://codepen.io/joezimjs/pen/yPWQbd
  */
 
-import properties from "../properties/properties.js";
+import domProps from "../dom-props/dom-props.js";
 import fn from 'fancy-node';
 
 let dropArea;
@@ -38,7 +38,7 @@ function handleDrop(e) {
  * @param {Object} files 
  */
 function processFiles(files) {
-    properties.set('importState', 'working');
+    domProps.set('importState', 'working');
 
     // this could also filter all files that exceed a certain size 
     files = Array.from(files).filter(file => !!file);
@@ -125,11 +125,11 @@ const getDropArea = app => {
  */
 const init = (_app, tid) => {
     app = _app;
-    let currentState = properties.get('importState');
+    let currentState = domProps.get('importState');
     if (!currentState) {
-        properties.set('importState', 'pristine');
+        domProps.set('importState', 'pristine');
     } else if (currentState === 'pristine') {
-        properties.unset('importState');
+        domProps.unset('importState');
     }
     // else do nothing because the process has already started
 

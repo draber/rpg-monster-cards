@@ -1,8 +1,7 @@
 import fn from 'fancy-node';
 import softDelete from '../../../modules/softDelete/softdelete.js';
 import {
-    tabStore,
-    cardStore
+    tabStore
 } from '../../storage/storage.js';
 import idHelper from '../../storage/id-helper.js';
 
@@ -85,24 +84,25 @@ const getTab = tabData => {
 
 /**
  * Retrieve tabs as array
- * @param {HTMLElement|String|Number} [exclude] tabs to exclude 
+ * @param {HTMLElement|String|Number|Array|NodeList} [exclude] tabs to exclude 
  * @returns 
  */
 const getTabs = exclude => {
     let tabs = Array.from(fn.$$(`tab-handle`, navi));
-    switch (true) {
-        // all but this
-        case exclude instanceof customElements.get('tab-handle'):
-            return tabs.filter(tab => !tab.isSameNode(exclude));
 
-            // empty tabs
-        case exclude === 'empty':
-            return tabs.filter(tab => !fn.$('card-base', tab));
-
-            // all tabs
-        default:
-            return tabs;
+    // case remove empty tabs
+    if (exclude === 'populated') {
+        return tabs.filter(tab => !fn.$('card-base', tab.panel));
     }
+
+    // transform exclude to an array
+    if (exclude.forEach) {
+        exclude = Array.from(exclude);
+    } else if (exclude instanceof customElements.get('tab-handle')) {
+        exclude = [exclude];
+    }
+
+    return tabs.filter(tab => !exclude.includes(tab));
 }
 
 /**
@@ -115,13 +115,10 @@ const getTabs = exclude => {
 const add = ({
     tabEntry,
     previousTab,
-    activate = false,
-    aimForLowest = false
+    activate = false
 } = {}) => {
     // existing or fresh model
-    tabEntry = tabEntry || tabStore.getBlank({
-        aimForLowest
-    });
+    tabEntry = tabEntry || tabStore.getBlank();
 
     // build DOM elements
     const tab = document.createElement('tab-handle');
@@ -160,41 +157,29 @@ const add = ({
 }
 
 /**
- * Determine the next tab to activate upon deletion, can be the tab after (default), before or a newly create one
- * @returns {HTMLElement}
- */
-const getUpcomingActiveTab = () => {
-    // get all currently accessible tabs
-    let tabs = Array.from(fn.$$(`tab-handle:not([data-soft-deleted])`, navi));
-    if (!tabs.length) {
-        return add({
-            aimForLowest: true
-        });
-    }
-    // find the index of the currently active tab
-    let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
-    // is there a tab to the right of the active one?
-    if (tabs[activeIdx + 1]) {
-        return tabs[activeIdx + 1];
-    }
-    // is there a tab to the left of the active one?
-    if (tabs[activeIdx - 1]) {
-        return tabs[activeIdx - 1];
-    }
-    // add a fresh tab
-    return add();
-}
-
-/**
  * Hard delete multiple tab, optionally some can be excluded
  * @param {HTMLElement|String|Number} [exclude] tabs to exclude 
  */
-const bulkDelete = exclude => {
+const bulkDeleteExcept = exclude => {
     // cancel all ongoing soft deletions
     // not absolutely necessary, but otherwise the result would be chaotic
     softDelete.cancel();
-    // hard delete all candidates
-    getTabs(exclude).forEach(tab => {
+
+
+    // candidates to be deleted
+    let morituri = getTabs(exclude);
+    // get all tabs that will survive the deletion
+    let survivors = getTabs(morituri);
+    if(!survivors.length){
+        add();
+    }
+
+    // if the active tab is going to be deleted, activate another one
+    if (morituri.find(tab => tab.classList.contains('active'))) {
+        setActiveTab(survivors[0]);
+    }
+
+    morituri.forEach(tab => {
         handleRemoval(tab, 'remove');
     })
 }
@@ -217,13 +202,23 @@ const handleRemoval = (tab, action) => {
                 .then(data => {
                     handleRemoval(tab, data.action);
                 })
+
             // local model
             tabStore.set(`${idHelper.toTid(tab)}.softDeleted`, true);
-            // when deleting the active tab
-            // getUpcomingActiveTab would also create a tab if none is visible
-            if (tab.isSameNode(activeTab)) {
-                setActiveTab(getUpcomingActiveTab());
+
+            //if no visible tab has been left add a new one
+            if (!tabStore.values(['softDeleted', '!==', true]).length) {
+                add({
+                    activate: true
+                });
             }
+
+            // when deleting the active tab
+            if (tab.isSameNode(activeTab)) {
+                console.log('origin: soft delete same node')
+                setActiveTab()
+            }
+
             break;
 
             // restore a previously soft deleted tab
@@ -240,28 +235,21 @@ const handleRemoval = (tab, action) => {
             )
             tabStore.remove(tab);
             tab.remove();
-            if (!tabStore.length) {
-                add({
-                    activate: true
-                });
-            }
             break;
 
             // bulk delete all empty tabs (hard)
         case 'empty':
-            bulkDelete('empty');
-            setActiveTab();
+            bulkDeleteExcept('populated');
             break;
 
             // bulk delete all empty tabs but the one in the argument (hard)
         case 'others':
-            bulkDelete(tab);
-            setActiveTab(tab);
+            bulkDeleteExcept(tab);
             break;
 
             // bulk delete all tabs (hard)
         case 'all':
-            bulkDelete();
+            bulkDeleteExcept();
             break;
     }
 }

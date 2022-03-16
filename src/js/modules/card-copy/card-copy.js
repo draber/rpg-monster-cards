@@ -8,7 +8,7 @@ import {
     deepClone
 } from '../deep-clone/deep-clone.js';
 import cardManager from '../../app/components/character-cards/card-manager.js'
-import properties from '../properties/properties.js';
+import domProps from '../dom-props/dom-props.js';
 import idHelper from '../../app/storage/id-helper.js';
 
 /**
@@ -40,7 +40,7 @@ const set = (card, mode) => {
     copyStore.set(copy.cid, copy);
 
     // set body[card-storage] to enable pasting in the context menu
-    properties.set('cardStorage', true);
+    domProps.set('cardStorage', true);
 }
 
 /**
@@ -85,7 +85,7 @@ const paste = tab => {
     // forget copies
     copyStore.flush();
 
-    properties.unset('cardStorage');
+    domProps.unset('cardStorage');
 }
 
 /**

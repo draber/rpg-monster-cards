@@ -6,13 +6,10 @@ class TabTree extends NumericTree {
 
     /**
      * Create data for a new tab (tid as in Tab ID)
-     * @param {Boolean} [aimForLowest] 
      * @returns {{title, tid: {Integer}}}
      */
-    getBlank({
-        aimForLowest = false
-    } = {}) {
-        const tid = aimForLowest ? this.lowestIncrement() : this.nextIncrement();
+    getBlank() {
+        const tid = this.nextIncrement();
         return {
             tid,
             title: convertToRoman(tid),
@@ -26,18 +23,6 @@ class TabTree extends NumericTree {
      */
     remove(...tidData) {
         super.remove(...tidData.map(e => idHelper.toTid(e)))
-    }
-
-    /**
-     * Like next increment but it returns the lowest available key instead
-     * @returns {Integer}
-     */
-    lowestIncrement() {
-        let keys = this.keys();
-        let nextIncrement = this.nextIncrement();
-        let potential = [...Array(10).keys(nextIncrement - 1)].map(e => e + 1);
-        let available = potential.filter(e => !(keys.includes(e)));
-        return available.length ? available[0] : nextIncrement;
     }
 
     constructor({

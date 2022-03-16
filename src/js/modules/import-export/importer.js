@@ -9,7 +9,7 @@ import {
 } from "../string/string.js";
 import tabManager from "../../app/components/tabs/tab-manager.js";
 import cardManager from "../../app/components/character-cards/card-manager.js";
-import properties from '../properties/properties.js';
+import domProps from '../dom-props/dom-props.js';
 import idHelper from '../../app/storage/id-helper.js';
 
 let cardQuarantine;
@@ -133,7 +133,7 @@ const process = (dataArr, tid) => {
     if (!dataArr.length) {
         console.error(`No valid import data found, aborting`);
         // remove upload UI
-        properties.unset('importState');
+        domProps.unset('importState');
         return false;
     }
 
@@ -196,7 +196,7 @@ const process = (dataArr, tid) => {
         }
 
         // remove upload UI
-        properties.unset('importState');
+        domProps.unset('importState');
     })
 }
 

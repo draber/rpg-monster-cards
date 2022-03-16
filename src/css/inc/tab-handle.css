@@ -41,15 +41,21 @@ tab-handle {
     border-radius: 50%;
     height: 1.8rem;
     width: 1.8rem;
+    box-shadow: 0 0 10px var(--bg-4-color)
+  }
+  &:hover {
+    & .closer {
+      display: flex;
+      &:hover {
+        background: hsl(0 100% 100% / 0.15);
+      }
+    }
   }
   &.active {
     background: var(--bg-light)
       url(../media/patterns/system/light-rocky-wall.png);
     & .closer {
       display: flex;
-      &:hover {
-        background: hsl(0 100% 100% / 0.15);
-      }
     }
   }
 }

@@ -1,5 +1,5 @@
 import fn from 'fancy-node';
-import properties from '../../../modules/properties/properties.js';
+import domProps from '../../../modules/dom-props/dom-props.js';
 import {
     on,
     trigger
@@ -136,13 +136,13 @@ class CardBase extends HTMLElement {
 
         // open card editor
         this.on('characterEdit', function (e) {
-            properties.set('cardState', 'edit');
+            domProps.set('cardState', 'edit');
             this.classList.add('editable');
         })
 
         // close card editor
         this.on('characterDone', function (e) {
-            properties.unset('cardState');
+            domProps.unset('cardState');
             this.classList.remove('editable');
         })
 

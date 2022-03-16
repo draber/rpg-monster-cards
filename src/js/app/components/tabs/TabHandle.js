@@ -137,11 +137,11 @@ class TabHandle extends HTMLElement {
          */
         this.on('pointerup', e => {
             // do nothing on right click
-            if (e.button > 1) {
+            if (e.button !== 0) {
                 return true;
             }
             // trigger soft delete on middle click and by clicking on the close button
-            if (e.button === 1 || e.target.isSameNode(this.closer)) {
+            if (e.target.isSameNode(this.closer)) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 e.stopPropagation();

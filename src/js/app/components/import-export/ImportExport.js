@@ -5,7 +5,7 @@ import {
 } from '../../../modules/events/eventHandler.js';
 import exporter from '../../../modules/import-export/exporter.js';
 import uploader from '../../../modules/import-export/uploader.js';
-import properties from '../../../modules/properties/properties.js';
+import domProps from '../../../modules/dom-props/dom-props.js';
 
 
 /**
@@ -62,8 +62,8 @@ class ImportExport extends HTMLElement {
 
         // remove overlay on ESC but only if the import hasn't started yet
         document.addEventListener('keyup', e => {
-            if (e.key === 'Escape' && properties.get('importState') === 'pristine') {
-                properties.unset('importState');
+            if (e.key === 'Escape' && domProps.get('importState') === 'pristine') {
+                domProps.unset('importState');
             }
         })
 

@@ -397,6 +397,9 @@
     }
 
     class NumericTree extends Tree {
+        keys(...conditions) {
+            return super.keys.apply(this, conditions).map(e => parseInt(e));
+        }
         nextIncrement() {
             let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement - 1];
             return Math.max(...keys) + 1;
@@ -434,10 +437,8 @@
     };
 
     class TabTree extends NumericTree {
-        getBlank({
-            aimForLowest = false
-        } = {}) {
-            const tid = aimForLowest ? this.lowestIncrement() : this.nextIncrement();
+        getBlank() {
+            const tid = this.nextIncrement();
             return {
                 tid,
                 title: convertToRoman(tid),
@@ -446,13 +447,6 @@
         }
         remove(...tidData) {
             super.remove(...tidData.map(e => idHelper.toTid(e)));
-        }
-        lowestIncrement() {
-            let keys = this.keys();
-            let nextIncrement = this.nextIncrement();
-            let potential = [...Array(10).keys(nextIncrement - 1)].map(e => e + 1);
-            let available = potential.filter(e => !(keys.includes(e)));
-            return available.length ? available[0] : nextIncrement;
         }
         constructor({
             data = {},
@@ -907,6 +901,28 @@
         }
     }
 
+    class SystemPropTree extends Tree {
+        isDefault(key, value){
+            return this.has(key) && value === this.get(key)
+        }
+        set(){
+            console.error('System properties are readonly');
+            return false;
+        }
+        unset() {
+            return this.set()
+        }
+        constructor({
+            data = {},
+            lsKey
+        } = {}) {
+            super({
+                data,
+                lsKey
+            });
+        }
+    }
+
     var cssProps$1 = {
     	":root": {
     	"--c-color": "hsl(0, 0%, 0%)",
@@ -965,10 +981,10 @@
             data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
             lsKey: settings.get('storageKeys.user')
         });
-        styleStore = new Tree({
+        styleStore = new SystemPropTree({
             data: cssProps$1[':root']
         });
-        labelStore = new Tree({
+        labelStore = new SystemPropTree({
             data: labels$1
         });
     };
@@ -1257,7 +1273,7 @@
         target = target || document.body;
         delete target.dataset[key];
     };
-    var properties = {
+    var domProps = {
         unset,
         get,
         set: set$1,
@@ -1274,7 +1290,7 @@
             });
             document.body.append(toast$1);
         }
-        properties.set('softDeleted', true, element);
+        domProps.set('softDeleted', true, element);
         const dialog = document.createElement('undo-dialog');
         dialog.element = element;
         if (label) {
@@ -1283,7 +1299,7 @@
         toast$1.append(dialog);
         return new Promise(resolve => {
             dialog.on('restore', e => {
-                properties.unset('softDeleted', element);
+                domProps.unset('softDeleted', element);
                 resolve({
                     action: 'restore',
                     element: e.detail.element
@@ -1355,24 +1371,22 @@
     };
     const getTabs = exclude => {
         let tabs = Array.from(src.$$(`tab-handle`, navi));
-        switch (true) {
-            case exclude instanceof customElements.get('tab-handle'):
-                return tabs.filter(tab => !tab.isSameNode(exclude));
-            case exclude === 'empty':
-                return tabs.filter(tab => !src.$('card-base', tab));
-            default:
-                return tabs;
+        if (exclude === 'populated') {
+            return tabs.filter(tab => !src.$('card-base', tab.panel));
         }
+        if (exclude.forEach) {
+            exclude = Array.from(exclude);
+        } else if (exclude instanceof customElements.get('tab-handle')) {
+            exclude = [exclude];
+        }
+        return tabs.filter(tab => !exclude.includes(tab));
     };
     const add$1 = ({
         tabEntry,
         previousTab,
-        activate = false,
-        aimForLowest = false
+        activate = false
     } = {}) => {
-        tabEntry = tabEntry || tabStore.getBlank({
-            aimForLowest
-        });
+        tabEntry = tabEntry || tabStore.getBlank();
         const tab = document.createElement('tab-handle');
         tab.panel = document.createElement('tab-panel');
         tab.container = navi;
@@ -1394,25 +1408,17 @@
         }
         return tab;
     };
-    const getUpcomingActiveTab = () => {
-        let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
-        if (!tabs.length) {
-            return add$1({
-                aimForLowest: true
-            });
-        }
-        let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
-        if (tabs[activeIdx + 1]) {
-            return tabs[activeIdx + 1];
-        }
-        if (tabs[activeIdx - 1]) {
-            return tabs[activeIdx - 1];
-        }
-        return add$1();
-    };
-    const bulkDelete = exclude => {
+    const bulkDeleteExcept = exclude => {
         softDelete$1.cancel();
-        getTabs(exclude).forEach(tab => {
+        let morituri = getTabs(exclude);
+        let survivors = getTabs(morituri);
+        if(!survivors.length){
+            add$1();
+        }
+        if (morituri.find(tab => tab.classList.contains('active'))) {
+            setActiveTab(survivors[0]);
+        }
+        morituri.forEach(tab => {
             handleRemoval$1(tab, 'remove');
         });
     };
@@ -1425,8 +1431,14 @@
                         handleRemoval$1(tab, data.action);
                     });
                 tabStore.set(`${idHelper.toTid(tab)}.softDeleted`, true);
+                if (!tabStore.values(['softDeleted', '!==', true]).length) {
+                    add$1({
+                        activate: true
+                    });
+                }
                 if (tab.isSameNode(activeTab)) {
-                    setActiveTab(getUpcomingActiveTab());
+                    console.log('origin: soft delete same node');
+                    setActiveTab();
                 }
                 break;
             case 'restore':
@@ -1439,22 +1451,15 @@
                 );
                 tabStore.remove(tab);
                 tab.remove();
-                if (!tabStore.length) {
-                    add$1({
-                        activate: true
-                    });
-                }
                 break;
             case 'empty':
-                bulkDelete('empty');
-                setActiveTab();
+                bulkDeleteExcept('populated');
                 break;
             case 'others':
-                bulkDelete(tab);
-                setActiveTab(tab);
+                bulkDeleteExcept(tab);
                 break;
             case 'all':
-                bulkDelete();
+                bulkDeleteExcept();
                 break;
         }
     };
@@ -1721,7 +1726,7 @@
             });
             document.body.append(toast);
         }
-        properties.set('softDeleted', true, element);
+        domProps.set('softDeleted', true, element);
         const dialog = document.createElement('undo-dialog');
         dialog.element = element;
         if (label) {
@@ -1730,7 +1735,7 @@
         toast.append(dialog);
         return new Promise(resolve => {
             dialog.on('restore', e => {
-                properties.unset('softDeleted', element);
+                domProps.unset('softDeleted', element);
                 resolve({
                     action: 'restore',
                     element: e.detail.element
@@ -1848,7 +1853,7 @@
         copy.originalCid = idHelper.toCid(original);
         copy.cid = copyStore.nextIncrement();
         copyStore.set(copy.cid, copy);
-        properties.set('cardStorage', true);
+        domProps.set('cardStorage', true);
     };
     const cut = card => {
         set(card, 'cut');
@@ -1868,7 +1873,7 @@
         });
         clear(tab.app);
         copyStore.flush();
-        properties.unset('cardStorage');
+        domProps.unset('cardStorage');
     };
     const clear = app => {
         const lastCopied = src.$('card-base.cut, card-base.copy', app);
@@ -1952,10 +1957,10 @@
                 }
             });
             this.on('pointerup', e => {
-                if (e.button > 1) {
+                if (e.button !== 0) {
                     return true;
                 }
-                if (e.button === 1 || e.target.isSameNode(this.closer)) {
+                if (e.target.isSameNode(this.closer)) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
                     e.stopPropagation();
@@ -2099,7 +2104,7 @@
         processFiles(e.dataTransfer.files);
     }
     function processFiles(files) {
-        properties.set('importState', 'working');
+        domProps.set('importState', 'working');
         files = Array.from(files).filter(file => !!file);
         const finished = [];
         for (let file of files) {
@@ -2150,11 +2155,11 @@
     };
     const init = (_app, tid) => {
         app = _app;
-        let currentState = properties.get('importState');
+        let currentState = domProps.get('importState');
         if (!currentState) {
-            properties.set('importState', 'pristine');
+            domProps.set('importState', 'pristine');
         } else if (currentState === 'pristine') {
-            properties.unset('importState');
+            domProps.unset('importState');
         }
         dropArea = getDropArea(app);
         delete dropArea.tid;
@@ -2182,7 +2187,7 @@
                                     return true;
                                 }
                                 this.app.styleStorage = tab.styles;
-                                properties.set('styleStorage', true);
+                                domProps.set('styleStorage', true);
                             }
                         },
                     }),
@@ -3165,11 +3170,11 @@
                 cardManager.handleRemoval(this, 'soft');
             });
             this.on('characterEdit', function (e) {
-                properties.set('cardState', 'edit');
+                domProps.set('cardState', 'edit');
                 this.classList.add('editable');
             });
             this.on('characterDone', function (e) {
-                properties.unset('cardState');
+                domProps.unset('cardState');
                 this.classList.remove('editable');
             });
             this.on('keyup', e => {
@@ -3438,8 +3443,8 @@
                         const row = trigger.closest('[data-key]');
                         const key = row.dataset.key;
                         const field = trigger.dataset.type;
-                        properties.toggle(field, row);
-                        const value = properties.get(field, row);
+                        domProps.toggle(field, row);
+                        const value = domProps.get(field, row);
                         this.card.trigger('visibilityChange', {
                             field,
                             key,
@@ -3825,8 +3830,8 @@
                 ]
             });
             document.addEventListener('keyup', e => {
-                if (e.key === 'Escape' && properties.get('importState') === 'pristine') {
-                    properties.unset('importState');
+                if (e.key === 'Escape' && domProps.get('importState') === 'pristine') {
+                    domProps.unset('importState');
                 }
             });
             this.append(listing);
@@ -3906,7 +3911,7 @@
         }
         if (!dataArr.length) {
             console.error(`No valid import data found, aborting`);
-            properties.unset('importState');
+            domProps.unset('importState');
             return false;
         }
         if (!cardQuarantine) {
@@ -3945,7 +3950,7 @@
             if (tabQuarantine && !tid) {
                 tabQuarantine.flush();
             }
-            properties.unset('importState');
+            domProps.unset('importState');
         });
     };
     var importer = {

@@ -1,5 +1,6 @@
 import TabTree from './TabTree.js';
 import CharTree from './CharTree.js';
+import SystemPropTree from '../../modules/tree/SystemPropTree.js';
 import Tree from '../../modules/tree/Tree.js';
 import cssProps from '../../../data/css-props.json';
 import labels from '../../../data/labels.json';
@@ -53,13 +54,14 @@ const initStorage = launchData => {
         lsKey: settings.get('storageKeys.user')
     })
 
+    // SystemPropTrees are readonly and 
     // css custom properties
-    styleStore = new Tree({
+    styleStore = new SystemPropTree({
         data: cssProps[':root']
     })
 
     // label store
-    labelStore = new Tree({
+    labelStore = new SystemPropTree({
         data: labels
     })
 }

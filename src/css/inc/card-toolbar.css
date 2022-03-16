@@ -18,7 +18,7 @@ card-toolbar {
     outline: 0.1rem var(--hd-color) solid;
   }
 
-  & button {
+  & button, & .button {
     &[name="done"] {
       display: none;
     }
@@ -50,7 +50,7 @@ card-base {
       right: 0;
       background: none;
       bottom: auto;
-      & button {
+      & button, & .button {
         &[name="done"] {
           display: flex;
         }

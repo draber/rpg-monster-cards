@@ -1,5 +1,5 @@
 import fn from 'fancy-node';
-import properties from '../properties/properties.js';
+import domProps from '../dom-props/dom-props.js';
 
 /**
  * Container for soft delete messages
@@ -23,7 +23,7 @@ const initiate = (element, label) => {
         document.body.append(toast);
     }
     // mark the element as soft deleted. I's no longer displayed but still in its place
-    properties.set('softDeleted', true, element);
+    domProps.set('softDeleted', true, element);
     // create the pop-up
     const dialog = document.createElement('undo-dialog');
     dialog.element = element;
@@ -35,7 +35,7 @@ const initiate = (element, label) => {
     return new Promise(resolve => {
         // either restore or hard delete the element
         dialog.on('restore', e => {
-            properties.unset('softDeleted', element);
+            domProps.unset('softDeleted', element);
             resolve({
                 action: 'restore',
                 element: e.detail.element
