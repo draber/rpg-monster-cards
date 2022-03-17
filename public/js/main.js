@@ -1374,6 +1374,9 @@
         if (exclude === 'populated') {
             return tabs.filter(tab => !src.$('card-base', tab.panel));
         }
+        if (exclude === 'soft-deleted') {
+            return tabs.filter(tab => !tab.dataset.softDeleted);
+        }
         if (exclude.forEach) {
             exclude = Array.from(exclude);
         } else if (exclude instanceof customElements.get('tab-handle')) {
@@ -1437,8 +1440,7 @@
                     });
                 }
                 if (tab.isSameNode(activeTab)) {
-                    console.log('origin: soft delete same node');
-                    setActiveTab();
+                    setActiveTab(getTabs('soft-deleted')[0]);
                 }
                 break;
             case 'restore':

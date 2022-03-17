@@ -95,6 +95,11 @@ const getTabs = exclude => {
         return tabs.filter(tab => !fn.$('card-base', tab.panel));
     }
 
+    if (exclude === 'soft-deleted') {
+        return tabs.filter(tab => !tab.dataset.softDeleted);
+    }
+
+
     // transform exclude to an array
     if (exclude.forEach) {
         exclude = Array.from(exclude);
@@ -215,8 +220,7 @@ const handleRemoval = (tab, action) => {
 
             // when deleting the active tab
             if (tab.isSameNode(activeTab)) {
-                console.log('origin: soft delete same node')
-                setActiveTab()
+                setActiveTab(getTabs('soft-deleted')[0])
             }
 
             break;
