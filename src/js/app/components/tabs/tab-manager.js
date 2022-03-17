@@ -90,6 +90,10 @@ const getTab = tabData => {
 const getTabs = exclude => {
     let tabs = Array.from(fn.$$(`tab-handle`, navi));
 
+    if (!exclude) {
+        return tabs
+    }
+
     // case remove empty tabs
     if (exclude === 'populated') {
         return tabs.filter(tab => !fn.$('card-base', tab.panel));
@@ -172,21 +176,30 @@ const bulkDeleteExcept = exclude => {
 
 
     // candidates to be deleted
-    let morituri = getTabs(exclude);
+    let deletables = getTabs(exclude);
+
+    // is the active tab amongst the deletables?
+    let deleteActive = !!deletables.find(tab => tab.classList.contains('active'));
+
     // get all tabs that will survive the deletion
-    let survivors = getTabs(morituri);
-    if(!survivors.length){
-        add();
+    let survivors = getTabs(deletables);
+    
+    // delete 
+    deletables.forEach(tab => {
+        handleRemoval(tab, 'remove');
+    })
+
+    // if no tabs are left, create a new one
+    if (!survivors.length) {
+        add({
+            activate: true
+        });
     }
 
     // if the active tab is going to be deleted, activate another one
-    if (morituri.find(tab => tab.classList.contains('active'))) {
-        setActiveTab(survivors[0]);
+    else if (deleteActive) {
+        setActiveTab(getTabs()[0]);
     }
-
-    morituri.forEach(tab => {
-        handleRemoval(tab, 'remove');
-    })
 }
 
 /**
@@ -244,11 +257,13 @@ const handleRemoval = (tab, action) => {
             // bulk delete all empty tabs (hard)
         case 'empty':
             bulkDeleteExcept('populated');
+          //  setActiveTab(getTabs()[0]);
             break;
 
             // bulk delete all empty tabs but the one in the argument (hard)
         case 'others':
             bulkDeleteExcept(tab);
+            setActiveTab(tab);
             break;
 
             // bulk delete all tabs (hard)

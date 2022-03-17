@@ -1371,6 +1371,9 @@
     };
     const getTabs = exclude => {
         let tabs = Array.from(src.$$(`tab-handle`, navi));
+        if (!exclude) {
+            return tabs
+        }
         if (exclude === 'populated') {
             return tabs.filter(tab => !src.$('card-base', tab.panel));
         }
@@ -1413,17 +1416,20 @@
     };
     const bulkDeleteExcept = exclude => {
         softDelete$1.cancel();
-        let morituri = getTabs(exclude);
-        let survivors = getTabs(morituri);
-        if(!survivors.length){
-            add$1();
-        }
-        if (morituri.find(tab => tab.classList.contains('active'))) {
-            setActiveTab(survivors[0]);
-        }
-        morituri.forEach(tab => {
+        let deletables = getTabs(exclude);
+        let deleteActive = !!deletables.find(tab => tab.classList.contains('active'));
+        let survivors = getTabs(deletables);
+        deletables.forEach(tab => {
             handleRemoval$1(tab, 'remove');
         });
+        if (!survivors.length) {
+            add$1({
+                activate: true
+            });
+        }
+        else if (deleteActive) {
+            setActiveTab(getTabs()[0]);
+        }
     };
     const handleRemoval$1 = (tab, action) => {
         tab = getTab(tab);
@@ -1459,6 +1465,7 @@
                 break;
             case 'others':
                 bulkDeleteExcept(tab);
+                setActiveTab(tab);
                 break;
             case 'all':
                 bulkDeleteExcept();
