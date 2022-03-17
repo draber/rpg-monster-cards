@@ -2113,6 +2113,7 @@
         processFiles(e.dataTransfer.files);
     }
     function processFiles(files) {
+        console.log(files);
         domProps.set('importState', 'working');
         files = Array.from(files).filter(file => !!file);
         const finished = [];
@@ -3995,6 +3996,7 @@
                         events: {
                             change: e => {
                                 uploader.handleUploads(e.target.files);
+                                e.target.value = '';
                             }
                         }
                     })

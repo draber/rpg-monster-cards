@@ -44,7 +44,8 @@ class FileUpload extends HTMLElement {
                     },
                     events: {
                         change: e => {
-                            uploader.handleUploads(e.target.files)
+                            uploader.handleUploads(e.target.files);
+                            e.target.value = '';
                         }
                     }
                 })
