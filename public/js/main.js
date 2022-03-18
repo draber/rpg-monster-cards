@@ -1559,9 +1559,15 @@
 
     let firstRegistration = true;
     const getPosition = (e, menu) => {
+        if (!menu.isConnected) {
+            console.warn('The context menu needs to be attached to the DOM to calculate the position');
+        }
+        if (menu.offsetWidth === menu.offsetHeight === 0) {
+            console.warn('The context menu needs to be displayed to calculate the position');
+        }
         const menuXY = {
-            x: parseInt(menu.dataset.width, 10),
-            y: parseInt(menu.dataset.height, 10),
+            x: menu.offsetWidth,
+            y: menu.offsetHeight,
         };
         const screenXY = {
             x: window.innerWidth,
@@ -1575,7 +1581,6 @@
             x: (mouseXY.x + menuXY.x) <= screenXY.x ? mouseXY.x : mouseXY.x - menuXY.x,
             y: (mouseXY.y + menuXY.y) <= screenXY.y ? mouseXY.y : mouseXY.y - menuXY.y,
         };
-        console.log({menuXY, screenXY, mouseXY});
         return {
             left: style.x + 'px',
             top: style.y + 'px'
@@ -1610,8 +1615,6 @@
             menu.removeAttribute('hidden');
             if (!menu.isConnected) {
                 document.body.append(menu);
-                menu.dataset.width = menu.offsetWidth;
-                menu.dataset.height = menu.offsetHeight;
             }
             Object.assign(menu.style, getPosition(e, menu));
         };
@@ -3938,7 +3941,7 @@
                 minIncrement: tabStore.nextIncrement()
             });
         }
-        let firstTid;
+        let tabs = [];
         dataArr.forEach(data => {
             if (tid) {
                 data.cards.map(card => {
@@ -3947,17 +3950,15 @@
                 });
                 quarantineCards(data.cards);
                 updateCardTids(tabStore.get(tid), tid);
-                firstTid = tid;
+                tabs.push(tabManager.getTab(tid));
             }
             else {
                 quarantineCards(data.cards);
                 quarantineTabs(data.tabs);
-                tabQuarantine.values().forEach((tab, idx) => {
+                tabQuarantine.values().forEach(tab => {
                     updateCardTids(tab);
-                    if(idx === 0) {
-                        firstTid = idHelper.toTid(tab);
-                    }
-                    tabManager.add(tab);
+                    tab = tabManager.add(tab);
+                    tabs.push(tab);
                 });
             }
             cardQuarantine.values().forEach(card => {
@@ -3968,8 +3969,8 @@
                 tabQuarantine.flush();
             }
             domProps.unset('importState');
-            return firstTid;
         });
+        return tabs;
     };
     var importer = {
         process
@@ -4018,7 +4019,10 @@
                 ]
             });
             this.app.on('uploadComplete', e => {
-                importer.process(e.detail.data, e.detail.tid);
+                let tabs = importer.process(e.detail.data, e.detail.tid);
+                if (tabs.length) {
+                    tabManager.setActiveTab(tabs[0]);
+                }
             });
             this.append(uploadForm, spinner);
         }

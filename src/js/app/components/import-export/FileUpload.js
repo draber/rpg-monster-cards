@@ -57,20 +57,17 @@ class FileUpload extends HTMLElement {
             content: [
                 fn.p({
                     content: ['Drop or ', field, ' your Ghastly Creatures files']
-                })                
+                })
             ]
         })
 
         this.app.on('uploadComplete', e => {
 
-            importer.process(e.detail.data, e.detail.tid)
-        //     return
-        //     let firstTid = importer.process(e.detail.data, e.detail.tid);
-            
-        // console.log({firstTid})
-        //     if(firstTid !== false){
-        //         tabManager.setActiveTab(tabManager.getTab(firstTid));
-        //     }
+            let tabs = importer.process(e.detail.data, e.detail.tid)
+
+            if (tabs.length) {
+                tabManager.setActiveTab(tabs[0]);
+            }
         })
 
         this.append(uploadForm, spinner);

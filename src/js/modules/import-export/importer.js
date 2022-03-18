@@ -8,7 +8,7 @@ import {
     sanitizeText
 } from "../string/string.js";
 import tabManager from "../../app/components/tabs/tab-manager.js";
-import cardManager from "../../app/components/character-cards/card-manager.js";
+import cardManager from "../../app/components/cards/card-manager.js";
 import domProps from '../dom-props/dom-props.js';
 import idHelper from '../../app/storage/id-helper.js';
 
@@ -82,7 +82,7 @@ const updateCardTids = (tab, tid) => {
     // it doesn't matter of which tree's `toTid()` is used, they all return the same value
     // tabQuarantine only exists when no tid is given
     const condition = !tid ? ['originalTid', '===', idHelper.toTid(tab.originalTid)] : undefined;
-    
+
     for (let [cid, card] of cardQuarantine.entries(condition)) {
         // delete `card.originalTid` if any
         delete card.originalTid;
@@ -156,7 +156,7 @@ const process = (dataArr, tid) => {
         });
     }
 
-    let firstTid;
+    let tabs = [];
 
     dataArr.forEach(data => {
 
@@ -171,7 +171,7 @@ const process = (dataArr, tid) => {
 
             // assign the specified tab's tid to the cards, tabs from the import will be discarded
             updateCardTids(tabStore.get(tid), tid);
-            firstTid = tid;
+            tabs.push(tabManager.getTab(tid));
         }
         // !tid: cards go into their original tab
         else {
@@ -182,13 +182,11 @@ const process = (dataArr, tid) => {
             quarantineTabs(data.tabs);
 
             // add them to the ui
-            tabQuarantine.values().forEach((tab, idx) => {
+            tabQuarantine.values().forEach(tab => {
                 // reassign the card's tid
                 updateCardTids(tab);
-                if(idx === 0) {
-                    firstTid = idHelper.toTid(tab);
-                }
-                tabManager.add(tab);
+                tab = tabManager.add(tab);
+                tabs.push(tab)
             })
         }
 
@@ -207,9 +205,9 @@ const process = (dataArr, tid) => {
 
         // remove upload UI
         domProps.unset('importState');
-        
-        return firstTid;
+
     })
+    return tabs;
 }
 
 export default {

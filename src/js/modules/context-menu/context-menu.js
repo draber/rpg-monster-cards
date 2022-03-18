@@ -7,9 +7,15 @@ let firstRegistration = true;
  * @returns {Object}
  */
 const getPosition = (e, menu) => {
+    if (!menu.isConnected) {
+        console.warn('The context menu needs to be attached to the DOM to calculate the position');
+    }
+    if (menu.offsetWidth === menu.offsetHeight === 0) {
+        console.warn('The context menu needs to be displayed to calculate the position');
+    }
     const menuXY = {
-        x: parseInt(menu.dataset.width, 10),
-        y: parseInt(menu.dataset.height, 10),
+        x: menu.offsetWidth,
+        y: menu.offsetHeight,
     }
     const screenXY = {
         x: window.innerWidth,
@@ -23,8 +29,6 @@ const getPosition = (e, menu) => {
         x: (mouseXY.x + menuXY.x) <= screenXY.x ? mouseXY.x : mouseXY.x - menuXY.x,
         y: (mouseXY.y + menuXY.y) <= screenXY.y ? mouseXY.y : mouseXY.y - menuXY.y,
     }
-
-    console.log({menuXY, screenXY, mouseXY})
 
     return {
         left: style.x + 'px',
@@ -84,9 +88,6 @@ const register = (owner, menu) => {
         menu.removeAttribute('hidden');
         if (!menu.isConnected) {
             document.body.append(menu);
-            // on first appearance measure the menu to ensure correct positioning
-            menu.dataset.width = menu.offsetWidth
-            menu.dataset.height = menu.offsetHeight;
         }
         Object.assign(menu.style, getPosition(e, menu));
     }

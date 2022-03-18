@@ -1,5 +1,5 @@
-import CharacterLibrary from './components/character-library/CharacterLibrary.js';
-import LibraryOrganizer from './components/character-library/LibraryOrganizer.js';
+import CharacterLibrary from './components/library/CharacterLibrary.js';
+import LibraryOrganizer from './components/library/LibraryOrganizer.js';
 import TabNavi from './components/tabs/TabNavi.js';
 import TabHandle from './components/tabs/TabHandle.js';
 import TabContent from './components/tabs/TabContent.js';
@@ -10,15 +10,15 @@ import FontSelector from './components/styles/font-selector/FontSelector.js';
 import FontSize from './components/styles/font-selector/FontSize.js';
 import PatternSelector from './components/styles/pattern-selector/PatternSelector.js';
 import ColorSelector from './components/styles/color-selector/ColorSelector.js';
-import CardBase from './components/character-cards/CardBase.js';
-import CardForm from './components/character-cards/CardForm.js';
-import CardRecto from './components/character-cards/CardRecto.js';
-import CardToolbar from './components/character-cards/CardToolbar.js';
-import CardVerso from './components/character-cards/CardVerso.js';
+import CardBase from './components/cards/CardBase.js';
+import CardForm from './components/cards/CardForm.js';
+import CardRecto from './components/cards/CardRecto.js';
+import CardToolbar from './components/cards/CardToolbar.js';
+import CardVerso from './components/cards/CardVerso.js';
 import UndoDialog from './components/undo-dialog/UndoDialog.js';
 import ImportExport from './components/import-export/ImportExport.js';
 import FileUpload from './components/import-export/FileUpload.js';
-import cardManager from './components/character-cards/card-manager.js';
+import cardManager from './components/cards/card-manager.js';
 import tabManager from './components/tabs/tab-manager.js';
 import {
     on,

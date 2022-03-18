@@ -7,7 +7,7 @@ import {
 import {
     deepClone
 } from '../deep-clone/deep-clone.js';
-import cardManager from '../../app/components/character-cards/card-manager.js'
+import cardManager from '../../app/components/cards/card-manager.js'
 import domProps from '../dom-props/dom-props.js';
 import idHelper from '../../app/storage/id-helper.js';
 

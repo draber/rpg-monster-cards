@@ -1038,9 +1038,6 @@ card-base .badge{
     max-width:calc(100% - 0.8rem);
   }
 
-card-base{
-}
-
 card-base.editable{
     width:100%
   }
