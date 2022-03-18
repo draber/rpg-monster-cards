@@ -8,10 +8,10 @@ let firstRegistration = true;
  */
 const getPosition = (e, menu) => {
     if (!menu.isConnected) {
-        console.warn('The context menu needs to be attached to the DOM to calculate the position');
+        console.warn('The context menu needs to be attached to the DOM to calculate its position');
     }
     if (menu.offsetWidth === menu.offsetHeight === 0) {
-        console.warn('The context menu needs to be displayed to calculate the position');
+        console.warn('The context menu needs to be displayed to calculate its position');
     }
     const menuXY = {
         x: menu.offsetWidth,

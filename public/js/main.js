@@ -1554,10 +1554,10 @@
     let firstRegistration = true;
     const getPosition = (e, menu) => {
         if (!menu.isConnected) {
-            console.warn('The context menu needs to be attached to the DOM to calculate the position');
+            console.warn('The context menu needs to be attached to the DOM to calculate its position');
         }
         if (menu.offsetWidth === menu.offsetHeight === 0) {
-            console.warn('The context menu needs to be displayed to calculate the position');
+            console.warn('The context menu needs to be displayed to calculate its position');
         }
         const menuXY = {
             x: menu.offsetWidth,
@@ -3923,18 +3923,14 @@
             domProps.unset('importState');
             return false;
         }
-        if (!cardQuarantine) {
-            cardQuarantine = new CharTree({
-                data: {},
-                minIncrement: cardStore.nextIncrement()
-            });
-        }
-        if (!tid && !tabQuarantine) {
-            tabQuarantine = new TabTree({
-                data: {},
-                minIncrement: tabStore.nextIncrement()
-            });
-        }
+        cardQuarantine = new CharTree({
+            data: {},
+            minIncrement: cardStore.nextIncrement()
+        });
+        tabQuarantine = new TabTree({
+            data: {},
+            minIncrement: tabStore.nextIncrement()
+        });
         let tabs = [];
         dataArr.forEach(data => {
             if (tid) {
@@ -3958,10 +3954,6 @@
             cardQuarantine.values().forEach(card => {
                 cardManager.add(card);
             });
-            cardQuarantine.flush();
-            if (tabQuarantine && !tid) {
-                tabQuarantine.flush();
-            }
             domProps.unset('importState');
         });
         return tabs;

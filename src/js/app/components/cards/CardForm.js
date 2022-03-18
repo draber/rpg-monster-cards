@@ -151,6 +151,27 @@ class CardForm extends HTMLElement {
     }
 
     /**
+     * Possible storage formats
+     *         "fields": {
+            "name": {
+            	"field" : {
+            		"txt": "Celestial Giant Fire Beetle",
+            		"vis": "__only if not default__"
+            	},
+            	"label" : {
+            		"txt": "__only if not default__",
+            		"vis": "__only if not default__"
+            	},
+//or
+            	"fieldTxt": "Celestial Giant Fire Beetle",
+            	"labelTxt": "__only if not default__",
+            	"labelVis": "__only if not default__",
+            	"fieldVis": "__only if not default__",
+            }        	
+        },
+     */
+
+    /**
      * Called on element launch
      */
     connectedCallback() {

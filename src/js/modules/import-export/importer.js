@@ -140,21 +140,16 @@ const process = (dataArr, tid) => {
         return false;
     }
 
-    // ensure there is a quarantine for cards, regardless whether there is a tid or not
-    if (!cardQuarantine) {
-        cardQuarantine = new CharTree({
-            data: {},
-            minIncrement: cardStore.nextIncrement()
-        });
-    }
+    // ensure there is a fresh quarantine for cards and tabs
+    cardQuarantine = new CharTree({
+        data: {},
+        minIncrement: cardStore.nextIncrement()
+    });
 
-    // for tabs quarantine is only needed if we dont have a tid
-    if (!tid && !tabQuarantine) {
-        tabQuarantine = new TabTree({
-            data: {},
-            minIncrement: tabStore.nextIncrement()
-        });
-    }
+    tabQuarantine = new TabTree({
+        data: {},
+        minIncrement: tabStore.nextIncrement()
+    });
 
     let tabs = [];
 
@@ -177,7 +172,6 @@ const process = (dataArr, tid) => {
         else {
             quarantineCards(data.cards);
 
-
             // quarantine new tabs
             quarantineTabs(data.tabs);
 
@@ -194,14 +188,6 @@ const process = (dataArr, tid) => {
         cardQuarantine.values().forEach(card => {
             cardManager.add(card);
         })
-
-        // delete quarantined data
-        cardQuarantine.flush();
-        if (tabQuarantine && !tid) {
-            tabQuarantine.flush();
-        }
-
-
 
         // remove upload UI
         domProps.unset('importState');
