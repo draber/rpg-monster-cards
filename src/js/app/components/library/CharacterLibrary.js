@@ -1,7 +1,6 @@
 import fn from 'fancy-node';
 import characterProvider from './character-provider.js';
 import {
-    prefStore,
     settings,
     systemStore,
     cardStore
@@ -198,10 +197,10 @@ class CharacterLibrary extends HTMLElement {
         /**
          * Set some healthy defaults
          */
-        this.sortBy = prefStore.get('characters.sortBy') || this.sortBy || 'name';
-        this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
-        this.sortDir = prefStore.get('characters.sortDir') || this.sortDir || 'asc';
-        this.groupDir = prefStore.get('characters.groupDir') || this.groupDir || 'asc';
+        this.sortBy = this.sortBy || 'name';
+        this.groupBy = this.groupBy || 'name';
+        this.sortDir = this.sortDir || 'asc';
+        this.groupDir = this.groupDir || 'asc';
 
         this.populate();
     }

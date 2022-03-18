@@ -952,7 +952,6 @@
     let systemStore;
     let cardStore;
     let copyStore;
-    let prefStore;
     let styleStore;
     let settings;
     let labelStore;
@@ -976,10 +975,6 @@
         });
         copyStore = new CharTree({
             minIncrement: 6001
-        });
-        prefStore = new Tree({
-            data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
-            lsKey: settings.get('storageKeys.user')
         });
         styleStore = new SystemPropTree({
             data: cssProps$1[':root']
@@ -1150,10 +1145,10 @@
                     return character;
                 })());
             });
-            this.sortBy = prefStore.get('characters.sortBy') || this.sortBy || 'name';
-            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
-            this.sortDir = prefStore.get('characters.sortDir') || this.sortDir || 'asc';
-            this.groupDir = prefStore.get('characters.groupDir') || this.groupDir || 'asc';
+            this.sortBy = this.sortBy || 'name';
+            this.groupBy = this.groupBy || 'name';
+            this.sortDir = this.sortDir || 'asc';
+            this.groupDir = this.groupDir || 'asc';
             this.populate();
         }
         constructor(self) {
@@ -1195,12 +1190,11 @@
                 if (!li) {
                     return false;
                 }
-                prefStore.set('characters.groupBy', li.dataset.groupBy);
                 this.app.trigger('characterOrderChange', {
                     groupBy: li.dataset.groupBy
                 });
             });
-            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
+            this.groupBy = this.groupBy || 'name';
             const icon = src.svg({
                 isSvg: true,
                 content: src.use({

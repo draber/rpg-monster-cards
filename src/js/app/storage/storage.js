@@ -10,7 +10,6 @@ let systemStore;
 let cardStore;
 let copyStore;
 let importStore;
-let prefStore;
 let styleStore;
 let settings;
 let labelStore;
@@ -48,12 +47,6 @@ const initStorage = launchData => {
         minIncrement: 6001
     });
 
-    // user preferences
-    prefStore = new Tree({
-        data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
-        lsKey: settings.get('storageKeys.user')
-    })
-
     // SystemPropTrees are readonly and 
     // css custom properties
     styleStore = new SystemPropTree({
@@ -72,7 +65,6 @@ export {
     cardStore,
     copyStore,
     importStore,
-    prefStore,
     styleStore,
     labelStore,
     settings

@@ -1,7 +1,6 @@
 import fn from 'fancy-node';
 import visibility from '../../../../data/visibility.json';
 import {
-    prefStore,
     labelStore
 } from '../../storage/storage';
 import {
@@ -47,13 +46,12 @@ class LibraryOrganizer extends HTMLElement {
             if (!li) {
                 return false;
             }
-            prefStore.set('characters.groupBy', li.dataset.groupBy);
             this.app.trigger('characterOrderChange', {
                 groupBy: li.dataset.groupBy
             })
         })
 
-        this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
+        this.groupBy = this.groupBy || 'name';
 
         const icon = fn.svg({
             isSvg: true,
