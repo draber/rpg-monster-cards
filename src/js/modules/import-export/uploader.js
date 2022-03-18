@@ -38,7 +38,6 @@ function handleDrop(e) {
  * @param {Object} files 
  */
 function processFiles(files) {
-    console.log(files)
     domProps.set('importState', 'working');
 
     // this could also filter all files that exceed a certain size 

@@ -5,6 +5,7 @@ import {
 } from '../../../modules/events/eventHandler.js';
 import importer from '../../../modules/import-export/importer.js';
 import uploader from '../../../modules/import-export/uploader.js';
+import tabManager from '../tabs/tab-manager.js';
 
 
 /**
@@ -30,7 +31,7 @@ class FileUpload extends HTMLElement {
             })
         })
 
-        const label = fn.label({
+        const field = fn.label({
             content: [
                 fn.span({
                     classNames: ['button'],
@@ -55,13 +56,21 @@ class FileUpload extends HTMLElement {
         const uploadForm = fn.form({
             content: [
                 fn.p({
-                    content: ['Drop or ', label, ' your Ghastly Creatures files']
+                    content: ['Drop or ', field, ' your Ghastly Creatures files']
                 })                
             ]
         })
 
         this.app.on('uploadComplete', e => {
-            importer.process(e.detail.data, e.detail.tid);
+
+            importer.process(e.detail.data, e.detail.tid)
+        //     return
+        //     let firstTid = importer.process(e.detail.data, e.detail.tid);
+            
+        // console.log({firstTid})
+        //     if(firstTid !== false){
+        //         tabManager.setActiveTab(tabManager.getTab(firstTid));
+        //     }
         })
 
         this.append(uploadForm, spinner);

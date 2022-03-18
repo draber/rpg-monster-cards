@@ -116,6 +116,7 @@ const structureIsValid = data => {
  * Process uploaded data
  * @param {Array} dataArr Data from upload, each element represents the content of one uploaded file.
  * @param {*} [tid] TID, in case the cards need to be added to a specific tab
+ * @returns {Integer|Boolean} Either the TID of the first card or false
  */
 const process = (dataArr, tid) => {
 
@@ -127,9 +128,11 @@ const process = (dataArr, tid) => {
     for (let i = 0; i < dataArr.length; i++) {
         if (!structureIsValid(dataArr[i])) {
             dataArr.splice(i, 1);
-            console.error(`Invalid import data found`);
+            console.error(`Invalid import data discarded`);
         }
     }
+
+    // check if any data are left after validation
     if (!dataArr.length) {
         console.error(`No valid import data found, aborting`);
         // remove upload UI
@@ -153,6 +156,8 @@ const process = (dataArr, tid) => {
         });
     }
 
+    let firstTid;
+
     dataArr.forEach(data => {
 
         // Cards must go first
@@ -166,6 +171,7 @@ const process = (dataArr, tid) => {
 
             // assign the specified tab's tid to the cards, tabs from the import will be discarded
             updateCardTids(tabStore.get(tid), tid);
+            firstTid = tid;
         }
         // !tid: cards go into their original tab
         else {
@@ -176,12 +182,14 @@ const process = (dataArr, tid) => {
             quarantineTabs(data.tabs);
 
             // add them to the ui
-            tabQuarantine.values().forEach(tab => {
+            tabQuarantine.values().forEach((tab, idx) => {
                 // reassign the card's tid
                 updateCardTids(tab);
+                if(idx === 0) {
+                    firstTid = idHelper.toTid(tab);
+                }
                 tabManager.add(tab);
             })
-
         }
 
         // add the card to either their original tab or a prespecified tab, depending on their TID
@@ -195,8 +203,12 @@ const process = (dataArr, tid) => {
             tabQuarantine.flush();
         }
 
+
+
         // remove upload UI
         domProps.unset('importState');
+        
+        return firstTid;
     })
 }
 

@@ -1560,12 +1560,12 @@
     let firstRegistration = true;
     const getPosition = (e, menu) => {
         const menuXY = {
-            x: menu.offsetWidth,
-            y: menu.offsetHeight
+            x: parseInt(menu.dataset.width, 10),
+            y: parseInt(menu.dataset.height, 10),
         };
         const screenXY = {
-            x: screen.availWidth,
-            y: screen.availHeight
+            x: window.innerWidth,
+            y: window.innerHeight
         };
         const mouseXY = {
             x: e.pageX,
@@ -1575,6 +1575,7 @@
             x: (mouseXY.x + menuXY.x) <= screenXY.x ? mouseXY.x : mouseXY.x - menuXY.x,
             y: (mouseXY.y + menuXY.y) <= screenXY.y ? mouseXY.y : mouseXY.y - menuXY.y,
         };
+        console.log({menuXY, screenXY, mouseXY});
         return {
             left: style.x + 'px',
             top: style.y + 'px'
@@ -1586,12 +1587,12 @@
     }
     function offContextMenu(e) {
         const menu = document.querySelector('[data-type="context-menu"]:not([hidden])');
-        if(menu){
+        if (menu) {
             menu.hide();
         }
     }
     const init$2 = () => {
-        if(firstRegistration) {
+        if (firstRegistration) {
             document.addEventListener('pointerup', offContextMenu);
             firstRegistration = false;
         }
@@ -1606,14 +1607,16 @@
         owner.contextMenu = menu;
         menu.owner = owner;
         menu.show = e => {
-            Object.assign(menu.style, getPosition(e, menu));
             menu.removeAttribute('hidden');
-            if(!menu.isConnected){
+            if (!menu.isConnected) {
                 document.body.append(menu);
+                menu.dataset.width = menu.offsetWidth;
+                menu.dataset.height = menu.offsetHeight;
             }
+            Object.assign(menu.style, getPosition(e, menu));
         };
         menu.hide = () => {
-            menu.hidden =true;
+            menu.hidden = true;
         };
         owner.addEventListener('contextmenu', onContextMenu);
         return menu;
@@ -2113,7 +2116,6 @@
         processFiles(e.dataTransfer.files);
     }
     function processFiles(files) {
-        console.log(files);
         domProps.set('importState', 'working');
         files = Array.from(files).filter(file => !!file);
         const finished = [];
@@ -3916,7 +3918,7 @@
         for (let i = 0; i < dataArr.length; i++) {
             if (!structureIsValid(dataArr[i])) {
                 dataArr.splice(i, 1);
-                console.error(`Invalid import data found`);
+                console.error(`Invalid import data discarded`);
             }
         }
         if (!dataArr.length) {
@@ -3936,6 +3938,7 @@
                 minIncrement: tabStore.nextIncrement()
             });
         }
+        let firstTid;
         dataArr.forEach(data => {
             if (tid) {
                 data.cards.map(card => {
@@ -3944,12 +3947,16 @@
                 });
                 quarantineCards(data.cards);
                 updateCardTids(tabStore.get(tid), tid);
+                firstTid = tid;
             }
             else {
                 quarantineCards(data.cards);
                 quarantineTabs(data.tabs);
-                tabQuarantine.values().forEach(tab => {
+                tabQuarantine.values().forEach((tab, idx) => {
                     updateCardTids(tab);
+                    if(idx === 0) {
+                        firstTid = idHelper.toTid(tab);
+                    }
                     tabManager.add(tab);
                 });
             }
@@ -3961,6 +3968,7 @@
                 tabQuarantine.flush();
             }
             domProps.unset('importState');
+            return firstTid;
         });
     };
     var importer = {
@@ -3981,7 +3989,7 @@
                     })
                 })
             });
-            const label = src.label({
+            const field = src.label({
                 content: [
                     src.span({
                         classNames: ['button'],
@@ -4005,7 +4013,7 @@
             const uploadForm = src.form({
                 content: [
                     src.p({
-                        content: ['Drop or ', label, ' your Ghastly Creatures files']
+                        content: ['Drop or ', field, ' your Ghastly Creatures files']
                     })
                 ]
             });
