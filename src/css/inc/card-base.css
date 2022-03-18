@@ -109,18 +109,6 @@ card-base {
     max-width: calc(100% - 0.8rem);
   }
 
-  /* &.summon {
-    & .𝔘𝔫𝔥𝔬𝔩𝔡 {
-      animation: summon 1s ease-in;
-    }
-  }
-
-  &.banish {
-    & .𝔘𝔫𝔥𝔬𝔩𝔡 {
-      animation: banish 1s ease-out;
-    }
-  } */
-
   &.editable {
     width: 100%;
 

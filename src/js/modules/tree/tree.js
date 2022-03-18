@@ -1,5 +1,7 @@
 import getCmpFn from "./cmp-functions.js";
-import { deepClone } from "../deep-clone/deep-clone.js";
+import {
+    deepClone
+} from "../deep-clone/deep-clone.js";
 
 /**
  * Private function area
@@ -23,35 +25,6 @@ const _get = (key, obj) => {
         current = current[token];
     }
     return current;
-}
-
-/**
- * Checks whether an entry satisfies all conditions
- * @param {Array} conditions 
- * @returns {Boolean}
- */
-const _entrySatisfies = conditions => {
-    for (let condition of conditions) {
-        if (!condition.fn(condition.value, condition.expected)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/**
- * Expands a condition array to an object which holds the value to compare against, the comparison function and the expected result|null
- * @param {String} key 
- * @param {Array} condition 
- * @param {Object} obj 
- * @returns {Object}
- */
-const _expandCondition = (key, condition, obj) => {
-    return {
-        value: _get(`${key}.${condition[0]}`, obj),
-        fn: getCmpFn(condition[1]),
-        expected: condition[2] || null // relevant, if condition[0] is a function
-    }
 }
 
 /**
@@ -116,6 +89,8 @@ class Tree {
             current = current[token];
         }
         delete current[last];
+        this.save();
+        return this;
     }
 
     /**
@@ -132,8 +107,17 @@ class Tree {
      * @param {String|Number} key 
      * @returns {String|Object}
      */
-    getClone(key){
+    getClone(key) {
         return deepClone(this.get(key))
+    }
+
+    /**
+     * Whether or not a certain key exists in this tree
+     * @param {String|Number} key 
+     * @returns {Boolean}
+     */
+    has(key) {
+        return typeof this.get(key) !== 'undefined';
     }
 
     /**
@@ -144,7 +128,7 @@ class Tree {
      * @param {Any} [expected] Whatever you need to compare against. Can be omitted when `cmpFn` is a function and does all the magic itself
      * @returns {Array}
      */
-    where(searchKey, cmpFn, expected = null){
+    where(searchKey, cmpFn, expected = null) {
         return [searchKey, cmpFn, expected];
     }
 
@@ -153,15 +137,22 @@ class Tree {
      * @param {Array} [...conditions] Unlimited set of conditions that can be built with `this.where()`. Conditions are always joined with `AND`!
      * @returns {Object}
      */
-     object(...conditions) {
-        if (!conditions.length || !conditions[0].length) {
+    object(...conditions) {        
+        conditions = conditions.filter(e => Array.isArray(e));
+        if (!conditions.length) {
             return this.obj;
         }
+
         const result = {};
         for (let [key, entry] of Object.entries(this.obj)) {
-            if(_entrySatisfies(conditions.map(cond => _expandCondition(key, cond, this.obj)))){
-                result[key] = entry;
-            }
+            conditions.forEach(condition => {
+                const comperator = _get(`${key}.${condition[0]}`, this.obj);
+                const expected = condition[2];
+                const fn = getCmpFn(condition[1]);
+                if (fn(comperator, expected)) {
+                    result[key] = entry;
+                }
+            })
         }
         return result;
     }
@@ -172,7 +163,7 @@ class Tree {
      * @returns {Iterator}
      */
     entries(...conditions) {
-        return Object.entries(this.object(conditions));
+        return Object.entries(this.object.apply(this, conditions));
     }
 
     /**
@@ -181,7 +172,7 @@ class Tree {
      * @returns {Array}
      */
     values(...conditions) {
-        return Object.values(this.object(conditions));
+        return Object.values(this.object.apply(this, conditions));
     }
 
     /**
@@ -190,7 +181,7 @@ class Tree {
      * @returns {Array}
      */
     keys(...conditions) {
-        return Object.keys(this.object(conditions));
+        return Object.keys(this.object.apply(this, conditions));
     }
 
     /**

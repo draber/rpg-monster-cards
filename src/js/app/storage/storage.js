@@ -1,5 +1,6 @@
 import TabTree from './TabTree.js';
 import CharTree from './CharTree.js';
+import SystemPropTree from '../../modules/tree/SystemPropTree.js';
 import Tree from '../../modules/tree/Tree.js';
 import cssProps from '../../../data/css-props.json';
 import labels from '../../../data/labels.json';
@@ -9,7 +10,6 @@ let systemStore;
 let cardStore;
 let copyStore;
 let importStore;
-let prefStore;
 let styleStore;
 let settings;
 let labelStore;
@@ -39,27 +39,22 @@ const initStorage = launchData => {
     cardStore = new CharTree({
         data: launchData.stored,
         lsKey: settings.get('storageKeys.cards'),
-        minIncrement: 3000
+        minIncrement: 3001
     });
 
     // characters ready for pasting
     copyStore = new CharTree({
-        minIncrement: 6000
+        minIncrement: 6001
     });
 
-    // user preferences
-    prefStore = new Tree({
-        data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
-        lsKey: settings.get('storageKeys.user')
-    })
-
+    // SystemPropTrees are readonly and 
     // css custom properties
-    styleStore = new Tree({
+    styleStore = new SystemPropTree({
         data: cssProps[':root']
     })
 
     // label store
-    labelStore = new Tree({
+    labelStore = new SystemPropTree({
         data: labels
     })
 }
@@ -70,7 +65,6 @@ export {
     cardStore,
     copyStore,
     importStore,
-    prefStore,
     styleStore,
     labelStore,
     settings

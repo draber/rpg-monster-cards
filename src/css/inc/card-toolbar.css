@@ -6,7 +6,7 @@ card-toolbar {
   width: 100%;
   padding: 2rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-around;
   gap: 1rem;
   opacity: 0;
   align-items: center;
@@ -18,7 +18,7 @@ card-toolbar {
     outline: 0.1rem var(--hd-color) solid;
   }
 
-  & button {
+  & button, & .button {
     &[name="done"] {
       display: none;
     }
@@ -50,7 +50,7 @@ card-base {
       right: 0;
       background: none;
       bottom: auto;
-      & button {
+      & button, & .button {
         &[name="done"] {
           display: flex;
         }

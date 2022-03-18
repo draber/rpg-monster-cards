@@ -2,10 +2,16 @@
  * File uploader, heavily based on https://codepen.io/joezimjs/pen/yPWQbd
  */
 
-import properties from "../properties/properties.js";
+import domProps from "../dom-props/dom-props.js";
+import fn from 'fancy-node';
 
 let dropArea;
+let app;
 
+/**
+ * Shortcut to stop default action and bubbling
+ * @param {Event} e 
+ */
 function preventDefaults(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -27,8 +33,12 @@ function handleDrop(e) {
     processFiles(e.dataTransfer.files)
 }
 
+/**
+ * Handle the files from either drag/drop or form field
+ * @param {Object} files 
+ */
 function processFiles(files) {
-    properties.set('importState', 'working');
+    domProps.set('importState', 'working');
 
     // this could also filter all files that exceed a certain size 
     files = Array.from(files).filter(file => !!file);
@@ -44,27 +54,34 @@ function processFiles(files) {
         }))
     }
     Promise.all(finished).then(data => {
-        dropArea.dispatchEvent(
-            new CustomEvent(
-                'uploadComplete', {
-                    detail: data
-                }
-            )
-        );
+        app.trigger('uploadComplete', {
+            data,
+            tid: dropArea.tid,
+        });
     }).catch(error => {
-        console.error(error.message)
+        console.error(error)
     });
 }
 
+/**
+ * Add highlighting on dragover etc.
+ * @param {Event} e 
+ */
 function highlight(e) {
     e.target.classList.add('active');
 }
 
+/**
+ * Remove the highlighting
+ * @param {Event} e 
+ */
 function unhighlight(e) {
     e.target.classList.remove('active');
 }
 
-
+/**
+ * Assign all drag/drop related events to the drop area
+ */
 const assignEvents = () => {
 
     const evt1 = ['dragenter', 'dragover'];
@@ -87,8 +104,40 @@ const assignEvents = () => {
     dropArea.addEventListener('drop', handleDrop, false);
 }
 
-const init = _dropArea => {
-    dropArea = _dropArea
+/**
+ * Build the file upload widget or use the already existing one
+ * @param {HTMLElement} app 
+ * @returns HTMLElement
+ */
+const getDropArea = app => {
+    let dropArea = fn.$('file-upload');
+    if (!dropArea) {
+        dropArea = document.createElement('file-upload');
+        app.after(dropArea);
+    }
+    return dropArea;
+}
+
+/**
+ * Build/activate the drop area
+ * @param {HTMLElement} app 
+ * @param {Integer} tid 
+ */
+const init = (_app, tid) => {
+    app = _app;
+    let currentState = domProps.get('importState');
+    if (!currentState) {
+        domProps.set('importState', 'pristine');
+    } else if (currentState === 'pristine') {
+        domProps.unset('importState');
+    }
+    // else do nothing because the process has already started
+
+    dropArea = getDropArea(app);
+    delete dropArea.tid;
+    if (tid) {
+        dropArea.tid = tid;
+    }
     assignEvents();
 }
 

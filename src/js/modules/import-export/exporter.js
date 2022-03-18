@@ -2,6 +2,7 @@ import {
     cardStore,
     tabStore
 } from "../../app/storage/storage.js";
+import idHelper from "../../app/storage/id-helper.js";
 
 /**
  * Build a file name in the style 'ghastly-creatures-2022-03-07-21-02-22.json'
@@ -23,43 +24,49 @@ const removeActiveKey = entry => {
 
 /**
  * Retrieve data combined from both the card and the tab store
- * @param {HTMLElement|Entry|String|Number|undefined} cidData [cidData] 
- * @param {HTMLElement|Entry|String|Number|undefined} tidData [tidData] 
+ * @param {HTMLElement|Entry|String|Number} [cidData] 
+ * @param {HTMLElement|Entry|String|Number} [tidData] 
  * @returns {Object}
  */
 const getData = ({
     cidData,
     tidData
 } = {}) => {
-    
+
     // data exported from a specific card
     if (cidData) {
-        let card = cardStore.get(cidData);
-        let tab = tabStore.get(card);
+        let cid = idHelper.toCid(cidData)
+        let card = cardStore.get(cid);
+        let tid = idHelper.toTid(card);
+        let tab = tabStore.get(tid);
         return {
-            tabs: {
-                [tabStore.toTid(tab)]: [tab].map(removeActiveKey)
-            },
-            cards: {
-                [cardStore.toCid(card)]: [card]
-            }
+            tabs: [tab].map(removeActiveKey),
+            cards: [card]
         }
     }
 
     // data exported from a specific tab
     if (tidData) {
         return {
-            cards: cardStore.values(['tid', '===', cardStore.toTid(tidData)]),
-            tabs: tabStore.values(['tid', '===', tabStore.toTid(tidData)]).map(removeActiveKey)
+            cards: cardStore.values(['tid', '===', idHelper.toTid(tidData)]),
+            tabs: tabStore.values(['tid', '===', idHelper.toTid(tidData)]).map(removeActiveKey)
         }
     }
 
+    // export all cards and tabs
     return {
         cards: cardStore.values(),
         tabs: tabStore.values().map(removeActiveKey)
     }
 }
 
+/**
+ * Build a download URL
+ * @param {String} fileName 
+ * @param {HTMLElement|Entry|String|Number} [cidData] 
+ * @param {HTMLElement|Entry|String|Number} [tidData] 
+ * @returns 
+ */
 const getUrl = (fileName, {
     cidData,
     tidData

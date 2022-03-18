@@ -1,8 +1,8 @@
 import tabManager from '../tabs/tab-manager.js';
 import {
-    tabStore,
     cardStore
 } from '../../storage/storage.js';
+import idHelper from '../../storage/id-helper.js';
 import softDelete from '../../../modules/softDelete/softDelete.js';
 import fn from 'fancy-node';
 
@@ -19,14 +19,20 @@ const add = character => {
     let tab;
     // if the character comes from a previous session
     if (character.tid) {
-        cid = cardStore.toCid(character);
+        cid = idHelper.toCid(character);
         tab = tabManager.getTab(character.tid);
-        tid = tabStore.toTid(tab);
-    } 
-    else {
+        // This is a 'just in case'. When tabs are deleted and cards for some reasons 
+        // aren't removed from the tree, these 'Ghost Cards' will cause an error
+        // if their original tab isn't available anymore
+        if (!tab) {
+            handleRemoval(character, 'remove');
+            return;
+        }
+        tid = idHelper.toTid(tab);
+    } else {
         cid = cardStore.nextIncrement();
         tab = tabManager.getTab('active');
-        tid = tabStore.toTid(tab);
+        tid = idHelper.toTid(tab);
     }
     // setup everything
     character = {
@@ -51,8 +57,8 @@ const add = character => {
  * @param {HTMLElement|Object|String|Number} cidData 
  * @returns 
  */
-const getCard = cidData =>{
-    return fn.$(`[cid="${cardStore.toCid(cidData)}"]`);
+const getCard = cidData => {
+    return fn.$(`[cid="${idHelper.toCid(cidData)}"]`);
 }
 
 /**
@@ -73,7 +79,7 @@ const restoreLastSession = () => {
  */
 const handleRemoval = (card, action) => {
 
-    const cid = cardStore.toCid(card);
+    const cid = idHelper.toCid(card);
     switch (action) {
         case 'soft':
             // DOM
@@ -89,7 +95,10 @@ const handleRemoval = (card, action) => {
             break;
         case 'remove':
             cardStore.remove(card);
-            card.remove();
+            // another 'just in case', see full comment in `add()`
+            if (card instanceof HTMLElement) {
+                card.remove();
+            }
             break;
     }
 }
@@ -103,7 +112,7 @@ const init = _app => {
     app = _app;
     // hard delete all cards from a specific tab 
     app.on('tabDelete', e => {
-        fn.$$('card-base', e.detail.tab).forEach(card => {
+        e.detail.forEach(card => {
             handleRemoval(card, 'remove');
         })
     })

@@ -1,6 +1,9 @@
 import fn from 'fancy-node';
 import softDelete from '../../../modules/softDelete/softdelete.js';
-import { tabStore } from '../../storage/storage.js';
+import {
+    tabStore
+} from '../../storage/storage.js';
+import idHelper from '../../storage/id-helper.js';
 
 let app;
 let navi;
@@ -20,12 +23,12 @@ const setActiveTab = tab => {
     fn.$$('tab-handle', navi).forEach(tab => {
         tab.classList.remove('active');
         tab.panel.classList.remove('active');
-        tabStore.unset(`${tabStore.toTid(tab)}.active`);
+        tabStore.unset(`${idHelper.toTid(tab)}.active`);
         tab.removeAttribute('style');
     });
 
     // set the selected tab active
-    const tid = tabStore.toTid(activeTab);
+    const tid = idHelper.toTid(activeTab);
     // DOM Tab
     activeTab.classList.add('active');
     // DOM Panel
@@ -47,7 +50,7 @@ const setActiveTab = tab => {
         atRect.width;
 
     navi.classList.remove('overflown');
-    
+
     // 2: set the non-active tabs to as tiny as needed
     if (navi.scrollWidth > navi.clientWidth) {
         navi.classList.add('overflown');
@@ -76,29 +79,39 @@ const getTab = tabData => {
         return tabData
     }
     // parse tabData for a TID and return the matching tab
-    return fn.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
+    return fn.$(`tab-handle[tid="${idHelper.toTid(tabData)}"]`, navi);
 }
 
 /**
  * Retrieve tabs as array
- * @param {HTMLElement|String|Number} [exclude] tabs to exclude 
+ * @param {HTMLElement|String|Number|Array|NodeList} [exclude] tabs to exclude 
  * @returns 
  */
 const getTabs = exclude => {
     let tabs = Array.from(fn.$$(`tab-handle`, navi));
-    switch (true) {
-        // all but this
-        case exclude instanceof customElements.get('tab-handle'):
-            return tabs.filter(tab => !tab.isSameNode(exclude));
 
-        // empty tabs
-        case exclude === 'empty':
-            return tabs.filter(tab => !fn.$('card-base', tab));
-
-        // all tabs
-        default:
-            return tabs;
+    if (!exclude) {
+        return tabs
     }
+
+    // case remove empty tabs
+    if (exclude === 'populated') {
+        return tabs.filter(tab => !fn.$('card-base', tab.panel));
+    }
+
+    if (exclude === 'soft-deleted') {
+        return tabs.filter(tab => !tab.dataset.softDeleted);
+    }
+
+
+    // transform exclude to an array
+    if (exclude.forEach) {
+        exclude = Array.from(exclude);
+    } else if (exclude instanceof customElements.get('tab-handle')) {
+        exclude = [exclude];
+    }
+
+    return tabs.filter(tab => !exclude.includes(tab));
 }
 
 /**
@@ -119,7 +132,7 @@ const add = ({
     // build DOM elements
     const tab = document.createElement('tab-handle');
     tab.panel = document.createElement('tab-panel');
-    
+
     tab.container = navi;
 
     // copy properties to both parts
@@ -136,14 +149,14 @@ const add = ({
     // insert a predfine insertion point
     if (previousTab) {
         previousTab.after(tab)
-    } 
+    }
     // add it at the very end but before the '+'
     else {
         fn.$('.adder', navi).before(tab);
     }
 
     // inform model
-    tabStore.set(tabStore.toTid(tabEntry), tabEntry);
+    tabStore.set(idHelper.toTid(tabEntry), tabEntry);
 
     if (activate) {
         setActiveTab(tab);
@@ -153,45 +166,39 @@ const add = ({
 }
 
 /**
- * Determine the next tab to activate upon deletion, can be the tab after (default), before or a newly create one
- * @returns {HTMLElement}
- */
-const getUpcomingActiveTab = () => {
-    // get all currently accessible tabs
-    let tabs = Array.from(fn.$$(`tab-handle:not([data-soft-deleted])`, navi));
-    if (!tabs.length) {
-        return add();
-    }
-    // find the index of the currently active tab
-    let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
-    // is there a tab to the right of the active one?
-    if (tabs[activeIdx + 1]) {
-        return tabs[activeIdx + 1];
-    }
-    // is there a tab to the left of the active one?
-    if (tabs[activeIdx - 1]) {
-        return tabs[activeIdx - 1];
-    }
-    // add a fresh tab
-    return add();
-}
-
-/**
  * Hard delete multiple tab, optionally some can be excluded
  * @param {HTMLElement|String|Number} [exclude] tabs to exclude 
  */
-const bulkDelete = exclude => {
+const bulkDeleteExcept = exclude => {
     // cancel all ongoing soft deletions
-    // not absolutely necessary, but otherwise the result could chaotic
+    // not absolutely necessary, but otherwise the result would be chaotic
     softDelete.cancel();
-    // hard delete all candidates
-    getTabs(exclude).forEach(tab => {
+
+
+    // candidates to be deleted
+    let deletables = getTabs(exclude);
+
+    // is the active tab amongst the deletables?
+    let deleteActive = !!deletables.find(tab => tab.classList.contains('active'));
+
+    // get all tabs that will survive the deletion
+    let survivors = getTabs(deletables);
+    
+    // delete 
+    deletables.forEach(tab => {
         handleRemoval(tab, 'remove');
     })
-    if (!tabStore.length) {
+
+    // if no tabs are left, create a new one
+    if (!survivors.length) {
         add({
             activate: true
         });
+    }
+
+    // if the active tab is going to be deleted, activate another one
+    else if (deleteActive) {
+        setActiveTab(getTabs()[0]);
     }
 }
 
@@ -202,58 +209,66 @@ const bulkDelete = exclude => {
  * @param {String} action
  */
 const handleRemoval = (tab, action) => {
+    // ensure that tab is an element and not an object
+    tab = getTab(tab);
+
     switch (action) {
         // trigger soft deletion process
         case 'soft':
-            // when deleting the active tab
-            if (tab.isSameNode(activeTab)) {
-                setActiveTab(getUpcomingActiveTab());
-            }
             // DOM
             softDelete.initiate(tab, 'Tab ' + tab.title)
                 .then(data => {
                     handleRemoval(tab, data.action);
                 })
+
             // local model
-            tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
-            break;
+            tabStore.set(`${idHelper.toTid(tab)}.softDeleted`, true);
 
-        // restore a previously soft deleted tab
-        case 'restore':
-            tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
-            break;
-
-        // delete a tab for good
-        case 'remove':
-            
-            // inform app to delete cards
-            app.trigger('tabDelete', {
-                tab
-            })
-            tabStore.remove(tab);
-            tab.remove();
-            if (!tabStore.length) {
+            //if no visible tab has been left add a new one
+            if (!tabStore.values(['softDeleted', '!==', true]).length) {
                 add({
                     activate: true
                 });
             }
+
+            // when deleting the active tab
+            if (tab.isSameNode(activeTab)) {
+                setActiveTab(getTabs('soft-deleted')[0])
+            }
+
             break;
 
-        // bulk delete all empty tabs (hard)
+            // restore a previously soft deleted tab
+        case 'restore':
+            tabStore.unset(`${idHelper.toTid(tab)}.softDeleted`);
+            break;
+
+            // delete a tab for good
+        case 'remove':
+            // inform app to delete cards
+            app.trigger(
+                'tabDelete',
+                Array.from(fn.$$('card-base', tab.panel)).map(card => idHelper.toCid(card))
+            )
+            tabStore.remove(tab);
+            tab.remove();
+            break;
+
+            // bulk delete all empty tabs (hard)
         case 'empty':
-            bulkDelete('empty');
-            setActiveTab();
+            bulkDeleteExcept('populated');
+          //  setActiveTab(getTabs()[0]);
             break;
 
-        // bulk delete all empty tabs but the one in the argument (hard)
+            // bulk delete all empty tabs but the one in the argument (hard)
         case 'others':
-            bulkDelete(tab);
+            bulkDeleteExcept(tab);
             setActiveTab(tab);
             break;
 
-        // bulk delete all tabs (hard)
+            // bulk delete all tabs (hard)
         case 'all':
-            bulkDelete();
+            bulkDeleteExcept();
             break;
     }
 }
@@ -267,8 +282,8 @@ const restore = () => {
     // fall back to the first one
     const entries = tabStore.values();
     const activeSet = entries.filter(e => !!e.active);
-    const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
-    
+    const activeTid = activeSet.length ? idHelper.toTid(activeSet[0]) : tabStore.keys()[0];
+
     for (let tabEntry of entries) {
         add({
             tabEntry
@@ -297,7 +312,7 @@ const init = _app => {
     // add a style property to the tab and store it
     app.on('singleStyleChange', e => {
         const tab = e.detail.tab || activeTab;
-        const tid = tabStore.toTid(tab);
+        const tid = idHelper.toTid(tab);
         const entry = tabStore.get(tid);
         entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
         entry.styles[e.detail.area][e.detail.name] = e.detail.value;
@@ -309,7 +324,7 @@ const init = _app => {
 
     // remove all styles from a tab, flaling back to the default setup
     app.on('styleReset', e => {
-        const tid = tabStore.toTid(e.detail.tab);
+        const tid = idHelper.toTid(e.detail.tab);
         tabStore.set(`${tid}.styles`, {});
         app.trigger('tabStyleChange', {
             tab: e.detail.tab,

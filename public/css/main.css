@@ -462,78 +462,6 @@ import-export:hover div{
       right:0;
     }
 
-@-webkit-keyframes axe-throw{
-  0%{
-    transform:translate(97.73%, 28.46%) rotate(0deg) scale(1);
-  }
-  10%{
-    transform:translate(90%, 50.77%) scale(1.2);
-  }
-  20%{
-    transform:translate(77.27%, 63.85%) scale(1.4);
-  }
-  30%{
-    transform:translate(62.27%, 73.08%) scale(1.6);
-  }
-  40%{
-    transform:translate(45.45%, 76.92%) scale(1.8);
-  }
-  50%{
-    transform:translate(29.55%, 70.77%) scale(2);
-  }
-  60%{
-    transform:translate(20.91%, 52.31%) scale(2.2);
-  }
-  70%{
-    transform:translate(26.82%, 29.23%) scale(2.4);
-  }
-  80%{
-    transform:translate(38.64%, 18.46%) scale(2.6);
-  }
-  90%{
-    transform:translate(49.55%, 27.69%) scale(2.8);
-  }
-  100%{
-    transform:translate(44.09%, 48.46%) rotate(360deg) scale(3);
-  }
-}
-
-@keyframes axe-throw{
-  0%{
-    transform:translate(97.73%, 28.46%) rotate(0deg) scale(1);
-  }
-  10%{
-    transform:translate(90%, 50.77%) scale(1.2);
-  }
-  20%{
-    transform:translate(77.27%, 63.85%) scale(1.4);
-  }
-  30%{
-    transform:translate(62.27%, 73.08%) scale(1.6);
-  }
-  40%{
-    transform:translate(45.45%, 76.92%) scale(1.8);
-  }
-  50%{
-    transform:translate(29.55%, 70.77%) scale(2);
-  }
-  60%{
-    transform:translate(20.91%, 52.31%) scale(2.2);
-  }
-  70%{
-    transform:translate(26.82%, 29.23%) scale(2.4);
-  }
-  80%{
-    transform:translate(38.64%, 18.46%) scale(2.6);
-  }
-  90%{
-    transform:translate(49.55%, 27.69%) scale(2.8);
-  }
-  100%{
-    transform:translate(44.09%, 48.46%) rotate(360deg) scale(3);
-  }
-}
-
 @-webkit-keyframes spin{
   100%{
     transform:rotate(-360deg);
@@ -596,17 +524,18 @@ file-upload input{
 file-upload .spinner{
     display:none;
     flex-direction:column;
-    border:1px red solid;
+    align-items:center;
     flex:2
   }
 
 file-upload .spinner svg{
-      overflow:visible;
       margin-top:3rem;
+      -webkit-animation:spin 1s infinite linear;
+              animation:spin 1s infinite linear;
       fill:hsl(15, 50%, 24%);
       fill:var(--bg-3-color);
-      width:10rem;
-      height:10rem;
+      width:5rem;
+      height:5rem;
       flex:2;
       display:block;
     }
@@ -861,6 +790,7 @@ tab-navi .adder{
     display:flex;
     align-items:center;
     font-size:1.3rem;
+    line-height:2.4;
     padding:0 1rem;
     margin-left:.5rem
   }
@@ -925,7 +855,17 @@ tab-handle .closer{
     border-radius:50%;
     height:1.8rem;
     width:1.8rem;
+    box-shadow:0 0 10px hsl(15, 50%, 28%);
+    box-shadow:0 0 10px var(--bg-4-color)
   }
+
+tab-handle:hover .closer{
+      display:flex
+    }
+
+tab-handle:hover .closer:hover{
+        background:hsla(0, 100%, 100%, 0.15);
+      }
 
 tab-handle.active{
     background:hsl(29, 33%, 34%)
@@ -935,12 +875,8 @@ tab-handle.active{
   }
 
 tab-handle.active .closer{
-      display:flex
+      display:flex;
     }
-
-tab-handle.active .closer:hover{
-        background:hsla(0, 100%, 100%, 0.15);
-      }
 
 tab-navi.overflown tab-handle:not(.active){
         min-width:0;
@@ -1102,9 +1038,6 @@ card-base .badge{
     max-width:calc(100% - 0.8rem);
   }
 
-card-base{
-}
-
 card-base.editable{
     width:100%
   }
@@ -1249,7 +1182,7 @@ card-toolbar{
   width:100%;
   padding:2rem;
   display:flex;
-  justify-content:flex-end;
+  justify-content:space-around;
   gap:1rem;
   opacity:0;
   align-items:center;
@@ -1264,7 +1197,7 @@ card-toolbar :focus{
     outline:0.1rem var(--hd-color) solid;
   }
 
-card-toolbar button[name="done"]{
+card-toolbar button[name="done"], card-toolbar .button[name="done"]{
       display:none;
     }
 
@@ -1290,11 +1223,11 @@ card-base:hover card-toolbar, card-base:focus card-toolbar, card-base:focus-with
       bottom:auto
     }
 
-[data-card-state="edit"] .editable card-toolbar button[name="done"]{
+[data-card-state="edit"] .editable card-toolbar button[name="done"], [data-card-state="edit"] .editable card-toolbar .button[name="done"]{
           display:flex;
         }
 
-[data-card-state="edit"] .editable card-toolbar button:not([name="done"]){
+[data-card-state="edit"] .editable card-toolbar button:not([name="done"]), [data-card-state="edit"] .editable card-toolbar .button:not([name="done"]){
           display:none;
         }
 

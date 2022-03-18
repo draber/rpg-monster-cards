@@ -13,6 +13,7 @@ import {
     sanitizeText
 } from '../../../modules/string/string.js';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
+import idHelper from '../../storage/id-helper.js';
 
 /**
  * Custom element containing the list of fonts
@@ -97,7 +98,7 @@ class TabHandle extends HTMLElement {
                     this.label.contentEditable = false;
                     this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
                     this.title = this.label.textContent.trim();
-                    tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                    tabStore.set(`${idHelper.toTid(this)}.title`, this.title);
                     e.detail.tab
                 },
                 // renaming via paste
@@ -113,7 +114,7 @@ class TabHandle extends HTMLElement {
                     }
                 },
                 // keyboard events
-                keydown: e => {
+                keyup: e => {
                     // enter ends renaming
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -136,18 +137,21 @@ class TabHandle extends HTMLElement {
          */
         this.on('pointerup', e => {
             // do nothing on right click
-            if (e.button > 1) {
+            if (e.button !== 0) {
                 return true;
             }
             // trigger soft delete on middle click and by clicking on the close button
-            if (e.button === 1 || e.target.isSameNode(this.closer)) {
+            if (e.target.isSameNode(this.closer)) {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 e.stopPropagation();
                 tabManager.handleRemoval(this, 'soft');
+                return false;
             } 
             // set tab active on left click
             else {
                 tabManager.setActiveTab(this);
+                return false;
             }
         })
 

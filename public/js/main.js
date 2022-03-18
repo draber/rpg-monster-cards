@@ -294,21 +294,6 @@
         }
         return current;
     };
-    const _entrySatisfies = conditions => {
-        for (let condition of conditions) {
-            if (!condition.fn(condition.value, condition.expected)) {
-                return false;
-            }
-        }
-        return true;
-    };
-    const _expandCondition = (key, condition, obj) => {
-        return {
-            value: _get(`${key}.${condition[0]}`, obj),
-            fn: getCmpFn(condition[1]),
-            expected: condition[2] || null
-        }
-    };
     class Tree {
         get length() {
             return this.keys().length;
@@ -351,36 +336,47 @@
                 current = current[token];
             }
             delete current[last];
+            this.save();
+            return this;
         }
         get(key) {
             return _get(key, this.obj);
         }
-        getClone(key){
+        getClone(key) {
             return deepClone(this.get(key))
         }
-        where(searchKey, cmpFn, expected = null){
+        has(key) {
+            return typeof this.get(key) !== 'undefined';
+        }
+        where(searchKey, cmpFn, expected = null) {
             return [searchKey, cmpFn, expected];
         }
-         object(...conditions) {
-            if (!conditions.length || !conditions[0].length) {
+        object(...conditions) {
+            conditions = conditions.filter(e => Array.isArray(e));
+            if (!conditions.length) {
                 return this.obj;
             }
             const result = {};
             for (let [key, entry] of Object.entries(this.obj)) {
-                if(_entrySatisfies(conditions.map(cond => _expandCondition(key, cond, this.obj)))){
-                    result[key] = entry;
-                }
+                conditions.forEach(condition => {
+                    const comperator = _get(`${key}.${condition[0]}`, this.obj);
+                    const expected = condition[2];
+                    const fn = getCmpFn(condition[1]);
+                    if (fn(comperator, expected)) {
+                        result[key] = entry;
+                    }
+                });
             }
             return result;
         }
         entries(...conditions) {
-            return Object.entries(this.object(conditions));
+            return Object.entries(this.object.apply(this, conditions));
         }
         values(...conditions) {
-            return Object.values(this.object(conditions));
+            return Object.values(this.object.apply(this, conditions));
         }
         keys(...conditions) {
-            return Object.keys(this.object(conditions));
+            return Object.keys(this.object.apply(this, conditions));
         }
         remove(...keys) {
             keys.forEach(key => {
@@ -400,14 +396,47 @@
         }
     }
 
-    class TabTree extends Tree {
-        toTid(tidData) {
-            const tid = tidData.tid || tidData;
-            if (isNaN(tid)) {
-                throw `${tid} is not a valid tab identifier`;
-            }
-            return parseInt(tid, 10);
+    class NumericTree extends Tree {
+        keys(...conditions) {
+            return super.keys.apply(this, conditions).map(e => parseInt(e));
         }
+        nextIncrement() {
+            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement - 1];
+            return Math.max(...keys) + 1;
+        }
+        constructor({
+            data = {},
+            minIncrement = 1,
+            lsKey
+        } = {}) {
+            super({
+                data,
+                lsKey
+            });
+            this.minIncrement = minIncrement;
+        }
+    }
+
+    const toCid = cidData => {
+        const cid = cidData.cid || cidData;
+        if (isNaN(cid)) {
+            throw `${cid} is not a valid character identifier`;
+        }
+        return parseInt(cid, 10);
+    };
+    const toTid = tidData => {
+        const tid = tidData.tid || tidData;
+        if (isNaN(tid)) {
+            throw `${tid} is not a valid tab identifier`;
+        }
+        return parseInt(tid, 10);
+    };
+    var idHelper = {
+        toCid,
+        toTid
+    };
+
+    class TabTree extends NumericTree {
         getBlank() {
             const tid = this.nextIncrement();
             return {
@@ -417,19 +446,17 @@
             }
         }
         remove(...tidData) {
-            super.remove(...tidData.map(e => this.toTid(e)));
-        }
-        nextIncrement() {
-            let keys = this.length ? this.keys().map(e => parseInt(e)) : [0];
-            return Math.max(...keys) + 1;
+            super.remove(...tidData.map(e => idHelper.toTid(e)));
         }
         constructor({
             data = {},
+            minIncrement = 1,
             lsKey
         } = {}) {
             super({
                 data,
-                lsKey
+                lsKey,
+                minIncrement
             });
         }
     }
@@ -845,21 +872,7 @@
         }
         return _labels;
     };
-    class CharTree extends Tree {
-        toCid(cidData) {
-            const cid = cidData.cid || cidData;
-            if (isNaN(cid)) {
-                throw `${cid} is not a valid character identifier`;
-            }
-            return parseInt(cid, 10);
-        }
-        toTid(tidData) {
-            const tid = tidData.tid || tidData;
-            if (isNaN(tid)) {
-                throw `${tid} is not a valid tab identifier`;
-            }
-            return parseInt(tid, 10);
-        }
+    class CharTree extends NumericTree {
         getBlank() {
             const props = {};
             Object.keys(labels$1).forEach(key => {
@@ -872,23 +885,41 @@
                 labels: getLabels()
             }
         }
-        nextIncrement() {
-            let keys = this.length ? this.keys().map(e => parseInt(e)) : [this.minIncrement];
-            return Math.max(...keys) + 1;
-        }
         remove(...cidData) {
-            super.remove(...cidData.map(e => this.toCid(e)));
+            super.remove(...cidData.map(e => idHelper.toCid(e)));
         }
         constructor({
             data = {},
-            minIncrement = 0,
+            minIncrement = 1,
+            lsKey
+        } = {}) {
+            super({
+                data,
+                lsKey,
+                minIncrement
+            });
+        }
+    }
+
+    class SystemPropTree extends Tree {
+        isDefault(key, value){
+            return this.has(key) && value === this.get(key)
+        }
+        set(){
+            console.error('System properties are readonly');
+            return false;
+        }
+        unset() {
+            return this.set()
+        }
+        constructor({
+            data = {},
             lsKey
         } = {}) {
             super({
                 data,
                 lsKey
             });
-            this.minIncrement = minIncrement;
         }
     }
 
@@ -921,7 +952,6 @@
     let systemStore;
     let cardStore;
     let copyStore;
-    let prefStore;
     let styleStore;
     let settings;
     let labelStore;
@@ -941,19 +971,15 @@
         cardStore = new CharTree({
             data: launchData.stored,
             lsKey: settings.get('storageKeys.cards'),
-            minIncrement: 3000
+            minIncrement: 3001
         });
         copyStore = new CharTree({
-            minIncrement: 6000
+            minIncrement: 6001
         });
-        prefStore = new Tree({
-            data: JSON.parse(localStorage.getItem(settings.get('storageKeys.user') || '{}')),
-            lsKey: settings.get('storageKeys.user')
-        });
-        styleStore = new Tree({
+        styleStore = new SystemPropTree({
             data: cssProps$1[':root']
         });
-        labelStore = new Tree({
+        labelStore = new SystemPropTree({
             data: labels$1
         });
     };
@@ -1119,10 +1145,10 @@
                     return character;
                 })());
             });
-            this.sortBy = prefStore.get('characters.sortBy') || this.sortBy || 'name';
-            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
-            this.sortDir = prefStore.get('characters.sortDir') || this.sortDir || 'asc';
-            this.groupDir = prefStore.get('characters.groupDir') || this.groupDir || 'asc';
+            this.sortBy = this.sortBy || 'name';
+            this.groupBy = this.groupBy || 'name';
+            this.sortDir = this.sortDir || 'asc';
+            this.groupDir = this.groupDir || 'asc';
             this.populate();
         }
         constructor(self) {
@@ -1164,12 +1190,11 @@
                 if (!li) {
                     return false;
                 }
-                prefStore.set('characters.groupBy', li.dataset.groupBy);
                 this.app.trigger('characterOrderChange', {
                     groupBy: li.dataset.groupBy
                 });
             });
-            this.groupBy = prefStore.get('characters.groupBy') || this.groupBy || 'name';
+            this.groupBy = this.groupBy || 'name';
             const icon = src.svg({
                 isSvg: true,
                 content: src.use({
@@ -1242,7 +1267,7 @@
         target = target || document.body;
         delete target.dataset[key];
     };
-    var properties = {
+    var domProps = {
         unset,
         get,
         set: set$1,
@@ -1259,7 +1284,7 @@
             });
             document.body.append(toast$1);
         }
-        properties.set('softDeleted', true, element);
+        domProps.set('softDeleted', true, element);
         const dialog = document.createElement('undo-dialog');
         dialog.element = element;
         if (label) {
@@ -1268,7 +1293,7 @@
         toast$1.append(dialog);
         return new Promise(resolve => {
             dialog.on('restore', e => {
-                properties.unset('softDeleted', element);
+                domProps.unset('softDeleted', element);
                 resolve({
                     action: 'restore',
                     element: e.detail.element
@@ -1292,7 +1317,7 @@
         cancel: cancel$1
     };
 
-    let app$1;
+    let app$2;
     let navi;
     let contentArea;
     let activeTab;
@@ -1301,14 +1326,14 @@
         src.$$('tab-handle', navi).forEach(tab => {
             tab.classList.remove('active');
             tab.panel.classList.remove('active');
-            tabStore.unset(`${tabStore.toTid(tab)}.active`);
+            tabStore.unset(`${idHelper.toTid(tab)}.active`);
             tab.removeAttribute('style');
         });
-        const tid = tabStore.toTid(activeTab);
+        const tid = idHelper.toTid(activeTab);
         activeTab.classList.add('active');
         activeTab.panel.classList.add('active');
         tabStore.set(`${tid}.active`, true);
-        app$1.trigger('tabStyleChange', {
+        app$2.trigger('tabStyleChange', {
             tab: activeTab,
             styles: tabStore.get(tid).styles
         });
@@ -1336,18 +1361,25 @@
         if (tabData instanceof customElements.get('tab-handle')) {
             return tabData
         }
-        return src.$(`tab-handle[tid="${tabStore.toTid(tabData)}"]`, navi);
+        return src.$(`tab-handle[tid="${idHelper.toTid(tabData)}"]`, navi);
     };
     const getTabs = exclude => {
         let tabs = Array.from(src.$$(`tab-handle`, navi));
-        switch (true) {
-            case exclude instanceof customElements.get('tab-handle'):
-                return tabs.filter(tab => !tab.isSameNode(exclude));
-            case exclude === 'empty':
-                return tabs.filter(tab => !src.$('card-base', tab));
-            default:
-                return tabs;
+        if (!exclude) {
+            return tabs
         }
+        if (exclude === 'populated') {
+            return tabs.filter(tab => !src.$('card-base', tab.panel));
+        }
+        if (exclude === 'soft-deleted') {
+            return tabs.filter(tab => !tab.dataset.softDeleted);
+        }
+        if (exclude.forEach) {
+            exclude = Array.from(exclude);
+        } else if (exclude instanceof customElements.get('tab-handle')) {
+            exclude = [exclude];
+        }
+        return tabs.filter(tab => !exclude.includes(tab));
     };
     const add$1 = ({
         tabEntry,
@@ -1370,81 +1402,74 @@
         else {
             src.$('.adder', navi).before(tab);
         }
-        tabStore.set(tabStore.toTid(tabEntry), tabEntry);
+        tabStore.set(idHelper.toTid(tabEntry), tabEntry);
         if (activate) {
             setActiveTab(tab);
         }
         return tab;
     };
-    const getUpcomingActiveTab = () => {
-        let tabs = Array.from(src.$$(`tab-handle:not([data-soft-deleted])`, navi));
-        if (!tabs.length) {
-            return add$1();
-        }
-        let activeIdx = Math.max(0, tabs.findIndex(e => e.isSameNode(activeTab)));
-        if (tabs[activeIdx + 1]) {
-            return tabs[activeIdx + 1];
-        }
-        if (tabs[activeIdx - 1]) {
-            return tabs[activeIdx - 1];
-        }
-        return add$1();
-    };
-    const bulkDelete = exclude => {
+    const bulkDeleteExcept = exclude => {
         softDelete$1.cancel();
-        getTabs(exclude).forEach(tab => {
+        let deletables = getTabs(exclude);
+        let deleteActive = !!deletables.find(tab => tab.classList.contains('active'));
+        let survivors = getTabs(deletables);
+        deletables.forEach(tab => {
             handleRemoval$1(tab, 'remove');
         });
-        if (!tabStore.length) {
+        if (!survivors.length) {
             add$1({
                 activate: true
             });
         }
+        else if (deleteActive) {
+            setActiveTab(getTabs()[0]);
+        }
     };
     const handleRemoval$1 = (tab, action) => {
+        tab = getTab(tab);
         switch (action) {
             case 'soft':
-                if (tab.isSameNode(activeTab)) {
-                    setActiveTab(getUpcomingActiveTab());
-                }
                 softDelete$1.initiate(tab, 'Tab ' + tab.title)
                     .then(data => {
                         handleRemoval$1(tab, data.action);
                     });
-                tabStore.set(`${tabStore.toTid(tab)}.softDeleted`, true);
-                break;
-            case 'restore':
-                tabStore.unset(`${tabStore.toTid(tab)}.softDeleted`);
-                break;
-            case 'remove':
-                app$1.trigger('tabDelete', {
-                    tab
-                });
-                tabStore.remove(tab);
-                tab.remove();
-                if (!tabStore.length) {
+                tabStore.set(`${idHelper.toTid(tab)}.softDeleted`, true);
+                if (!tabStore.values(['softDeleted', '!==', true]).length) {
                     add$1({
                         activate: true
                     });
                 }
+                if (tab.isSameNode(activeTab)) {
+                    setActiveTab(getTabs('soft-deleted')[0]);
+                }
+                break;
+            case 'restore':
+                tabStore.unset(`${idHelper.toTid(tab)}.softDeleted`);
+                break;
+            case 'remove':
+                app$2.trigger(
+                    'tabDelete',
+                    Array.from(src.$$('card-base', tab.panel)).map(card => idHelper.toCid(card))
+                );
+                tabStore.remove(tab);
+                tab.remove();
                 break;
             case 'empty':
-                bulkDelete('empty');
-                setActiveTab();
+                bulkDeleteExcept('populated');
                 break;
             case 'others':
-                bulkDelete(tab);
+                bulkDeleteExcept(tab);
                 setActiveTab(tab);
                 break;
             case 'all':
-                bulkDelete();
+                bulkDeleteExcept();
                 break;
         }
     };
     const restore = () => {
         const entries = tabStore.values();
         const activeSet = entries.filter(e => !!e.active);
-        const activeTid = activeSet.length ? tabStore.toTid(activeSet[0]) : tabStore.keys()[0];
+        const activeTid = activeSet.length ? idHelper.toTid(activeSet[0]) : tabStore.keys()[0];
         for (let tabEntry of entries) {
             add$1({
                 tabEntry
@@ -1453,13 +1478,13 @@
         setActiveTab(getTab(activeTid));
     };
     const init$3 = _app => {
-        app$1 = _app;
-        navi = src.$('tab-navi', app$1);
-        contentArea = src.$('tab-content', app$1);
+        app$2 = _app;
+        navi = src.$('tab-navi', app$2);
+        contentArea = src.$('tab-content', app$2);
         restore();
-        app$1.on('singleStyleChange', e => {
+        app$2.on('singleStyleChange', e => {
             const tab = e.detail.tab || activeTab;
-            const tid = tabStore.toTid(tab);
+            const tid = idHelper.toTid(tab);
             const entry = tabStore.get(tid);
             entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
             entry.styles[e.detail.area][e.detail.name] = e.detail.value;
@@ -1468,10 +1493,10 @@
                 tab.panel.style.setProperty(e.detail.name, e.detail.value);
             }
         });
-        app$1.on('styleReset', e => {
-            const tid = tabStore.toTid(e.detail.tab);
+        app$2.on('styleReset', e => {
+            const tid = idHelper.toTid(e.detail.tab);
             tabStore.set(`${tid}.styles`, {});
-            app$1.trigger('tabStyleChange', {
+            app$2.trigger('tabStyleChange', {
                 tab: e.detail.tab,
                 styles: {}
             });
@@ -1528,13 +1553,19 @@
 
     let firstRegistration = true;
     const getPosition = (e, menu) => {
+        if (!menu.isConnected) {
+            console.warn('The context menu needs to be attached to the DOM to calculate its position');
+        }
+        if (menu.offsetWidth === menu.offsetHeight === 0) {
+            console.warn('The context menu needs to be displayed to calculate its position');
+        }
         const menuXY = {
             x: menu.offsetWidth,
-            y: menu.offsetHeight
+            y: menu.offsetHeight,
         };
         const screenXY = {
-            x: screen.availWidth,
-            y: screen.availHeight
+            x: window.innerWidth,
+            y: window.innerHeight
         };
         const mouseXY = {
             x: e.pageX,
@@ -1555,12 +1586,12 @@
     }
     function offContextMenu(e) {
         const menu = document.querySelector('[data-type="context-menu"]:not([hidden])');
-        if(menu){
+        if (menu) {
             menu.hide();
         }
     }
     const init$2 = () => {
-        if(firstRegistration) {
+        if (firstRegistration) {
             document.addEventListener('pointerup', offContextMenu);
             firstRegistration = false;
         }
@@ -1575,14 +1606,14 @@
         owner.contextMenu = menu;
         menu.owner = owner;
         menu.show = e => {
-            Object.assign(menu.style, getPosition(e, menu));
             menu.removeAttribute('hidden');
-            if(!menu.isConnected){
+            if (!menu.isConnected) {
                 document.body.append(menu);
             }
+            Object.assign(menu.style, getPosition(e, menu));
         };
         menu.hide = () => {
-            menu.hidden =true;
+            menu.hidden = true;
         };
         owner.addEventListener('contextmenu', onContextMenu);
         return menu;
@@ -1704,7 +1735,7 @@
             });
             document.body.append(toast);
         }
-        properties.set('softDeleted', true, element);
+        domProps.set('softDeleted', true, element);
         const dialog = document.createElement('undo-dialog');
         dialog.element = element;
         if (label) {
@@ -1713,7 +1744,7 @@
         toast.append(dialog);
         return new Promise(resolve => {
             dialog.on('restore', e => {
-                properties.unset('softDeleted', element);
+                domProps.unset('softDeleted', element);
                 resolve({
                     action: 'restore',
                     element: e.detail.element
@@ -1737,20 +1768,23 @@
         cancel
     };
 
-    let app;
+    let app$1;
     const add = character => {
         let cid;
         let tid;
         let tab;
         if (character.tid) {
-            cid = cardStore.toCid(character);
+            cid = idHelper.toCid(character);
             tab = tabManager.getTab(character.tid);
-            tid = tabStore.toTid(tab);
-        }
-        else {
+            if (!tab) {
+                handleRemoval(character, 'remove');
+                return;
+            }
+            tid = idHelper.toTid(tab);
+        } else {
             cid = cardStore.nextIncrement();
             tab = tabManager.getTab('active');
-            tid = tabStore.toTid(tab);
+            tid = idHelper.toTid(tab);
         }
         character = {
             ...cardStore.getBlank(),
@@ -1767,8 +1801,8 @@
         card.character = character;
         tab.panel.append(card);
     };
-    const getCard = cidData =>{
-        return src.$(`[cid="${cardStore.toCid(cidData)}"]`);
+    const getCard = cidData => {
+        return src.$(`[cid="${idHelper.toCid(cidData)}"]`);
     };
     const restoreLastSession = () => {
         for (let character of cardStore.values()) {
@@ -1776,7 +1810,7 @@
         }
     };
     const handleRemoval = (card, action) => {
-        const cid = cardStore.toCid(card);
+        const cid = idHelper.toCid(card);
         switch (action) {
             case 'soft':
                 softDelete.initiate(card, cardStore.get(`${cid}.props.name`))
@@ -1790,18 +1824,20 @@
                 break;
             case 'remove':
                 cardStore.remove(card);
-                card.remove();
+                if (card instanceof HTMLElement) {
+                    card.remove();
+                }
                 break;
         }
     };
     const init$1 = _app => {
-        app = _app;
-        app.on('tabDelete', e => {
-            src.$$('card-base', e.detail.tab).forEach(card => {
+        app$1 = _app;
+        app$1.on('tabDelete', e => {
+            e.detail.forEach(card => {
                 handleRemoval(card, 'remove');
             });
         });
-        app.on('characterSelection', e => {
+        app$1.on('characterSelection', e => {
             add(e.detail);
         });
         restoreLastSession();
@@ -1816,17 +1852,17 @@
     const set = (card, mode) => {
         clear(card.app);
         card.classList.add(mode);
-        const original = cardStore.get(cardStore.toCid(card));
+        const original = cardStore.get(idHelper.toCid(card));
         const copy = {
             ...deepClone(original),
             ...{
                 mode
             }
         };
-        copy.originalCid = cardStore.toCid(original);
+        copy.originalCid = idHelper.toCid(original);
         copy.cid = copyStore.nextIncrement();
         copyStore.set(copy.cid, copy);
-        properties.set('cardStorage', true);
+        domProps.set('cardStorage', true);
     };
     const cut = card => {
         set(card, 'cut');
@@ -1835,20 +1871,18 @@
         set(card, 'copy');
     };
     const paste = tab => {
-        console.log(tab);
         copyStore.values().forEach(copy => {
-            copy.tid = tabStore.toTid(tab);
+            copy.tid = idHelper.toTid(tab);
             if (copy.mode === 'cut') {
                 cardManager.handleRemoval(cardManager.getCard(copy.originalCid), 'remove');
             }
             delete copy.originalCid;
             copy.cid = cardStore.nextIncrement();
-            console.log(copy.cid);
-            tab.app.trigger('characterSelection', copy);
+            cardManager.add(copy);
         });
         clear(tab.app);
         copyStore.flush();
-        properties.unset('cardStorage');
+        domProps.unset('cardStorage');
     };
     const clear = app => {
         const lastCopied = src.$('card-base.cut, card-base.copy', app);
@@ -1904,7 +1938,7 @@
                         this.label.contentEditable = false;
                         this.label.textContent = sanitizeText(this.label.textContent).substring(0, 30);
                         this.title = this.label.textContent.trim();
-                        tabStore.set(`${tabStore.toTid(this)}.title`, this.title);
+                        tabStore.set(`${idHelper.toTid(this)}.title`, this.title);
                         e.detail.tab;
                     },
                     paste: e => {
@@ -1916,7 +1950,7 @@
                             cardCopy.paste(tab);
                         }
                     },
-                    keydown: e => {
+                    keyup: e => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             this.label.blur();
@@ -1932,16 +1966,19 @@
                 }
             });
             this.on('pointerup', e => {
-                if (e.button > 1) {
+                if (e.button !== 0) {
                     return true;
                 }
-                if (e.button === 1 || e.target.isSameNode(this.closer)) {
+                if (e.target.isSameNode(this.closer)) {
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     e.stopPropagation();
                     tabManager.handleRemoval(this, 'soft');
+                    return false;
                 }
                 else {
                     tabManager.setActiveTab(this);
+                    return false;
                 }
             });
             this.on('dblclick', () => {
@@ -2023,21 +2060,19 @@
         tidData
     } = {}) => {
         if (cidData) {
-            let card = cardStore.get(cidData);
-            let tab = tabStore.get(card);
+            let cid = idHelper.toCid(cidData);
+            let card = cardStore.get(cid);
+            let tid = idHelper.toTid(card);
+            let tab = tabStore.get(tid);
             return {
-                tabs: {
-                    [tabStore.toTid(tab)]: [tab].map(removeActiveKey)
-                },
-                cards: {
-                    [cardStore.toCid(card)]: [card]
-                }
+                tabs: [tab].map(removeActiveKey),
+                cards: [card]
             }
         }
         if (tidData) {
             return {
-                cards: cardStore.values(['tid', '===', cardStore.toTid(tidData)]),
-                tabs: tabStore.values(['tid', '===', tabStore.toTid(tidData)]).map(removeActiveKey)
+                cards: cardStore.values(['tid', '===', idHelper.toTid(tidData)]),
+                tabs: tabStore.values(['tid', '===', idHelper.toTid(tidData)]).map(removeActiveKey)
             }
         }
         return {
@@ -2065,9 +2100,92 @@
         getUrl
     };
 
+    let dropArea;
+    let app;
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    function handleUploads(files) {
+        processFiles([...files]);
+    }
+    function handleDrop$1(e) {
+        processFiles(e.dataTransfer.files);
+    }
+    function processFiles(files) {
+        domProps.set('importState', 'working');
+        files = Array.from(files).filter(file => !!file);
+        const finished = [];
+        for (let file of files) {
+            finished.push(new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            }));
+        }
+        Promise.all(finished).then(data => {
+            app.trigger('uploadComplete', {
+                data,
+                tid: dropArea.tid,
+            });
+        }).catch(error => {
+            console.error(error);
+        });
+    }
+    function highlight(e) {
+        e.target.classList.add('active');
+    }
+    function unhighlight(e) {
+        e.target.classList.remove('active');
+    }
+    const assignEvents = () => {
+        const evt1 = ['dragenter', 'dragover'];
+        const evt2 = ['dragleave', 'drop'];
+        evt1.concat(evt2).forEach(evt => {
+            dropArea.addEventListener(evt, preventDefaults, false);
+            document.body.addEventListener(evt, preventDefaults, false);
+        });
+        evt1.forEach(evt => {
+            dropArea.addEventListener(evt, highlight, false);
+        });
+        evt2.forEach(evt => {
+            dropArea.addEventListener(evt, unhighlight, false);
+        });
+        dropArea.addEventListener('drop', handleDrop$1, false);
+    };
+    const getDropArea = app => {
+        let dropArea = src.$('file-upload');
+        if (!dropArea) {
+            dropArea = document.createElement('file-upload');
+            app.after(dropArea);
+        }
+        return dropArea;
+    };
+    const init = (_app, tid) => {
+        app = _app;
+        let currentState = domProps.get('importState');
+        if (!currentState) {
+            domProps.set('importState', 'pristine');
+        } else if (currentState === 'pristine') {
+            domProps.unset('importState');
+        }
+        dropArea = getDropArea(app);
+        delete dropArea.tid;
+        if (tid) {
+            dropArea.tid = tid;
+        }
+        assignEvents();
+    };
+    var uploader = {
+        init,
+        handleUploads
+    };
+
     class TabMenu extends HTMLElement {
         connectedCallback() {
             const tab = tabManager.getTab(this.owner);
+            const tid = idHelper.toTid(tab);
             const menu = src.ul({
                 content: [
                     src.li({
@@ -2078,7 +2196,7 @@
                                     return true;
                                 }
                                 this.app.styleStorage = tab.styles;
-                                properties.set('styleStorage', true);
+                                domProps.set('styleStorage', true);
                             }
                         },
                     }),
@@ -2138,7 +2256,6 @@
                                     }
                                     const fileName = exporter.getFileName();
                                     e.target.download = fileName;
-                                    console.log(fileName);
                                     e.target.href = exporter.getUrl(fileName, {
                                         tidData: tab
                                     });
@@ -2146,6 +2263,19 @@
                                         e.target.download = '';
                                         URL.revokeObjectURL(e.target.href);
                                     }, 200);
+                                }
+                            }
+                        })
+                    }),
+                    src.li({
+                        content: src.a({
+                            content: 'Import cards into this tab',
+                            events: {
+                                pointerup: e => {
+                                    if (e.button !== 0) {
+                                        return true;
+                                    }
+                                    uploader.init(this.app, tid);
                                 }
                             }
                         })
@@ -3049,11 +3179,11 @@
                 cardManager.handleRemoval(this, 'soft');
             });
             this.on('characterEdit', function (e) {
-                properties.set('cardState', 'edit');
+                domProps.set('cardState', 'edit');
                 this.classList.add('editable');
             });
             this.on('characterDone', function (e) {
-                properties.unset('cardState');
+                domProps.unset('cardState');
                 this.classList.remove('editable');
             });
             this.on('keyup', e => {
@@ -3102,7 +3232,7 @@
     function handleDragLeave(e) {
         this.classList.remove('dragover');
     }
-    function handleDrop$1(e) {
+    function handleDrop(e) {
         e.stopPropagation();
         if (!dragSrcEl.isSameNode(this)) {
             this.after(dragSrcEl);
@@ -3119,7 +3249,7 @@
         dragenter: handleDragEnter,
         dragover: handleDragOver,
         dragleave: handleDragLeave,
-        drop: handleDrop$1,
+        drop: handleDrop,
         dragend: handleDragEnd,
     };
     function toggle(elem, state) {
@@ -3322,8 +3452,8 @@
                         const row = trigger.closest('[data-key]');
                         const key = row.dataset.key;
                         const field = trigger.dataset.type;
-                        properties.toggle(field, row);
-                        const value = properties.get(field, row);
+                        domProps.toggle(field, row);
+                        const value = domProps.get(field, row);
                         this.card.trigger('visibilityChange', {
                             field,
                             key,
@@ -3406,20 +3536,33 @@
                     name: 'done'
                 },
                 content: [
-                    'Done',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-quill'
-                            }
-                        })
-                    })
+                    'Done'
                 ],
                 events: {
                     pointerup: e => {
                         this.card.trigger('characterDone');
+                    }
+                }
+            });
+            const exportBtn = src.a({
+                classNames: ['button'],
+                content: [
+                    'Export'
+                ],
+                events: {
+                    pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
+                        const fileName = exporter.getFileName();
+                        e.target.download = fileName;
+                        e.target.href = exporter.getUrl(fileName, {
+                            cidData: this.card
+                        });
+                        setTimeout(() => {
+                            e.target.download = '';
+                            URL.revokeObjectURL(e.target.href);
+                        }, 200);
                     }
                 }
             });
@@ -3428,19 +3571,13 @@
                     type: 'button'
                 },
                 content: [
-                    'Cut',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-scissors'
-                            }
-                        })
-                    })
+                    'Cut'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterCut');
                     }
                 }
@@ -3450,19 +3587,13 @@
                     type: 'button'
                 },
                 content: [
-                    'Copy',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-copy'
-                            }
-                        })
-                    })
+                    'Copy'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterCopy');
                     }
                 }
@@ -3472,19 +3603,13 @@
                     type: 'button'
                 },
                 content: [
-                    'Delete',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-axe'
-                            }
-                        })
-                    })
+                    'Delete'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterRemove');
                     }
                 }
@@ -3494,24 +3619,18 @@
                     type: 'button'
                 },
                 content: [
-                    'Edit',
-                    src.svg({
-                        isSvg: true,
-                        content: src.use({
-                            isSvg: true,
-                            attributes: {
-                                href: 'media/icons.svg#icon-quill'
-                            }
-                        })
-                    })
+                    'Edit'
                 ],
                 events: {
                     pointerup: e => {
+                        if (e.button !== 0) {
+                            return true;
+                        }
                         this.card.trigger('characterEdit');
                     }
                 }
             });
-            this.append(doneBtn, deleteBtn, cutBtn, copyBtn, editBtn);
+            this.append(doneBtn, deleteBtn, exportBtn, cutBtn, copyBtn, editBtn);
         }
         constructor(self) {
             self = super(self);
@@ -3709,21 +3828,19 @@
                         },
                         content: 'Import cards',
                         events: {
-                            click: e => {
-                                let currentState = properties.get('importState');
-                                if (!currentState) {
-                                    properties.set('importState', 'pristine');
-                                } else if (currentState === 'pristine') {
-                                    properties.unset('importState');
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
                                 }
+                                uploader.init(this.app);
                             }
                         }
                     })
                 ]
             });
             document.addEventListener('keyup', e => {
-                if (e.key === 'Escape' && properties.get('importState') === 'pristine') {
-                    properties.unset('importState');
+                if (e.key === 'Escape' && domProps.get('importState') === 'pristine') {
+                    domProps.unset('importState');
                 }
             });
             this.append(listing);
@@ -3735,7 +3852,8 @@
             return self;
         }
     }
-    const register$1 = () => {
+    const register$1 = app => {
+        ImportExport.prototype.app = app;
         customElements.get('import-export') || customElements['define']('import-export', ImportExport);
     };
     var ImportExport$1 = {
@@ -3744,151 +3862,104 @@
 
     let cardQuarantine;
     let tabQuarantine;
-    const sanitizeObject = (base, uploaded) => {
+    const sanitizeObject = (modelData, uploadedData) => {
         const sanitized = {};
-        Object.keys(base).forEach(key => {
-            sanitized[key] = sanitizeText(uploaded[key]);
+        Object.keys(modelData).forEach(key => {
+            sanitized[key] = uploadedData[key];
         });
         return sanitized;
     };
-    const quarantineCards = cards => {
-        cards.forEach(card => {
+    const quarantineCards = uploadedCards => {
+        uploadedCards.forEach(card => {
             const model = cardQuarantine.getBlank();
-            ['props', 'labels', 'visibility'].forEach(key => {
-                if (!card[key]) {
-                    delete model[key];
-                } else {
-                    model[key] = sanitizeObject(model[key], card[key]);
-                }
+            model.originalTid = idHelper.toTid(card.tid);
+            ['props', 'labels', 'visibility'].forEach(type => {
+                model[type] = sanitizeObject(model[type], card[type]);
             });
-            model.cid = cardQuarantine.nextIncrement();
-            tabQuarantine.set(model.cid, model);
+            cardQuarantine.set(model.cid, model);
         });
     };
-    const quarantineTabs = tabs => {
-        tabs.forEach(tab => {
+    const quarantineTabs = uploadedTabs => {
+        uploadedTabs.forEach(tab => {
             const model = tabQuarantine.getBlank();
-            if (!tab.styles) {
-                delete model.styles;
-            } else {
-                model.styles = sanitizeObject(model.styles, tab.styles);
-            }
+            model.originalTid = tab.tid;
+            model.styles = sanitizeObject(model.styles, (tab.styles || {}));
             if (!(/^[CDILMVX]+$/.test(tab.title))) {
                 model.title = tab.title;
             }
-            for (let [cid, card] of cardQuarantine.entries()) {
-                if (cardQuarantine.toTid(card) === tabQuarantine.toTid(tab)) {
-                    cardQuarantine.set(`${cid}.tid`, model.tid);
-                }
-            }
-            cardQuarantine.set(model.tid, model);
+            tabQuarantine.set(model.tid, model);
         });
+    };
+    const updateCardTids = (tab, tid) => {
+        const condition = !tid ? ['originalTid', '===', idHelper.toTid(tab.originalTid)] : undefined;
+        for (let [cid, card] of cardQuarantine.entries(condition)) {
+            delete card.originalTid;
+            card.tid = tid || idHelper.toTid(tab);
+            cardQuarantine.set(cid, card);
+        }
+        if (!tid) {
+            tabQuarantine.unset(`${tab.tid}.originalTid`);
+        }
     };
     const structureIsValid = data => {
         const keys = Object.keys(data);
         return keys.includes('tabs') &&
             keys.includes('cards') &&
             Array.isArray(data.tabs) &&
-            Array.isArray(data.cards)
+            Array.isArray(data.cards) &&
+            data.tabs.length &&
+            data.cards.length
     };
-    const process = dataArr => {
-        if (!tabQuarantine) {
-            tabQuarantine = new TabTree({
-                data: {},
-                minIncrement: tabStore.nextIncrement()
-            });
-        }
-        if (!cardQuarantine) {
-            cardQuarantine = new CharTree({
-                data: {},
-                minIncrement: cardStore.nextIncrement()
-            });
-        }
+    const process = (dataArr, tid) => {
         dataArr = dataArr.map(e => JSON.parse(e));
-        dataArr.forEach(data => {
-            if (!structureIsValid(data)) {
-                console.error(`Invalid import data`);
+        for (let i = 0; i < dataArr.length; i++) {
+            if (!structureIsValid(dataArr[i])) {
+                dataArr.splice(i, 1);
+                console.error(`Invalid import data discarded`);
             }
-            quarantineCards(data.cards);
-            quarantineTabs(data.tabs);
-            tabQuarantine.values().forEach(tab => {
-                tabManager.add(tab);
-            });
+        }
+        if (!dataArr.length) {
+            console.error(`No valid import data found, aborting`);
+            domProps.unset('importState');
+            return false;
+        }
+        cardQuarantine = new CharTree({
+            data: {},
+            minIncrement: cardStore.nextIncrement()
+        });
+        tabQuarantine = new TabTree({
+            data: {},
+            minIncrement: tabStore.nextIncrement()
+        });
+        let tabs = [];
+        dataArr.forEach(data => {
+            if (tid) {
+                data.cards.map(card => {
+                    card.tid = tid;
+                    return card;
+                });
+                quarantineCards(data.cards);
+                updateCardTids(tabStore.get(tid), tid);
+                tabs.push(tabManager.getTab(tid));
+            }
+            else {
+                quarantineCards(data.cards);
+                quarantineTabs(data.tabs);
+                tabQuarantine.values().forEach(tab => {
+                    updateCardTids(tab);
+                    tab = tabManager.add(tab);
+                    tabs.push(tab);
+                });
+            }
             cardQuarantine.values().forEach(card => {
                 cardManager.add(card);
             });
-            cardQuarantine.flush();
-            tabQuarantine.flush();
-            properties.unset('importState');
+            domProps.unset('importState');
         });
+        return tabs;
     };
     var importer = {
         process
-    };
-
-    let dropArea;
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    function handleUploads(files) {
-        processFiles([...files]);
-    }
-    function handleDrop(e) {
-        processFiles(e.dataTransfer.files);
-    }
-    function processFiles(files) {
-        properties.set('importState', 'working');
-        files = Array.from(files).filter(file => !!file);
-        const finished = [];
-        for (let file of files) {
-            finished.push(new Promise((resolve, reject) => {
-                let reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsText(file);
-            }));
-        }
-        Promise.all(finished).then(data => {
-            dropArea.dispatchEvent(
-                new CustomEvent(
-                    'uploadComplete', {
-                        detail: data
-                    }
-                )
-            );
-        }).catch(error => {
-            console.error(error.message);
-        });
-    }
-    function highlight(e) {
-        e.target.classList.add('active');
-    }
-    function unhighlight(e) {
-        e.target.classList.remove('active');
-    }
-    const assignEvents = () => {
-        const evt1 = ['dragenter', 'dragover'];
-        const evt2 = ['dragleave', 'drop'];
-        evt1.concat(evt2).forEach(evt => {
-            dropArea.addEventListener(evt, preventDefaults, false);
-            document.body.addEventListener(evt, preventDefaults, false);
-        });
-        evt1.forEach(evt => {
-            dropArea.addEventListener(evt, highlight, false);
-        });
-        evt2.forEach(evt => {
-            dropArea.addEventListener(evt, unhighlight, false);
-        });
-        dropArea.addEventListener('drop', handleDrop, false);
-    };
-    const init = _dropArea => {
-        dropArea = _dropArea;
-        assignEvents();
-    };
-    var uploader = {
-        init,
-        handleUploads
     };
 
     class FileUpload extends HTMLElement {
@@ -3905,7 +3976,7 @@
                     })
                 })
             });
-            const label = src.label({
+            const field = src.label({
                 content: [
                     src.span({
                         classNames: ['button'],
@@ -3920,6 +3991,7 @@
                         events: {
                             change: e => {
                                 uploader.handleUploads(e.target.files);
+                                e.target.value = '';
                             }
                         }
                     })
@@ -3928,16 +4000,16 @@
             const uploadForm = src.form({
                 content: [
                     src.p({
-                        content: ['Drop or ', label, ' your Ghastly Creatures files']
+                        content: ['Drop or ', field, ' your Ghastly Creatures files']
                     })
-                ],
-                events: {
-                    uploadComplete: e => {
-                        importer.process(e.detail);
-                    }
+                ]
+            });
+            this.app.on('uploadComplete', e => {
+                let tabs = importer.process(e.detail.data, e.detail.tid);
+                if (tabs.length) {
+                    tabManager.setActiveTab(tabs[0]);
                 }
             });
-            uploader.init(uploadForm);
             this.append(uploadForm, spinner);
         }
         constructor(self) {
@@ -3947,7 +4019,8 @@
             return self;
         }
     }
-    const register = () => {
+    const register = app => {
+        FileUpload.prototype.app = app;
         customElements.get('file-upload') || customElements['define']('file-upload', FileUpload);
     };
     var FileUpload$1 = {

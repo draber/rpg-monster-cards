@@ -3,6 +3,7 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js'
+import exporter from '../../../modules/import-export/exporter.js'
 
 /**
  * Custom element containing the list of fonts
@@ -20,20 +21,35 @@ class CardToolbar extends HTMLElement {
                 name: 'done'
             },
             content: [
-                'Done',
-                fn.svg({
-                    isSvg: true,
-                    content: fn.use({
-                        isSvg: true,
-                        attributes: {
-                            href: 'media/icons.svg#icon-quill'
-                        }
-                    })
-                })
+                'Done'
             ],
             events: {
                 pointerup: e => {
                     this.card.trigger('characterDone');
+                }
+            }
+        });
+
+        const exportBtn = fn.a({
+            classNames: ['button'],
+            content: [
+                'Export'
+            ],
+            events: {
+                pointerup: e => {
+                    if (e.button !== 0) {
+                        return true;
+                    }                    
+                    const fileName = exporter.getFileName();
+                    e.target.download = fileName;
+                    e.target.href = exporter.getUrl(fileName, {
+                        cidData: this.card
+                    });
+
+                    setTimeout(() => {
+                        e.target.download = '';
+                        URL.revokeObjectURL(e.target.href);
+                    }, 200)
                 }
             }
         });
@@ -43,19 +59,13 @@ class CardToolbar extends HTMLElement {
                 type: 'button'
             },
             content: [
-                'Cut',
-                fn.svg({
-                    isSvg: true,
-                    content: fn.use({
-                        isSvg: true,
-                        attributes: {
-                            href: 'media/icons.svg#icon-scissors'
-                        }
-                    })
-                })
+                'Cut'
             ],
             events: {
                 pointerup: e => {
+                    if (e.button !== 0) {
+                        return true;
+                    }
                     this.card.trigger('characterCut');
                 }
             }
@@ -66,19 +76,13 @@ class CardToolbar extends HTMLElement {
                 type: 'button'
             },
             content: [
-                'Copy',
-                fn.svg({
-                    isSvg: true,
-                    content: fn.use({
-                        isSvg: true,
-                        attributes: {
-                            href: 'media/icons.svg#icon-copy'
-                        }
-                    })
-                })
+                'Copy'
             ],
             events: {
                 pointerup: e => {
+                    if (e.button !== 0) {
+                        return true;
+                    }
                     this.card.trigger('characterCopy');
                 }
             }
@@ -89,19 +93,13 @@ class CardToolbar extends HTMLElement {
                 type: 'button'
             },
             content: [
-                'Delete',
-                fn.svg({
-                    isSvg: true,
-                    content: fn.use({
-                        isSvg: true,
-                        attributes: {
-                            href: 'media/icons.svg#icon-axe'
-                        }
-                    })
-                })
+                'Delete'
             ],
             events: {
                 pointerup: e => {
+                    if (e.button !== 0) {
+                        return true;
+                    }
                     this.card.trigger('characterRemove');
                 }
             }
@@ -112,25 +110,19 @@ class CardToolbar extends HTMLElement {
                 type: 'button'
             },
             content: [
-                'Edit',
-                fn.svg({
-                    isSvg: true,
-                    content: fn.use({
-                        isSvg: true,
-                        attributes: {
-                            href: 'media/icons.svg#icon-quill'
-                        }
-                    })
-                })
+                'Edit'
             ],
             events: {
                 pointerup: e => {
+                    if (e.button !== 0) {
+                        return true;
+                    }
                     this.card.trigger('characterEdit');
                 }
             }
         });
 
-        this.append(doneBtn, deleteBtn, cutBtn, copyBtn, editBtn);
+        this.append(doneBtn, deleteBtn, exportBtn, cutBtn, copyBtn, editBtn);
     }
 
     constructor(self) {

@@ -1,8 +1,10 @@
 import exporter from '../../../modules/import-export/exporter.js'
 import tabManager from './tab-manager.js';
-import properties from '../../../modules/properties/properties.js';
+import domProps from '../../../modules/dom-props/dom-props.js';
 import fn from 'fancy-node';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
+import uploader from '../../../modules/import-export/uploader.js';
+import idHelper from '../../storage/id-helper.js';
 
 
 /**
@@ -17,6 +19,7 @@ class TabMenu extends HTMLElement {
 
         // handle for this tab
         const tab = tabManager.getTab(this.owner);
+        const tid = idHelper.toTid(tab);
 
         // context menu
         const menu = fn.ul({
@@ -30,7 +33,7 @@ class TabMenu extends HTMLElement {
                                 return true;
                             }
                             this.app.styleStorage = tab.styles;
-                            properties.set('styleStorage', true);
+                            domProps.set('styleStorage', true);
                         }
                     },
                 }),
@@ -84,7 +87,7 @@ class TabMenu extends HTMLElement {
                         }
                     },
                 }),
-                // export the cards in this tab
+                // export the cards from this tab
                 fn.li({
                     content: fn.a({
                         content: 'Export cards from this tab',
@@ -95,7 +98,6 @@ class TabMenu extends HTMLElement {
                                 }
                                 const fileName = exporter.getFileName();
                                 e.target.download = fileName;
-                                console.log(fileName)
                                 e.target.href = exporter.getUrl(fileName, {
                                     tidData: tab
                                 });
@@ -104,6 +106,20 @@ class TabMenu extends HTMLElement {
                                     e.target.download = '';
                                     URL.revokeObjectURL(e.target.href);
                                 }, 200)
+                            }
+                        }
+                    })                    
+                }),
+                // Import cards into this tab
+                fn.li({
+                    content: fn.a({
+                        content: 'Import cards into this tab',                        
+                        events: {
+                            pointerup: e => {
+                                if (e.button !== 0) {
+                                    return true;
+                                }
+                                uploader.init(this.app, tid);
                             }
                         }
                     })                    

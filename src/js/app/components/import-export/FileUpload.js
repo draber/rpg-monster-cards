@@ -5,6 +5,7 @@ import {
 } from '../../../modules/events/eventHandler.js';
 import importer from '../../../modules/import-export/importer.js';
 import uploader from '../../../modules/import-export/uploader.js';
+import tabManager from '../tabs/tab-manager.js';
 
 
 /**
@@ -30,7 +31,7 @@ class FileUpload extends HTMLElement {
             })
         })
 
-        const label = fn.label({
+        const field = fn.label({
             content: [
                 fn.span({
                     classNames: ['button'],
@@ -44,7 +45,8 @@ class FileUpload extends HTMLElement {
                     },
                     events: {
                         change: e => {
-                            uploader.handleUploads(e.target.files)
+                            uploader.handleUploads(e.target.files);
+                            e.target.value = '';
                         }
                     }
                 })
@@ -54,17 +56,19 @@ class FileUpload extends HTMLElement {
         const uploadForm = fn.form({
             content: [
                 fn.p({
-                    content: ['Drop or ', label, ' your Ghastly Creatures files']
-                })                
-            ],
-            events: {
-                uploadComplete: e => {
-                    importer.process(e.detail);
-                }
-            }
+                    content: ['Drop or ', field, ' your Ghastly Creatures files']
+                })
+            ]
         })
 
-        uploader.init(uploadForm);
+        this.app.on('uploadComplete', e => {
+
+            let tabs = importer.process(e.detail.data, e.detail.tid)
+
+            if (tabs.length) {
+                tabManager.setActiveTab(tabs[0]);
+            }
+        })
 
         this.append(uploadForm, spinner);
     }
@@ -79,7 +83,8 @@ class FileUpload extends HTMLElement {
 /**
  * Register the element type to the DOM
  */
-const register = () => {
+const register = app => {
+    FileUpload.prototype.app = app;
     customElements.get('file-upload') || customElements['define']('file-upload', FileUpload)
 }
 
