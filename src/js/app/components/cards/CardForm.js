@@ -47,6 +47,11 @@ class CardForm extends HTMLElement {
         })
     }
 
+    /**
+     * Build table rows
+     * @param {String} key 
+     * @returns 
+     */
     buildRow(key) {
         const content = this.buildCells(key);
         const row = fn.tr({
@@ -75,6 +80,11 @@ class CardForm extends HTMLElement {
         return row;
     }
 
+    /**
+     * Build table cells
+     * @param {String} key 
+     * @returns 
+     */
     buildCells(key) {
 
         // content editing interferes with drag and drop
@@ -142,7 +152,7 @@ class CardForm extends HTMLElement {
         for (let key of Object.keys(cardStore.get(`${this.card.cid}.fields`)).filter(e => !['img', 'name'].includes(e))) {
             this.tbody.append(this.buildRow(key));
         }
-    }    
+    }
 
 
 
@@ -174,7 +184,7 @@ class CardForm extends HTMLElement {
                             },
                             content: [
                                 fn.th({
-                                    content: cardHelper.getValue(this.card, 'img', 'label', 'txt', 'long') 
+                                    content: cardHelper.getValue(this.card, 'img', 'label', 'txt', 'long')
                                 }),
                                 fn.td({
                                     attributes: {
