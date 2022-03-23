@@ -1,0 +1,19 @@
+{
+  "css": {
+    "entryPoint": "src/css/main.css",
+    "public": "public/css/main.css"
+  },
+  "presets":{
+    "target": "public/js/presets.json",
+    "url": "js/presets.json"
+  },
+  "js": {
+    "entryPoint": "src/js/app/main.js",
+    "public": "public/js/main.js"
+  },
+  "characters": {
+    "src": "src/data/raw/monsters.json",
+    "target": "public/js/characters.json",
+    "url": "js/characters.json"
+  }
+}

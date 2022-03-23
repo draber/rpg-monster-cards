@@ -12,13 +12,6 @@ name:
     group: true         # display this element on 'Group by', default: false
   key: name             # the key for this element, default: the actual key, e.g. 'name'
 
-# this is a special field to label the group of user built items in the library
-__user:
-  labels:
-    long: Your Creatures
-  visibility:
-    group: false  
-
 # back to regular fields
 img:
   labels:
@@ -152,12 +145,14 @@ skills:
     short: Skills
   visibility:
     group: true
+    card: false   
 feats:
   labels:
     long: Feats
     short: Feats
   visibility:
     group: true
+    card: false   
 environment:
   labels:
     long: Environment

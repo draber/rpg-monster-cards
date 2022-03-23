@@ -206,7 +206,7 @@ class Tree {
 
     constructor({
         data = {},
-        lsKey
+        lsKey = false
     } = {}) {
         this.obj = data;
         this.lsKey = lsKey;

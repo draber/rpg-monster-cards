@@ -1,0 +1,6 @@
+{
+  "storageKeys": {
+    "cards": "gc-cards",
+    "tabs": "gc-tabs"
+  }
+}

@@ -1,8 +1,4 @@
 {
-  "css": {
-    "entryPoint": "src/css/main.css",
-    "public": "public/css/main.css"
-  },
   "cssProps": {
     "src": "src/css/inc/card-defs.css",
     "target": "src/data/css-props.json"
@@ -19,11 +15,6 @@
     "src": "public/media/patterns/borders",
     "target": "src/data/borders.json"
   },
-  "characters": {
-    "src": "src/data/raw/monsters.json",
-    "target": "public/js/characters.json",
-    "url": "js/characters.json"
-  },
   "fields": {
     "src": "src/config/field-config.yml"
   },
@@ -32,17 +23,5 @@
   },
   "visibility": {
     "target": "src/data/visibility.json"
-  },  
-  "js": {
-    "entryPoint": "src/js/app/main.js",
-    "public": "public/js/main.js"
-  },
-  "storageKeys": {
-    "user": "gc-user-prefs",
-    "cards": "gc-cards",
-    "tabs": "gc-tabs"
-  },
-  "userCharacters": {
-    "inLibrary": true
   }
 }

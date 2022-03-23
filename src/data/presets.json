@@ -1,0 +1,696 @@
+{
+	"fonts": [
+		{
+			"label": "Almendra",
+			"id": "almendra",
+			"family": "'Almendra', serif"
+		},
+		{
+			"label": "Aubrey",
+			"id": "aubrey",
+			"family": "'Aubrey', cursive"
+		},
+		{
+			"label": "Caudex",
+			"id": "caudex",
+			"family": "'Caudex', serif"
+		},
+		{
+			"label": "Della Respira",
+			"id": "della-respira",
+			"family": "'Della Respira', serif"
+		},
+		{
+			"label": "Federant",
+			"id": "federant",
+			"family": "'Federant', cursive"
+		},
+		{
+			"label": "Federo",
+			"id": "federo",
+			"family": "'Federo', sans-serif"
+		},
+		{
+			"label": "Fondamento",
+			"id": "fondamento",
+			"family": "'Fondamento', cursive"
+		},
+		{
+			"label": "Grenze Gotisch",
+			"id": "grenze-gotisch",
+			"family": "'Grenze Gotisch', cursive"
+		},
+		{
+			"label": "Grenze",
+			"id": "grenze",
+			"family": "'Grenze', serif"
+		},
+		{
+			"label": "IM Fell English",
+			"id": "i-m-fell-english",
+			"family": "'IM Fell English', serif"
+		},
+		{
+			"label": "Luxurious Roman",
+			"id": "luxurious-roman",
+			"family": "'Luxurious Roman', cursive"
+		},
+		{
+			"label": "Macondo",
+			"id": "macondo",
+			"family": "'Macondo', cursive"
+		},
+		{
+			"label": "Medieval Sharp",
+			"id": "medieval-sharp",
+			"family": "'MedievalSharp', cursive"
+		},
+		{
+			"label": "Metamorphous",
+			"id": "metamorphous",
+			"family": "'Metamorphous', cursive"
+		},
+		{
+			"label": "Modern Antiqua",
+			"id": "modern-antiqua",
+			"family": "'Modern Antiqua', cursive"
+		},
+		{
+			"label": "Nova Cut",
+			"id": "nova-cut",
+			"family": "'Nova Cut', cursive"
+		},
+		{
+			"label": "Uncial Antiqua",
+			"id": "uncial-antiqua",
+			"family": "'Uncial Antiqua', cursive"
+		},
+		{
+			"label": "Unifraktur Maguntia",
+			"id": "unifraktur-maguntia",
+			"family": "'UnifrakturMaguntia', cursive"
+		}
+	],
+	"backgrounds": [
+		{
+			"label": "Dark Ice Age",
+			"id": "dark-ice-age",
+			"name": "dark-ice-age.png"
+		},
+		{
+			"label": "Dark Redox",
+			"id": "dark-redox",
+			"name": "dark-redox.png"
+		},
+		{
+			"label": "Dark Rocky Wall",
+			"id": "dark-rocky-wall",
+			"name": "dark-rocky-wall.png"
+		},
+		{
+			"label": "Dark Subtle Grunge",
+			"id": "dark-subtle-grunge",
+			"name": "dark-subtle-grunge.png"
+		},
+		{
+			"label": "Light Paper",
+			"id": "light-paper",
+			"name": "light-paper.png"
+		},
+		{
+			"label": "Light Rocky Wall",
+			"id": "light-rocky-wall",
+			"name": "light-rocky-wall.png"
+		}
+	],
+	"borders": [
+		{
+			"label": "Cloud",
+			"id": "cloud",
+			"name": "cloud.png"
+		},
+		{
+			"label": "Crosshatch 1",
+			"id": "crosshatch-1",
+			"name": "crosshatch-1.png"
+		},
+		{
+			"label": "Crosshatch 2",
+			"id": "crosshatch-2",
+			"name": "crosshatch-2.png"
+		},
+		{
+			"label": "Etching Dirty",
+			"id": "etching-dirty",
+			"name": "etching-dirty.png"
+		},
+		{
+			"label": "Spatter",
+			"id": "spatter",
+			"name": "spatter.png"
+		},
+		{
+			"label": "Wood",
+			"id": "wood",
+			"name": "wood.png"
+		}
+	],
+	"css": {
+		"--c-color": "hsl(0, 0%, 0%)",
+		"--c-card-font": "\"Della Respira\", serif",
+		"--c-bg-h": "45",
+		"--c-bg-s": "93%",
+		"--c-bg-l": "89%",
+		"--c-bg-pattern": "url(../media/patterns/backgrounds/light-rocky-wall.png)",
+		"--c-border-h": "201",
+		"--c-border-s": "39%",
+		"--c-border-l": "24%",
+		"--c-border-pattern": "url(../media/patterns/borders/crosshatch-2.png)",
+		"--c-box-shadow-color": "hsl(0, 0%, 0%, 0.4)",
+		"--c-badge-font": "\"Della Respira\", serif",
+		"--c-badge-h": "168",
+		"--c-badge-s": "22%",
+		"--c-badge-l": "63%",
+		"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
+		"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
+		"--c-button-color": "var(--text-color)",
+		"--c-card-font-size": "1.1rem",
+		"--c-badge-font-size": "1.5rem"
+	},
+	"cards": {
+		"name": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Name",
+					"short": "Name"
+				},
+				"vis": true
+			}
+		},
+		"img": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Image URL",
+					"short": "Img"
+				},
+				"vis": false
+			}
+		},
+		"cr": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Challenge Rating",
+					"short": "CR"
+				},
+				"vis": true
+			}
+		},
+		"base": {
+			"field": {
+				"vis": false
+			},
+			"label": {
+				"txt": {
+					"long": "Base",
+					"short": "Base"
+				},
+				"vis": true
+			}
+		},
+		"type": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Type",
+					"short": "Type"
+				},
+				"vis": true
+			}
+		},
+		"hp": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Hit Points",
+					"short": "HP"
+				},
+				"vis": true
+			}
+		},
+		"speed": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Speed",
+					"short": "Spd"
+				},
+				"vis": true
+			}
+		},
+		"bag": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Base Attack/Grapple",
+					"short": "BA/G"
+				},
+				"vis": true
+			}
+		},
+		"atk": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Attack",
+					"short": "Atk"
+				},
+				"vis": true
+			}
+		},
+		"atk_f": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Full Attack",
+					"short": "Full Atk"
+				},
+				"vis": true
+			}
+		},
+		"atk_p": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Attack Parameters",
+					"short": "Atk Params"
+				},
+				"vis": true
+			}
+		},
+		"sp_r": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Space/Reach",
+					"short": "Sp/Re"
+				},
+				"vis": true
+			}
+		},
+		"atk_s": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Special Attacks",
+					"short": "Sp Atk"
+				},
+				"vis": true
+			}
+		},
+		"rfx": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Reflex",
+					"short": "Rfx"
+				},
+				"vis": true
+			}
+		},
+		"will": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Will",
+					"short": "Wil"
+				},
+				"vis": true
+			}
+		},
+		"str": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Strength",
+					"short": "Str"
+				},
+				"vis": true
+			}
+		},
+		"dex": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Dexterity",
+					"short": "Dex"
+				},
+				"vis": true
+			}
+		},
+		"con": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Constitution",
+					"short": "Con"
+				},
+				"vis": true
+			}
+		},
+		"int": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Intelligence",
+					"short": "Int"
+				},
+				"vis": true
+			}
+		},
+		"wis": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Wisdom",
+					"short": "Wis"
+				},
+				"vis": true
+			}
+		},
+		"cha": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Charisma",
+					"short": "Cha"
+				},
+				"vis": true
+			}
+		},
+		"skills": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Skills",
+					"short": "Skills"
+				},
+				"vis": true
+			}
+		},
+		"feats": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Feats",
+					"short": "Feats"
+				},
+				"vis": true
+			}
+		},
+		"env": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Environment",
+					"short": "Env"
+				},
+				"vis": true
+			}
+		},
+		"org": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Organization",
+					"short": "Org"
+				},
+				"vis": true
+			}
+		},
+		"tre": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Treasure",
+					"short": "Treas"
+				},
+				"vis": true
+			}
+		},
+		"algn": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Alignment",
+					"short": "Algn"
+				},
+				"vis": true
+			}
+		},
+		"l_adj": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Level Adjustment",
+					"short": "L Adj"
+				},
+				"vis": true
+			}
+		},
+		"notes": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Notes",
+					"short": "Notes"
+				},
+				"vis": true
+			}
+		},
+		"fort": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Fortitude",
+					"short": "Fort"
+				},
+				"vis": true
+			}
+		},
+		"ac": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Armor Class",
+					"short": "AC"
+				},
+				"vis": true
+			}
+		},
+		"ini": {
+			"field": {
+				"vis": true
+			},
+			"label": {
+				"txt": {
+					"long": "Initiative",
+					"short": "Ini"
+				},
+				"vis": true
+			}
+		}
+	},
+	"lib": {
+		"name": {
+			"txt": "First Letter",
+			"vis": true
+		},
+		"img": {
+			"txt": "Image URL",
+			"vis": false
+		},
+		"cr": {
+			"txt": "Challenge Rating",
+			"vis": true
+		},
+		"base": {
+			"txt": "Base",
+			"vis": true
+		},
+		"type": {
+			"txt": "Type",
+			"vis": false
+		},
+		"hp": {
+			"txt": "Hit Points",
+			"vis": true
+		},
+		"speed": {
+			"txt": "Speed",
+			"vis": true
+		},
+		"bag": {
+			"txt": "Base Attack/Grapple",
+			"vis": true
+		},
+		"atk": {
+			"txt": "Attack",
+			"vis": true
+		},
+		"atk_f": {
+			"txt": "Full Attack",
+			"vis": true
+		},
+		"atk_p": {
+			"txt": "Attack Parameters",
+			"vis": true
+		},
+		"sp_r": {
+			"txt": "Space/Reach",
+			"vis": true
+		},
+		"atk_s": {
+			"txt": "Special Attacks",
+			"vis": true
+		},
+		"rfx": {
+			"txt": "Reflex",
+			"vis": true
+		},
+		"will": {
+			"txt": "Will",
+			"vis": true
+		},
+		"str": {
+			"txt": "Strength",
+			"vis": true
+		},
+		"dex": {
+			"txt": "Dexterity",
+			"vis": true
+		},
+		"con": {
+			"txt": "Constitution",
+			"vis": true
+		},
+		"int": {
+			"txt": "Intelligence",
+			"vis": true
+		},
+		"wis": {
+			"txt": "Wisdom",
+			"vis": true
+		},
+		"cha": {
+			"txt": "Charisma",
+			"vis": true
+		},
+		"skills": {
+			"txt": "Skills",
+			"vis": true
+		},
+		"feats": {
+			"txt": "Feats",
+			"vis": true
+		},
+		"env": {
+			"txt": "Environment",
+			"vis": true
+		},
+		"org": {
+			"txt": "Organization",
+			"vis": true
+		},
+		"tre": {
+			"txt": "Treasure",
+			"vis": true
+		},
+		"algn": {
+			"txt": "Alignment",
+			"vis": true
+		},
+		"l_adj": {
+			"txt": "Level Adjustment",
+			"vis": true
+		},
+		"notes": {
+			"txt": "Notes",
+			"vis": true
+		},
+		"fort": {
+			"txt": "Fortitude",
+			"vis": true
+		},
+		"ac": {
+			"txt": "Armor Class",
+			"vis": true
+		},
+		"ini": {
+			"txt": "Initiative",
+			"vis": true
+		}
+	}
+}

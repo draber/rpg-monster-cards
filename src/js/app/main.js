@@ -24,9 +24,16 @@ import {
     on,
     trigger
 } from '../modules/events/eventHandler.js';
-import config from '../../config/config.json';
 import initStorage from './storage/storage.js';
 import Tree from '../modules/tree/Tree.js';
+import feConfig from '../../config/config-frontend.json';
+import sharedConfig from '../../config/config-shared.json';
+
+
+const config = {
+    ...feConfig,
+    ...sharedConfig
+};
 
 class App extends HTMLElement {
 
@@ -37,24 +44,30 @@ class App extends HTMLElement {
         })
 
         const launchData = {
-            tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs')) || '{}'),
+            tabs: JSON.parse(localStorage.getItem(config.storageKeys.tabs) || '{}'),
             system: {},
-            stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards')) || '{}'),
+            presets: {},
+            stored: JSON.parse(localStorage.getItem(config.storageKeys.cards) || '{}'),
             settings
         }
 
-        // load system cards
-        fetch(settings.get('characters.url'))
-            .then(response => response.json())
-            .then(data => {
-
+        // load system cards and presets
+        Promise.all([
+                fetch(config.characters.url),
+                fetch(config.presets.url)
+            ])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(dataArr => {
                 // add system cards to store
-                data.forEach((props, cid) => {
-                    launchData.system[cid] = {
-                        cid,
-                        props
+                launchData.characters = dataArr[0];
+                
+                // add presets and storage keys to launch data
+                launchData.presets = {
+                    ...dataArr[1],
+                    ...{
+                        storageKeys: config.storageKeys
                     }
-                });
+                };
 
                 initStorage(launchData);
 
@@ -75,7 +88,7 @@ class App extends HTMLElement {
                 cardManager.init(this);
 
                 [
-                    ImportExport, 
+                    ImportExport,
                     FileUpload,
                     CharacterLibrary,
                     LibraryOrganizer,
@@ -94,7 +107,6 @@ class App extends HTMLElement {
                     component.register(this);
                 })
             });
-
     }
     constructor(self) {
         self = super(self);

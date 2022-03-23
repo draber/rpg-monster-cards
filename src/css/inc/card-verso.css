@@ -35,11 +35,11 @@ card-verso {
     gap: 0.5ch;
 
     // fields visibility on card
-    &[data-card="true"] {
+    &[data-field="true"] {
       display: flex;
     }
 
-    &[data-card="false"] {
+    &[data-field="false"] {
       display: none;
     }
 
@@ -59,8 +59,10 @@ card-verso {
     white-space: nowrap;
     color: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l));
     filter: contrast(25%);
-    &::after {
-      content: ":";
+    &:not(:empty) {
+      &::after {
+        content: ":";
+      }
     }
   }
   & td {
@@ -69,13 +71,13 @@ card-verso {
 
   & use {
   }
-  & [data-card="false"] {
+  & [data-field="false"] {
     opacity: 0.8;
     & use {
-      &[data-card="false"] {
+      &[data-field="false"] {
         display: inline;
       }
-      &[data-card="true"] {
+      &[data-field="true"] {
         display: none;
       }
     }

@@ -9,23 +9,17 @@ import {
     sanitizeText
 } from '../../../modules/string/string.js';
 import {
-    labelStore
+    cardStore
 } from '../../storage/storage.js';
+import cardHelper from './card-helper.js';
 
 class CardForm extends HTMLElement {
-
-    isVisible(key, type) {
-        if (type === 'text') {
-            return this.card.character.visibility[key][type] && !!this.card.character.props[key];
-        }
-        return this.card.character.visibility[key][type];
-    }
 
     icon(type) {
         let title;
         let icons = [`media/icons.svg#icon-show-${type}`, `media/icons.svg#icon-hide-${type}`];
         switch (type) {
-            case 'card':
+            case 'field':
                 title = 'Display this item on the card';
                 break;
             case 'label':
@@ -61,8 +55,8 @@ class CardForm extends HTMLElement {
             },
             data: {
                 key,
-                card: this.isVisible(key, 'card'),
-                label: this.isVisible(key, 'label')
+                field: cardHelper.isVisible(this.card, key, 'field'),
+                label: cardHelper.isVisible(this.card, key, 'label')
             },
             content
         });
@@ -73,7 +67,7 @@ class CardForm extends HTMLElement {
         row.addEventListener('dragend', e => {
             this.card.trigger('orderChange', {
                 order: (e => {
-                    return Array.from(fn.$$('[data-key]', this.tbody))
+                    return Array.from(fn.$$('[data-key]', this.tbody.closest('table')))
                         .map(entry => entry.dataset.key)
                 })()
             })
@@ -108,17 +102,17 @@ class CardForm extends HTMLElement {
                 attributes: {
                     contentEditable: true
                 },
-                content: this.card.character.labels[key],
+                content: cardHelper.getValue(this.card, key, 'label', 'txt'),
                 events: fieldEvents
             }),
             element: fn.td({
                 data: {
-                    type: 'text'
+                    type: 'field'
                 },
                 attributes: {
                     contentEditable: true
                 },
-                content: this.card.character.props[key],
+                content: cardHelper.getValue(this.card, key, 'field', 'txt'),
                 events: fieldEvents
             }),
             labelIcon: fn.td({
@@ -130,10 +124,10 @@ class CardForm extends HTMLElement {
             }),
             cardIcon: fn.td({
                 data: {
-                    type: 'card'
+                    type: 'field'
                 },
                 classNames: ['icon', 'toggle'],
-                content: this.icon('card')
+                content: this.icon('field')
             }),
             dragIcon: fn.td({
                 classNames: ['icon', 'handle'],
@@ -145,31 +139,12 @@ class CardForm extends HTMLElement {
     }
 
     populateTbody() {
-        for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+        for (let key of Object.keys(cardStore.get(`${this.card.cid}.fields`)).filter(e => !['img', 'name'].includes(e))) {
             this.tbody.append(this.buildRow(key));
         }
-    }
+    }    
 
-    /**
-     * Possible storage formats
-     *         "fields": {
-            "name": {
-            	"field" : {
-            		"txt": "Celestial Giant Fire Beetle",
-            		"vis": "__only if not default__"
-            	},
-            	"label" : {
-            		"txt": "__only if not default__",
-            		"vis": "__only if not default__"
-            	},
-//or
-            	"fieldTxt": "Celestial Giant Fire Beetle",
-            	"labelTxt": "__only if not default__",
-            	"labelVis": "__only if not default__",
-            	"fieldVis": "__only if not default__",
-            }        	
-        },
-     */
+
 
     /**
      * Called on element launch
@@ -187,27 +162,29 @@ class CardForm extends HTMLElement {
                     },
                     data: {
                         key: 'name',
-                        type: 'text'
+                        type: 'field'
                     },
-                    content: this.card.character.props.name
+                    content: cardHelper.getValue(this.card, 'name', 'field', 'txt')
                 }),
                 fn.thead({
                     content: [
                         fn.tr({
                             data: {
                                 key: 'img',
-                                type: 'text'
                             },
                             content: [
                                 fn.th({
-                                    content: labelStore.get('img.long')
+                                    content: cardHelper.getValue(this.card, 'img', 'label', 'txt', 'long') 
                                 }),
                                 fn.td({
                                     attributes: {
                                         colSpan: 4,
                                         contentEditable: true
                                     },
-                                    content: this.card.character.props.img
+                                    data: {
+                                        type: 'field'
+                                    },
+                                    content: cardHelper.getValue(this.card, 'img', 'field', 'txt')
                                 })
                             ]
                         })
@@ -220,8 +197,8 @@ class CardForm extends HTMLElement {
                     if (!e.target.contentEditable) {
                         return true;
                     }
-                    this.card.trigger('contentChange', {
-                        field: e.target.dataset.type,
+                    // e.target.dataset.type = label|field
+                    this.card.trigger(`${e.target.dataset.type}ContentChange`, {
                         key: e.target.closest('[data-key]').dataset.key,
                         value: e.target.textContent
                     })
@@ -234,11 +211,10 @@ class CardForm extends HTMLElement {
                     }
                     const row = trigger.closest('[data-key]');
                     const key = row.dataset.key;
-                    const field = trigger.dataset.type;
-                    domProps.toggle(field, row);
-                    const value = domProps.get(field, row);
-                    this.card.trigger('visibilityChange', {
-                        field,
+                    const type = trigger.dataset.type; // label|field
+                    domProps.toggle(type, row);
+                    const value = domProps.get(type, row);
+                    this.card.trigger(`${type}VisibilityChange`, {
                         key,
                         value
                     });

@@ -49,12 +49,21 @@ export const dash = term => {
         .join('-');
 };
 
+/**
+ * First letter to upper case
+ * @param {String} term 
+ * @returns 
+ */
 export const ucFirst = term => {
     return term.charAt(0).toUpperCase() + term.slice(1);
 }
 
+/**
+ * Simple text sanitizer to remove any HTML
+ * @param {String} text 
+ * @returns 
+ */
 export const sanitizeText = text => {
     return new DOMParser()
-        .parseFromString(text, 'text/html').body.textContent
-        .replace(/\s+/g, ' ');
+        .parseFromString(text, 'text/html').body.textContent.trim();
 }

@@ -30,9 +30,9 @@ a {
   color: currentColor;
 }
 
-::selection {
+/* ::selection {
   background-color: transparent;
-}
+} */
 
 
 details {

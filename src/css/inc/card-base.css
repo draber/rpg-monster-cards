@@ -122,7 +122,9 @@ card-base {
   }
 
   &:focus {
-    outline: 0.4rem var(--hd-color) solid;
+    &:not(.editable) {
+      outline: 0.4rem var(--hd-color) solid;
+    }
   }
 
   &.cut {

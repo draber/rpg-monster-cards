@@ -2,44 +2,49 @@ import fn from 'fancy-node';
 import {
     on,
     trigger
-} from '../../../modules/events/eventHandler.js'
+} from '../../../modules/events/eventHandler.js';
+import {
+    cardStore
+} from '../../storage/storage.js';
+import cardHelper from './card-helper.js';
 
 class CardVerso extends HTMLElement {
 
-    isVisible(key, type) {
-        return this.card.character.visibility[key][type] && !!this.card.character.props[key];
-    }
-
     populateTbody(tbody) {
         tbody = fn.empty(tbody);
-        for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+        for (let key of Object.keys(cardStore.get(`${this.card.cid}.fields`)).filter(e => !['img', 'name'].includes(e))) {
             tbody.append(this.buildRow(key));
         }
     }
 
+    /**
+     * Build a single `<tr>`
+     * @param {String} key 
+     * @returns 
+     */
     buildRow(key) {
         const entries = {
             label: fn.th({
-                content: this.card.character.labels[key]
+                content: cardHelper.getValue(this.card, key, 'label', 'txt', 'short')
             }),
 
-            text: fn.td({
-                content: this.card.character.props[key]
+            field: fn.td({
+                content: cardHelper.getValue(this.card, key, 'field', 'txt')
             })
         }
 
-        this.rows[key] = entries;
+        this.rowObj[key] = entries;
 
-        const row = fn.tr({
+        const rowElem = fn.tr({
             data: {
                 key,
-                card: this.isVisible(key, 'card'),
-                label: this.isVisible(key, 'label')
+                field: cardHelper.isVisible(this.card, key, 'field'),
+                label: cardHelper.isVisible(this.card, key, 'label')
             },
             content: Object.values(entries)
         });
 
-        return row;
+        return rowElem;
     }
 
     /**
@@ -47,14 +52,14 @@ class CardVerso extends HTMLElement {
      */
     connectedCallback() {
 
-        const entries = {
+        const badges = {
             name: fn.caption({
                 classNames: ['badge'],
-                content: this.card.character.props.name
+                content: cardHelper.getValue(this.card, 'name', 'field', 'txt')
             }),
             cr: fn.div({
                 classNames: ['badge', 'cr'],
-                content: this.card.character.props.cr
+                content: cardHelper.getValue(this.card, 'cr', 'field', 'txt')
             })
         }
 
@@ -62,38 +67,57 @@ class CardVerso extends HTMLElement {
         const frame = fn.table({
             classNames: ['frame'],
             content: [
-                entries.name,
+                badges.name,
                 tbody
             ]
         })
 
-        this.rows = {};
+        this.rowObj = {};
 
         this.populateTbody(tbody);
 
-        this.append(frame, entries.cr);
+        this.append(frame, badges.cr);
+
 
         /**
-         * repaint on content change
+         * repaint on field change
          */
-        this.card.on('contentChange', e => {
-            if (Object.keys(entries).includes(e.detail.key) && e.detail.field === 'text') {
-                entries[e.detail.key].textContent = e.detail.value;
+         this.card.on('fieldContentChange', e => {
+            if (Object.keys(badges).includes(e.detail.key)) {
+                badges[e.detail.key].textContent = e.detail.value;
             }
-
-            if (Object.keys(this.rows).includes(e.detail.key)) {
-                this.rows[e.detail.key][e.detail.field].textContent = e.detail.value;
+            
+            if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                this.rowObj[e.detail.key].field.textContent = e.detail.value;
             }
         })
 
-        this.card.on('afterOrderChange', e => {
-            this.populateTbody(tbody);
+        /**
+         * repaint on label change
+         */
+         this.card.on('labelContentChange', e => {            
+            if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                this.rowObj[e.detail.key].label.textContent = e.detail.value;
+            }
+        })
+
+        // change of field visibility
+        this.card.on('fieldVisibilityChange', e => {
+            if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                this.rowObj[e.detail.key].field.parentElement.dataset.field = e.detail.value;
+            }
         });
 
-        this.card.on('visibilityChange', e => {
-            if (Object.keys(this.rows).includes(e.detail.key)) {
-                this.rows[e.detail.key].text.parentElement.dataset[e.detail.field] = e.detail.value;
+        // change of field visibility
+        this.card.on('labelVisibilityChange', e => {
+            if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                this.rowObj[e.detail.key].label.parentElement.dataset.label = e.detail.value;
             }
+        });
+
+        // repai
+        this.card.on('afterOrderChange', e => {
+            this.populateTbody(tbody);
         });
     }
 

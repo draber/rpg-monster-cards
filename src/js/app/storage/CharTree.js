@@ -1,21 +1,9 @@
 import NumericTree from '../../modules/tree/NumericTree.js';
-import visibility from '../../../data/visibility.json';
 import idHelper from './id-helper.js';
 
-// can't use labelStore (circular dependency)
-import labels from '../../../data/labels.json';
-
-const getLabels = () => {
-    const _labels = {};
-    for (let [key, value] of Object.entries(labels)) {
-        if (key.startsWith('__')) {
-            continue;
-        }
-        _labels[key] = value.short;
-    }
-    return _labels;
-}
-
+/**
+ * Tree that specializes in character storage
+ */
 class CharTree extends NumericTree {
 
     /**
@@ -23,15 +11,17 @@ class CharTree extends NumericTree {
      * @returns {{title, tid: {Integer}}}
      */
     getBlank() {
-        const props = {};
-        Object.keys(labels).forEach(key => {
-            props[key] = '';
+        const fields = {};
+        this.validFields.forEach(key => {
+            fields[key] = {
+                field: {
+                    txt: ''
+                }
+            };
         })
         return {
             cid: this.nextIncrement(),
-            props,
-            visibility,
-            labels: getLabels()
+            fields
         }
     }
 
@@ -46,13 +36,16 @@ class CharTree extends NumericTree {
     constructor({
         data = {},
         minIncrement = 1,
-        lsKey
+        lsKey,
+        validFields = []
     } = {}) {
         super({
             data,
             lsKey,
             minIncrement
         });
+        this.validFields = validFields
+
     }
 }
 

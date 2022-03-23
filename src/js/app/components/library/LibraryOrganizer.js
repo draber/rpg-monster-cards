@@ -1,12 +1,11 @@
 import fn from 'fancy-node';
-import visibility from '../../../../data/visibility.json';
 import {
-    labelStore
-} from '../../storage/storage';
+    presetStore
+} from '../../storage/storage.js';
 import {
     on,
     trigger
-} from '../../../modules/events/eventHandler.js'
+} from '../../../modules/events/eventHandler.js';
 
 /**
  * Custom HTM element to select a group to oder the library by
@@ -72,14 +71,14 @@ class LibraryOrganizer extends HTMLElement {
         const list = fn.ul();
         box.append(title, list);
 
-        for (let [key, value] of labelStore.entries()) {
-            if (!visibility[key].group) {
+        for (let [key, value] of Object.entries(presetStore.get('lib'))) {
+            if(!value.vis) {
                 continue;
             }
             let classNames = key === this.groupBy ? ['active'] : [];
             list.append(fn.li({
                 classNames,
-                content: value.group,
+                content: value.txt,
                 data: {
                     groupBy: key
                 }

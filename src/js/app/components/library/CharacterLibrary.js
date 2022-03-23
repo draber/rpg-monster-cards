@@ -1,8 +1,7 @@
 import fn from 'fancy-node';
 import characterProvider from './character-provider.js';
 import {
-    settings,
-    systemStore,
+    characterStore,
     cardStore
 } from '../../storage/storage.js';
 import {
@@ -92,22 +91,7 @@ class CharacterLibrary extends HTMLElement {
          * Sorted and grouped list of characters
          * @type {Object}
          */
-        const systemCollection = Object.values(characterProvider.getSortedCharacters('system', this));
-        const userCollection = Object.values(characterProvider.getSortedCharacters('user', {
-            groupBy: '__user',
-            sortBy: 'name'
-        }))
-
-        let collection = systemCollection;
-
-        if (settings.get('userCharacters.inLibrary') && userCollection.length) {
-            // collection = userCollection.concat(systemCollection);
-
-            // // mark the first group
-            // firstGroupClassNames = ['user-generated'];
-        }
-
-        collection.forEach((values, index) => {
+        Object.values(characterProvider.getSortedCharacters(this)).forEach((values, index) => {
 
             /**
              * List of characters per group
@@ -152,14 +136,14 @@ class CharacterLibrary extends HTMLElement {
             /**
              * Add the characters to their respective list
              */
-            values.forEach(value => {
+            values.forEach(character => {
                 list.append(fn.li({
-                    content: value.props.name,
+                    content: character.fields.name.field.txt,
                     attributes: {
-                        title: value.props.name
+                        title: character.fields.name.field.txt
                     },
                     data: {
-                        cid: value.cid
+                        cid: character.cid
                     }
                 }))
             })
@@ -186,8 +170,7 @@ class CharacterLibrary extends HTMLElement {
                 return false;
             }
             this.app.trigger('characterSelection', (() => {
-                const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
-                const character = store.getClone(li.dataset.cid);
+                const character = characterStore.getClone(li.dataset.cid);
                 character._groupLabel && delete character._groupLabel;
                 character._groupValue && delete character._groupValue;
                 return character;

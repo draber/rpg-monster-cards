@@ -185,8 +185,8 @@
     };
     const sort = (dataArr, sortBy = null, direction = 'asc') => {
         return dataArr.sort((a, b) => {
-            a = sortBy ? sortBy.split('.').reduce((o, i) => o[i], a) : a;
-            b = sortBy ? sortBy.split('.').reduce((o, i) => o[i], b) : b;
+            a = sortBy ? sortBy.split('.').reduce((obj, i) => obj[i], a) : a;
+            b = sortBy ? sortBy.split('.').reduce((obj, i) => obj[i], b) : b;
             if (!isNaN(a) && !isNaN(b)) {
                 return direction === 'asc' ? Number(a - b) : Number(b - a);
             }
@@ -389,7 +389,7 @@
         }
         constructor({
             data = {},
-            lsKey
+            lsKey = false
         } = {}) {
             this.obj = data;
             this.lsKey = lsKey;
@@ -461,428 +461,19 @@
         }
     }
 
-    var name$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var __user$1 = {
-    	card: true,
-    	group: false,
-    	label: true
-    };
-    var img$1 = {
-    	card: true,
-    	group: false,
-    	label: false
-    };
-    var cr$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var base$1 = {
-    	card: false,
-    	group: true,
-    	label: true
-    };
-    var type$1 = {
-    	card: true,
-    	group: false,
-    	label: true
-    };
-    var hp$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var speed$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var bag$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk_f$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk_p$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var sp_r$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var atk_s$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var rfx$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var will$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var str$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var dex$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var con$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var int$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var wis$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var cha$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var skills$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var feats$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var env$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var org$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var tre$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var algn$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var l_adj$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var notes$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var fort$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var ac$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var ini$1 = {
-    	card: true,
-    	group: true,
-    	label: true
-    };
-    var visibility$1 = {
-    	name: name$1,
-    	__user: __user$1,
-    	img: img$1,
-    	cr: cr$1,
-    	base: base$1,
-    	type: type$1,
-    	hp: hp$1,
-    	speed: speed$1,
-    	bag: bag$1,
-    	atk: atk$1,
-    	atk_f: atk_f$1,
-    	atk_p: atk_p$1,
-    	sp_r: sp_r$1,
-    	atk_s: atk_s$1,
-    	rfx: rfx$1,
-    	will: will$1,
-    	str: str$1,
-    	dex: dex$1,
-    	con: con$1,
-    	int: int$1,
-    	wis: wis$1,
-    	cha: cha$1,
-    	skills: skills$1,
-    	feats: feats$1,
-    	env: env$1,
-    	org: org$1,
-    	tre: tre$1,
-    	algn: algn$1,
-    	l_adj: l_adj$1,
-    	notes: notes$1,
-    	fort: fort$1,
-    	ac: ac$1,
-    	ini: ini$1
-    };
-
-    var name = {
-    	group: "First Letter",
-    	long: "Name",
-    	short: "Name"
-    };
-    var __user = {
-    	long: "Your Creatures",
-    	group: "Your Creatures"
-    };
-    var img = {
-    	long: "Image URL",
-    	short: "Img",
-    	group: "Image URL"
-    };
-    var cr = {
-    	long: "Challenge Rating",
-    	short: "CR",
-    	group: "Challenge Rating"
-    };
-    var base = {
-    	long: "Base",
-    	short: "Base",
-    	group: "Base"
-    };
-    var type = {
-    	long: "Type",
-    	short: "Type",
-    	group: "Type"
-    };
-    var hp = {
-    	long: "Hit Points",
-    	short: "HP",
-    	group: "Hit Points"
-    };
-    var speed = {
-    	long: "Speed",
-    	short: "Spd",
-    	group: "Speed"
-    };
-    var bag = {
-    	long: "Base Attack/Grapple",
-    	short: "BA/G",
-    	group: "Base Attack/Grapple"
-    };
-    var atk = {
-    	long: "Attack",
-    	short: "Atk",
-    	group: "Attack"
-    };
-    var atk_f = {
-    	long: "Full Attack",
-    	short: "Full Atk",
-    	group: "Full Attack"
-    };
-    var atk_p = {
-    	long: "Attack Parameters",
-    	short: "Atk Params",
-    	group: "Attack Parameters"
-    };
-    var sp_r = {
-    	long: "Space/Reach",
-    	short: "Sp/Re",
-    	group: "Space/Reach"
-    };
-    var atk_s = {
-    	long: "Special Attacks",
-    	short: "Sp Atk",
-    	group: "Special Attacks"
-    };
-    var rfx = {
-    	long: "Reflex",
-    	short: "Rfx",
-    	group: "Reflex"
-    };
-    var will = {
-    	long: "Will",
-    	short: "Wil",
-    	group: "Will"
-    };
-    var str = {
-    	long: "Strength",
-    	short: "Str",
-    	group: "Strength"
-    };
-    var dex = {
-    	long: "Dexterity",
-    	short: "Dex",
-    	group: "Dexterity"
-    };
-    var con = {
-    	long: "Constitution",
-    	short: "Con",
-    	group: "Constitution"
-    };
-    var int = {
-    	long: "Intelligence",
-    	short: "Int",
-    	group: "Intelligence"
-    };
-    var wis = {
-    	long: "Wisdom",
-    	short: "Wis",
-    	group: "Wisdom"
-    };
-    var cha = {
-    	long: "Charisma",
-    	short: "Cha",
-    	group: "Charisma"
-    };
-    var skills = {
-    	long: "Skills",
-    	short: "Skills",
-    	group: "Skills"
-    };
-    var feats = {
-    	long: "Feats",
-    	short: "Feats",
-    	group: "Feats"
-    };
-    var env = {
-    	long: "Environment",
-    	short: "Env",
-    	group: "Environment"
-    };
-    var org = {
-    	long: "Organization",
-    	short: "Org",
-    	group: "Organization"
-    };
-    var tre = {
-    	long: "Treasure",
-    	short: "Treas",
-    	group: "Treasure"
-    };
-    var algn = {
-    	long: "Alignment",
-    	short: "Algn",
-    	group: "Alignment"
-    };
-    var l_adj = {
-    	long: "Level Adjustment",
-    	short: "L Adj",
-    	group: "Level Adjustment"
-    };
-    var notes = {
-    	long: "Notes",
-    	short: "Notes",
-    	group: "Notes"
-    };
-    var fort = {
-    	long: "Fortitude",
-    	short: "Fort",
-    	group: "Fortitude"
-    };
-    var ac = {
-    	long: "Armor Class",
-    	short: "AC",
-    	group: "Armor Class"
-    };
-    var ini = {
-    	long: "Initiative",
-    	short: "Ini",
-    	group: "Initiative"
-    };
-    var labels$1 = {
-    	name: name,
-    	__user: __user,
-    	img: img,
-    	cr: cr,
-    	base: base,
-    	type: type,
-    	hp: hp,
-    	speed: speed,
-    	bag: bag,
-    	atk: atk,
-    	atk_f: atk_f,
-    	atk_p: atk_p,
-    	sp_r: sp_r,
-    	atk_s: atk_s,
-    	rfx: rfx,
-    	will: will,
-    	str: str,
-    	dex: dex,
-    	con: con,
-    	int: int,
-    	wis: wis,
-    	cha: cha,
-    	skills: skills,
-    	feats: feats,
-    	env: env,
-    	org: org,
-    	tre: tre,
-    	algn: algn,
-    	l_adj: l_adj,
-    	notes: notes,
-    	fort: fort,
-    	ac: ac,
-    	ini: ini
-    };
-
-    const getLabels = () => {
-        const _labels = {};
-        for (let [key, value] of Object.entries(labels$1)) {
-            if (key.startsWith('__')) {
-                continue;
-            }
-            _labels[key] = value.short;
-        }
-        return _labels;
-    };
     class CharTree extends NumericTree {
         getBlank() {
-            const props = {};
-            Object.keys(labels$1).forEach(key => {
-                props[key] = '';
+            const fields = {};
+            this.validFields.forEach(key => {
+                fields[key] = {
+                    field: {
+                        txt: ''
+                    }
+                };
             });
             return {
                 cid: this.nextIncrement(),
-                props,
-                visibility: visibility$1,
-                labels: getLabels()
+                fields
             }
         }
         remove(...cidData) {
@@ -891,39 +482,39 @@
         constructor({
             data = {},
             minIncrement = 1,
-            lsKey
+            lsKey,
+            validFields = []
         } = {}) {
             super({
                 data,
                 lsKey,
                 minIncrement
             });
+            this.validFields = validFields;
         }
     }
 
-    class SystemPropTree extends Tree {
+    class PresetTree extends Tree {
         isDefault(key, value){
-            return this.has(key) && value === this.get(key)
+            return value === this.get(key)
         }
         set(){
-            console.error('System properties are readonly');
+            console.error('Preset values are readonly');
             return false;
         }
         unset() {
             return this.set()
         }
         constructor({
-            data = {},
-            lsKey
+            data = {}
         } = {}) {
             super({
-                data,
-                lsKey
+                data
             });
         }
     }
 
-    var cssProps$1 = {
+    var cssProps = {
     	":root": {
     	"--c-color": "hsl(0, 0%, 0%)",
     	"--c-card-font": "\"Della Respira\", serif",
@@ -949,78 +540,77 @@
     };
 
     let tabStore;
-    let systemStore;
+    let characterStore;
     let cardStore;
     let copyStore;
     let styleStore;
-    let settings;
-    let labelStore;
+    let presetStore;
     const initStorage = launchData => {
-        settings = launchData.settings;
+        presetStore = new PresetTree({
+            data: launchData.presets
+        });
         tabStore = new TabTree({
             data: launchData.tabs,
-            lsKey: settings.get('storageKeys.tabs')
+            lsKey: presetStore.get('storageKeys.tabs')
         });
-        if(tabStore.length === 0){
+        if (tabStore.length === 0) {
             const blank = tabStore.getBlank();
             tabStore.set(blank.tid, blank);
         }
-        systemStore = new CharTree({
-            data: launchData.system
+        const validFields = Object.keys(launchData.presets.cards);
+        characterStore = new CharTree({
+            validFields
+        });
+        launchData.characters.forEach(systemCharacter => {
+            const finalCharacter = characterStore.getBlank();
+            validFields.forEach(key => {
+                if (systemCharacter[key]) {
+                    finalCharacter.fields[key].field.txt = systemCharacter[key];
+                }
+            });
+            characterStore.set(finalCharacter.cid, finalCharacter);
         });
         cardStore = new CharTree({
             data: launchData.stored,
-            lsKey: settings.get('storageKeys.cards'),
-            minIncrement: 3001
+            lsKey: presetStore.get('storageKeys.cards'),
+            minIncrement: 3001,
+            validFields
         });
         copyStore = new CharTree({
             minIncrement: 6001
         });
-        styleStore = new SystemPropTree({
-            data: cssProps$1[':root']
-        });
-        labelStore = new SystemPropTree({
-            data: labels$1
+        styleStore = new PresetTree({
+            data: cssProps[':root']
         });
     };
 
-    const prepareGroupSort = (entry, groupBy) => {
-        if (typeof entry.props[groupBy] === 'undefined') {
-            entry.props[groupBy] = '';
-        }
+    const prepareGroupSort = (character, groupBy) => {
         switch (groupBy) {
-            case '__user':
-                entry._groupValue = labelStore.get('__user.group');
-                entry._groupLabel = labelStore.get('__user.group');
-                break;
             case 'name':
-                entry._groupValue = entry.props.name.charAt(0).toUpperCase();
-                entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry._groupValue;
+                character._groupValue = character.fields.name.field.txt.charAt(0).toUpperCase();
+                character._groupLabel = presetStore.get(`lib.${groupBy}.txt`) + ': ' + character._groupValue;
                 break
             default:
-                entry._groupValue = entry.props[groupBy];
-                entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry.props[groupBy];
+                character._groupValue = character.fields[groupBy].field.txt;
+                character._groupLabel = presetStore.get(`lib.${groupBy}.txt`) + ': ' + character._groupValue;
         }
-        return entry;
+        return character;
     };
-    const getSortedCharacters = (type, {
+    const getSortedCharacters = ({
         groupBy = 'name',
         sortBy = 'name',
         groupDir = 'asc',
         sortDir = 'name'
     } = {}) => {
         let grouped = {};
-        const store = type === 'user' ? cardStore : systemStore;
-        for (let entry of store.values()) {
-            entry = prepareGroupSort(entry, groupBy);
-            grouped[entry._groupValue] = grouped[entry._groupValue] || [];
-            grouped[entry._groupValue].push(entry);
+        for (let character of characterStore.values()) {
+            character = prepareGroupSort(character, groupBy);
+            grouped[character._groupValue] = grouped[character._groupValue] || [];
+            grouped[character._groupValue].push(character);
         }
-        if (type === 'system') {
-            grouped = sorter.group(grouped, groupDir);
-        }
+        grouped = sorter.group(grouped, groupDir);
         for (let [key, values] of Object.entries(grouped)) {
-            grouped[key] = sorter.sort(values, `props.${sortBy}`, sortDir);
+            grouped[key] = sorter.sort(values, `fields.${sortBy}.field.txt`, sortDir);
         }
         return grouped;
     };
@@ -1076,14 +666,7 @@
             const characterList = new DocumentFragment();
             const groupContainers = [];
             let firstGroupClassNames = [];
-            const systemCollection = Object.values(characterProvider.getSortedCharacters('system', this));
-            const userCollection = Object.values(characterProvider.getSortedCharacters('user', {
-                groupBy: '__user',
-                sortBy: 'name'
-            }));
-            let collection = systemCollection;
-            if (settings.get('userCharacters.inLibrary') && userCollection.length) ;
-            collection.forEach((values, index) => {
+            Object.values(characterProvider.getSortedCharacters(this)).forEach((values, index) => {
                 let list = src.ul();
                 let groupContainer = src.details({
                     classNames: index === 0 ? firstGroupClassNames : [],
@@ -1114,14 +697,14 @@
                 });
                 characterList.append(groupContainer);
                 groupContainers.push(groupContainer);
-                values.forEach(value => {
+                values.forEach(character => {
                     list.append(src.li({
-                        content: value.props.name,
+                        content: character.fields.name.field.txt,
                         attributes: {
-                            title: value.props.name
+                            title: character.fields.name.field.txt
                         },
                         data: {
-                            cid: value.cid
+                            cid: character.cid
                         }
                     }));
                 });
@@ -1138,8 +721,7 @@
                     return false;
                 }
                 this.app.trigger('characterSelection', (() => {
-                    const store = li.closest('details').classList.contains('user-generated') ? cardStore : systemStore;
-                    const character = store.getClone(li.dataset.cid);
+                    const character = characterStore.getClone(li.dataset.cid);
                     character._groupLabel && delete character._groupLabel;
                     character._groupValue && delete character._groupValue;
                     return character;
@@ -1212,14 +794,14 @@
             });
             const list = src.ul();
             box.append(title, list);
-            for (let [key, value] of labelStore.entries()) {
-                if (!visibility$1[key].group) {
+            for (let [key, value] of Object.entries(presetStore.get('lib'))) {
+                if(!value.vis) {
                     continue;
                 }
                 let classNames = key === this.groupBy ? ['active'] : [];
                 list.append(src.li({
                     classNames,
-                    content: value.group,
+                    content: value.txt,
                     data: {
                         groupBy: key
                     }
@@ -1721,8 +1303,7 @@
 
     const sanitizeText = text => {
         return new DOMParser()
-            .parseFromString(text, 'text/html').body.textContent
-            .replace(/\s+/g, ' ');
+            .parseFromString(text, 'text/html').body.textContent.trim();
     };
 
     let toast;
@@ -1787,7 +1368,6 @@
             tid = idHelper.toTid(tab);
         }
         character = {
-            ...cardStore.getBlank(),
             ...character,
             ...{
                 tid,
@@ -1798,7 +1378,6 @@
         const card = document.createElement('card-base');
         card.setAttribute('cid', cid);
         card.setAttribute('tid', tid);
-        card.character = character;
         tab.panel.append(card);
     };
     const getCard = cidData => {
@@ -2381,7 +1960,7 @@
         register: register$c
     };
 
-    var fonts$1 = [
+    var fonts = [
     	{
     		label: "Almendra",
     		id: "almendra",
@@ -2491,7 +2070,7 @@
                 style: {
                     fontFamily: `var(${this.name})`
                 },
-                content: fonts$1.map(entry => {
+                content: fonts.map(entry => {
                     return src.option({
                         attributes: {
                             value: entry.family,
@@ -2523,7 +2102,7 @@
                 const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
                     e.detail.styles[this.styleArea][this.name] :
                     styleStore.get(this.name);
-                selector.selectedIndex = fonts$1.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
+                selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
                 this.selected = value;
                 this.app.trigger(`singleStyleChange`, {
                     name: this.name,
@@ -2633,7 +2212,7 @@
         register: register$a
     };
 
-    var backgrounds$1 = [
+    var backgrounds = [
     	{
     		label: "Dark Ice Age",
     		id: "dark-ice-age",
@@ -2666,7 +2245,7 @@
     	}
     ];
 
-    var borders$1 = [
+    var borders = [
     	{
     		label: "Cloud",
     		id: "cloud",
@@ -2700,8 +2279,8 @@
     ];
 
     const patternPool = {
-        backgrounds: backgrounds$1,
-        borders: borders$1
+        backgrounds,
+        borders
     };
     class PatternSelector extends HTMLElement {
         get value() {
@@ -2859,7 +2438,7 @@
         }
         return '';
     };
-    const getValue = (value, channel, type) => {
+    const getValue$1 = (value, channel, type) => {
         let numPart = parseFloat(value);
         let match = value.match(/[a-z%]+/);
         let textPart = match ? match[0] : '';
@@ -2932,7 +2511,7 @@
     };
     const buildTrack = (value, channel, type) => {
         const track = {
-            value: getValue(value, channel, type),
+            value: getValue$1(value, channel, type),
             unit: getUnit(channel, type),
             min: getMin(channel, type),
             max: getMax(channel, type)
@@ -3112,6 +2691,56 @@
         register: register$8
     };
 
+    function getCardPath(cidData, key, type, prop, version = 'short') {
+        let cid = idHelper.toCid(cidData);
+        return prop === 'txt' && type === 'label' ?
+            `${cid}.fields.${key}.${type}.${prop}.${version}` :
+            `${cid}.fields.${key}.${type}.${prop}`
+    }
+    function getPresetPath(key, type, prop, version = 'short') {
+        return prop === 'txt' && type === 'label' ?
+            `cards.${key}.${type}.${prop}.${version}` :
+            `cards.${key}.${type}.${prop}`
+    }
+    function isVisible(cidData, key, type) {
+        let cid = idHelper.toCid(cidData);
+        if (!cardStore.has(`${cid}.fields.${key}`) && !presetStore.has(`cards.${key}`)) {
+            return false;
+        }
+        if(type === 'field' && !getCardValue(cid, key, type, 'txt')){
+            return false;
+        }
+        const cardVis = getCardValue(cid, key, type, 'vis');
+        if(typeof cardVis !== 'undefined'){
+            return cardVis
+        }
+        return getPresetValue(key, type, 'vis');
+    }
+    function getCardValue(cidData, key, type, prop, version = 'short') {
+        let cid = idHelper.toCid(cidData);
+        return type === 'label' && prop === 'txt' ?
+            cardStore.get(getCardPath(cid, key, type, prop, version)) :
+            cardStore.get(getCardPath(cid, key, type, prop));
+    }
+    function getPresetValue(key, type, prop, version = 'short') {
+        return type === 'label' && prop === 'txt' ?
+            presetStore.get(getPresetPath(key, type, prop, version)) :
+            presetStore.get(getPresetPath(key, type, prop));
+    }
+    function getValue(cidData, key, type, prop, version = 'short') {
+        const cardValue = getCardValue(cidData, key, type, prop, version);
+        const presetValue = getPresetValue(key, type, prop, version);
+        return typeof cardValue !== 'undefined' ? cardValue : presetValue;
+    }
+    var cardHelper = {
+        isVisible,
+        getValue,
+        getCardPath,
+        getPresetPath,
+        getPresetValue,
+        getCardValue
+    };
+
     class CardBase extends HTMLElement {
         get cid() {
             return this.getAttribute('cid');
@@ -3130,6 +2759,17 @@
         }
         set tabindex(value) {
             this.setAttribute('tabindex', value);
+        }
+        updateRow(e, type, prop, version = 'short') {
+            let presetPath = cardHelper.getPresetPath(e.detail.key, type, prop, version);
+            let cardPath = cardHelper.getCardPath(this.cid, e.detail.key, type, prop, version);
+            const preset = presetStore.get(presetPath);
+            const current = cardStore.get(cardPath);
+            if (e.detail.value !== preset) {
+                cardStore.set(cardPath, e.detail.value);
+            } else if (typeof current !== 'undefined') {
+                cardStore.unset(cardPath);
+            }
         }
         connectedCallback() {
             ['recto', 'verso', 'form', 'toolbar'].forEach(view => {
@@ -3151,22 +2791,24 @@
             });
             this.append(cardInner);
             this.tabIndex = 0;
-            this.on('contentChange', function (e) {
-                const section = e.detail.field === 'text' ? 'props' : 'labels';
-                this.character[section][e.detail.key] = e.detail.value;
-                cardStore.set(this.character.cid, this.character);
+            this.on('fieldContentChange', e => {
+                this.updateRow(e, 'field', 'txt');
             });
-            this.on('visibilityChange', function (e) {
-                this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
-                cardStore.set(this.character.cid, this.character);
-                this.trigger('afterVisibilityChange');
+            this.on('labelContentChange', e => {
+                this.updateRow(e, 'label', 'txt', 'short');
             });
-            this.on('orderChange', function (e) {
-                let props = {};
+            this.on('fieldVisibilityChange', e => {
+                this.updateRow(e, 'field', 'vis');
+            });
+            this.on('labelVisibilityChange', e => {
+                this.updateRow(e, 'label', 'vis');
+            });
+            this.on('orderChange', e => {
+                let fields = {};
                 e.detail.order.forEach(key => {
-                    props[key] = this.character.props[key];
+                    fields[key] = cardStore.get(`${this.cid}.fields.${key}`);
                 });
-                cardStore.set(`${this.character.cid}.props`, props);
+                cardStore.set(`${this.cid}.fields`, fields);
                 this.trigger('afterOrderChange');
             });
             this.on('characterCut', function (e) {
@@ -3187,6 +2829,9 @@
                 this.classList.remove('editable');
             });
             this.on('keyup', e => {
+                if (this.classList.contains('editable')) {
+                    return true;
+                }
                 if (e.ctrlKey && ['x', 'c'].includes(e.key)) {
                     cardCopy[e.key === 'x' ? 'cut' : 'copy'](this);
                 }
@@ -3272,17 +2917,11 @@
     };
 
     class CardForm extends HTMLElement {
-        isVisible(key, type) {
-            if (type === 'text') {
-                return this.card.character.visibility[key][type] && !!this.card.character.props[key];
-            }
-            return this.card.character.visibility[key][type];
-        }
         icon(type) {
             let title;
             let icons = [`media/icons.svg#icon-show-${type}`, `media/icons.svg#icon-hide-${type}`];
             switch (type) {
-                case 'card':
+                case 'field':
                     title = 'Display this item on the card';
                     break;
                 case 'label':
@@ -3317,8 +2956,8 @@
                 },
                 data: {
                     key,
-                    card: this.isVisible(key, 'card'),
-                    label: this.isVisible(key, 'label')
+                    field: cardHelper.isVisible(this.card, key, 'field'),
+                    label: cardHelper.isVisible(this.card, key, 'label')
                 },
                 content
             });
@@ -3326,7 +2965,7 @@
             row.addEventListener('dragend', e => {
                 this.card.trigger('orderChange', {
                     order: (e => {
-                        return Array.from(src.$$('[data-key]', this.tbody))
+                        return Array.from(src.$$('[data-key]', this.tbody.closest('table')))
                             .map(entry => entry.dataset.key)
                     })()
                 });
@@ -3355,17 +2994,17 @@
                     attributes: {
                         contentEditable: true
                     },
-                    content: this.card.character.labels[key],
+                    content: cardHelper.getValue(this.card, key, 'label', 'txt'),
                     events: fieldEvents
                 }),
                 element: src.td({
                     data: {
-                        type: 'text'
+                        type: 'field'
                     },
                     attributes: {
                         contentEditable: true
                     },
-                    content: this.card.character.props[key],
+                    content: cardHelper.getValue(this.card, key, 'field', 'txt'),
                     events: fieldEvents
                 }),
                 labelIcon: src.td({
@@ -3377,10 +3016,10 @@
                 }),
                 cardIcon: src.td({
                     data: {
-                        type: 'card'
+                        type: 'field'
                     },
                     classNames: ['icon', 'toggle'],
-                    content: this.icon('card')
+                    content: this.icon('field')
                 }),
                 dragIcon: src.td({
                     classNames: ['icon', 'handle'],
@@ -3390,7 +3029,7 @@
             return Object.values(entries);
         }
         populateTbody() {
-            for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+            for (let key of Object.keys(cardStore.get(`${this.card.cid}.fields`)).filter(e => !['img', 'name'].includes(e))) {
                 this.tbody.append(this.buildRow(key));
             }
         }
@@ -3405,27 +3044,29 @@
                         },
                         data: {
                             key: 'name',
-                            type: 'text'
+                            type: 'field'
                         },
-                        content: this.card.character.props.name
+                        content: cardHelper.getValue(this.card, 'name', 'field', 'txt')
                     }),
                     src.thead({
                         content: [
                             src.tr({
                                 data: {
                                     key: 'img',
-                                    type: 'text'
                                 },
                                 content: [
                                     src.th({
-                                        content: labelStore.get('img.long')
+                                        content: cardHelper.getValue(this.card, 'img', 'label', 'txt', 'long')
                                     }),
                                     src.td({
                                         attributes: {
                                             colSpan: 4,
                                             contentEditable: true
                                         },
-                                        content: this.card.character.props.img
+                                        data: {
+                                            type: 'field'
+                                        },
+                                        content: cardHelper.getValue(this.card, 'img', 'field', 'txt')
                                     })
                                 ]
                             })
@@ -3438,8 +3079,7 @@
                         if (!e.target.contentEditable) {
                             return true;
                         }
-                        this.card.trigger('contentChange', {
-                            field: e.target.dataset.type,
+                        this.card.trigger(`${e.target.dataset.type}ContentChange`, {
                             key: e.target.closest('[data-key]').dataset.key,
                             value: e.target.textContent
                         });
@@ -3451,11 +3091,10 @@
                         }
                         const row = trigger.closest('[data-key]');
                         const key = row.dataset.key;
-                        const field = trigger.dataset.type;
-                        domProps.toggle(field, row);
-                        const value = domProps.get(field, row);
-                        this.card.trigger('visibilityChange', {
-                            field,
+                        const type = trigger.dataset.type;
+                        domProps.toggle(type, row);
+                        const value = domProps.get(type, row);
+                        this.card.trigger(`${type}VisibilityChange`, {
                             key,
                             value
                         });
@@ -3488,27 +3127,21 @@
             const entries = {
                 img: src.img({
                     attributes: {
-                        src: this.card.character.props.img
+                        src: cardHelper.getValue(this.card, 'img', 'field', 'txt')
                     }
                 }),
                 name: src.figcaption({
                     classNames: ['badge'],
-                    content: this.card.character.props.name
+                    content: cardHelper.getValue(this.card, 'name', 'field', 'txt')
                 })
             };
             for (let element of Object.values(entries)) {
                 frame.append(element);
             }
-            this.card.on('contentChange', e => {
-                ({
-                    p: 'recto',
-                    k: e.detail.key,
-                    t: e.detail.type,
-                    v: e.detail.value
-                });
-                const prop = e.detail.key === 'img' ? 'src' : 'textContent';
+            this.card.on('fieldContentChange', e => {
+                const property = e.detail.key === 'img' ? 'src' : 'textContent';
                 if(entries[e.detail.key]) {
-                    entries[e.detail.key][prop] = e.detail.value;
+                    entries[e.detail.key][property] = e.detail.value;
                 }
             });
             this.append(frame);
@@ -3648,72 +3281,79 @@
     };
 
     class CardVerso extends HTMLElement {
-        isVisible(key, type) {
-            return this.card.character.visibility[key][type] && !!this.card.character.props[key];
-        }
         populateTbody(tbody) {
             tbody = src.empty(tbody);
-            for (let key of Object.keys(this.card.character.props).filter(prop => !['img', 'name'].includes(prop))) {
+            for (let key of Object.keys(cardStore.get(`${this.card.cid}.fields`)).filter(e => !['img', 'name'].includes(e))) {
                 tbody.append(this.buildRow(key));
             }
         }
         buildRow(key) {
             const entries = {
                 label: src.th({
-                    content: this.card.character.labels[key]
+                    content: cardHelper.getValue(this.card, key, 'label', 'txt', 'short')
                 }),
-                text: src.td({
-                    content: this.card.character.props[key]
+                field: src.td({
+                    content: cardHelper.getValue(this.card, key, 'field', 'txt')
                 })
             };
-            this.rows[key] = entries;
-            const row = src.tr({
+            this.rowObj[key] = entries;
+            const rowElem = src.tr({
                 data: {
                     key,
-                    card: this.isVisible(key, 'card'),
-                    label: this.isVisible(key, 'label')
+                    field: cardHelper.isVisible(this.card, key, 'field'),
+                    label: cardHelper.isVisible(this.card, key, 'label')
                 },
                 content: Object.values(entries)
             });
-            return row;
+            return rowElem;
         }
         connectedCallback() {
-            const entries = {
+            const badges = {
                 name: src.caption({
                     classNames: ['badge'],
-                    content: this.card.character.props.name
+                    content: cardHelper.getValue(this.card, 'name', 'field', 'txt')
                 }),
                 cr: src.div({
                     classNames: ['badge', 'cr'],
-                    content: this.card.character.props.cr
+                    content: cardHelper.getValue(this.card, 'cr', 'field', 'txt')
                 })
             };
             const tbody = src.tbody();
             const frame = src.table({
                 classNames: ['frame'],
                 content: [
-                    entries.name,
+                    badges.name,
                     tbody
                 ]
             });
-            this.rows = {};
+            this.rowObj = {};
             this.populateTbody(tbody);
-            this.append(frame, entries.cr);
-            this.card.on('contentChange', e => {
-                if (Object.keys(entries).includes(e.detail.key) && e.detail.field === 'text') {
-                    entries[e.detail.key].textContent = e.detail.value;
+            this.append(frame, badges.cr);
+             this.card.on('fieldContentChange', e => {
+                if (Object.keys(badges).includes(e.detail.key)) {
+                    badges[e.detail.key].textContent = e.detail.value;
                 }
-                if (Object.keys(this.rows).includes(e.detail.key)) {
-                    this.rows[e.detail.key][e.detail.field].textContent = e.detail.value;
+                if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                    this.rowObj[e.detail.key].field.textContent = e.detail.value;
+                }
+            });
+             this.card.on('labelContentChange', e => {
+                if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                    this.rowObj[e.detail.key].label.textContent = e.detail.value;
+                }
+            });
+            this.card.on('fieldVisibilityChange', e => {
+                if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                    this.rowObj[e.detail.key].field.parentElement.dataset.field = e.detail.value;
+                }
+            });
+            this.card.on('labelVisibilityChange', e => {
+                if (Object.keys(this.rowObj).includes(e.detail.key)) {
+                    this.rowObj[e.detail.key].label.parentElement.dataset.label = e.detail.value;
                 }
             });
             this.card.on('afterOrderChange', e => {
                 this.populateTbody(tbody);
-            });
-            this.card.on('visibilityChange', e => {
-                if (Object.keys(this.rows).includes(e.detail.key)) {
-                    this.rows[e.detail.key].text.parentElement.dataset[e.detail.field] = e.detail.value;
-                }
             });
         }
         constructor(self) {
@@ -4027,87 +3667,67 @@
         register
     };
 
+    var storageKeys = {
+    	cards: "gc-cards",
+    	tabs: "gc-tabs"
+    };
+    var feConfig = {
+    	storageKeys: storageKeys
+    };
+
     var css = {
     	entryPoint: "src/css/main.css",
     	"public": "public/css/main.css"
     };
-    var cssProps = {
-    	src: "src/css/inc/card-defs.css",
-    	target: "src/data/css-props.json"
+    var presets = {
+    	target: "public/js/presets.json",
+    	url: "js/presets.json"
     };
-    var fonts = {
-    	src: "src/data/raw/fonts.txt",
-    	target: "src/data/fonts.json"
-    };
-    var backgrounds = {
-    	src: "public/media/patterns/backgrounds",
-    	target: "src/data/backgrounds.json"
-    };
-    var borders = {
-    	src: "public/media/patterns/borders",
-    	target: "src/data/borders.json"
+    var js = {
+    	entryPoint: "src/js/app/main.js",
+    	"public": "public/js/main.js"
     };
     var characters = {
     	src: "src/data/raw/monsters.json",
     	target: "public/js/characters.json",
     	url: "js/characters.json"
     };
-    var fields = {
-    	src: "src/config/field-config.yml"
-    };
-    var labels = {
-    	target: "src/data/labels.json"
-    };
-    var visibility = {
-    	target: "src/data/visibility.json"
-    };
-    var js = {
-    	entryPoint: "src/js/app/main.js",
-    	"public": "public/js/main.js"
-    };
-    var storageKeys = {
-    	user: "gc-user-prefs",
-    	cards: "gc-cards",
-    	tabs: "gc-tabs"
-    };
-    var userCharacters = {
-    	inLibrary: true
-    };
-    var config = {
+    var sharedConfig = {
     	css: css,
-    	cssProps: cssProps,
-    	fonts: fonts,
-    	backgrounds: backgrounds,
-    	borders: borders,
-    	characters: characters,
-    	fields: fields,
-    	labels: labels,
-    	visibility: visibility,
+    	presets: presets,
     	js: js,
-    	storageKeys: storageKeys,
-    	userCharacters: userCharacters
+    	characters: characters
     };
 
+    const config = {
+        ...feConfig,
+        ...sharedConfig
+    };
     class App extends HTMLElement {
         connectedCallback() {
             const settings = new Tree({
                 data: config
             });
             const launchData = {
-                tabs: JSON.parse(localStorage.getItem(settings.get('storageKeys.tabs')) || '{}'),
+                tabs: JSON.parse(localStorage.getItem(config.storageKeys.tabs) || '{}'),
                 system: {},
-                stored: JSON.parse(localStorage.getItem(settings.get('storageKeys.cards')) || '{}'),
+                presets: {},
+                stored: JSON.parse(localStorage.getItem(config.storageKeys.cards) || '{}'),
                 settings
             };
-            fetch(settings.get('characters.url'))
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach((props, cid) => {
-                        launchData.system[cid] = {
-                            cid,
-                            props
-                        };
-                    });
+            Promise.all([
+                    fetch(config.characters.url),
+                    fetch(config.presets.url)
+                ])
+                .then(responses => Promise.all(responses.map(r => r.json())))
+                .then(dataArr => {
+                    launchData.characters = dataArr[0];
+                    launchData.presets = {
+                        ...dataArr[1],
+                        ...{
+                            storageKeys: config.storageKeys
+                        }
+                    };
                     initStorage(launchData);
                     [
                         TabContent$1,

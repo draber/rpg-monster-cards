@@ -1,0 +1,33 @@
+
+    // inside card
+    [cid].fields[key].field.txt
+    [cid].fields[key].field.vis
+    [cid].fields[key].label.txt.long
+    [cid].fields[key].label.txt.short
+    [cid].fields[key].label.vis
+
+    // inside preset
+    cards[key].field.txt
+    cards[key].field.vis
+    cards[key].label.txt.long
+    cards[key].label.txt.short
+    cards[key].label.vis
+
+
+    {
+    "fields": {
+        "name": {
+            "field": {
+                "txt": "Celestial Giant Fire Beetle",
+                "vis": "__only if not default__"
+            },
+            "label": {
+                "txt": {
+                    "long": "Name",
+                    "short": "Name"
+                },
+                "vis": "__only if not default__"
+            }
+        }
+    }
+}

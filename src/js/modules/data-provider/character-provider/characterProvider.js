@@ -7,7 +7,8 @@ const getCharacters = (characterSrcFile, fieldSrcFile) => {
     let i = characters.length;
     let imgRe = /javascript\:ShowImage\('([^\.]+)\.[^;]+;/
     while (i--) {
-        // convert keys
+        // improve and convert character data
+        // charKey is something like name|cr|wis...
         for (let [charKey, value] of Object.entries(characters[i])) {
 
             if (typeof value === 'string') {

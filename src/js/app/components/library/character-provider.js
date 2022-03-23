@@ -1,36 +1,28 @@
 import sorter from '../../../modules/sorter/sorter.js';
 import {
-    systemStore,
-    cardStore,
-    labelStore
-} from '../../storage/storage.js'
+    characterStore,
+    presetStore
+} from '../../storage/storage.js';
 
 
 /**
  * Map 'group by' to a label and a value
- * @param {Object} entry
+ * @param {Object} character
  * @param {String} groupBy
  * @returns {Object} modified entry
  */
-const prepareGroupSort = (entry, groupBy) => {
-    if (typeof entry.props[groupBy] === 'undefined') {
-        entry.props[groupBy] = '';
-    }
+const prepareGroupSort = (character, groupBy) => {
     switch (groupBy) {
-        case '__user':
-            entry._groupValue = labelStore.get('__user.group');
-            entry._groupLabel = labelStore.get('__user.group');
-            break;
         case 'name':
-            entry._groupValue = entry.props.name.charAt(0).toUpperCase();
-            entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry._groupValue;
+            character._groupValue = character.fields.name.field.txt.charAt(0).toUpperCase();
+            character._groupLabel = presetStore.get(`lib.${groupBy}.txt`) + ': ' + character._groupValue;
             break
         default:
-            entry._groupValue = entry.props[groupBy];
-            entry._groupLabel = labelStore.get(`${groupBy}.group`) + ':' + entry.props[groupBy]
+            character._groupValue = character.fields[groupBy].field.txt;
+            character._groupLabel = presetStore.get(`lib.${groupBy}.txt`) + ': ' + character._groupValue
     }
 
-    return entry;
+    return character;
 }
 
 /**
@@ -41,24 +33,21 @@ const prepareGroupSort = (entry, groupBy) => {
  * @param {String} sortDir
  * @returns {Object}
  */
-const getSortedCharacters = (type, {
+const getSortedCharacters = ({
     groupBy = 'name',
     sortBy = 'name',
     groupDir = 'asc',
     sortDir = 'name'
 } = {}) => {
     let grouped = {};
-    const store = type === 'user' ? cardStore : systemStore;
-    for (let entry of store.values()) {
-        entry = prepareGroupSort(entry, groupBy);
-        grouped[entry._groupValue] = grouped[entry._groupValue] || [];
-        grouped[entry._groupValue].push(entry)
+    for (let character of characterStore.values()) {
+        character = prepareGroupSort(character, groupBy);
+        grouped[character._groupValue] = grouped[character._groupValue] || [];
+        grouped[character._groupValue].push(character)
     }
-    if (type === 'system') {
-        grouped = sorter.group(grouped, groupDir);
-    }
+    grouped = sorter.group(grouped, groupDir);
     for (let [key, values] of Object.entries(grouped)) {
-        grouped[key] = sorter.sort(values, `props.${sortBy}`, sortDir);
+        grouped[key] = sorter.sort(values, `fields.${sortBy}.field.txt`, sortDir);
     }
     return grouped;
 }

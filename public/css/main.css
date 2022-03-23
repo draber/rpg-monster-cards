@@ -272,14 +272,6 @@ a{
   color:currentColor;
 }
 
-::-moz-selection{
-  background-color:transparent;
-}
-
-::selection{
-  background-color:transparent;
-}
-
 details{
   padding:0;
   margin:0
@@ -1051,10 +1043,10 @@ card-base.editable article{
       gap:1rem;
     }
 
-card-base:focus{
-    outline:0.4rem hsl(44, 81%, 38%) solid;
-    outline:0.4rem var(--hd-color) solid;
-  }
+card-base:focus:not(.editable){
+      outline:0.4rem hsl(44, 81%, 38%) solid;
+      outline:0.4rem var(--hd-color) solid;
+    }
 
 card-base.cut .card-view{
       opacity:0.6;
@@ -1125,11 +1117,11 @@ card-verso tr{
     gap:0.5ch
   }
 
-card-verso tr[data-card="true"]{
+card-verso tr[data-field="true"]{
       display:flex;
     }
 
-card-verso tr[data-card="false"]{
+card-verso tr[data-field="false"]{
       display:none;
     }
 
@@ -1148,9 +1140,9 @@ card-verso th{
     filter:contrast(25%)
   }
 
-card-verso th::after{
-      content:":";
-    }
+card-verso th:not(:empty)::after{
+        content:":";
+      }
 
 card-verso td{
     display:inline-block;
@@ -1159,15 +1151,15 @@ card-verso td{
 card-verso use{
   }
 
-card-verso [data-card="false"]{
+card-verso [data-field="false"]{
     opacity:0.8
   }
 
-card-verso [data-card="false"] use[data-card="false"]{
+card-verso [data-field="false"] use[data-field="false"]{
         display:inline;
       }
 
-card-verso [data-card="false"] use[data-card="true"]{
+card-verso [data-field="false"] use[data-field="true"]{
         display:none;
       }
 
@@ -1363,25 +1355,25 @@ card-form svg{
 card-form{
 }
 
-card-form use[href*="show-card"],
+card-form use[href*="show-field"],
     card-form use[href*="show-label"]{
       display:inline;
     }
 
-card-form use[href*="hide-card"],
+card-form use[href*="hide-field"],
     card-form use[href*="hide-label"]{
       display:none;
     }
 
-card-form [data-card="false"]{
+card-form [data-field="false"]{
     opacity:0.8
   }
 
-card-form [data-card="false"] use[href*="hide-card"]{
+card-form [data-field="false"] use[href*="hide-field"]{
         display:inline;
       }
 
-card-form [data-card="false"] use[href*="show-card"]{
+card-form [data-field="false"] use[href*="show-field"]{
         display:none;
       }
 

@@ -36,7 +36,6 @@ const add = character => {
     }
     // setup everything
     character = {
-        ...cardStore.getBlank(),
         ...character,
         ...{
             tid,
@@ -48,7 +47,6 @@ const add = character => {
     const card = document.createElement('card-base');
     card.setAttribute('cid', cid);
     card.setAttribute('tid', tid);
-    card.character = character;
     tab.panel.append(card);
 }
 

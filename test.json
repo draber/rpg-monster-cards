@@ -1,0 +1,514 @@
+{
+    "name":
+    {
+        "labels":
+        {
+            "group": "First Letter",
+            "long": "Name",
+            "short": "Name"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "name"
+    },
+    "img":
+    {
+        "labels":
+        {
+            "long": "Image URL",
+            "short": "Img",
+            "group": "Image URL"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": false,
+            "label": false
+        },
+        "key": "img"
+    },
+    "cr":
+    {
+        "labels":
+        {
+            "long": "Challenge Rating",
+            "short": "CR",
+            "group": "Challenge Rating"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "cr"
+    },
+    "base":
+    {
+        "labels":
+        {
+            "long": "Base",
+            "short": "Base",
+            "group": "Base"
+        },
+        "visibility":
+        {
+            "card": false,
+            "group": true,
+            "label": true
+        },
+        "key": "base"
+    },
+    "type":
+    {
+        "labels":
+        {
+            "long": "Type",
+            "short": "Type",
+            "group": "Type"
+        },
+        "key": "type",
+        "visibility":
+        {
+            "card": true,
+            "group": false,
+            "label": true
+        }
+    },
+    "hp":
+    {
+        "labels":
+        {
+            "long": "Hit Points",
+            "short": "HP",
+            "group": "Hit Points"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "hp"
+    },
+    "speed":
+    {
+        "labels":
+        {
+            "long": "Speed",
+            "short": "Spd",
+            "group": "Speed"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "speed"
+    },
+    "base attack/grapple":
+    {
+        "labels":
+        {
+            "long": "Base Attack/Grapple",
+            "short": "BA/G",
+            "group": "Base Attack/Grapple"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "bag"
+    },
+    "attack":
+    {
+        "labels":
+        {
+            "long": "Attack",
+            "short": "Atk",
+            "group": "Attack"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "atk"
+    },
+    "full attack":
+    {
+        "labels":
+        {
+            "long": "Full Attack",
+            "short": "Full Atk",
+            "group": "Full Attack"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "atk_f"
+    },
+    "attack_parameters":
+    {
+        "labels":
+        {
+            "long": "Attack Parameters",
+            "short": "Atk Params",
+            "group": "Attack Parameters"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "atk_p"
+    },
+    "space/reach":
+    {
+        "labels":
+        {
+            "long": "Space/Reach",
+            "short": "Sp/Re",
+            "group": "Space/Reach"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "sp_r"
+    },
+    "special attacks":
+    {
+        "labels":
+        {
+            "long": "Special Attacks",
+            "short": "Sp Atk",
+            "group": "Special Attacks"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "atk_s"
+    },
+    "reflex":
+    {
+        "labels":
+        {
+            "long": "Reflex",
+            "short": "Rfx",
+            "group": "Reflex"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "rfx"
+    },
+    "will":
+    {
+        "labels":
+        {
+            "long": "Will",
+            "short": "Wil",
+            "group": "Will"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "will"
+    },
+    "str":
+    {
+        "labels":
+        {
+            "long": "Strength",
+            "short": "Str",
+            "group": "Strength"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "str"
+    },
+    "dex":
+    {
+        "labels":
+        {
+            "long": "Dexterity",
+            "short": "Dex",
+            "group": "Dexterity"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "dex"
+    },
+    "con":
+    {
+        "labels":
+        {
+            "long": "Constitution",
+            "short": "Con",
+            "group": "Constitution"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "con"
+    },
+    "int":
+    {
+        "labels":
+        {
+            "long": "Intelligence",
+            "short": "Int",
+            "group": "Intelligence"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "int"
+    },
+    "wis":
+    {
+        "labels":
+        {
+            "long": "Wisdom",
+            "short": "Wis",
+            "group": "Wisdom"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "wis"
+    },
+    "cha":
+    {
+        "labels":
+        {
+            "long": "Charisma",
+            "short": "Cha",
+            "group": "Charisma"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "cha"
+    },
+    "skills":
+    {
+        "labels":
+        {
+            "long": "Skills",
+            "short": "Skills",
+            "group": "Skills"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "skills"
+    },
+    "feats":
+    {
+        "labels":
+        {
+            "long": "Feats",
+            "short": "Feats",
+            "group": "Feats"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "feats"
+    },
+    "environment":
+    {
+        "labels":
+        {
+            "long": "Environment",
+            "short": "Env",
+            "group": "Environment"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "env"
+    },
+    "organization":
+    {
+        "labels":
+        {
+            "long": "Organization",
+            "short": "Org",
+            "group": "Organization"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "org"
+    },
+    "treasure":
+    {
+        "labels":
+        {
+            "long": "Treasure",
+            "short": "Treas",
+            "group": "Treasure"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "tre"
+    },
+    "alignment":
+    {
+        "labels":
+        {
+            "long": "Alignment",
+            "short": "Algn",
+            "group": "Alignment"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "algn"
+    },
+    "level adjustment":
+    {
+        "labels":
+        {
+            "long": "Level Adjustment",
+            "short": "L Adj",
+            "group": "Level Adjustment"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "l_adj"
+    },
+    "notes":
+    {
+        "labels":
+        {
+            "long": "Notes",
+            "short": "Notes",
+            "group": "Notes"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "notes"
+    },
+    "fort":
+    {
+        "labels":
+        {
+            "long": "Fortitude",
+            "short": "Fort",
+            "group": "Fortitude"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "fort"
+    },
+    "ac":
+    {
+        "labels":
+        {
+            "long": "Armor Class",
+            "short": "AC",
+            "group": "Armor Class"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "ac"
+    },
+    "ini":
+    {
+        "labels":
+        {
+            "long": "Initiative",
+            "short": "Ini",
+            "group": "Initiative"
+        },
+        "visibility":
+        {
+            "card": true,
+            "group": true,
+            "label": true
+        },
+        "key": "ini"
+    }
+}

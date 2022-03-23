@@ -115,22 +115,22 @@ card-form {
 
   // icon toggle
   & use {
-    &[href*="show-card"],
+    &[href*="show-field"],
     &[href*="show-label"] {
       display: inline;
     }
-    &[href*="hide-card"],
+    &[href*="hide-field"],
     &[href*="hide-label"] {
       display: none;
     }
   }
-  & [data-card="false"] {
+  & [data-field="false"] {
     opacity: 0.8;
     & use {
-      &[href*="hide-card"] {
+      &[href*="hide-field"] {
         display: inline;
       }
-      &[href*="show-card"] {
+      &[href*="show-field"] {
         display: none;
       }
     }

@@ -1,45 +1,59 @@
 import TabTree from './TabTree.js';
 import CharTree from './CharTree.js';
-import SystemPropTree from '../../modules/tree/SystemPropTree.js';
-import Tree from '../../modules/tree/Tree.js';
+import PresetTree from '../../modules/tree/PresetTree.js';
 import cssProps from '../../../data/css-props.json';
-import labels from '../../../data/labels.json';
 
 let tabStore;
-let systemStore;
+let characterStore;
 let cardStore;
 let copyStore;
-let importStore;
 let styleStore;
-let settings;
-let labelStore;
+let presetStore;
 
 const initStorage = launchData => {
-    // configuration
-    settings = launchData.settings;
+
+    // system configuration
+    presetStore = new PresetTree({
+        data: launchData.presets
+    })
 
     // tabs
     tabStore = new TabTree({
         data: launchData.tabs,
-        lsKey: settings.get('storageKeys.tabs')
+        lsKey: presetStore.get('storageKeys.tabs')
     });
 
     // ensure there is always at least one tab available
-    if(tabStore.length === 0){
+    if (tabStore.length === 0) {
         const blank = tabStore.getBlank();
         tabStore.set(blank.tid, blank);
     }
 
+    // valid card/character fields
+    const validFields = Object.keys(launchData.presets.cards);
+
     // characters provided by the system
-    systemStore = new CharTree({
-        data: launchData.system
+    characterStore = new CharTree({
+        validFields
     });
+
+    launchData.characters.forEach(systemCharacter => {
+        const finalCharacter = characterStore.getBlank();
+        validFields.forEach(key => {
+            if (systemCharacter[key]) {
+                finalCharacter.fields[key].field.txt = systemCharacter[key];
+            }
+        })
+        characterStore.set(finalCharacter.cid, finalCharacter);
+    });
+
 
     // characters created by the user
     cardStore = new CharTree({
         data: launchData.stored,
-        lsKey: settings.get('storageKeys.cards'),
-        minIncrement: 3001
+        lsKey: presetStore.get('storageKeys.cards'),
+        minIncrement: 3001,
+        validFields
     });
 
     // characters ready for pasting
@@ -49,24 +63,17 @@ const initStorage = launchData => {
 
     // SystemPropTrees are readonly and 
     // css custom properties
-    styleStore = new SystemPropTree({
+    styleStore = new PresetTree({
         data: cssProps[':root']
-    })
-
-    // label store
-    labelStore = new SystemPropTree({
-        data: labels
     })
 }
 
 export {
     tabStore,
-    systemStore,
+    characterStore,
     cardStore,
     copyStore,
-    importStore,
     styleStore,
-    labelStore,
-    settings
+    presetStore
 }
 export default initStorage;

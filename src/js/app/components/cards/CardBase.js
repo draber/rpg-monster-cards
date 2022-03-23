@@ -7,8 +7,10 @@ import {
 import cardManager from './card-manager.js';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
 import {
-    cardStore
+    cardStore,
+    presetStore
 } from '../../storage/storage.js';
+import cardHelper from './card-helper.js';
 
 /**
  * Card container
@@ -63,6 +65,25 @@ class CardBase extends HTMLElement {
     }
 
     /**
+     * Common code for table row changes 
+     * @param {Event} e 
+     * @param {String} type label|field
+     * @param {String} prop txt|vis
+     * @param {String} [version] short|long which label to return, short by default
+     */
+    updateRow(e, type, prop, version = 'short') {
+        let presetPath = cardHelper.getPresetPath(e.detail.key, type, prop, version);
+        let cardPath = cardHelper.getCardPath(this.cid, e.detail.key, type, prop, version);
+        const preset = presetStore.get(presetPath);
+        const current = cardStore.get(cardPath);
+        if (e.detail.value !== preset) {
+            cardStore.set(cardPath, e.detail.value);
+        } else if (typeof current !== 'undefined') {
+            cardStore.unset(cardPath);
+        }
+    }
+
+    /**
      * Called on element launch
      */
     connectedCallback() {
@@ -98,26 +119,35 @@ class CardBase extends HTMLElement {
          * Handle the different actions from the card form
          */
         // text/image change
-        this.on('contentChange', function (e) {
-            const section = e.detail.field === 'text' ? 'props' : 'labels';
-            this.character[section][e.detail.key] = e.detail.value;
-            cardStore.set(this.character.cid, this.character);
+        this.on('fieldContentChange', e => {
+            this.updateRow(e, 'field', 'txt');
         })
+
+        // label change
+        this.on('labelContentChange', e => {
+            this.updateRow(e, 'label', 'txt', 'short');
+        })
+
         // change of field visibility
-        this.on('visibilityChange', function (e) {
-            this.character.visibility[e.detail.key][e.detail.field] = e.detail.value;
-            cardStore.set(this.character.cid, this.character);
-            this.trigger('afterVisibilityChange');
+        this.on('fieldVisibilityChange', e => {
+            this.updateRow(e, 'field', 'vis');
         });
+
+        // change of field visibility
+        this.on('labelVisibilityChange', e => {
+            this.updateRow(e, 'label', 'vis');
+        });
+
         // change of order of fields
-        this.on('orderChange', function (e) {
-            let props = {};
+        this.on('orderChange', e => {
+            let fields = {};
             e.detail.order.forEach(key => {
-                props[key] = this.character.props[key];
+                fields[key] = cardStore.get(`${this.cid}.fields.${key}`);
             })
-            cardStore.set(`${this.character.cid}.props`, props);
+            cardStore.set(`${this.cid}.fields`, fields);
             this.trigger('afterOrderChange');
         });
+
 
         // card has been cut out
         this.on('characterCut', function (e) {
@@ -148,6 +178,10 @@ class CardBase extends HTMLElement {
 
         // handle keyboard shortcuts
         this.on('keyup', e => {
+            // leave the card alone while the form is open
+            if (this.classList.contains('editable')) {
+                return true;
+            }
 
             if (e.ctrlKey && ['x', 'c'].includes(e.key)) {
                 cardCopy[e.key === 'x' ? 'cut' : 'copy'](this);

@@ -3,6 +3,7 @@ import {
     on,
     trigger
 } from '../../../modules/events/eventHandler.js'
+import cardHelper from './card-helper.js';
 
 /**
  * Custom element containing the list of fonts
@@ -21,12 +22,12 @@ class CardRecto extends HTMLElement {
         const entries = {
             img: fn.img({
                 attributes: {
-                    src: this.card.character.props.img
+                    src: cardHelper.getValue(this.card, 'img', 'field', 'txt')
                 }
             }),
             name: fn.figcaption({
                 classNames: ['badge'],
-                content: this.card.character.props.name
+                content: cardHelper.getValue(this.card, 'name', 'field', 'txt')
             })
         }
 
@@ -37,16 +38,10 @@ class CardRecto extends HTMLElement {
         /**
          * repaint on content change
          */
-        this.card.on('contentChange', e => {
-            const x = {
-                p: 'recto',
-                k: e.detail.key,
-                t: e.detail.type,
-                v: e.detail.value
-            }
-            const prop = e.detail.key === 'img' ? 'src' : 'textContent'
+        this.card.on('fieldContentChange', e => {
+            const property = e.detail.key === 'img' ? 'src' : 'textContent';
             if(entries[e.detail.key]) {
-                entries[e.detail.key][prop] = e.detail.value;
+                entries[e.detail.key][property] = e.detail.value;
             }
         })
 
