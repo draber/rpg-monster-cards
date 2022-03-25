@@ -1,19 +1,12 @@
 import fn from 'fancy-node';
-import backgrounds from '../../../../../data/backgrounds.json';
-import borders from '../../../../../data/borders.json';
-import { styleStore } from '../../../storage/storage.js';
+import {
+    presetStore
+} from '../../../storage/storage.js';
 import {
     on,
     trigger
 } from '../../../../modules/events/eventHandler.js'
 
-/**
- * Combine the patterns for background and border, the mechanism is the same for both
- */
-const patternPool = {
-    backgrounds,
-    borders
-}
 
 /**
  * Custom element containing the list of patterns
@@ -87,7 +80,6 @@ class PatternSelector extends HTMLElement {
                 return input.value;
             }
         }
-        return styleStore.get(this.name) || '';
     }
 
     /**
@@ -103,25 +95,20 @@ class PatternSelector extends HTMLElement {
             throw Error(`Missing attribute "type" on <pattern-selector> element`);
         }
 
-        this.value = this.getValue();
-
-        this.styleArea = 'patterns';
-
-        const patterns = patternPool[this.type];
-
+        const preset = presetStore.get(`css.${this.name}`);
         const inputs = [];
 
         /**
          * Radiobuttons with the different patterns
          */
-        const choices = patterns.map(entry => {
+        const choices = presetStore.get(this.type).map(entry => {
             let input = fn.input({
                 attributes: {
                     type: 'radio',
                     name: `${this.type}-pattern`,
                     value: this.getUrl(entry.name, 'css'),
                     id: `${this.type}-${entry.id}`,
-                    checked: this.getUrl(entry.name, 'css') === this.value
+                    checked: this.getUrl(entry.name, 'css') === preset
                 }
             });
             inputs.push(input);
@@ -150,11 +137,9 @@ class PatternSelector extends HTMLElement {
             content: choices,
             events: {
                 change: e => {
-                    this.value = this.getValue();
                     this.app.trigger(`singleStyleChange`, {
                         name: this.name,
-                        value: this.value,
-                        area: this.styleArea
+                        value: this.getValue()
                     });
                 }
             }
@@ -163,20 +148,13 @@ class PatternSelector extends HTMLElement {
         this.append(selector);
         selector.dispatchEvent(new Event('change'));
 
-
-        // change from the active tab
-        this.app.on('tabStyleChange', e => {
-            this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
-                e.detail.styles[this.styleArea][this.name] :
-                styleStore.get(this.name);
-            inputs.find(e => e.value === this.value).checked = true;
-
-            this.app.trigger(`singleStyleChange`, {
-                name: this.name,
-                value: this.value,
-                area: this.styleArea,
-                tab: e.detail.tab
-            });
+        // change triggered by the active tab
+        this.app.on('styleUpdate', e => {
+            if (!e.detail.css[this.name]) {
+                return false
+            }
+            inputs.find(e => e.value === e.detail.css[this.name]).checked = true;
+            selector.dispatchEvent(new Event('change'));
         })
     }
 

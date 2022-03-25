@@ -1,13 +1,11 @@
 import TabTree from './TabTree.js';
 import CharTree from './CharTree.js';
 import PresetTree from '../../modules/tree/PresetTree.js';
-import cssProps from '../../../data/css-props.json';
 
 let tabStore;
 let characterStore;
 let cardStore;
 let copyStore;
-let styleStore;
 let presetStore;
 
 const initStorage = launchData => {
@@ -60,12 +58,6 @@ const initStorage = launchData => {
     copyStore = new CharTree({
         minIncrement: 6001
     });
-
-    // SystemPropTrees are readonly and 
-    // css custom properties
-    styleStore = new PresetTree({
-        data: cssProps[':root']
-    })
 }
 
 export {
@@ -73,7 +65,6 @@ export {
     characterStore,
     cardStore,
     copyStore,
-    styleStore,
     presetStore
 }
 export default initStorage;

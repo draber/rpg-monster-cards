@@ -1,15 +1,27 @@
 import fn from 'fancy-node';
-import fonts from '../../../../../data/fonts.json';
-import { styleStore } from '../../../storage/storage.js';
+import {
+    presetStore
+} from '../../../storage/storage.js';
 import {
     on,
     trigger
-} from '../../../../modules/events/eventHandler.js'
+} from '../../../../modules/events/eventHandler.js';
+
+
 
 /**
  * Custom element containing the list of fonts
  */
 class FontSelector extends HTMLElement {
+
+    /**
+     * Normalize "My Font" to 'My Font' to make font families comparable
+     * @param {String} fontFamily 
+     * @returns {String}
+     */
+    normalize(fontFamily) {
+        return fontFamily.replace(/"+/g, "'");
+    }
 
     /**
      * Map attribute and property, getter for 'name'
@@ -36,10 +48,8 @@ class FontSelector extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-selector> element`);
         }
 
-        this.styleArea = 'fonts';
-
-        // currently selected font
-        this.currentFont = styleStore.get(this.name);
+        let value = this.normalize(presetStore.get(`css.${this.name}`));
+        let fonts = presetStore.get('fonts');
 
         // <select>
         const selector = fn.select({
@@ -48,13 +58,14 @@ class FontSelector extends HTMLElement {
             },
             content: fonts.map(entry => {
                 // <option>
+                let family = this.normalize(entry.family);
                 return fn.option({
                     attributes: {
-                        value: entry.family,
-                        selected: entry.family === this.currentFont
+                        value: family,
+                        selected: family === value
                     },
                     style: {
-                        fontFamily: entry.family
+                        fontFamily: family
                     },
                     content: entry.label
                 })
@@ -64,35 +75,25 @@ class FontSelector extends HTMLElement {
             },
             events: {
                 change: e => {
-                    this.selected = e.target.value;
                     this.app.trigger(`singleStyleChange`, {
                         name: this.name,
-                        value: e.target.value,
-                        area: this.styleArea
+                        value: this.normalize(e.target.value)
                     });
                 }
             }
         })
 
         this.append(selector);
-        selector.dispatchEvent(new Event('change'));
+        selector.dispatchEvent(new Event('change'));        
 
-
-        // change from the active tab
-        this.app.on('tabStyleChange', e => {  
-            const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
-                e.detail.styles[this.styleArea][this.name] :
-                styleStore.get(this.name);
-                // quotes need to be neutralized because they can be either ' or " due to the different transformations
-            selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
-
-            this.selected = value; 
-            this.app.trigger(`singleStyleChange`, {
-                name: this.name,
-                value,
-                area: this.styleArea,
-                tab: e.detail.tab
-            });
+        // change triggered by the active tab
+        this.app.on('styleUpdate', e => {
+            if (!e.detail.css[this.name]) {
+                return false
+            }
+            value = this.normalize(e.detail.css[this.name]);
+            selector.selectedIndex = fonts.findIndex(e => this.normalize(e.family) === value);
+            selector.dispatchEvent(new Event('change'));
         })
     }
 

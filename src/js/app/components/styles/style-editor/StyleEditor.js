@@ -1,8 +1,10 @@
 import {
     on,
     trigger
-} from '../../../../modules/events/eventHandler.js'
-import tabManager from '../../tabs/tab-manager.js';
+} from '../../../../modules/events/eventHandler.js';
+import {
+    presetStore
+} from '../../../storage/storage.js';
 
 /**
  * Custom element containing the list of fonts
@@ -17,10 +19,17 @@ class StyleEditor extends HTMLElement {
         // event listeners on this element
         // single change from one of the controls
         this.app.on('singleStyleChange', e => {
-            const activeTab = tabManager.getTab('active');
-            const tab = e.detail.tab || activeTab;
-            if (tab.isSameNode(activeTab)) {
-                this.style.setProperty(e.detail.name, e.detail.value);
+            this.style.setProperty(e.detail.name, e.detail.value);
+        })
+
+        // bulk change triggered by the active tab
+        this.app.on('styleUpdate', e => {
+            const css = {
+                ...presetStore.get('css'),
+                ...e.detail.css
+            }
+            for (let [property, value] of Object.entries(css)) {
+                this.style.setProperty(property, value);
             }
         })
     }

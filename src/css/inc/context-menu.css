@@ -52,7 +52,7 @@
   }
 }
 
-[data-style-storage="true"] {
+[data-style-storage] {
   & li {
     &.storage-dependent {
       &[data-storage="style"] {

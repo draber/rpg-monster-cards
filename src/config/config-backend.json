@@ -4,7 +4,7 @@
     "target": "src/data/css-props.json"
   },
   "fonts": {
-    "src": "src/data/raw/fonts.txt",
+    "src": "src/data/fonts.txt",
     "target": "src/data/fonts.json"
   },
   "backgrounds": {
@@ -16,7 +16,7 @@
     "target": "src/data/borders.json"
   },
   "fields": {
-    "src": "src/config/field-config.yml"
+    "src": "src/data/fields.yml"
   },
   "labels": {
     "target": "src/data/labels.json"

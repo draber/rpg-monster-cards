@@ -1,9 +1,11 @@
 import fn from 'fancy-node';
-import { styleStore } from '../../../storage/storage.js';
+import {
+    presetStore
+} from '../../../storage/storage.js';
 import {
     on,
     trigger
-} from '../../../../modules/events/eventHandler.js'
+} from '../../../../modules/events/eventHandler.js';
 
 /**
  * Custom element containing the list of fonts
@@ -26,53 +28,6 @@ class FontSize extends HTMLElement {
         this.setAttribute('name', value);
     }
 
-    /**
-     * Map attribute and property, getter for 'max'
-     * @returns {string}
-     */
-    get max() {
-        return this.getAttribute('max');
-    }
-
-    /**
-     * Map attribute and property, setter for 'max'
-     * @param value
-     */
-    set max(value) {
-        this.setAttribute('max', value);
-    }
-
-    /**
-     * Map attribute and property, getter for 'min'
-     * @returns {string}
-     */
-    get min() {
-        return this.getAttribute('min');
-    }
-
-    /**
-     * Map attribute and property, setter for 'min'
-     * @param value
-     */
-    set min(value) {
-        this.setAttribute('min', value);
-    }
-
-    /**
-     * Map attribute and property, getter for 'value'
-     * @returns {string}
-     */
-    get value() {
-        return this.getAttribute('value');
-    }
-
-    /**
-     * Map attribute and property, setter for 'value'
-     * @param value
-     */
-    set value(value) {
-        this.setAttribute('value', value);
-    }
 
     /**
      * Called on element launch
@@ -83,31 +38,30 @@ class FontSize extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-size> element`);
         }
 
-        this.value = parseFloat(styleStore.get(this.name) || 1.4, 10);
-        this.styleArea = 'fonts';
-
-        const attributes = {
-            value: this.value,
-            type: 'range',
-            step: (this.max - this.min) / 100
-        }
-
-        attributes.min = attributes.value * .7;
-        attributes.max = attributes.value * 1.3;
-        attributes.step = (attributes.max - attributes.min) / 100;
+        let value = presetStore.get(`css.${this.name}`);
+        let parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
+        let numeric = parseFloat(parts.groups.num, 10);
+        let unit = parts.groups.unit;
+        let min = numeric * .7;
+        let max = numeric * 1.3;
+        let step = (max - min) / 100;
 
         const input = fn.input({
-            attributes,
+            attributes: {
+                type: 'range',
+                step,
+                min,
+                max,
+                value: numeric
+            },
             data: {
                 prop: this.name
             },
             events: {
                 input: e => {
-                    this.value = e.target.value + 'rem';
                     this.app.trigger(`singleStyleChange`, {
                         name: this.name,
-                        value: this.value,
-                        area: this.styleArea
+                        value: e.target.value + unit
                     });
                 }
             }
@@ -116,19 +70,17 @@ class FontSize extends HTMLElement {
         this.append(input);
         input.dispatchEvent(new Event('input'));
 
-
-        // change from the active tab
-        this.app.on('tabStyleChange', e => {   
-            this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
-                e.detail.styles[this.styleArea][this.name] :
-                styleStore.get(this.name);
-            input.value = parseFloat(this.value, 10);
-            this.app.trigger(`singleStyleChange`, {
-                name: this.name,
-                value: this.value,
-                area: this.styleArea,
-                tab: e.detail.tab
-            });
+        // change triggered by the active tab
+        this.app.on('styleUpdate', e => {
+            if (!e.detail.css[this.name]) {
+                return false
+            }
+            value = e.detail.css[this.name];
+            parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
+            numeric = parseFloat(parts.groups.num, 10);
+            unit = parts.groups.unit;
+            input.value = numeric;
+            input.dispatchEvent(new Event('input'));
         })
     }
 

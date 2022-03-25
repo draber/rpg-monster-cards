@@ -2,29 +2,29 @@
 Printable RPG character cards
 
 ## Configuration
-The main system configuration file is `src/config/config.json`. Most items here relate to data generation. `js` is used to configure the JavaScript Bundler, `storageKeys` define the keys used in `localStorage`. `userCharacters.inLibrary` is meant to be used by the character library; it is for now experimental and not in use.
+The system configuration files are `src/config/config-backend.json`, `src/config/config-frontend.json` and `src/config/config-shared.json`. These files are combined as required and mostly relate to data generation or data storage. `rollup.js` is used to configure the JavaScript Bundler.
 
 ## System data
-_Ghastly Creatures_ uses various data sources; all files in the root of `src/data/` are generated, the files in `src/config` and `src/data/raw` serve as sources. The actual character list needs to be available via HTTP and thus lives at `public/js/characters.json`.
+_Ghastly Creatures_ are generated from various data sources found in `data` and `config`. The resulting files `presets.json` and `characters.json` need to be available via HTTP and thus live at `public/js`.
 
 ### Patterns
-`src/data/backgrounds.json` and `src/data/borders.json` are built by scanning `public/media/patterns/*`. The names of these files matter since they are used to build the `title`-attributes. The background textures come from [Transparent Textures](https://www.transparenttextures.com/), the border textures are custom-made.
+Pattern presest are built by scanning `public/media/patterns/*`. The names of these files matter since they are used to build the `title`-attributes. The background textures come from [Transparent Textures](https://www.transparenttextures.com/), the border textures are custom-made.
 
 ### Fonts
-`src/data/fonts.json` is built from `src/data/raw/fonts.txt`. This list in return, is copied from [Google Fonts](https://tinyurl.com/ghastly-fonts).  
+Font presets are built from `src/data/fonts.txt`. This list in return, is copied from [Google Fonts](https://tinyurl.com/ghastly-fonts).  
 
 Modifying the font list requires the following steps:
 - Open the configuration page at [Google Fonts](https://tinyurl.com/ghastly-fonts)
 - Edit the collection
-- Copy the list below _CSS rules to specify families_ to `src/data/raw/fonts.txt`.
+- Copy the list below _CSS rules to specify families_ to `src/data/fonts.txt`.
 - Set _Use on the web_ to `<link>` and download the stylesheet from the URL that appears below.
 - Before you overwrite `src/css/inc/fonts.css`, copy the settings for `size-adjust` for those fonts you wish to keep. You might need to find a good value for `size-adjust` for your new fonts. 
-- Stylesheets from Google Fonts often contain multiple versions of the same font; the difference is in the value of `Unicode-range`. All versions should be kept for an international audience rather than just the Latin flavor.
+- Stylesheets from Google Fonts often contain multiple versions of the same font; the difference is in the value of `Unicode-range`. All versions rather than just the Latin flavor should be kept to serve an international audience.
 
-Alternatively, or in addition, you can use locally stored fonts. The required files can be generated at [Font Squirrel](https://www.fontsquirrel.com), here are the [relevant instructions](https://www.fontsquirrel.com/blog/2010/12/how-to-use-the-generator). `src/config/font-squirrel-config.txt` is a configuration file that can help you to speed up the process. You will need to edit `src/css/inc/fonts.css` and `src/data/raw/fonts.txt` manually in this case.
+Alternatively, or in addition, you can use locally stored fonts. The required files can be generated at [Font Squirrel](https://www.fontsquirrel.com), here are the [relevant instructions](https://www.fontsquirrel.com/blog/2010/12/how-to-use-the-generator). `src/config/font-squirrel-config.txt` is a configuration file that can help you to speed up the process. You will need to edit `src/css/inc/fonts.css` and `src/data/fonts.txt` manually in this case.
 
 ### Fields
-_Field_ in this context refers to the different properties of a character such as _Challenge Rating_. These fields are configured in `src/config/field-config.yml`. 
+_Field_ in this context refers to the different properties of a character such as _Challenge Rating_. These fields are configured in `src/data/fields.yml`. 
 
 Most fields have reasonable defaults to keep the configuration as simple as possible, i.e. the below scenario is mostly redundant.
 
@@ -43,18 +43,17 @@ cr:                         # the key as it appears in 'src/data/raw/monsters.js
 
 ### Overview
 
-| Path                          | Source                              | Editable |
-|:------------------------------|:------------------------------------|:--------:|
-| src/data/backgrounds.json     | public/media/patterns/backgrounds/* | ✗        | 
-| src/data/borders.json         | public/media/patterns/borders/*     | ✗        | 
-| src/data/css-props.json       | src/css/inc/card-defs.css           | ✗        | 
-| src/data/fonts.json           | src/data/raw/fonts.txt              | ✗        | 
-| src/data/labels.json          | src/config/field-config.yml         | ✗        | 
-| src/data/visibility.json      | src/config/field-config.yml         | ✗        |
-| public/js/characters.json     | src/data/raw/monsters.json          | ✗        |
-| src/data/raw/fonts.txt        | https://tinyurl.com/ghastly-fonts   | ✓        | 
-| src/data/raw/monsters.json    | https://tinyurl.com/monster-index   | ✓        | 
-| src/config/field-config.yml   | manually edited                     | ✓        |
+| Path                                 | Source                              | Editable |
+|:-------------------------------------|:------------------------------------|:--------:|
+| public/js/presets.json#backgrounds   | public/media/patterns/backgrounds/* | ✗        | 
+| public/js/presets.json#borders       | public/media/patterns/borders/*     | ✗        | 
+| public/js/presets.json#css           | src/css/inc/card-defs.css           | ✗        | 
+| public/js/presets.json#fonts         | src/data/fonts.txt                  | ✗        | 
+| public/js/presets.json#cards.*.label | src/data/fields.yml                 | ✗        | 
+| public/js/characters.json            | src/data/raw/monsters.json          | ✗        |
+| src/data/fonts.txt                   | https://tinyurl.com/ghastly-fonts   | ✓        | 
+| src/data/monsters.json               | https://tinyurl.com/monster-index   | ✓        | 
+| src/data/fields.yml                  | manually edited                     | ✓        |
 
 ### Compiling configurations to their final forms
 Whenever you make changes to the underlying data, the files in the root folder need to be re-generated with one of the following commands:
@@ -66,13 +65,12 @@ Whenever you make changes to the underlying data, the files in the root folder n
 | `npm run build`      | Includes `npm run data:build`       |
 
 ## User data
-All user data are stored in `localStorage` under keys which are defined in `src/config/config.json#storageKeys`:
+All user data are stored in `localStorage` under keys which are defined in `src/config/config-frontend.json#storageKeys`:
 
 | Key                 | Purpose             |
 |:--------------------|:--------------------|
 | `storageKeys.cards` | Card data           |
 | `storageKeys.tabs`  | Tab data and styles |
-| `storageKeys.user`  | User preferences    |
 
 ## UI elements in general
 
@@ -104,7 +102,7 @@ More complex scenarios, such as cards or tabs, where multiple components act alo
 Notably, the components don't use the `Shadow DOM`. They act within a clearly defined scope where `<style>` or `<script>` encapsulations don't matter. 
 
 ## Character library
-The library lists all characters and is built from `public/js/characters.json`. It can be grouped by using the order symbol above the library. Whether or not grouping by a specific criterion is possible depends on `src/config/field-config.yml#<field>.visibility.group`.
+The library lists all characters and is built from `public/js/characters.json`. It can be grouped by using the order symbol above the library. Whether or not grouping by a specific criterion is possible depends on `src/data/fields.yml#<field>.visibility.group`.
 
 It would be easy to add user-created characters to the library, but it would require an investigation of the possible implications.
 
@@ -116,18 +114,18 @@ The workbench is organized into tabs; all cards live inside these tabs. Launchin
 
 Tabs have a context menu that can be accessed by right-clicking. There will always be at least one tab open, even after closing all. Closing a tab will also destroy all its cards. Some tasks can be undone within a 10-second window. By default, tabs are named with Roman numerals, but they can be renamed.
 
-| Task             | Access                                 | Undo | Note                           |
-|:-----------------|:---------------------------------------|:----:|:-------------------------------|
-| Add tab          | + icon / double-click on the tab bar   | n/a  |                                |
-| Rename tab       | context menu / double-click on the tab | n/a  |                                |
-| Close tab        | × icon / context menu                  | ✓    | destroys all cards on this tab |
-| Close empty tabs | context menu                           | ✗    | invalids pending undo timeouts |
-| Close other tabs | context menu                           | ✗    | invalids pending undo timeouts |
-| Close all tabs   | context menu                           | ✗    | invalids pending undo timeouts |
-| Paste card       | context menu                           | ✗    |                                |
-| Copy style       | context menu                           | n/a  |                                |
-| Paste style      | context menu                           | ✗    |                                |
-| Reset style      | context menu                           | ✗    |                                |
+| Task             | Access                                 | Undo | Note                             |
+|:-----------------|:---------------------------------------|:----:|:---------------------------------|
+| Add tab          | + icon / double-click on the tab bar   | n/a  |                                  |
+| Rename tab       | context menu / double-click on the tab | n/a  |                                  |
+| Close tab        | × icon / context menu                  | ✓    | destroys all cards on this tab   |
+| Close empty tabs | context menu                           | ✗    | invalids pending _undo_ timeouts |
+| Close other tabs | context menu                           | ✗    | invalids pending _undo_ timeouts |
+| Close all tabs   | context menu                           | ✗    | invalids pending _undo_ timeouts |
+| Paste card       | context menu                           | ✗    |                                  |
+| Copy style       | context menu                           | n/a  |                                  |
+| Paste style      | context menu                           | ✗    |                                  |
+| Reset style      | context menu                           | ✗    |                                  |
 
 ### Cards
 
@@ -145,10 +143,10 @@ Cards have a toolbar that appears when hovering over the card. This implies that
 ## Style editor
 All styles are per-tab and can be copied from one tab to another. They are stored in `localStorage[storageKeys.tabs]` as part of the tab configuration.
 
-| Feature / Section  | Card | Badge | Frame | Data source                 |
-|:-------------------|:----:|:-----:|:-----:|:----------------------------|
-| Font selection     | ✓    | ✓    | ✗     | `src/data/fonts.json`       |
-| Font size          | ✓    | ✓    | ✗     | `src/data/css-props.json`   |
-| Color picker       | ✓    | ✓    | ✓     | `src/data/css-props.json`   |
-| Background pattern | ✓    | ✗    | ✗     | `src/data/backgrounds.json` |
-| Border pattern     | ✗    | ✗    | ✓     | `src/data/borders.json`     |
+| Feature / Section  | Card | Badge | Frame | Data source                        |
+|:-------------------|:----:|:-----:|:-----:|:-----------------------------------|
+| Font selection     | ✓    | ✓    | ✗     | public/js/presets.json#fonts       |
+| Font size          | ✓    | ✓    | ✗     | public/js/presets.json#css         |
+| Color picker       | ✓    | ✓    | ✓     | public/js/presets.json#css         |
+| Background pattern | ✓    | ✗    | ✗     | public/js/presets.json#backgrounds |
+| Border pattern     | ✗    | ✗    | ✓     | public/js/presets.json#borders     |

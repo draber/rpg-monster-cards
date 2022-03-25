@@ -77,22 +77,12 @@ class App extends HTMLElement {
                     TabHandle,
                     TabNavi,
                     TabPanel,
-                    TabMenu
-                ].forEach(component => {
-                    component.register(this);
-                })
-
-                // tabs must be created before cards can be added
-                // or styles can be handled
-                tabManager.init(this);
-                cardManager.init(this);
-
-                [
+                    TabMenu,
+                    StyleEditor,                    
                     ImportExport,
                     FileUpload,
                     CharacterLibrary,
                     LibraryOrganizer,
-                    StyleEditor,
                     FontSelector,
                     FontSize,
                     PatternSelector,
@@ -106,13 +96,15 @@ class App extends HTMLElement {
                 ].forEach(component => {
                     component.register(this);
                 })
+
+                tabManager.init(this);
+                cardManager.init(this);
             });
     }
     constructor(self) {
         self = super(self);
         self.on = on;
         self.trigger = trigger;
-        self.styleStorage = false;
         return self;
     }
 }

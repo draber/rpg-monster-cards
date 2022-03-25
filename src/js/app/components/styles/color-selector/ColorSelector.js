@@ -1,11 +1,14 @@
 import buildConfig from './configurator.js';
 import format from './format.js';
 import background from './background.js';
-import { styleStore } from '../../../storage/storage.js';
+import {
+    presetStore
+} from '../../../storage/storage.js';
 import {
     on,
     trigger
-} from '../../../../modules/events/eventHandler.js'
+} from '../../../../modules/events/eventHandler.js';
+import fn from 'fancy-node';
 
 class ColorSelector extends HTMLElement {
 
@@ -41,7 +44,8 @@ class ColorSelector extends HTMLElement {
         const pattern = this.name.replace('-color', '-');
         const channels = [];
         ['h', 's', 'l'].forEach(channel => {
-            channels.push(styleStore.get(pattern + channel));
+            // pattern exp: --c-bg-
+            channels.push(presetStore.get(`css.${pattern}${channel}`))
         })
         return `hsl(${channels.join(' ')})`;
     }
@@ -67,7 +71,6 @@ class ColorSelector extends HTMLElement {
 
         this.tracks = config.tracks;
         this.value = config.original;
-        this.styleArea = 'colors';
 
         const valueInput = document.createElement('input');
         valueInput.type = 'hidden';
@@ -80,20 +83,27 @@ class ColorSelector extends HTMLElement {
         const ranges = [];
 
         for (let [channel, track] of Object.entries(this.tracks)) {
-            const label = document.createElement('label');
-            const lSpan = document.createElement('span');
-            const iSpan = document.createElement('span');
+            const label = fn.label();
+            const lSpan = fn.span({
+                content: this.dataset[channel + 'Label'] || (channel !== 'α' ? channel.toUpperCase() : channel)
+            });
+            const iSpan = fn.span();
             label.append(lSpan, iSpan);
-            lSpan.textContent = this.dataset[channel + 'Label'] || (channel !== 'α' ? channel.toUpperCase() : channel);
-            const input = document.createElement('input');
-            input.dataset.channel = channel;
-            input.dataset.unit = track.unit;
-            input.type = 'range';
-            input.min = track.min;
-            input.max = track.max;
-            input.step = track.step;
-            input.value = track.value;
-            input.name = `${this.name.replace('color', channel)}`;
+
+            const input = fn.input({
+                data: {
+                    channel,
+                    unit: track.unit
+                },
+                attributes: {
+                    type: 'range',
+                    min: track.min,
+                    max: track.max,
+                    step: track.step,
+                    name: `${this.name.replace('color', channel)}`,
+                    value: track.value
+                }
+            })
             this.tracks[channel].element = input;
 
             input.addEventListener('input', e => {
@@ -105,8 +115,7 @@ class ColorSelector extends HTMLElement {
                 const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
                 this.app.trigger(`singleStyleChange`, {
                     name: e.target.name,
-                    value: formatted,
-                    area: this.styleArea
+                    value: formatted
                 });
             });
             input.addEventListener('change', e => {
@@ -122,20 +131,15 @@ class ColorSelector extends HTMLElement {
             input.dispatchEvent(new Event('input'));
         })
 
-        this.app.on('tabStyleChange', e => {
-            ranges.forEach(input => {
-                const formatted = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][input.name] ?
-                    e.detail.styles[this.styleArea][input.name] :
-                    styleStore.get(input.name);
-
-                input.value = parseFloat(formatted, 10);
-                this.app.trigger(`singleStyleChange`, {
-                    name: input.name,
-                    value: formatted,
-                    area: this.styleArea,
-                    tab: e.detail.tab
-                });
-            })
+        // change triggered by the active tab
+        this.app.on('styleUpdate', e => {
+            for (let input of ranges) {
+                if (!e.detail.css[input.name]) {
+                    continue;
+                }
+                input.value = parseFloat(e.detail.css[input.name], 10);
+                input.dispatchEvent(new Event('input'))
+            }
         })
     }
     constructor(self) {

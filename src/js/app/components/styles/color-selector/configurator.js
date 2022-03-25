@@ -141,13 +141,17 @@ const getMin = (channel, type) => {
  * @returns {{min: Number, max: Number, value: Number}}
  */
 const buildTrack = (value, channel, type) => {
+    const min = getMin(channel, type);
+    const max = getMax(channel, type);
+    const step = (max - min) / 100;
+    value = getValue(value, channel, type);
     const track = {
-        value: getValue(value, channel, type),
         unit: getUnit(channel, type),
-        min: getMin(channel, type),
-        max: getMax(channel, type)
+        step,
+        min,
+        max,
+        value 
     }
-    track.step = (track.max - track.min) / 100;
     return track;
 }
 

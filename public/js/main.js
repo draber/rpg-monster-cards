@@ -441,8 +441,7 @@
             const tid = this.nextIncrement();
             return {
                 tid,
-                title: convertToRoman(tid),
-                styles: {}
+                title: convertToRoman(tid)
             }
         }
         remove(...tidData) {
@@ -514,36 +513,10 @@
         }
     }
 
-    var cssProps = {
-    	":root": {
-    	"--c-color": "hsl(0, 0%, 0%)",
-    	"--c-card-font": "\"Della Respira\", serif",
-    	"--c-bg-h": "45",
-    	"--c-bg-s": "93%",
-    	"--c-bg-l": "89%",
-    	"--c-bg-pattern": "url(../media/patterns/backgrounds/light-rocky-wall.png)",
-    	"--c-border-h": "201",
-    	"--c-border-s": "39%",
-    	"--c-border-l": "24%",
-    	"--c-border-pattern": "url(../media/patterns/borders/crosshatch-2.png)",
-    	"--c-box-shadow-color": "hsl(0, 0%, 0%, 0.4)",
-    	"--c-badge-font": "\"Della Respira\", serif",
-    	"--c-badge-h": "168",
-    	"--c-badge-s": "22%",
-    	"--c-badge-l": "63%",
-    	"--c-badge-text-shadow-color": "hsl(0, 100%, 100%, 0.3)",
-    	"--c-button-bg": "hsl(15, 50%, 15%, 0.9)",
-    	"--c-button-color": "var(--text-color)",
-    	"--c-card-font-size": "1.1rem",
-    	"--c-badge-font-size": "1.5rem"
-    }
-    };
-
     let tabStore;
     let characterStore;
     let cardStore;
     let copyStore;
-    let styleStore;
     let presetStore;
     const initStorage = launchData => {
         presetStore = new PresetTree({
@@ -578,9 +551,6 @@
         });
         copyStore = new CharTree({
             minIncrement: 6001
-        });
-        styleStore = new PresetTree({
-            data: cssProps[':root']
         });
     };
 
@@ -915,9 +885,8 @@
         activeTab.classList.add('active');
         activeTab.panel.classList.add('active');
         tabStore.set(`${tid}.active`, true);
-        app$2.trigger('tabStyleChange', {
-            tab: activeTab,
-            styles: tabStore.get(tid).styles
+        app$2.trigger('styleUpdate', {
+            css: tabStore.get(`${tid}.css`)
         });
         const naviRect = navi.getBoundingClientRect();
         const atRect = activeTab.getBoundingClientRect();
@@ -1059,30 +1028,45 @@
         }
         setActiveTab(getTab(activeTid));
     };
+    const handleStyleProp = (panel, property, value) => {
+        const tid = idHelper.toTid(panel);
+        let presetValue = presetStore.get(`css.${property}`).replace(/"+/g, "'");
+        let newValue = value.replace(/"+/g, "'");
+        if (presetValue === newValue) {
+            tabStore.unset(`${tid}.css.${property}`);
+            panel.style.removeProperty(property);
+        } else {
+            tabStore.set(`${tid}.css.${property}`, newValue);
+            panel.style.setProperty(property, newValue);
+        }
+    };
     const init$3 = _app => {
         app$2 = _app;
         navi = src.$('tab-navi', app$2);
         contentArea = src.$('tab-content', app$2);
-        restore();
         app$2.on('singleStyleChange', e => {
             const tab = e.detail.tab || activeTab;
-            const tid = idHelper.toTid(tab);
-            const entry = tabStore.get(tid);
-            entry.styles[e.detail.area] = entry.styles[e.detail.area] || {};
-            entry.styles[e.detail.area][e.detail.name] = e.detail.value;
-            tabStore.set(tid, entry);
+            const panel = tab.panel;
+            handleStyleProp(panel, e.detail.name, e.detail.value);
+        });
+        app$2.on('bulkStyleChange', e => {
+            const tab = e.detail.tab || activeTab;
+            const panel = tab.panel;
+            const tid = idHelper.toTid(panel);
+            const css = {
+                ...presetStore.get('css'),
+                ...tabStore.get(`${tid}.css`)
+            };
+            for (let [property, value] of Object.entries(css)) {
+                handleStyleProp(panel, property, value);
+            }
             if (tab.isSameNode(activeTab)) {
-                tab.panel.style.setProperty(e.detail.name, e.detail.value);
+                app$2.trigger('styleUpdate', {
+                    css: tabStore.get(tid).css || {}
+                });
             }
         });
-        app$2.on('styleReset', e => {
-            const tid = idHelper.toTid(e.detail.tab);
-            tabStore.set(`${tid}.styles`, {});
-            app$2.trigger('tabStyleChange', {
-                tab: e.detail.tab,
-                styles: {}
-            });
-        });
+        restore();
     };
     var tabManager = {
         init: init$3,
@@ -1774,8 +1758,7 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.app.styleStorage = tab.styles;
-                                domProps.set('styleStorage', true);
+                                domProps.set('styleStorage', tid);
                             }
                         },
                     }),
@@ -1790,9 +1773,10 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.app.trigger('tabStyleChange', {
-                                    tab,
-                                    styles: this.app.styleStorage
+                                tabStore.set(`${tid}.css`, tabStore.get(`${domProps.get('styleStorage')}.css`));
+                                domProps.unset('styleStorage');
+                                this.app.trigger('bulkStyleChange', {
+                                    tab
                                 });
                             }
                         },
@@ -1804,14 +1788,15 @@
                                 if (e.button !== 0) {
                                     return true;
                                 }
-                                this.app.trigger('styleReset', {
+                                tabStore.set(`${tid}.css`, {});
+                                this.app.trigger('bulkStyleChange', {
                                     tab
                                 });
                             }
                         },
                     }),
                     src.li({
-                        classNames: ['context-separator','storage-dependent'],
+                        classNames: ['context-separator', 'storage-dependent'],
                         content: 'Paste card',
                         data: {
                             storage: 'card'
@@ -1938,10 +1923,15 @@
     class StyleEditor extends HTMLElement {
         connectedCallback() {
             this.app.on('singleStyleChange', e => {
-                const activeTab = tabManager.getTab('active');
-                const tab = e.detail.tab || activeTab;
-                if (tab.isSameNode(activeTab)) {
-                    this.style.setProperty(e.detail.name, e.detail.value);
+                this.style.setProperty(e.detail.name, e.detail.value);
+            });
+            this.app.on('styleUpdate', e => {
+                const css = {
+                    ...presetStore.get('css'),
+                    ...e.detail.css
+                };
+                for (let [property, value] of Object.entries(css)) {
+                    this.style.setProperty(property, value);
                 }
             });
         }
@@ -1960,100 +1950,10 @@
         register: register$c
     };
 
-    var fonts = [
-    	{
-    		label: "Almendra",
-    		id: "almendra",
-    		family: "'Almendra', serif"
-    	},
-    	{
-    		label: "Aubrey",
-    		id: "aubrey",
-    		family: "'Aubrey', cursive"
-    	},
-    	{
-    		label: "Caudex",
-    		id: "caudex",
-    		family: "'Caudex', serif"
-    	},
-    	{
-    		label: "Della Respira",
-    		id: "della-respira",
-    		family: "'Della Respira', serif"
-    	},
-    	{
-    		label: "Federant",
-    		id: "federant",
-    		family: "'Federant', cursive"
-    	},
-    	{
-    		label: "Federo",
-    		id: "federo",
-    		family: "'Federo', sans-serif"
-    	},
-    	{
-    		label: "Fondamento",
-    		id: "fondamento",
-    		family: "'Fondamento', cursive"
-    	},
-    	{
-    		label: "Grenze Gotisch",
-    		id: "grenze-gotisch",
-    		family: "'Grenze Gotisch', cursive"
-    	},
-    	{
-    		label: "Grenze",
-    		id: "grenze",
-    		family: "'Grenze', serif"
-    	},
-    	{
-    		label: "IM Fell English",
-    		id: "i-m-fell-english",
-    		family: "'IM Fell English', serif"
-    	},
-    	{
-    		label: "Luxurious Roman",
-    		id: "luxurious-roman",
-    		family: "'Luxurious Roman', cursive"
-    	},
-    	{
-    		label: "Macondo",
-    		id: "macondo",
-    		family: "'Macondo', cursive"
-    	},
-    	{
-    		label: "Medieval Sharp",
-    		id: "medieval-sharp",
-    		family: "'MedievalSharp', cursive"
-    	},
-    	{
-    		label: "Metamorphous",
-    		id: "metamorphous",
-    		family: "'Metamorphous', cursive"
-    	},
-    	{
-    		label: "Modern Antiqua",
-    		id: "modern-antiqua",
-    		family: "'Modern Antiqua', cursive"
-    	},
-    	{
-    		label: "Nova Cut",
-    		id: "nova-cut",
-    		family: "'Nova Cut', cursive"
-    	},
-    	{
-    		label: "Uncial Antiqua",
-    		id: "uncial-antiqua",
-    		family: "'Uncial Antiqua', cursive"
-    	},
-    	{
-    		label: "Unifraktur Maguntia",
-    		id: "unifraktur-maguntia",
-    		family: "'UnifrakturMaguntia', cursive"
-    	}
-    ];
-
     class FontSelector extends HTMLElement {
+        normalize(fontFamily) {
+            return fontFamily.replace(/"+/g, "'");
+        }
         get name() {
             return this.getAttribute('name');
         }
@@ -2064,20 +1964,21 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
-            this.styleArea = 'fonts';
-            this.currentFont = styleStore.get(this.name);
+            let value = this.normalize(presetStore.get(`css.${this.name}`));
+            let fonts = presetStore.get('fonts');
             const selector = src.select({
                 style: {
                     fontFamily: `var(${this.name})`
                 },
                 content: fonts.map(entry => {
+                    let family = this.normalize(entry.family);
                     return src.option({
                         attributes: {
-                            value: entry.family,
-                            selected: entry.family === this.currentFont
+                            value: family,
+                            selected: family === value
                         },
                         style: {
-                            fontFamily: entry.family
+                            fontFamily: family
                         },
                         content: entry.label
                     })
@@ -2087,29 +1988,22 @@
                 },
                 events: {
                     change: e => {
-                        this.selected = e.target.value;
                         this.app.trigger(`singleStyleChange`, {
                             name: this.name,
-                            value: e.target.value,
-                            area: this.styleArea
+                            value: this.normalize(e.target.value)
                         });
                     }
                 }
             });
             this.append(selector);
             selector.dispatchEvent(new Event('change'));
-            this.app.on('tabStyleChange', e => {
-                const value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
-                    e.detail.styles[this.styleArea][this.name] :
-                    styleStore.get(this.name);
-                selector.selectedIndex = fonts.findIndex(e => e.family.replace(/['"]+/g) === value.replace(/['"]+/g));
-                this.selected = value;
-                this.app.trigger(`singleStyleChange`, {
-                    name: this.name,
-                    value,
-                    area: this.styleArea,
-                    tab: e.detail.tab
-                });
+            this.app.on('styleUpdate', e => {
+                if (!e.detail.css[this.name]) {
+                    return false
+                }
+                value = this.normalize(e.detail.css[this.name]);
+                selector.selectedIndex = fonts.findIndex(e => this.normalize(e.family) === value);
+                selector.dispatchEvent(new Event('change'));
             });
         }
         constructor(self) {
@@ -2134,67 +2028,49 @@
         set name(value) {
             this.setAttribute('name', value);
         }
-        get max() {
-            return this.getAttribute('max');
-        }
-        set max(value) {
-            this.setAttribute('max', value);
-        }
-        get min() {
-            return this.getAttribute('min');
-        }
-        set min(value) {
-            this.setAttribute('min', value);
-        }
-        get value() {
-            return this.getAttribute('value');
-        }
-        set value(value) {
-            this.setAttribute('value', value);
-        }
         connectedCallback() {
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-size> element`);
             }
-            this.value = parseFloat(styleStore.get(this.name) || 1.4, 10);
-            this.styleArea = 'fonts';
-            const attributes = {
-                value: this.value,
-                type: 'range',
-                step: (this.max - this.min) / 100
-            };
-            attributes.min = attributes.value * .7;
-            attributes.max = attributes.value * 1.3;
-            attributes.step = (attributes.max - attributes.min) / 100;
+            let value = presetStore.get(`css.${this.name}`);
+            let parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
+            let numeric = parseFloat(parts.groups.num, 10);
+            let unit = parts.groups.unit;
+            let min = numeric * .7;
+            let max = numeric * 1.3;
+            let step = (max - min) / 100;
             const input = src.input({
-                attributes,
+                attributes: {
+                    type: 'range',
+                    step,
+                    min,
+                    max,
+                    value: numeric
+                },
                 data: {
                     prop: this.name
                 },
                 events: {
                     input: e => {
-                        this.value = e.target.value + 'rem';
                         this.app.trigger(`singleStyleChange`, {
                             name: this.name,
-                            value: this.value,
-                            area: this.styleArea
+                            value: e.target.value + unit
                         });
                     }
                 }
             });
             this.append(input);
             input.dispatchEvent(new Event('input'));
-            this.app.on('tabStyleChange', e => {
-                this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
-                    e.detail.styles[this.styleArea][this.name] :
-                    styleStore.get(this.name);
-                input.value = parseFloat(this.value, 10);
-                this.app.trigger(`singleStyleChange`, {
-                    name: this.name,
-                    value: this.value,
-                    area: this.styleArea,
-                    tab: e.detail.tab
-                });
+            this.app.on('styleUpdate', e => {
+                if (!e.detail.css[this.name]) {
+                    return false
+                }
+                value = e.detail.css[this.name];
+                parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
+                numeric = parseFloat(parts.groups.num, 10);
+                unit = parts.groups.unit;
+                input.value = numeric;
+                input.dispatchEvent(new Event('input'));
             });
         }
         constructor(self) {
@@ -2212,76 +2088,6 @@
         register: register$a
     };
 
-    var backgrounds = [
-    	{
-    		label: "Dark Ice Age",
-    		id: "dark-ice-age",
-    		name: "dark-ice-age.png"
-    	},
-    	{
-    		label: "Dark Redox",
-    		id: "dark-redox",
-    		name: "dark-redox.png"
-    	},
-    	{
-    		label: "Dark Rocky Wall",
-    		id: "dark-rocky-wall",
-    		name: "dark-rocky-wall.png"
-    	},
-    	{
-    		label: "Dark Subtle Grunge",
-    		id: "dark-subtle-grunge",
-    		name: "dark-subtle-grunge.png"
-    	},
-    	{
-    		label: "Light Paper",
-    		id: "light-paper",
-    		name: "light-paper.png"
-    	},
-    	{
-    		label: "Light Rocky Wall",
-    		id: "light-rocky-wall",
-    		name: "light-rocky-wall.png"
-    	}
-    ];
-
-    var borders = [
-    	{
-    		label: "Cloud",
-    		id: "cloud",
-    		name: "cloud.png"
-    	},
-    	{
-    		label: "Crosshatch 1",
-    		id: "crosshatch-1",
-    		name: "crosshatch-1.png"
-    	},
-    	{
-    		label: "Crosshatch 2",
-    		id: "crosshatch-2",
-    		name: "crosshatch-2.png"
-    	},
-    	{
-    		label: "Etching Dirty",
-    		id: "etching-dirty",
-    		name: "etching-dirty.png"
-    	},
-    	{
-    		label: "Spatter",
-    		id: "spatter",
-    		name: "spatter.png"
-    	},
-    	{
-    		label: "Wood",
-    		id: "wood",
-    		name: "wood.png"
-    	}
-    ];
-
-    const patternPool = {
-        backgrounds,
-        borders
-    };
     class PatternSelector extends HTMLElement {
         get value() {
             return this.getAttribute('value');
@@ -2311,7 +2117,6 @@
                     return input.value;
                 }
             }
-            return styleStore.get(this.name) || '';
         }
         connectedCallback() {
             if (!this.name) {
@@ -2320,18 +2125,16 @@
             if (!this.type) {
                 throw Error(`Missing attribute "type" on <pattern-selector> element`);
             }
-            this.value = this.getValue();
-            this.styleArea = 'patterns';
-            const patterns = patternPool[this.type];
+            const preset = presetStore.get(`css.${this.name}`);
             const inputs = [];
-            const choices = patterns.map(entry => {
+            const choices = presetStore.get(this.type).map(entry => {
                 let input = src.input({
                     attributes: {
                         type: 'radio',
                         name: `${this.type}-pattern`,
                         value: this.getUrl(entry.name, 'css'),
                         id: `${this.type}-${entry.id}`,
-                        checked: this.getUrl(entry.name, 'css') === this.value
+                        checked: this.getUrl(entry.name, 'css') === preset
                     }
                 });
                 inputs.push(input);
@@ -2356,28 +2159,21 @@
                 content: choices,
                 events: {
                     change: e => {
-                        this.value = this.getValue();
                         this.app.trigger(`singleStyleChange`, {
                             name: this.name,
-                            value: this.value,
-                            area: this.styleArea
+                            value: this.getValue()
                         });
                     }
                 }
             });
             this.append(selector);
             selector.dispatchEvent(new Event('change'));
-            this.app.on('tabStyleChange', e => {
-                this.value = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][this.name] ?
-                    e.detail.styles[this.styleArea][this.name] :
-                    styleStore.get(this.name);
-                inputs.find(e => e.value === this.value).checked = true;
-                this.app.trigger(`singleStyleChange`, {
-                    name: this.name,
-                    value: this.value,
-                    area: this.styleArea,
-                    tab: e.detail.tab
-                });
+            this.app.on('styleUpdate', e => {
+                if (!e.detail.css[this.name]) {
+                    return false
+                }
+                inputs.find(e => e.value === e.detail.css[this.name]).checked = true;
+                selector.dispatchEvent(new Event('change'));
             });
         }
         constructor(self) {
@@ -2510,13 +2306,17 @@
         return 0;
     };
     const buildTrack = (value, channel, type) => {
+        const min = getMin(channel, type);
+        const max = getMax(channel, type);
+        const step = (max - min) / 100;
+        value = getValue$1(value, channel, type);
         const track = {
-            value: getValue$1(value, channel, type),
             unit: getUnit(channel, type),
-            min: getMin(channel, type),
-            max: getMax(channel, type)
+            step,
+            min,
+            max,
+            value
         };
-        track.step = (track.max - track.min) / 100;
         return track;
     };
     const buildConfig = value => {
@@ -2591,7 +2391,7 @@
             const pattern = this.name.replace('-color', '-');
             const channels = [];
             ['h', 's', 'l'].forEach(channel => {
-                channels.push(styleStore.get(pattern + channel));
+                channels.push(presetStore.get(`css.${pattern}${channel}`));
             });
             return `hsl(${channels.join(' ')})`;
         }
@@ -2612,7 +2412,6 @@
             const config = buildConfig(this.value);
             this.tracks = config.tracks;
             this.value = config.original;
-            this.styleArea = 'colors';
             const valueInput = document.createElement('input');
             valueInput.type = 'hidden';
             valueInput.value = this.value;
@@ -2622,20 +2421,26 @@
             this.append(valueInput);
             const ranges = [];
             for (let [channel, track] of Object.entries(this.tracks)) {
-                const label = document.createElement('label');
-                const lSpan = document.createElement('span');
-                const iSpan = document.createElement('span');
+                const label = src.label();
+                const lSpan = src.span({
+                    content: this.dataset[channel + 'Label'] || (channel !== 'α' ? channel.toUpperCase() : channel)
+                });
+                const iSpan = src.span();
                 label.append(lSpan, iSpan);
-                lSpan.textContent = this.dataset[channel + 'Label'] || (channel !== 'α' ? channel.toUpperCase() : channel);
-                const input = document.createElement('input');
-                input.dataset.channel = channel;
-                input.dataset.unit = track.unit;
-                input.type = 'range';
-                input.min = track.min;
-                input.max = track.max;
-                input.step = track.step;
-                input.value = track.value;
-                input.name = `${this.name.replace('color', channel)}`;
+                const input = src.input({
+                    data: {
+                        channel,
+                        unit: track.unit
+                    },
+                    attributes: {
+                        type: 'range',
+                        min: track.min,
+                        max: track.max,
+                        step: track.step,
+                        name: `${this.name.replace('color', channel)}`,
+                        value: track.value
+                    }
+                });
                 this.tracks[channel].element = input;
                 input.addEventListener('input', e => {
                     e.stopPropagation();
@@ -2646,8 +2451,7 @@
                     const formatted = format.trackToChannelStr(this.tracks[e.target.dataset.channel]);
                     this.app.trigger(`singleStyleChange`, {
                         name: e.target.name,
-                        value: formatted,
-                        area: this.styleArea
+                        value: formatted
                     });
                 });
                 input.addEventListener('change', e => {
@@ -2661,19 +2465,14 @@
             ranges.forEach(input => {
                 input.dispatchEvent(new Event('input'));
             });
-            this.app.on('tabStyleChange', e => {
-                ranges.forEach(input => {
-                    const formatted = e.detail.styles[this.styleArea] && e.detail.styles[this.styleArea][input.name] ?
-                        e.detail.styles[this.styleArea][input.name] :
-                        styleStore.get(input.name);
-                    input.value = parseFloat(formatted, 10);
-                    this.app.trigger(`singleStyleChange`, {
-                        name: input.name,
-                        value: formatted,
-                        area: this.styleArea,
-                        tab: e.detail.tab
-                    });
-                });
+            this.app.on('styleUpdate', e => {
+                for (let input of ranges) {
+                    if (!e.detail.css[input.name]) {
+                        continue;
+                    }
+                    input.value = parseFloat(e.detail.css[input.name], 10);
+                    input.dispatchEvent(new Event('input'));
+                }
             });
         }
         constructor(self) {
@@ -3688,7 +3487,7 @@
     	"public": "public/js/main.js"
     };
     var characters = {
-    	src: "src/data/raw/monsters.json",
+    	src: "src/data/monsters.json",
     	target: "public/js/characters.json",
     	url: "js/characters.json"
     };
@@ -3734,18 +3533,12 @@
                         TabHandle$1,
                         TabNavi$1,
                         TabPanel$1,
-                        TabMenu$1
-                    ].forEach(component => {
-                        component.register(this);
-                    });
-                    tabManager.init(this);
-                    cardManager.init(this);
-                    [
+                        TabMenu$1,
+                        StyleEditor$1,
                         ImportExport$1,
                         FileUpload$1,
                         CharacterLibrary$1,
                         LibraryOrganizer$1,
-                        StyleEditor$1,
                         FontSelector$1,
                         FontSize$1,
                         PatternSelector$1,
@@ -3759,13 +3552,14 @@
                     ].forEach(component => {
                         component.register(this);
                     });
+                    tabManager.init(this);
+                    cardManager.init(this);
                 });
         }
         constructor(self) {
             self = super(self);
             self.on = on;
             self.trigger = trigger;
-            self.styleStorage = false;
             return self;
         }
     }

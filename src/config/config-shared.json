@@ -12,7 +12,7 @@
     "public": "public/js/main.js"
   },
   "characters": {
-    "src": "src/data/raw/monsters.json",
+    "src": "src/data/monsters.json",
     "target": "public/js/characters.json",
     "url": "js/characters.json"
   }

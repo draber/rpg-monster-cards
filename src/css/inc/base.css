@@ -2,6 +2,7 @@ html {
   box-sizing: border-box;
   font-size: 62.5%;
   -webkit-text-size-adjust: 100%;
+  user-select: none;
 }
 
 *,
@@ -30,17 +31,12 @@ a {
   color: currentColor;
 }
 
-/* ::selection {
-  background-color: transparent;
-} */
-
-
 details {
   padding: 0;
   margin: 0;
 
   &[open] {
-    padding: 0 0 .5rem 0;
+    padding: 0 0 0.5rem 0;
     & summary {
       &:before {
         transform: rotate(-90deg);
@@ -84,7 +80,8 @@ summary {
   }
 }
 
-button, .button {
+button,
+.button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,6 +97,6 @@ button, .button {
   box-shadow: 0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
 }
 
-[data-soft-deleted="true"]{
+[data-soft-deleted="true"] {
   display: none !important;
 }

@@ -7,6 +7,7 @@ card-form {
   position: relative;
 
   & [contenteditable] {
+    user-select: text;
     border: 0.1rem dotted var(--bg-6-color);
     padding: 0.2rem 0.5rem;
     background: hsl(var(--c-bg-h) var(--c-bg-s) var(--c-bg-l));

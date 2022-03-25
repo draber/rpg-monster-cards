@@ -5,13 +5,16 @@ import fn from 'fancy-node';
 import cardCopy from '../../../modules/card-copy/card-copy.js';
 import uploader from '../../../modules/import-export/uploader.js';
 import idHelper from '../../storage/id-helper.js';
+import {
+    tabStore
+} from '../../storage/storage.js'
 
 
 /**
  * Custom element, context menu for tabs (handles and panels)
  */
 class TabMenu extends HTMLElement {
-    
+
     /**
      * Called on element launch
      */
@@ -32,8 +35,7 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.app.styleStorage = tab.styles;
-                            domProps.set('styleStorage', true);
+                            domProps.set('styleStorage', tid);
                         }
                     },
                 }),
@@ -50,9 +52,10 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.app.trigger('tabStyleChange', {
-                                tab,
-                                styles: this.app.styleStorage
+                            tabStore.set(`${tid}.css`, tabStore.get(`${domProps.get('styleStorage')}.css`));
+                            domProps.unset('styleStorage');
+                            this.app.trigger('bulkStyleChange', {
+                                tab
                             });
                         }
                     },
@@ -65,7 +68,8 @@ class TabMenu extends HTMLElement {
                             if (e.button !== 0) {
                                 return true;
                             }
-                            this.app.trigger('styleReset', {
+                            tabStore.set(`${tid}.css`, {});
+                            this.app.trigger('bulkStyleChange', {
                                 tab
                             });
                         }
@@ -73,7 +77,7 @@ class TabMenu extends HTMLElement {
                 }),
                 // paste a card, `context-separator` adds a border to group the list elements
                 fn.li({
-                    classNames: ['context-separator','storage-dependent'],
+                    classNames: ['context-separator', 'storage-dependent'],
                     content: 'Paste card',
                     data: {
                         storage: 'card'
@@ -101,19 +105,19 @@ class TabMenu extends HTMLElement {
                                 e.target.href = exporter.getUrl(fileName, {
                                     tidData: tab
                                 });
-    
+
                                 setTimeout(() => {
                                     e.target.download = '';
                                     URL.revokeObjectURL(e.target.href);
                                 }, 200)
                             }
                         }
-                    })                    
+                    })
                 }),
                 // Import cards into this tab
                 fn.li({
                     content: fn.a({
-                        content: 'Import cards into this tab',                        
+                        content: 'Import cards into this tab',
                         events: {
                             pointerup: e => {
                                 if (e.button !== 0) {
@@ -122,7 +126,7 @@ class TabMenu extends HTMLElement {
                                 uploader.init(this.app, tid);
                             }
                         }
-                    })                    
+                    })
                 }),
                 // rename the tab
                 fn.li({

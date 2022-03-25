@@ -12,8 +12,7 @@ class TabTree extends NumericTree {
         const tid = this.nextIncrement();
         return {
             tid,
-            title: convertToRoman(tid),
-            styles: {}
+            title: convertToRoman(tid)
         }
     }
 

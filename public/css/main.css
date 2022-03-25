@@ -241,6 +241,10 @@ html{
   box-sizing:border-box;
   font-size:62.5%;
   -webkit-text-size-adjust:100%;
+  -webkit-user-select:none;
+     -moz-user-select:none;
+      -ms-user-select:none;
+          user-select:none;
 }
 
 *,
@@ -278,7 +282,7 @@ details{
 }
 
 details[open]{
-    padding:0 0 .5rem 0
+    padding:0 0 0.5rem 0
   }
 
 details[open] summary:before{
@@ -322,7 +326,8 @@ summary::marker{
     display:none;
   }
 
-button, .button{
+button,
+.button{
   display:flex;
   align-items:center;
   justify-content:center;
@@ -718,7 +723,7 @@ library-organizer:hover svg{
       background:var(--bg-4-color);
     }
 
-[data-style-storage="true"] li.storage-dependent[data-storage="style"]{
+[data-style-storage] li.storage-dependent[data-storage="style"]{
         pointer-events:all;
         opacity:1;
         cursor:pointer;
@@ -1236,6 +1241,10 @@ card-form{
 }
 
 card-form [contenteditable]{
+    -webkit-user-select:text;
+       -moz-user-select:text;
+        -ms-user-select:text;
+            user-select:text;
     border:0.1rem dotted hsl(15, 50%, 36%);
     border:0.1rem dotted var(--bg-6-color);
     padding:0.2rem 0.5rem;
