@@ -44,7 +44,7 @@ class CharTree extends NumericTree {
             lsKey,
             minIncrement
         });
-        this.validFields = validFields
+        this.validFields = validFields;
 
     }
 }

@@ -33,7 +33,7 @@ card-base {
 
   & article {
     position: relative;
-    font-family: "Della Respira";
+    font-family: var(--c-card-font);
     transform-origin: 50%;
     display: flex;
     align-items: flex-start;

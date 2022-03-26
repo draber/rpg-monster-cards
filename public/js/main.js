@@ -1021,10 +1021,17 @@
         const entries = tabStore.values();
         const activeSet = entries.filter(e => !!e.active);
         const activeTid = activeSet.length ? idHelper.toTid(activeSet[0]) : tabStore.keys()[0];
+        let tab;
         for (let tabEntry of entries) {
-            add$1({
+            tab = add$1({
                 tabEntry
             });
+            if(!tabEntry.css){
+                continue;
+            }
+            for (let [property, value] of Object.entries(tabEntry.css)) {
+                handleStyleProp(tab.panel, property, value);
+            }
         }
         setActiveTab(getTab(activeTid));
     };
@@ -1062,7 +1069,7 @@
             }
             if (tab.isSameNode(activeTab)) {
                 app$2.trigger('styleUpdate', {
-                    css: tabStore.get(tid).css || {}
+                    css: tabStore.get(`${tid}.css`) || {}
                 });
             }
         });
@@ -3296,32 +3303,72 @@
 
     let cardQuarantine;
     let tabQuarantine;
-    const sanitizeObject = (modelData, uploadedData) => {
-        const sanitized = {};
-        Object.keys(modelData).forEach(key => {
-            sanitized[key] = uploadedData[key];
-        });
-        return sanitized;
-    };
     const quarantineCards = uploadedCards => {
         uploadedCards.forEach(card => {
             const model = cardQuarantine.getBlank();
             model.originalTid = idHelper.toTid(card.tid);
-            ['props', 'labels', 'visibility'].forEach(type => {
-                model[type] = sanitizeObject(model[type], card[type]);
-            });
             cardQuarantine.set(model.cid, model);
+            for (let key of Object.keys(model.fields)) {
+                if (!card.fields[key]) {
+                    continue
+                }
+                if (card.fields[key].field) {
+                    if (card.fields[key].field.txt) {
+                        cardQuarantine.set(
+                            `${model.cid}.fields.${key}.field.txt`,
+                            sanitizeText(card.fields[key].field.txt)
+                        );
+                    }
+                    if (typeof card.fields[key].field.vis !== 'undefined') {
+                        cardQuarantine.set(
+                            `${model.cid}.fields.${key}.field.vis`,
+                            !!card.fields[key].field.vis
+                        );
+                    }
+                }
+                if (card.fields[key].label) {
+                    if (typeof card.fields[key].label.txt !== 'undefined') {
+                        if (typeof card.fields[key].label.txt.short !== 'undefined') {
+                            cardQuarantine.set(
+                                `${model.cid}.fields.${key}.label.txt.short`,
+                                sanitizeText(card.fields[key].label.txt.short)
+                            );
+                        }
+                        if (typeof card.fields[key].label.txt.long !== 'undefined') {
+                            cardQuarantine.set(
+                                `${model.cid}.fields.${key}.label.txt.long`,
+                                sanitizeText(card.fields[key].label.txt.long)
+                            );
+                        }
+                    }
+                    if (typeof card.fields[key].label.vis !== 'undefined') {
+                        cardQuarantine.set(
+                            `${model.cid}.fields.${key}.label.vis`,
+                            !!card.fields[key].label.vis
+                        );
+                    }
+                }
+            }
         });
     };
     const quarantineTabs = uploadedTabs => {
+        const validCssProps = Object.keys(presetStore.get('css'));
         uploadedTabs.forEach(tab => {
             const model = tabQuarantine.getBlank();
             model.originalTid = tab.tid;
-            model.styles = sanitizeObject(model.styles, (tab.styles || {}));
             if (!(/^[CDILMVX]+$/.test(tab.title))) {
-                model.title = tab.title;
+                model.title = sanitizeText(tab.title);
             }
             tabQuarantine.set(model.tid, model);
+            if (!tab.css) {
+                return;
+            }
+            for (let property in validCssProps) {
+                if (!tab.css[property]) {
+                    continue;
+                }
+                tabQuarantine.set(`${model.tid}.css.${property}`, sanitizeText(tab.css[property]));
+            }
         });
     };
     const updateCardTids = (tab, tid) => {
@@ -3359,7 +3406,8 @@
         }
         cardQuarantine = new CharTree({
             data: {},
-            minIncrement: cardStore.nextIncrement()
+            minIncrement: cardStore.nextIncrement(),
+            validFields: Object.keys(presetStore.get('cards'))
         });
         tabQuarantine = new TabTree({
             data: {},

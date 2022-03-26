@@ -1,34 +1,52 @@
 @media print {
-  @page  {
+  @page {
     size: A4 landscape;
   }
 
   header,
   #library,
-  #style-editor,
+  style-editor,
+  tab-navi,
+  tab-menu,
+  card-form,
+  card-toolbar,
   footer {
-    display: none;
+    display: none !important;
+  }
+
+  card-base {
+    outline: none !important;
+    pointer-events: none;
+    width: 212px;
+    height: 646px;
+    margin: 2px;
+    float:left;
+
+    & .card-view {
+      display: block;
+    }
   }
 
   main {
-    overflow: visible;
+    overflow: auto;
+  }
+
+  tab-panel:not(:empty) {
+    height: 646px;
+    padding: 0;
+    display: block;
+    break-after: all;
+    margin-bottom: 10px;
   }
 
   #editor {
     background: white;
     overflow: visible;
     border: none;
+    display: block;
 
     & h2 {
       display: none;
-    }
-
-    & #print-msg {
-      /* display: block;
-      color: black;
-      font-family: serif;
-      text-align: center;
-      font-size: 16px; */
     }
 
     & .column-content {
@@ -40,7 +58,8 @@
       -webkit-print-color-adjust: exact;
       flex-direction: column-reverse;
       gap: 0;
-      background: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l)) var(--c-border-pattern);
+      background: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l))
+        var(--c-border-pattern);
 
       &:nth-child(even) {
         /* &::after {
@@ -52,7 +71,7 @@
       }
     }
 
-    & figure {
+    & .frame {
       box-shadow: none;
       border-top: 2px solid #444;
 

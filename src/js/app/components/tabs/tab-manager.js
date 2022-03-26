@@ -283,11 +283,23 @@ const restore = () => {
     const entries = tabStore.values();
     const activeSet = entries.filter(e => !!e.active);
     const activeTid = activeSet.length ? idHelper.toTid(activeSet[0]) : tabStore.keys()[0];
+    let tab;
 
     for (let tabEntry of entries) {
-        add({
+        tab = add({
             tabEntry
         });
+
+        // apply tab styles to element
+        // while this would happen anyway when the tab is activated
+        // tabs also need to have their styles when used for printing
+        if(!tabEntry.css){
+            continue;
+        }            
+        for (let [property, value] of Object.entries(tabEntry.css)) {
+            handleStyleProp(tab.panel, property, value);
+        }
+        
     }
     setActiveTab(getTab(activeTid));
 }
@@ -353,7 +365,7 @@ const init = _app => {
         // update the form controls if required
         if (tab.isSameNode(activeTab)) {
             app.trigger('styleUpdate', {
-                css: tabStore.get(tid).css || {}
+                css: tabStore.get(`${tid}.css`) || {}
             });
         }
     })

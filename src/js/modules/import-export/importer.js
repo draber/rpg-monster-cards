@@ -2,7 +2,8 @@ import CharTree from "../../app/storage/CharTree.js";
 import TabTree from "../../app/storage/TabTree.js";
 import {
     tabStore,
-    cardStore
+    cardStore,
+    presetStore
 } from "../../app/storage/storage.js";
 import {
     sanitizeText
@@ -16,21 +17,6 @@ let cardQuarantine;
 let tabQuarantine;
 
 /**
- * Sanitize values from uploaded data (e.g. removing script injections)
- * @param {Object} modelData 
- * @param {Object} uploadedData 
- * @returns 
- */
-const sanitizeObject = (modelData, uploadedData) => {
-    const sanitized = {};
-    // make sure to use only valid keys
-    Object.keys(modelData).forEach(key => {
-        sanitized[key] = uploadedData[key]; //todo: this needs to work on objects, not just strings! sanitizeText(uploadedData[key] || '');
-    })
-    return sanitized;
-}
-
-/**
  * Put cards into a temporary store
  * @param {Object} uploadedCards 
  */
@@ -42,11 +28,58 @@ const quarantineCards = uploadedCards => {
         // memorize the original tid
         model.originalTid = idHelper.toTid(card.tid);
 
-        // go over the properties that are objects
-        ['props', 'labels', 'visibility'].forEach(type => {
-            model[type] = sanitizeObject(model[type], card[type]);
-        })
+        // store the card
         cardQuarantine.set(model.cid, model);
+
+
+        // Consider only keys that exist in the model
+        // This is an awfully deep nesting. Don't so this at home.
+        for (let key of Object.keys(model.fields)) {
+            if (!card.fields[key]) {
+                continue
+            }
+            if (card.fields[key].field) {
+                if (card.fields[key].field.txt) {
+                    // clean up field text
+                    cardQuarantine.set(
+                        `${model.cid}.fields.${key}.field.txt`,
+                        sanitizeText(card.fields[key].field.txt)
+                    );
+                }
+                if (typeof card.fields[key].field.vis !== 'undefined') {
+                    // enforce boolean on text visibility
+                    cardQuarantine.set(
+                        `${model.cid}.fields.${key}.field.vis`,
+                        !!card.fields[key].field.vis
+                    );
+                }
+            }
+            if (card.fields[key].label) {
+                if (typeof card.fields[key].label.txt !== 'undefined') {
+                    // clean up label short text
+                    if (typeof card.fields[key].label.txt.short !== 'undefined') {
+                        cardQuarantine.set(
+                            `${model.cid}.fields.${key}.label.txt.short`,
+                            sanitizeText(card.fields[key].label.txt.short)
+                        );
+                    }
+                    // clean up label long text
+                    if (typeof card.fields[key].label.txt.long !== 'undefined') {
+                        cardQuarantine.set(
+                            `${model.cid}.fields.${key}.label.txt.long`,
+                            sanitizeText(card.fields[key].label.txt.long)
+                        );
+                    }
+                }
+                if (typeof card.fields[key].label.vis !== 'undefined') {
+                    // enforce boolean on label visibility
+                    cardQuarantine.set(
+                        `${model.cid}.fields.${key}.label.vis`,
+                        !!card.fields[key].label.vis
+                    );
+                }
+            }
+        }
     })
 }
 
@@ -55,6 +88,8 @@ const quarantineCards = uploadedCards => {
  * @param {Object} uploadedTabs 
  */
 const quarantineTabs = uploadedTabs => {
+    // css presets
+    const validCssProps = Object.keys(presetStore.get('css'));
     uploadedTabs.forEach(tab => {
         // pull an empty tab
         const model = tabQuarantine.getBlank();
@@ -62,14 +97,24 @@ const quarantineTabs = uploadedTabs => {
         // memorize the tab's original tid as it's needed to identify the matching cards later on
         model.originalTid = tab.tid;
 
-        model.styles = sanitizeObject(model.styles, (tab.styles || {}));
-
         // preserve custom titles, update Roman number titles
         if (!(/^[CDILMVX]+$/.test(tab.title))) {
-            model.title = tab.title;
+            model.title = sanitizeText(tab.title);
         }
         // save tab data with a new tid
         tabQuarantine.set(model.tid, model);
+
+        if (!tab.css) {
+            return;
+        }
+
+        // consider only keys found in presets
+        for (let property in validCssProps) {
+            if (!tab.css[property]) {
+                continue;
+            }
+            tabQuarantine.set(`${model.tid}.css.${property}`, sanitizeText(tab.css[property]));
+        }
     })
 }
 
@@ -143,7 +188,8 @@ const process = (dataArr, tid) => {
     // ensure there is a fresh quarantine for cards and tabs
     cardQuarantine = new CharTree({
         data: {},
-        minIncrement: cardStore.nextIncrement()
+        minIncrement: cardStore.nextIncrement(),
+        validFields: Object.keys(presetStore.get('cards'))
     });
 
     tabQuarantine = new TabTree({
