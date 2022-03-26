@@ -48,7 +48,7 @@ class FontSelector extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-selector> element`);
         }
 
-        let value = this.normalize(presetStore.get(`css.${this.name}`));
+        const preset = this.normalize(presetStore.get(`css.${this.name}`));
         let fonts = presetStore.get('fonts');
 
         // <select>
@@ -62,7 +62,7 @@ class FontSelector extends HTMLElement {
                 return fn.option({
                     attributes: {
                         value: family,
-                        selected: family === value
+                        selected: family === preset
                     },
                     style: {
                         fontFamily: family
@@ -84,16 +84,14 @@ class FontSelector extends HTMLElement {
         })
 
         this.append(selector);
-        selector.dispatchEvent(new Event('change'));        
 
         // change triggered by the active tab
         this.app.on('styleUpdate', e => {
-            if (!e.detail.css[this.name]) {
-                return false
-            }
-            value = this.normalize(e.detail.css[this.name]);
+            const value = this.normalize(e.detail.css[this.name] || preset);
             selector.selectedIndex = fonts.findIndex(e => this.normalize(e.family) === value);
-            selector.dispatchEvent(new Event('change'));
+            if (e.detail.css[this.name]) {
+                selector.dispatchEvent(new Event('change'));
+            }
         })
     }
 

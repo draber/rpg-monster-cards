@@ -37,7 +37,7 @@ const setActiveTab = tab => {
     tabStore.set(`${tid}.active`, true);
 
     app.trigger('styleUpdate', {
-        css: tabStore.get(`${tid}.css`)
+        css: tabStore.get(`${tid}.css`) || {}
     });
 
     // avoid scrollbars in the tab bar

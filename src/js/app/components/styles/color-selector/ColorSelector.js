@@ -63,6 +63,10 @@ class ColorSelector extends HTMLElement {
 
     connectedCallback() {
 
+        if (!this.name) {
+            throw Error(`Missing attribute "name" on <color-selector> element`);
+        }
+
         if (!this.value) {
             this.value = this.getInitialColor();
         }
@@ -72,12 +76,13 @@ class ColorSelector extends HTMLElement {
         this.tracks = config.tracks;
         this.value = config.original;
 
-        const valueInput = document.createElement('input');
-        valueInput.type = 'hidden';
-        valueInput.value = this.value;
-        if (this.name) {
-            valueInput.name = this.name;
-        }
+        const valueInput = fn.input({
+            attributes: {
+                type: 'hidden',
+                value: this.value,
+                name: this.name
+            }
+        })
         this.append(valueInput);
 
         const ranges = [];
@@ -126,19 +131,16 @@ class ColorSelector extends HTMLElement {
             ranges.push(input);
             this.append(label);
         }
-        // update background-colors
-        ranges.forEach(input => {
-            input.dispatchEvent(new Event('input'));
-        })
+
+        // set the background color of each track to the current values
+        background.update(config.type, this.tracks);
 
         // change triggered by the active tab
         this.app.on('styleUpdate', e => {
             for (let input of ranges) {
-                if (!e.detail.css[input.name]) {
-                    continue;
-                }
-                input.value = parseFloat(e.detail.css[input.name], 10);
-                input.dispatchEvent(new Event('input'))
+                const value = e.detail.css[input.name] || this.tracks[input.dataset.channel].value
+                input.value = parseFloat(value, 10);
+                input.dispatchEvent(new Event('input'));
             }
         })
     }

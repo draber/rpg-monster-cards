@@ -38,8 +38,8 @@ class FontSize extends HTMLElement {
             throw Error(`Missing attribute "name" on <font-size> element`);
         }
 
-        let value = presetStore.get(`css.${this.name}`);
-        let parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
+        const preset = presetStore.get(`css.${this.name}`);
+        let parts = preset.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
         let numeric = parseFloat(parts.groups.num, 10);
         let unit = parts.groups.unit;
         let min = numeric * .7;
@@ -68,19 +68,17 @@ class FontSize extends HTMLElement {
         })
 
         this.append(input);
-        input.dispatchEvent(new Event('input'));
 
         // change triggered by the active tab
         this.app.on('styleUpdate', e => {
-            if (!e.detail.css[this.name]) {
-                return false
-            }
-            value = e.detail.css[this.name];
+            const value = e.detail.css[this.name] || preset;
             parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
             numeric = parseFloat(parts.groups.num, 10);
             unit = parts.groups.unit;
             input.value = numeric;
-            input.dispatchEvent(new Event('input'));
+            if (e.detail.css[this.name]) {
+                input.dispatchEvent(new Event('input'));
+            }
         })
     }
 

@@ -886,7 +886,7 @@
         activeTab.panel.classList.add('active');
         tabStore.set(`${tid}.active`, true);
         app$2.trigger('styleUpdate', {
-            css: tabStore.get(`${tid}.css`)
+            css: tabStore.get(`${tid}.css`) || {}
         });
         const naviRect = navi.getBoundingClientRect();
         const atRect = activeTab.getBoundingClientRect();
@@ -1964,7 +1964,7 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-selector> element`);
             }
-            let value = this.normalize(presetStore.get(`css.${this.name}`));
+            const preset = this.normalize(presetStore.get(`css.${this.name}`));
             let fonts = presetStore.get('fonts');
             const selector = src.select({
                 style: {
@@ -1975,7 +1975,7 @@
                     return src.option({
                         attributes: {
                             value: family,
-                            selected: family === value
+                            selected: family === preset
                         },
                         style: {
                             fontFamily: family
@@ -1996,14 +1996,12 @@
                 }
             });
             this.append(selector);
-            selector.dispatchEvent(new Event('change'));
             this.app.on('styleUpdate', e => {
-                if (!e.detail.css[this.name]) {
-                    return false
-                }
-                value = this.normalize(e.detail.css[this.name]);
+                const value = this.normalize(e.detail.css[this.name] || preset);
                 selector.selectedIndex = fonts.findIndex(e => this.normalize(e.family) === value);
-                selector.dispatchEvent(new Event('change'));
+                if (e.detail.css[this.name]) {
+                    selector.dispatchEvent(new Event('change'));
+                }
             });
         }
         constructor(self) {
@@ -2032,8 +2030,8 @@
             if (!this.name) {
                 throw Error(`Missing attribute "name" on <font-size> element`);
             }
-            let value = presetStore.get(`css.${this.name}`);
-            let parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
+            const preset = presetStore.get(`css.${this.name}`);
+            let parts = preset.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
             let numeric = parseFloat(parts.groups.num, 10);
             let unit = parts.groups.unit;
             let min = numeric * .7;
@@ -2060,17 +2058,15 @@
                 }
             });
             this.append(input);
-            input.dispatchEvent(new Event('input'));
             this.app.on('styleUpdate', e => {
-                if (!e.detail.css[this.name]) {
-                    return false
-                }
-                value = e.detail.css[this.name];
+                const value = e.detail.css[this.name] || preset;
                 parts = value.match(/^(?<num>[\d\.]+)(?<unit>[a-z]+)$/);
                 numeric = parseFloat(parts.groups.num, 10);
                 unit = parts.groups.unit;
                 input.value = numeric;
-                input.dispatchEvent(new Event('input'));
+                if (e.detail.css[this.name]) {
+                    input.dispatchEvent(new Event('input'));
+                }
             });
         }
         constructor(self) {
@@ -2167,13 +2163,12 @@
                 }
             });
             this.append(selector);
-            selector.dispatchEvent(new Event('change'));
             this.app.on('styleUpdate', e => {
-                if (!e.detail.css[this.name]) {
-                    return false
+                const value = e.detail.css[this.name] || preset;
+                inputs.find(e => e.value === value).checked = true;
+                if (e.detail.css[this.name]) {
+                    selector.dispatchEvent(new Event('change'));
                 }
-                inputs.find(e => e.value === e.detail.css[this.name]).checked = true;
-                selector.dispatchEvent(new Event('change'));
             });
         }
         constructor(self) {
@@ -2406,18 +2401,22 @@
             }))
         }
         connectedCallback() {
+            if (!this.name) {
+                throw Error(`Missing attribute "name" on <color-selector> element`);
+            }
             if (!this.value) {
                 this.value = this.getInitialColor();
             }
             const config = buildConfig(this.value);
             this.tracks = config.tracks;
             this.value = config.original;
-            const valueInput = document.createElement('input');
-            valueInput.type = 'hidden';
-            valueInput.value = this.value;
-            if (this.name) {
-                valueInput.name = this.name;
-            }
+            const valueInput = src.input({
+                attributes: {
+                    type: 'hidden',
+                    value: this.value,
+                    name: this.name
+                }
+            });
             this.append(valueInput);
             const ranges = [];
             for (let [channel, track] of Object.entries(this.tracks)) {
@@ -2462,15 +2461,11 @@
                 ranges.push(input);
                 this.append(label);
             }
-            ranges.forEach(input => {
-                input.dispatchEvent(new Event('input'));
-            });
+            background.update(config.type, this.tracks);
             this.app.on('styleUpdate', e => {
                 for (let input of ranges) {
-                    if (!e.detail.css[input.name]) {
-                        continue;
-                    }
-                    input.value = parseFloat(e.detail.css[input.name], 10);
+                    const value = e.detail.css[input.name] || this.tracks[input.dataset.channel].value;
+                    input.value = parseFloat(value, 10);
                     input.dispatchEvent(new Event('input'));
                 }
             });

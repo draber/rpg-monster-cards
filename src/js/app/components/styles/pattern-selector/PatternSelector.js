@@ -145,16 +145,15 @@ class PatternSelector extends HTMLElement {
             }
         })
 
-        this.append(selector);
-        selector.dispatchEvent(new Event('change'));
+        this.append(selector);        
 
         // change triggered by the active tab
         this.app.on('styleUpdate', e => {
-            if (!e.detail.css[this.name]) {
-                return false
+            const value = e.detail.css[this.name] || preset;
+            inputs.find(e => e.value === value).checked = true;
+            if (e.detail.css[this.name]) {
+                selector.dispatchEvent(new Event('change'));
             }
-            inputs.find(e => e.value === e.detail.css[this.name]).checked = true;
-            selector.dispatchEvent(new Event('change'));
         })
     }
 
