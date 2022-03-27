@@ -201,6 +201,7 @@ template{
 
   --logo-color:hsl(46, 85%, 39%);
   --hd-color:hsl(44, 81%, 38%);
+  --hd-action-color:hsl(44, 48%, 60%);
 
   --text-shadow-color:hsla(252, 10%, 0%, .5);
   --resizer-color:hsl(204, 100%, 40%);
@@ -380,17 +381,38 @@ button,
 
 header{
   display:flex;
-  background:hsl(15, 50%, 15%);
-  background:var(--bg-0-color);
   height:6.4rem;
   height:var(--header-height);
-  border-bottom:.1rem solid  hsl(44, 81%, 38%);
-  border-bottom:.1rem solid  var(--hd-color);
+  border-bottom:0.1rem solid hsl(44, 81%, 38%);
+  border-bottom:0.1rem solid var(--hd-color);
+  background-color:hsl(15, 50%, 15%);
+  background-color:var(--bg-0-color);
   background-image:url(../media/patterns/system/light-subtle-rocky-wall.png);
   justify-content:space-between;
   padding-left:1rem;
   padding-right:1rem;
 }
+
+#main-toolbar{
+  padding:0;
+  list-style:none;
+  display:flex;
+  gap:2rem 
+}
+
+#main-toolbar li{
+    display:flex;
+    align-items:center
+  }
+
+#main-toolbar li > *{
+      padding:1rem 0;
+      margin:0;
+      color:hsl(44, 48%, 60%);
+      color:var(--hd-action-color);
+      box-shadow:none;
+      background:none;
+    }
 
 #logo-area{
   display:flex;
@@ -405,8 +427,8 @@ header{
     display:block;
     fill:hsl(46, 85%, 39%);
     fill:var(--logo-color);
-    filter:drop-shadow(.2rem 0 .2rem hsla(252, 10%, 0%, .5));
-    filter:drop-shadow(.2rem 0 .2rem var(--text-shadow-color));
+    filter:drop-shadow(0.2rem 0 0.2rem hsla(252, 10%, 0%, .5));
+    filter:drop-shadow(0.2rem 0 0.2rem var(--text-shadow-color));
   }
 
 import-export{
@@ -418,47 +440,42 @@ import-export{
   color:hsl(44, 81%, 38%);
   color:var(--hd-color);
   cursor:pointer;
-  z-index:5
+  z-index:6
 }
 
-import-export h3{
-    font-weight:normal;
-    font-size:1.6rem;
+import-export:hover .import-export-menu{
+      right:0;
+    }
+
+import-export .import-export-menu{
+    font-size:1.4rem;
+    position:absolute;
+    top:4rem;
+    right:-1000rem;
+    border:.1rem solid hsla(46, 85%, 39%, .3);
+    border:var(--border);
+    overflow-y:auto;
+    min-width:calc(100% - 2rem);
+    background:hsl(15, 50%, 24%);
+    background:var(--bg-3-color);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 hsla(0, 0%, 0%, 0.4);
+    box-shadow:0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
   }
 
-import-export div.import-export-menu{
-      font-size:1.4rem;
-      position:absolute;
-      top:5rem;
-      right:-1000rem;
-      border:.1rem solid hsla(46, 85%, 39%, .3);
-      border:var(--border);
-      overflow-y:auto;
-      min-width:calc(100% - 2rem);
-      background:hsl(15, 50%, 24%);
-      background:var(--bg-3-color);
-      box-shadow:0.24rem 0.24rem 0.64rem 0 hsla(0, 0%, 0%, 0.4);
-      box-shadow:0.24rem 0.24rem 0.64rem 0 var(--c-box-shadow-color);
-    }
+import-export a{
+    display:block;
+    white-space:nowrap;
+    padding-left:1rem;
+    padding-right:1rem;
+    line-height:1.8;
+    border-bottom:1px solid rgba(255, 255, 255, 0.08);
+    color:hsla(0, 0%, 95%, .90);
+    color:var(--text-color)
+  }
 
-import-export div a{
-      display:block;
-      white-space:nowrap;
-      padding-left:1rem;
-      padding-right:1rem;
-      line-height:1.8;
-      border-bottom:1px solid rgba(255, 255, 255, 0.08);
-      color:hsla(0, 0%, 95%, .90);
-      color:var(--text-color)
-    }
-
-import-export div a:hover{
-        background:hsl(15, 50%, 24%);
-        background:var(--bg-3-color);
-      }
-
-import-export:hover div{
-      right:0;
+import-export a:hover{
+      background:hsl(15, 50%, 28%);
+      background:var(--bg-4-color);
     }
 
 @-webkit-keyframes spin{
@@ -1156,9 +1173,6 @@ card-verso td{
     display:inline-block;
   }
 
-card-verso use{
-  }
-
 card-verso [data-field="false"]{
     opacity:0.8
   }
@@ -1170,9 +1184,6 @@ card-verso [data-field="false"] use[data-field="false"]{
 card-verso [data-field="false"] use[data-field="true"]{
         display:none;
       }
-
-card-verso [data-label="false"] use{
-    }
 
 card-toolbar{
   display:block;
@@ -2116,9 +2127,51 @@ footer{
     size-adjust:113.49%;
   }
 
+#license{
+  display:none;
+  position:absolute;
+  top:6.4rem;
+  top:var(--header-height);
+  left:0;
+  width:100vw;
+  height:calc(100vh - 6.4rem - 3rem);
+  height:calc(100vh - var(--header-height) - var(--footer-height));
+  z-index:5;
+  overflow:hidden;
+  -webkit-user-select:text;
+     -moz-user-select:text;
+      -ms-user-select:text;
+          user-select:text;
+  background-color:hsl(15, 50%, 15%);
+  background-color:var(--bg-0-color);
+  background-image:url(../media/patterns/system/light-subtle-rocky-wall.png)
+}
+
+#license:target{
+      display:block;
+  }
+
+#license .license-text{
+      width:clamp(90rem, 100rem, 90%);
+      max-height:calc(100vh - 6.4rem - 3rem);
+      max-height:calc(100vh - var(--header-height) - var(--footer-height));
+      padding:2rem;
+      margin:auto;
+      overflow-y:auto;
+      background:hsl(29, 33%, 34%)
+        url(../media/patterns/system/light-rocky-wall.png);
+      background:var(--bg-light)
+        url(../media/patterns/system/light-rocky-wall.png);
+  }
+
 @media print{
   @page{
     size:A4 landscape;
+  }
+
+  body{
+    max-height:none;
+    -webkit-print-color-adjust:exact;
   }
 
   header,
@@ -2128,7 +2181,8 @@ footer{
   tab-menu,
   card-form,
   card-toolbar,
-  footer{
+  footer,
+  h2{
     display:none !important;
   }
 
@@ -2136,69 +2190,49 @@ footer{
     outline:none !important;
     pointer-events:none;
     width:212px;
-    height:646px;
     margin:2px;
-    float:left
+    page-break-inside:avoid;
+    display:inline-block
   }
 
     card-base .card-view{
-      display:block;
+      flex-direction:column-reverse;
     }
 
-  main{
-    overflow:auto;
-  }
+    card-base card-verso{
+      transform:rotate(180deg)
+    }
+      card-base card-verso::before{
+        content:"";
+        display:block;
+        background:hsl(201, 39%, 24%)
+          url(../media/patterns/borders/crosshatch-2.png);
+        background:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l))
+          var(--c-border-pattern);
+        height:14px;
+        box-sizing:content-box;
+        border:0.3px solid
+          hsla(201, 39%, 24%, 0.7);
+        border:0.3px solid
+          hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l) / 0.7);
+      }
+
+    card-base .frame{
+      box-shadow:none;
+    }
 
   tab-panel:not(:empty){
-    height:646px;
     padding:0;
     display:block;
-    page-break-after:all;
-    -moz-column-break-after:all;
-         break-after:all;
-    margin-bottom:10px;
   }
 
   #editor{
     background:white;
-    overflow:visible;
-    border:none;
-    display:block
+    border:none
   }
-
-    #editor h2{
-      display:none;
-    }
 
     #editor .column-content{
       background:white;
       overflow:visible;
     }
-
-    #editor article{
-      -webkit-print-color-adjust:exact;
-      flex-direction:column-reverse;
-      gap:0;
-      background:hsl(201, 39%, 24%)
-        url(../media/patterns/borders/crosshatch-2.png);
-      background:hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l))
-        var(--c-border-pattern)
-    }
-
-      #editor article:nth-child(even){
-      }
-
-    #editor .frame{
-      box-shadow:none;
-      border-top:2px solid #444
-    }
-
-      #editor .frame:last-of-type{
-        transform:rotate(180deg);
-        margin-bottom:14px
-      }
-
-        #editor .frame:last-of-type .badge:not(.cr){
-          top:-2.4rem;
-        }
 }

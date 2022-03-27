@@ -1,0 +1,26 @@
+#license {
+  display: none;
+  position: absolute;
+  top:var(--header-height);
+  left:0;
+  width: 100vw;
+  height:calc(100vh - var(--header-height) - var(--footer-height));
+  z-index: 5;
+  overflow: hidden;
+  user-select: text;
+  background-color: var(--bg-0-color);
+  background-image: url(../media/patterns/system/light-subtle-rocky-wall.png);
+  &:target {
+      display:block;
+  }
+  & .license-text {
+      width: clamp(90rem, 100rem, 90%);
+      max-height:calc(100vh - var(--header-height) - var(--footer-height));
+      padding: 2rem;
+      margin: auto;
+      overflow-y: auto;
+      background: var(--bg-light)
+        url(../media/patterns/system/light-rocky-wall.png);
+  }
+}
+

@@ -69,8 +69,6 @@ card-verso {
     display: inline-block;
   }
 
-  & use {
-  }
   & [data-field="false"] {
     opacity: 0.8;
     & use {
@@ -80,10 +78,6 @@ card-verso {
       &[data-field="true"] {
         display: none;
       }
-    }
-  }
-  & [data-label="false"] {
-    & use {
     }
   }
 }

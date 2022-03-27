@@ -3,6 +3,11 @@
     size: A4 landscape;
   }
 
+  body {
+    max-height: none;
+    -webkit-print-color-adjust: exact;
+  }
+
   header,
   #library,
   style-editor,
@@ -10,7 +15,8 @@
   tab-menu,
   card-form,
   card-toolbar,
-  footer {
+  footer,
+  h2 {
     display: none !important;
   }
 
@@ -18,71 +24,45 @@
     outline: none !important;
     pointer-events: none;
     width: 212px;
-    height: 646px;
     margin: 2px;
-    float:left;
+    page-break-inside: avoid;
+    display: inline-block;
 
     & .card-view {
-      display: block;
-    }
-  }
-
-  main {
-    overflow: auto;
-  }
-
-  tab-panel:not(:empty) {
-    height: 646px;
-    padding: 0;
-    display: block;
-    break-after: all;
-    margin-bottom: 10px;
-  }
-
-  #editor {
-    background: white;
-    overflow: visible;
-    border: none;
-    display: block;
-
-    & h2 {
-      display: none;
-    }
-
-    & .column-content {
-      background: white;
-      overflow: visible;
-    }
-
-    & article {
-      -webkit-print-color-adjust: exact;
       flex-direction: column-reverse;
-      gap: 0;
-      background: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l))
-        var(--c-border-pattern);
+    }
 
-      &:nth-child(even) {
-        /* &::after {
-          content: '';
-          display:block;
-          break-after: all;
-        } */
-        //outline: 5px red solid;
+    & card-verso {
+      transform: rotate(180deg);
+      &::before {
+        content: "";
+        display: block;
+        background: hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l))
+          var(--c-border-pattern);
+        height: 14px;
+        box-sizing: content-box;
+        border: 0.3px solid
+          hsl(var(--c-border-h) var(--c-border-s) var(--c-border-l) / 0.7);
       }
     }
 
     & .frame {
       box-shadow: none;
-      border-top: 2px solid #444;
+    }
+  }
 
-      &:last-of-type {
-        transform: rotate(180deg);
-        margin-bottom: 14px;
+  tab-panel:not(:empty) {
+    padding: 0;
+    display: block;
+  }
 
-        & .badge:not(.cr) {
-          top: -2.4rem;
-        }
-      }
+  #editor {
+    background: white;
+    border: none;
+
+    & .column-content {
+      background: white;
+      overflow: visible;
     }
   }
 }
